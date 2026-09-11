@@ -36,7 +36,7 @@ class ProductController extends Controller
             'is_active'       => $request->has('is_active') ? 1 : 0,
         ]);
 
-        return redirect()->to(secure_url('/products'))->with('success', 'کاڵا بە سەرکەوتوویی زیادکرا');
+        return redirect()->route('products.index')->with('success', 'کاڵا بە سەرکەوتوویی زیادکرا');
     }
 
     public function update(Request $request, $id)
@@ -60,7 +60,7 @@ class ProductController extends Controller
             'is_active'       => $request->has('is_active') ? 1 : 0,
         ]);
 
-        return redirect()->to(secure_url('/products'))->with('success', 'زانیارییەکانی کاڵا بە سەرکەوتوویی نوێکرانەوە');
+        return redirect()->back()->with('success', 'زانیارییەکانی کاڵا بە سەرکەوتوویی نوێکرانەوە');
     }
 
     public function toggleStatus($id)
@@ -70,7 +70,7 @@ class ProductController extends Controller
         $product->save();
 
         $status = $product->is_active ? 'چالاک کرا' : 'ناچالاک کرا';
-        return redirect()->to(secure_url('/products'))->with('success', "دۆخی کاڵاکە گۆڕدرا بۆ: {$status}");
+        return redirect()->back()->with('success', "دۆخی کاڵاکە گۆڕدرا بۆ: {$status}");
     }
 
     public function addStock(Request $request, $id)
@@ -82,7 +82,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $product->increment('stock_kg', $request->added_stock);
 
-        return redirect()->to(secure_url('/products'))->with('success', "بڕی {$request->added_stock} کیلۆ بۆ مەخزەن زیادکرا");
+        return redirect()->back()->with('success', "بڕی {$request->added_stock} کیلۆ بۆ مەخزەن زیادکرا");
     }
 
     public function destroy($id)
@@ -90,11 +90,11 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         if ($product->stock_kg > 0) {
-            return redirect()->to(secure_url('/products'))->with('error', 'ناتوانیت ئەم کاڵایە بسڕیتەوە چونکە بڕی مەخزەنەکەی لە سفر زیاترە (' . $product->stock_kg . ' کگ ماوە). پێویستە سفر بێت یان ناچالاکی بکەیت.');
+            return redirect()->back()->with('error', 'ناتوانیت ئەم کاڵایە بسڕیتەوە چونکە بڕی مەخزەنەکەی لە سفر زیاترە (' . $product->stock_kg . ' کگ ماوە). پێویستە سفر بێت یان ناچالاکی بکەیت.');
         }
 
         $product->delete();
-        return redirect()->to(secure_url('/products'))->with('success', 'کاڵاکە بە سەرکەوتوویی سڕایەوە');
+        return redirect()->route('products.index')->with('success', 'کاڵاکە بە سەرکەوتوویی سڕایەوە');
     }
 
     public function importCsv(Request $request)
@@ -122,6 +122,6 @@ class ProductController extends Controller
         }
         fclose($file);
 
-        return redirect()->to(secure_url('/products'))->with('success', 'هەموو کاڵاکان بە سەرکەوتوویی هاوردە کران!');
+        return back()->with('success', 'هەموو کاڵاکان بە سەرکەوتوویی هاوردە کران!');
     }
 }
