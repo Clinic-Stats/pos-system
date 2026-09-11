@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>بەڕێوەبردنی کاڵاکان و کۆگا</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
@@ -23,12 +24,12 @@
                 بەڕێوەبردنی کاڵاکان و کۆگا
             </h1>
             <div class="flex flex-wrap items-center gap-2 text-xs font-bold">
-                <a href="{{ route('categories.index') }}" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-xl transition">کاتیگۆری</a>
-                <a href="{{ route('reports.index') }}" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-xl transition">ڕاپۆرتەکان</a>
-                <a href="{{ route('pos.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition shadow">POS</a>
+                <a href="{{ route('categories.index', [], false) }}" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-xl transition">کاتیگۆری</a>
+                <a href="{{ route('reports.index', [], false) }}" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-xl transition">ڕاپۆرتەکان</a>
+                <a href="{{ route('pos.index', [], false) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition shadow">POS</a>
                 
                 <!-- هەناردەکردن بۆ ئێکسیڵ -->
-                <a href="{{ route('export.products') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow">
+                <a href="{{ route('export.products', [], false) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-file-excel"></i> هەناردە
                 </a>
 
@@ -105,7 +106,7 @@
                 <h2 class="text-base font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-square-plus text-blue-400"></i> زیادکردنی کاڵای نوێ
                 </h2>
-                <form action="{{ route('products.store') }}" method="POST" id="productForm" class="space-y-3.5 text-sm">
+                <form action="{{ route('products.store', [], false) }}" method="POST" id="productForm" class="space-y-3.5 text-sm">
                     @csrf
                     
                     <div>
@@ -252,7 +253,7 @@
                                     {{ $p->stock_kg }} کگ
                                 </td>
                                 <td class="p-3 text-center">
-                                    <form action="{{ route('products.toggle', $p->id) }}" method="POST">
+                                    <form action="{{ route('products.toggle', $p->id, false) }}" method="POST">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" title="کلیک بکە بۆ گۆڕینی دۆخ"
@@ -274,7 +275,7 @@
                                                 <i class="fa-solid fa-lock text-[10px] ml-1"></i> سڕینەوە قفڵە
                                             </span>
                                         @else
-                                            <form action="{{ route('products.destroy', $p->id) }}" method="POST" onsubmit="return confirm('ئایا دڵنیایت لە سڕینەوەی ئەم کاڵایە؟')">
+                                            <form action="{{ route('products.destroy', $p->id, false) }}" method="POST" onsubmit="return confirm('ئایا دڵنیایت لە سڕینەوەی ئەم کاڵایە؟')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
@@ -318,7 +319,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('products.importCsv') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <form action="{{ route('products.importCsv', [], false) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block font-bold text-slate-300 mb-1.5">فایلی ئێکسیڵ (CSV) دیاریبکە:</label>
@@ -408,7 +409,7 @@
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
                 <i class="fa-solid fa-tags text-blue-400"></i> زیادکردنی کاتیگۆری نوێ
             </h3>
-            <form action="{{ route('categories.store') }}" method="POST" class="space-y-3">
+            <form action="{{ route('categories.store', [], false) }}" method="POST" class="space-y-3">
                 @csrf
                 <div>
                     <label class="block text-xs text-slate-300 mb-1">ناوی کاتیگۆری:</label>
