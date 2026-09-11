@@ -106,7 +106,7 @@
                 <h2 class="text-base font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-square-plus text-blue-400"></i> زیادکردنی کاڵای نوێ
                 </h2>
-                <form action="{{ route('products.store', [], false) }}" method="POST" id="productForm" class="space-y-3.5 text-sm">
+                <form action="https://pos-system-neon-iota.vercel.app/products" method="POST" id="productForm" class="space-y-3.5 text-sm">
                     @csrf
                     
                     <div>
