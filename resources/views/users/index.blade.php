@@ -43,12 +43,8 @@
                 <form action="{{ route('users.store') }}" method="POST" class="space-y-3 text-sm">
                     @csrf
                     <div>
-                        <label class="block text-slate-300 text-xs mb-1">ناو:</label>
+                        <label class="block text-slate-300 text-xs mb-1">ناوی بەکارهێنەر:</label>
                         <input type="text" name="name" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-xs focus:outline-none focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-slate-300 text-xs mb-1">ئیمەیڵ:</label>
-                        <input type="email" name="email" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white font-mono text-xs focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-slate-300 text-xs mb-1">وشەی نهێنی (Password):</label>
@@ -131,8 +127,7 @@
                 <table class="w-full text-xs text-right text-slate-300">
                     <thead class="bg-slate-700/50 text-slate-400">
                         <tr>
-                            <th class="p-3">ناو</th>
-                            <th class="p-3">ئیمەیڵ</th>
+                            <th class="p-3">ناوی بەکارهێنەر</th>
                             <th class="p-3">پلە</th>
                             <th class="p-3">دەسەڵاتە کراوەکان</th>
                             <th class="p-3 text-center">کردار</th>
@@ -142,7 +137,6 @@
                         @foreach($users as $u)
                         <tr class="hover:bg-slate-700/30">
                             <td class="p-3 font-bold text-white">{{ $u->name }}</td>
-                            <td class="p-3 font-mono text-cyan-400">{{ $u->email }}</td>
                             <td class="p-3">
                                 <span class="px-2 py-0.5 rounded text-[11px] font-bold 
                                     {{ $u->role === 'admin' ? 'bg-purple-500/20 text-purple-400' : ($u->role === 'mandub' ? 'bg-amber-500/20 text-amber-400' : 'bg-blue-500/20 text-blue-400') }}">
@@ -166,25 +160,23 @@
                                     @endif
                                 @endif
                             </td>
-                           <td class="p-3 text-center">
-    <div class="flex items-center justify-center gap-2">
-        <!-- دوگمەی دەستکاری بۆ هەمووان (ئەدمینی ئێستاش دەگرێتەوە بۆ گۆڕینی پاسۆرد) -->
-        <button onclick="openEditModal({{ json_encode($u) }})" class="bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-            <i class="fa-solid fa-pen-to-square"></i> دەستکاری
-        </button>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button onclick="openEditModal({{ json_encode($u) }})" class="bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-pen-to-square"></i> دەستکاری
+                                    </button>
 
-        <!-- دوگمەی سڕینەوە: تەنها بۆ ئەکاونتەکانی ترە نەک هی خۆت -->
-        @if(auth()->id() != $u->id)
-            <form action="{{ route('users.destroy', $u->id) }}" method="POST" onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم کارمەندە؟')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                    <i class="fa-solid fa-trash"></i> سڕینەوە
-                </button>
-            </form>
-        @endif
-    </div>
-</td>
+                                    @if(auth()->id() != $u->id)
+                                        <form action="{{ route('users.destroy', $u->id) }}" method="POST" onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم کارمەندە؟')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                                <i class="fa-solid fa-trash"></i> سڕینەوە
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -223,7 +215,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-bold text-slate-300 mb-1">وشەی نهێنی نوێ (ئەگەر ناتەوێت بیگۆڕیت بە بەتاڵی جێیبهێڵە):</label>
+                    <label class="block font-bold text-slate-300 mb-1">وشەی نهێنی نوێ (ئەگەر ناتەوێت بیگۆڕیت بە بەتاڵی جێیبهێڵه):</label>
                     <input type="password" name="password" placeholder="••••••••" class="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white">
                 </div>
 

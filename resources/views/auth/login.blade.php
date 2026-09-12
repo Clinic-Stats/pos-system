@@ -18,7 +18,7 @@
                 <i class="fa-solid fa-lock"></i>
             </div>
             <h1 class="text-xl font-black text-white">چوونەژوورەوە بۆ سیستەم</h1>
-            <p class="text-xs text-slate-400">تکایە ئیمەیڵ و وشەی نهێنی داخڵ بکە</p>
+            <p class="text-xs text-slate-400">تکایە ناو و وشەی نهێنی داخڵ بکە</p>
         </div>
 
         @if($errors->any())
@@ -31,9 +31,9 @@
             @csrf
             
             <div>
-                <label class="block font-bold text-slate-300 mb-1.5">ئیمەیڵ:</label>
+                <label class="block font-bold text-slate-300 mb-1.5">ناوی بەکارهێنەر:</label>
                 <div class="relative">
-                    <input type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="example@pos.com" class="w-full p-3 bg-[#0b1329] border border-slate-700 rounded-xl text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                    <input type="text" name="name" value="{{ old('name') }}" required autofocus placeholder="ناوی کارمەند" class="w-full p-3 bg-[#0b1329] border border-slate-700 rounded-xl text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500">
                 </div>
             </div>
 
