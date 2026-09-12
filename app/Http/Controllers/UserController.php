@@ -17,8 +17,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'        => 'required|string|max:255',
-            'email'       => 'required|email|unique:users,email',
+            'name'        => 'required|string|max:255|unique:users,name', // لێرەدا ڕێگە نادەین ناوی دووبارە تۆمار بێت
             'password'    => 'required|min:6',
             'role'        => 'required|in:admin,cashier,mandub',
             'permissions' => 'nullable|array',
@@ -26,7 +25,7 @@ class UserController extends Controller
 
         User::create([
             'name'        => $request->name,
-            'email'       => $request->email,
+            'email'       => uniqid() . '@pos.local', // فێڵێک بۆ داتابەیس بۆ ئەوەی داوای ئیمەیڵ نەکات
             'password'    => Hash::make($request->password),
             'role'        => $request->role,
             'permissions' => $request->role === 'admin' ? [] : ($request->permissions ?? []),
@@ -40,7 +39,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name'        => 'required|string|max:255',
+            'name'        => 'required|string|max:255|unique:users,name,' . $id, // ڕێگری لە ناوی دووبارە لە کاتی دەستکاریکردنیش
             'role'        => 'required|in:admin,cashier,mandub',
             'password'    => 'nullable|min:6',
             'permissions' => 'nullable|array',
