@@ -62,7 +62,7 @@
 <body class="text-slate-800 dark:text-slate-100 min-h-screen p-3 overflow-hidden select-none transition-colors duration-500">
 
     <!-- سەرپەڕەی مۆدێرن (Navbar) -->
-    <header class="glass-panel px-4 py-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm z-10 relative">
+    <header class="glass-panel px-4 py-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm z-50 relative">
         <!-- لۆگۆ و بەشی ڕاست -->
         <div class="flex items-center gap-4 shrink-0">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-blue-400 text-white flex items-center justify-center text-lg shadow-glow">
@@ -77,28 +77,28 @@
         </div>
 
         <!-- مێنیوی ناوەڕاست (شیک و کورت) -->
-        <div class="hidden lg:flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar">
+        <div class="hidden lg:flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar relative z-50">
             <a href="{{ route('purchases.create') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-box-open ml-1"></i> کڕینی نوێ</a>
             <a href="{{ route('products.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-boxes-stacked ml-1"></i> کۆگا</a>
             <a href="{{ route('customers.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-users ml-1"></i> کڕیاران</a>
             <a href="{{ route('reports.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-chart-pie ml-1"></i> ڕاپۆرت</a>
             
-            <!-- دوگمەی "زیاتر" کە دەکرێتەوە بۆ بەشەکانی تر -->
-            <div class="relative group">
-                <button class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1">
+            <!-- دوگمەی "زیاتر" کە دەکرێتەوە بۆ بەشەکانی تر (ڕاستکراوەتەوە) -->
+            <div class="relative">
+                <button type="button" onclick="document.getElementById('moreDropdown').classList.toggle('hidden')" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1">
                     زیاتر <i class="fa-solid fa-chevron-down text-[10px]"></i>
                 </button>
-                <div class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform origin-top scale-95 group-hover:scale-100">
-                    <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-t-xl"><i class="fa-solid fa-tags w-5"></i> کاتیگۆری</a>
-                    <a href="{{ route('partners.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"><i class="fa-solid fa-handshake w-5"></i> هاوبەشەکان</a>
-                    <a href="{{ route('returns.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"><i class="fa-solid fa-rotate-left w-5"></i> گەڕاوەکان</a>
-                    <a href="{{ route('users.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-b-xl"><i class="fa-solid fa-user-shield w-5"></i> کارمەندان</a>
+                <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[100] overflow-hidden">
+                    <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5"></i> کاتیگۆری</a>
+                    <a href="{{ route('partners.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-handshake w-5"></i> هاوبەشەکان</a>
+                    <a href="{{ route('returns.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-rotate-left w-5"></i> گەڕاوەکان</a>
+                    <a href="{{ route('users.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"><i class="fa-solid fa-user-shield w-5"></i> کارمەندان</a>
                 </div>
             </div>
         </div>
 
         <!-- بەشی چەپ (یوزەر، دۆخ، دەرچوون) -->
-        <div class="flex items-center gap-2 md:gap-3 shrink-0">
+        <div class="flex items-center gap-2 md:gap-3 shrink-0 relative z-50">
             <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="btn-press w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700 transition">
                 <i id="themeIcon" class="fa-solid fa-moon"></i>
             </button>
@@ -120,10 +120,10 @@
     </header>
 
     <!-- پەنجەرەی سەرەکی (Layout) -->
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-88px)]">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-88px)] relative z-0">
 
         <!-- بەشی کاڵاکان و گەڕان (لای ڕاست - فراوانتر) -->
-        <div class="lg:col-span-3 glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative z-0">
+        <div class="lg:col-span-3 glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative">
             
             <!-- سێرچ و کاتیگۆری -->
             <div class="shrink-0 space-y-4 pb-4 border-b border-slate-200 dark:border-slate-700/50">
@@ -209,7 +209,7 @@
         </div>
 
         <!-- بەشی سەبەتە (لای چەپ - شیک و مۆدێرن) -->
-        <div class="glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative z-10 shadow-lg">
+        <div class="glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative shadow-lg">
             
             <!-- سەردێڕی سەبەتە -->
             <div class="shrink-0 pb-3 border-b border-slate-200 dark:border-slate-700/50">
@@ -233,19 +233,16 @@
                         <i class="fa-regular fa-calendar absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                         <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="w-full pl-8 pr-3 py-2 rounded-xl bg-transparent border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-num text-[11px] focus:outline-none focus:border-brand-500">
                     </div>
-
-                    <!-- دوگمەی "زیاتر" کە دەکرێتەوە بۆ بەشەکانی تر -->
-<div class="relative">
-    <button type="button" onclick="document.getElementById('moreDropdown').classList.toggle('hidden')" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1">
-        زیاتر <i class="fa-solid fa-chevron-down text-[10px]"></i>
-    </button>
-    <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
-        <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5"></i> کاتیگۆری</a>
-        <a href="{{ route('partners.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-handshake w-5"></i> هاوبەشەکان</a>
-        <a href="{{ route('returns.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-rotate-left w-5"></i> گەڕاوەکان</a>
-        <a href="{{ route('users.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"><i class="fa-solid fa-user-shield w-5"></i> کارمەندان</a>
-    </div>
-</div>
+                    
+                    <div class="relative">
+                        <i class="fa-solid fa-user-tag absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <select id="customerId" class="w-full pl-8 pr-3 py-2 rounded-xl bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white text-xs font-bold focus:outline-none focus:border-brand-500 appearance-none">
+                            <option value="">کڕیاری گشتی (نەقد)</option>
+                            @foreach($customers as $c)
+                                <option value="{{ $c->id }}">{{ $c->name }} ({{ number_format($c->balance ?? 0) }} IQD)</option>
+                            @endforeach
+                        </select>
+                    </div>
 
                     <!-- سویچی پارەدان (Toggle Switch Style) -->
                     <div class="flex p-1 bg-slate-200/50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 relative">
@@ -338,6 +335,15 @@
         let cart = [];
         let clearCartTimer = null;
         let isConfirmingClear = false;
+
+        // داخستنی مێنیوی زیاتر کاتێک لە دەرەوەی کلیک دەکرێت
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('moreDropdown');
+            const moreBtn = dropdown?.previousElementSibling;
+            if (dropdown && !dropdown.contains(event.target) && !moreBtn.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
 
         // پاراستن و گۆڕینی دۆخی شاشە
         function initTheme() {
