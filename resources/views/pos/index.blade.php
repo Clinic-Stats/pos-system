@@ -77,7 +77,7 @@
                     <i id="themeIconMobile" class="fa-solid fa-moon text-[9px]"></i>
                 </button>
                 <form action="{{ route('logout') }}" method="POST" class="m-0">
-                    @csrf
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <button type="submit" class="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center border border-rose-200 dark:border-rose-800">
                         <i class="fa-solid fa-power-off text-[9px]"></i>
                     </button>
@@ -116,7 +116,7 @@
                 <span class="font-extrabold text-[10px]">{{ auth()->user()->name ?? 'کاشیر' }}</span>
                 <div class="h-3 w-px bg-slate-300 dark:bg-slate-600 mx-0.5"></div>
                 <form action="{{ route('logout') }}" method="POST" class="inline m-0">
-                    @csrf
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <button type="submit" class="text-rose-500 hover:text-rose-600 text-xs p-1" title="دەرچوون">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
@@ -143,12 +143,12 @@
                             هەمووی
                         </button>
                         
-                        @foreach($categories as$cat)
-                        <button type="button" onclick="filterCategory('{{ $cat->id }}')" id="cat-btn-{{ $cat->id }}"
+                        <?php foreach($categories as $cat): ?>
+                        <button type="button" onclick="filterCategory('<?php echo $cat->id; ?>')" id="cat-btn-<?php echo $cat->id; ?>"
                                 class="cat-filter-btn btn-press bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap border border-slate-200 dark:border-slate-700">
-                            {{ $cat->name }}
+                            <?php echo $cat->name; ?>
                         </button>
-                        @endforeach
+                        <?php endforeach; ?>
 
                     </div>
                 </div>
@@ -156,41 +156,41 @@
 
             <div class="grow overflow-y-auto pt-2 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 content-start" id="productsGrid">
                 
-                @foreach($products as$p)
-                @php
+                <?php foreach($products as $p): ?>
+                <?php
                     $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
                     $alertVal = (float) ($p->alert_quantity ?? 5);
-                    $isOut =$stockVal <= 0;
-                    $isLow = !$isOut && $stockVal <=$alertVal;
-                @endphp
+                    $isOut = $stockVal <= 0;
+                    $isLow = !$isOut && $stockVal <= $alertVal;
+                ?>
                 
-                <div class="product-card group relative bg-white dark:bg-[#0f172a] hover:bg-brand-50 dark:hover:bg-slate-800/80 border {{ $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50') }} rounded-xl p-1.5 cursor-pointer flex flex-col justify-between select-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                     data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-code="{{ $p->code }}" data-category="{{ $p->category_id }}"
-                     onclick="addToCart({{ json_encode($p) }})">
+                <div class="product-card group relative bg-white dark:bg-[#0f172a] hover:bg-brand-50 dark:hover:bg-slate-800/80 border <?php echo $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50'); ?> rounded-xl p-1.5 cursor-pointer flex flex-col justify-between select-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                     data-id="<?php echo $p->id; ?>" data-name="<?php echo $p->name; ?>" data-code="<?php echo $p->code; ?>" data-category="<?php echo $p->category_id; ?>"
+                     onclick='addToCart(<?php echo json_encode($p); ?>)'>
                     
                     <div class="flex justify-between items-start mb-1 relative z-10">
-                        <span class="text-[8px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">{{ $p->code }}</span>
-                        @if($isOut)
+                        <span class="text-[8px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700"><?php echo $p->code; ?></span>
+                        <?php if($isOut): ?>
                             <span class="text-[8px] font-extrabold text-rose-600 bg-rose-100 px-1 py-0.5 rounded">نەماوە</span>
-                        @elseif($isLow)
+                        <?php elseif($isLow): ?>
                             <span class="text-[8px] font-extrabold text-amber-600 bg-amber-100 px-1 py-0.5 rounded">کەمە</span>
-                        @endif
+                        <?php endif; ?>
                     </div>
 
                     <div class="text-center my-1 relative z-10">
-                        <h3 class="font-bold text-slate-800 dark:text-white text-[10px] md:text-[11px] line-clamp-2 leading-tight">{{ $p->name }}</h3>
+                        <h3 class="font-bold text-slate-800 dark:text-white text-[10px] md:text-[11px] line-clamp-2 leading-tight"><?php echo $p->name; ?></h3>
                         <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 font-bold">
-                            ماوە: <span class="font-num {{ $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-500') }}">{{ $stockVal }}</span>
+                            ماوە: <span class="font-num <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-500'); ?>"><?php echo $stockVal; ?></span>
                         </p>
                     </div>
 
                     <div class="mt-1 relative z-10">
                         <div class="w-full bg-slate-50 dark:bg-slate-900 rounded-lg py-1 px-0.5 text-center border border-slate-200 dark:border-slate-800">
-                            <span class="text-[10px] md:text-[11px] font-black font-num text-slate-700 dark:text-slate-300 group-hover:text-emerald-500" dir="ltr">{{ number_format($p->base_sale_price) }}</span>
+                            <span class="text-[10px] md:text-[11px] font-black font-num text-slate-700 dark:text-slate-300 group-hover:text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
                         </div>
                     </div>
                 </div>
-                @endforeach
+                <?php endforeach; ?>
 
             </div>
         </div>
@@ -215,15 +215,15 @@
                     <div class="flex gap-1.5">
                         <div class="relative flex-1">
                             <i class="fa-regular fa-calendar absolute left-2 top-1.5 text-slate-400 text-[10px]"></i>
-                            <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="w-full pl-6 pr-2 py-1 rounded-lg bg-white border border-slate-200 dark:bg-slate-800 text-[10px] font-num focus:outline-none">
+                            <input type="datetime-local" id="saleCreatedAt" value="<?php echo date('Y-m-d\TH:i'); ?>" class="w-full pl-6 pr-2 py-1 rounded-lg bg-white border border-slate-200 dark:bg-slate-800 text-[10px] font-num focus:outline-none">
                         </div>
                         <div class="relative flex-1">
                             <select id="customerId" class="w-full px-2 py-1 rounded-lg bg-white border border-slate-200 dark:bg-slate-800 text-[10px] font-bold focus:outline-none">
                                 <option value="">کڕیاری نەقد</option>
                                 
-                                @foreach($customers as$c)
-                                    <option value="{{ $c->id }}">{{ $c->name }}</option>
-                                @endforeach
+                                <?php foreach($customers as$c): ?>
+                                    <option value="<?php echo $c->id; ?>"><?php echo $c->name; ?></option>
+                                <?php endforeach; ?>
 
                             </select>
                         </div>
@@ -291,7 +291,7 @@
     <div id="toastContainer" class="fixed top-2 left-1/2 transform -translate-x-1/2 z-[999] space-y-2 pointer-events-none flex flex-col items-center"></div>
 
     <script>
-        const units = @json($units);
+        const units = <?php echo json_encode($units); ?>;
         let cart = [];
         let clearCartTimer = null;
         let isConfirmingClear = false;
@@ -481,7 +481,7 @@
 
             fetch('/sales', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '<?php echo csrf_token(); ?>', 'Accept': 'application/json' },
                 body: JSON.stringify({
                     customer_id: customerId, payment_type: isDebt ? 'debt' : 'cash',
                     paid_amount: isDebt ? parseFloat(document.getElementById('paidAmount').value) || 0 : null,
