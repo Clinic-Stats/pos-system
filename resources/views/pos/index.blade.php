@@ -57,29 +57,48 @@
         }
     </style>
 </head>
-<body class="text-slate-800 dark:text-slate-100 min-h-screen p-3 overflow-hidden select-none transition-colors duration-500">
+<body class="text-slate-800 dark:text-slate-100 min-h-screen p-2 md:p-3 overflow-x-hidden select-none transition-colors duration-500">
 
-    <header class="glass-panel px-4 py-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm z-[100] relative">
-        <div class="flex items-center gap-4 shrink-0">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-blue-400 text-white flex items-center justify-center text-lg shadow-glow">
-                <i class="fa-solid fa-bolt"></i>
+    <!-- سەرپەڕەی مۆدێرن (گونجاو بۆ مۆبایل و دێسکتۆپ) -->
+    <header class="glass-panel px-3 py-3 rounded-2xl mb-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-sm z-[100] relative">
+        
+        <!-- بەشی سەرەوە لە مۆبایلدا (لۆگۆ + پرۆفایل) -->
+        <div class="flex items-center justify-between w-full lg:w-auto">
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-blue-400 text-white flex items-center justify-center text-lg shadow-glow">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm md:text-base font-extrabold tracking-wide text-slate-900 dark:text-white flex items-center gap-1.5 leading-tight">
+                        POS <span class="text-brand-600 dark:text-brand-400 font-black">PRO</span>
+                    </h1>
+                    <p class="text-[9px] md:text-[10px] text-slate-500 dark:text-slate-400 font-bold">سیستەمی پێشکەوتووی فرۆشتن</p>
+                </div>
             </div>
-            <div>
-                <h1 class="text-base font-extrabold tracking-wide text-slate-900 dark:text-white flex items-center gap-1.5 leading-tight">
-                    POS <span class="text-brand-600 dark:text-brand-400 font-black">PRO</span>
-                </h1>
-                <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold">سیستەمی پێشکەوتووی فرۆشتن</p>
+
+            <!-- پرۆفایل و دۆخ تەنها بۆ مۆبایل -->
+            <div class="flex lg:hidden items-center gap-2 shrink-0 relative z-50">
+                <button type="button" onclick="toggleTheme()" class="btn-press w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700">
+                    <i id="themeIconMobile" class="fa-solid fa-moon text-[10px]"></i>
+                </button>
+                <form action="{{ route('logout') }}" method="POST" class="m-0">
+                    @csrf
+                    <button type="submit" class="w-8 h-8 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center shadow-sm border border-rose-200 dark:border-rose-800">
+                        <i class="fa-solid fa-power-off text-[10px]"></i>
+                    </button>
+                </form>
             </div>
         </div>
 
-        <div class="hidden lg:flex items-center gap-2 text-xs font-bold relative z-50">
-            <a href="{{ route('purchases.create') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-box-open ml-1"></i> کڕینی نوێ</a>
-            <a href="{{ route('products.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-boxes-stacked ml-1"></i> کۆگا</a>
-            <a href="{{ route('customers.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-users ml-1"></i> کڕیاران</a>
-            <a href="{{ route('reports.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-chart-pie ml-1"></i> ڕاپۆرت</a>
+        <!-- مێنیوی ناوەڕاست (دەتوانرێت بە پەنجە سکرۆڵ بکرێت لە مۆبایل) -->
+        <div class="flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar relative z-50 w-full lg:w-auto pb-1 lg:pb-0">
+            <a href="{{ route('purchases.create') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-box-open ml-1"></i> کڕینی نوێ</a>
+            <a href="{{ route('products.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-boxes-stacked ml-1"></i> کۆگا</a>
+            <a href="{{ route('customers.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-users ml-1"></i> کڕیاران</a>
+            <a href="{{ route('reports.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-chart-pie ml-1"></i> ڕاپۆرت</a>
             
             <div class="relative inline-block">
-                <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1">
+                <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1 whitespace-nowrap">
                     زیاتر <i class="fa-solid fa-chevron-down text-[10px]"></i>
                 </button>
                 <div id="moreDropdown" class="hidden absolute left-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[9999] overflow-hidden">
@@ -91,8 +110,9 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2 md:gap-3 shrink-0 relative z-50">
-            <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="btn-press w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700 transition">
+        <!-- بەشی چەپ تەنها بۆ دێسکتۆپ و ئایپاد -->
+        <div class="hidden lg:flex items-center gap-2 md:gap-3 shrink-0 relative z-50">
+            <button type="button" onclick="toggleTheme()" class="btn-press w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700 transition">
                 <i id="themeIcon" class="fa-solid fa-moon"></i>
             </button>
             
@@ -112,39 +132,42 @@
         </div>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-88px)] relative z-0">
-        <div class="lg:col-span-3 glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative z-0">
+    <!-- پەنجەرەی سەرەکی (Layout بە پێی شاشە دەگۆڕێت) -->
+    <div class="flex flex-col lg:grid lg:grid-cols-4 gap-4 h-auto lg:h-[calc(100vh-100px)] relative z-0">
+        
+        <!-- بەشی کاڵاکان -->
+        <div class="lg:col-span-3 glass-panel rounded-3xl p-3 md:p-4 flex flex-col h-[55vh] lg:h-full overflow-hidden relative z-0">
             
-            <div class="shrink-0 space-y-4 pb-4 border-b border-slate-200 dark:border-slate-700/50">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <h2 class="text-sm font-black flex items-center gap-2 text-slate-800 dark:text-white">
+            <div class="shrink-0 space-y-3 pb-3 border-b border-slate-200 dark:border-slate-700/50">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+                    <h2 class="text-sm font-black flex items-center gap-2 text-slate-800 dark:text-white w-full md:w-auto">
                         <span class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-boxes-stacked"></i></span>
                         کاڵاکانی کۆگا
                     </h2>
                     
                     <div class="w-full md:w-96 relative group">
                         <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بەپێی ناو یان بارکۆد..." 
-                               class="w-full pl-10 pr-4 py-3 rounded-2xl bg-white dark:bg-[#070b14] border-2 border-transparent focus:border-brand-500/50 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-white text-sm transition-all duration-300 shadow-sm focus:shadow-glow">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-500 transition-colors"></i>
-                        <div class="absolute right-3 top-2.5 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-400 text-[10px] font-bold border border-slate-200 dark:border-slate-700">F2</div>
+                               class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white dark:bg-[#070b14] border-2 border-transparent focus:border-brand-500/50 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-white text-xs transition-all duration-300 shadow-sm focus:shadow-glow">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-400 group-focus-within:text-brand-500 transition-colors"></i>
+                        <div class="absolute right-3 top-2 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-400 text-[9px] font-bold border border-slate-200 dark:border-slate-700 hidden md:block">F2</div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar w-full">
                     <button type="button" onclick="filterCategory('all')" id="cat-btn-all"
-                            class="cat-filter-btn btn-press bg-brand-600 text-white px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-md shadow-brand-500/30">
+                            class="cat-filter-btn btn-press bg-brand-600 text-white px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-md shadow-brand-500/30">
                         هەمووی (گشتی)
                     </button>
                     @foreach($categories as $cat)
                     <button type="button" onclick="filterCategory('{{ $cat->id }}')" id="cat-btn-{{ $cat->id }}"
-                            class="cat-filter-btn btn-press bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap border border-slate-200 dark:border-slate-700 transition-colors">
+                            class="cat-filter-btn btn-press bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border border-slate-200 dark:border-slate-700 transition-colors">
                         {{ $cat->name }}
                     </button>
                     @endforeach
                 </div>
             </div>
 
-            <div class="grow overflow-y-auto pt-4 pr-1 custom-scrollbar grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 content-start" id="productsGrid">
+            <div class="grow overflow-y-auto pt-3 pr-1 custom-scrollbar grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 content-start" id="productsGrid">
                 @foreach($products as $p)
                 @php
                     $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
@@ -153,43 +176,41 @@
                     $isLow = !$isOut && $stockVal <= $alertVal;
                 @endphp
                 
-                <div class="product-card group relative bg-white dark:bg-[#0f172a] hover:bg-brand-50 dark:hover:bg-slate-800/80 border {{ $isOut ? 'border-rose-300/50 dark:border-rose-900/30 bg-rose-50/20 dark:bg-rose-950/10 opacity-70' : ($isLow ? 'border-amber-300/50 dark:border-amber-900/30' : 'border-slate-200 dark:border-slate-700/50') }} rounded-2xl p-3.5 cursor-pointer flex flex-col justify-between select-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 hover:border-brand-400/50"
+                <div class="product-card group relative bg-white dark:bg-[#0f172a] hover:bg-brand-50 dark:hover:bg-slate-800/80 border {{ $isOut ? 'border-rose-300/50 dark:border-rose-900/30 bg-rose-50/20 dark:bg-rose-950/10 opacity-70' : ($isLow ? 'border-amber-300/50 dark:border-amber-900/30' : 'border-slate-200 dark:border-slate-700/50') }} rounded-2xl p-2.5 md:p-3.5 cursor-pointer flex flex-col justify-between select-none transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-500/10 hover:border-brand-400/50"
                      data-id="{{ $p->id }}"
                      data-name="{{ $p->name }}"
                      data-code="{{ $p->code }}"
                      data-category="{{ $p->category_id }}"
                      onclick="addToCart({{ json_encode($p) }})">
                     
-                    <div class="flex justify-between items-start mb-3 relative z-10">
-                        <span class="text-[10px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700 group-hover:text-brand-600 dark:group-hover:text-brand-400 group-hover:border-brand-200 transition-colors">{{ $p->code }}</span>
-                        
+                    <div class="flex justify-between items-start mb-2 relative z-10">
+                        <span class="text-[9px] md:text-[10px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 md:px-2.5 md:py-1 rounded-md border border-slate-200 dark:border-slate-700">{{ $p->code }}</span>
                         @if($isOut)
-                            <span class="flex items-center gap-1 text-[10px] font-extrabold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-500/10 px-2 py-1 rounded-md"><i class="fa-solid fa-ban text-[8px]"></i> نەماوە</span>
+                            <span class="flex items-center gap-1 text-[9px] font-extrabold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-500/10 px-1.5 py-0.5 rounded-md"><i class="fa-solid fa-ban text-[7px]"></i> نەماوە</span>
                         @elseif($isLow)
-                            <span class="flex items-center gap-1 text-[10px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 px-2 py-1 rounded-md"><i class="fa-solid fa-triangle-exclamation text-[8px]"></i> کەم ماوە</span>
+                            <span class="flex items-center gap-1 text-[9px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/10 px-1.5 py-0.5 rounded-md"><i class="fa-solid fa-triangle-exclamation text-[7px]"></i> کەم ماوە</span>
                         @endif
                     </div>
 
-                    <div class="text-center my-2 relative z-10">
-                        <h3 class="font-extrabold text-slate-800 dark:text-white text-sm line-clamp-2 leading-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{{ $p->name }}</h3>
-                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-2 font-medium">
+                    <div class="text-center my-1.5 relative z-10">
+                        <h3 class="font-extrabold text-slate-800 dark:text-white text-xs md:text-sm line-clamp-2 leading-tight">{{ $p->name }}</h3>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
                             کۆگا: <span class="font-num font-bold {{ $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-500') }}">{{ $stockVal }} کگ</span>
                         </p>
                     </div>
 
-                    <div class="mt-3 relative z-10">
-                        <div class="w-full bg-slate-50 dark:bg-slate-900 group-hover:bg-gradient-to-r group-hover:from-emerald-50 group-hover:to-teal-50 dark:group-hover:from-emerald-900/20 dark:group-hover:to-teal-900/20 rounded-xl py-2 px-2 text-center border border-slate-200 dark:border-slate-800 group-hover:border-emerald-200 dark:group-hover:border-emerald-800/50 transition-colors">
-                            <span class="text-sm font-black font-num text-slate-700 dark:text-slate-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" dir="ltr">{{ number_format($p->base_sale_price) }} IQD</span>
+                    <div class="mt-2 relative z-10">
+                        <div class="w-full bg-slate-50 dark:bg-slate-900 group-hover:bg-gradient-to-r group-hover:from-emerald-50 group-hover:to-teal-50 dark:group-hover:from-emerald-900/20 dark:group-hover:to-teal-900/20 rounded-xl py-1.5 px-1 text-center border border-slate-200 dark:border-slate-800 transition-colors">
+                            <span class="text-xs md:text-sm font-black font-num text-slate-700 dark:text-slate-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" dir="ltr">{{ number_format($p->base_sale_price) }} IQD</span>
                         </div>
                     </div>
-                    
-                    <div class="absolute inset-0 bg-gradient-to-br from-brand-500/0 to-brand-500/0 group-hover:from-brand-500/5 group-hover:to-purple-500/5 rounded-2xl transition-all duration-500 pointer-events-none"></div>
                 </div>
                 @endforeach
             </div>
         </div>
 
-        <div class="glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative z-10 shadow-lg">
+        <!-- بەشی سەبەتە (لە مۆبایلدا دەکەوێتە خوارەوە) -->
+        <div class="glass-panel rounded-3xl p-3 md:p-4 flex flex-col h-[65vh] lg:h-full overflow-hidden relative shadow-lg">
             
             <div class="shrink-0 pb-3 border-b border-slate-200 dark:border-slate-700/50">
                 <div class="flex justify-between items-center mb-3">
@@ -206,15 +227,15 @@
                     </button>
                 </div>
 
-                <div class="bg-white/50 dark:bg-[#070b14]/50 p-3 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-2.5">
+                <div class="bg-white/50 dark:bg-[#070b14]/50 p-2.5 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-2">
                     <div class="relative">
                         <i class="fa-regular fa-calendar absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                        <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="w-full pl-8 pr-3 py-2 rounded-xl bg-transparent border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-num text-[11px] focus:outline-none focus:border-brand-500">
+                        <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="w-full pl-8 pr-3 py-1.5 md:py-2 rounded-xl bg-transparent border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-num text-[11px] focus:outline-none focus:border-brand-500">
                     </div>
                     
                     <div class="relative">
                         <i class="fa-solid fa-user-tag absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                        <select id="customerId" class="w-full pl-8 pr-3 py-2 rounded-xl bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white text-xs font-bold focus:outline-none focus:border-brand-500 appearance-none">
+                        <select id="customerId" class="w-full pl-8 pr-3 py-1.5 md:py-2 rounded-xl bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white text-[11px] md:text-xs font-bold focus:outline-none focus:border-brand-500 appearance-none">
                             <option value="">کڕیاری گشتی (نەقد)</option>
                             @foreach($customers as $c)
                                 <option value="{{ $c->id }}">{{ $c->name }} ({{ number_format($c->balance ?? 0) }} IQD)</option>
@@ -223,11 +244,11 @@
                     </div>
 
                     <div class="flex p-1 bg-slate-200/50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 relative">
-                        <label class="flex-1 text-center py-1.5 rounded-lg cursor-pointer font-bold text-xs transition-all duration-300 z-10 has-[:checked]:text-white">
+                        <label class="flex-1 text-center py-1 rounded-lg cursor-pointer font-bold text-[11px] transition-all duration-300 z-10 has-[:checked]:text-white">
                             <input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()" class="hidden peer">
                             <span>نەقد</span>
                         </label>
-                        <label class="flex-1 text-center py-1.5 rounded-lg cursor-pointer font-bold text-xs transition-all duration-300 z-10 has-[:checked]:text-white text-slate-600 dark:text-slate-400">
+                        <label class="flex-1 text-center py-1 rounded-lg cursor-pointer font-bold text-[11px] transition-all duration-300 z-10 has-[:checked]:text-white text-slate-600 dark:text-slate-400">
                             <input type="radio" name="paymentType" value="debt" onchange="togglePaymentType()" class="hidden peer">
                             <span>قەرز</span>
                         </label>
@@ -235,71 +256,71 @@
                     </div>
 
                     <div id="paidAmountBox" class="hidden overflow-hidden transition-all duration-300">
-                        <input type="number" id="paidAmount" placeholder="بڕی پارەی دراو (ئارەزوومەندانە)" value="0" min="0" step="any" class="w-full p-2.5 rounded-xl bg-white dark:bg-[#070b14] border border-amber-200 dark:border-amber-900/50 text-slate-900 dark:text-white font-num text-xs focus:outline-none focus:border-amber-500">
+                        <input type="number" id="paidAmount" placeholder="بڕی پارەی دراو (ئارەزوومەندانە)" value="0" min="0" step="any" class="w-full p-2 rounded-xl bg-white dark:bg-[#070b14] border border-amber-200 dark:border-amber-900/50 text-slate-900 dark:text-white font-num text-xs focus:outline-none focus:border-amber-500">
                     </div>
                 </div>
             </div>
 
-            <div id="cartItemsContainer" class="grow overflow-y-auto py-3 pr-1 space-y-2.5 custom-scrollbar">
+            <div id="cartItemsContainer" class="grow overflow-y-auto py-2 pr-1 space-y-2 custom-scrollbar">
                 <!-- بە جاڤاسکریپت پڕ دەبێتەوە -->
             </div>
 
-            <div class="shrink-0 pt-3 mt-1 border-t border-slate-200 dark:border-slate-700/50 bg-white/30 dark:bg-slate-900/30 rounded-2xl px-2 pb-1">
+            <div class="shrink-0 pt-2 mt-1 border-t border-slate-200 dark:border-slate-700/50 bg-white/30 dark:bg-slate-900/30 rounded-2xl px-2 pb-1">
                 
-                <div class="space-y-2 mb-4 px-2 text-xs">
+                <div class="space-y-1.5 mb-3 px-1 text-[11px] md:text-xs">
                     <div class="flex justify-between items-center">
                         <span class="text-slate-500 dark:text-slate-400 font-bold">کۆی کاڵاکان:</span>
                         <span id="subTotalText" class="font-num font-bold text-slate-700 dark:text-slate-300" dir="ltr">0 IQD</span>
                     </div>
                     <div class="flex justify-between items-center group">
                         <span class="text-slate-500 dark:text-slate-400 font-bold">داشکاندن:</span>
-                        <div class="flex items-center gap-1.5 bg-white dark:bg-[#070b14] px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 group-focus-within:border-amber-400 transition-colors">
+                        <div class="flex items-center gap-1 bg-white dark:bg-[#070b14] px-1.5 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700 group-focus-within:border-amber-400 transition-colors">
                             <input type="number" step="any" min="0" id="cartDiscount" value="0" oninput="renderCart(false)" 
-                                   class="w-20 bg-transparent text-amber-600 dark:text-amber-400 font-num text-left text-xs font-bold focus:outline-none">
-                            <span class="text-[10px] text-slate-400 font-extrabold">IQD</span>
+                                   class="w-16 bg-transparent text-amber-600 dark:text-amber-400 font-num text-left text-[11px] font-bold focus:outline-none">
+                            <span class="text-[9px] text-slate-400 font-extrabold">IQD</span>
                         </div>
                     </div>
-                    <div class="flex justify-between items-end pt-2">
-                        <span class="text-slate-800 dark:text-white font-black text-sm">کۆی گشتی:</span>
-                        <span id="grandTotalText" class="text-emerald-500 dark:text-emerald-400 font-num font-black text-2xl drop-shadow-sm" dir="ltr">0 IQD</span>
+                    <div class="flex justify-between items-end pt-1">
+                        <span class="text-slate-800 dark:text-white font-black text-xs md:text-sm">کۆی گشتی:</span>
+                        <span id="grandTotalText" class="text-emerald-500 dark:text-emerald-400 font-num font-black text-xl md:text-2xl drop-shadow-sm" dir="ltr">0 IQD</span>
                     </div>
                 </div>
 
                 <button type="button" onclick="submitSale()" id="btnSubmitSale" 
-                        class="btn-press w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black py-4 rounded-2xl text-sm shadow-glow-emerald flex items-center justify-center gap-2 relative overflow-hidden group">
+                        class="btn-press w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black py-3 md:py-4 rounded-xl text-xs md:text-sm shadow-glow-emerald flex items-center justify-center gap-2 relative overflow-hidden group">
                     <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
-                    <i class="fa-solid fa-paper-plane text-lg"></i>
-                    <span>تەواوکردنی فرۆشتن و چاپی پسوولە</span>
+                    <i class="fa-solid fa-paper-plane text-base"></i>
+                    <span>فرۆشتن و پسوولە</span>
                 </button>
             </div>
-
         </div>
 
     </div>
 
+    <!-- مۆداڵی سەرکەوتنی فرۆشتن -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-50 transition-opacity">
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-[2rem] w-full max-w-sm p-8 text-center shadow-2xl transform scale-100 transition-transform">
-            <div class="relative w-20 h-20 mx-auto mb-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-[2rem] w-full max-w-sm p-6 md:p-8 text-center shadow-2xl">
+            <div class="relative w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 md:mb-6">
                 <div class="absolute inset-0 bg-emerald-100 dark:bg-emerald-900/30 rounded-full animate-ping"></div>
-                <div class="relative w-full h-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-full flex items-center justify-center text-4xl shadow-lg">
+                <div class="relative w-full h-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-full flex items-center justify-center text-3xl md:text-4xl shadow-lg">
                     <i class="fa-solid fa-check"></i>
                 </div>
             </div>
-            <h3 class="text-lg font-black text-slate-800 dark:text-white mb-2">سەرکەوتوو بوو!</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 font-bold mb-8">وەسڵەکە بە سەرکەوتوویی تۆمارکرا و کۆگا نوێکرایەوە.</p>
+            <h3 class="text-base md:text-lg font-black text-slate-800 dark:text-white mb-1 md:mb-2">سەرکەوتوو بوو!</h3>
+            <p class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-bold mb-6">وەسڵەکە بە سەرکەوتوویی تۆمارکرا.</p>
             
-            <div class="flex flex-col gap-3">
-                <a href="#" id="printInvoiceBtn" target="_blank" class="btn-press w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-md">
+            <div class="flex flex-col gap-2.5">
+                <a href="#" id="printInvoiceBtn" target="_blank" class="btn-press w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[11px] md:text-sm font-bold flex items-center justify-center gap-2 shadow-md">
                     <i class="fa-solid fa-print"></i> بینین و چاپی پسوولە
                 </a>
-                <button type="button" onclick="closeSuccessModal()" class="btn-press w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors">
+                <button type="button" onclick="closeSuccessModal()" class="btn-press w-full py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[11px] md:text-xs font-bold transition-colors">
                     فرۆشتنی نوێ (داخستن)
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="toastContainer" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] space-y-2 pointer-events-none flex flex-col items-center"></div>
+    <div id="toastContainer" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] space-y-2 pointer-events-none flex flex-col items-center w-[90%] md:w-auto"></div>
 
     <script>
         const units = @json($units);
@@ -321,13 +342,13 @@
         }
 
         function applyTheme(theme) {
-            const icon = document.getElementById('themeIcon');
+            const icons = [document.getElementById('themeIcon'), document.getElementById('themeIconMobile')];
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
-                if (icon) icon.className = 'fa-solid fa-moon text-amber-400';
+                icons.forEach(i => { if(i) i.className = 'fa-solid fa-moon text-amber-400'; });
             } else {
                 document.documentElement.classList.remove('dark');
-                if (icon) icon.className = 'fa-solid fa-sun text-amber-500';
+                icons.forEach(i => { if(i) i.className = 'fa-solid fa-sun text-amber-500'; });
             }
             localStorage.setItem('pos_theme', theme);
         }
@@ -342,17 +363,15 @@
         function showToast(message, type = 'warning') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            
             let bgClass = type === 'error' ? 'bg-rose-500' : 'bg-slate-800 dark:bg-white';
             let textClass = type === 'error' ? 'text-white' : 'text-white dark:text-slate-900';
             let icon = type === 'error' ? 'fa-circle-exclamation' : 'fa-bell';
             
-            toast.className = `pointer-events-auto flex items-center gap-3 px-5 py-3 rounded-full ${bgClass} ${textClass} text-xs font-bold shadow-2xl transition-all duration-300 transform -translate-y-10 opacity-0`;
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 md:px-5 py-2.5 md:py-3 rounded-full ${bgClass} ${textClass} text-[11px] md:text-xs font-bold shadow-2xl transition-all duration-300 transform -translate-y-10 opacity-0 w-full md:w-auto text-center justify-center`;
             toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
             
             container.appendChild(toast);
             setTimeout(() => toast.classList.remove('-translate-y-10', 'opacity-0'), 10);
-
             setTimeout(() => {
                 toast.classList.add('opacity-0', '-translate-y-10');
                 setTimeout(() => toast.remove(), 300);
@@ -363,7 +382,6 @@
             if (cart.length === 0) return;
             const btn = document.getElementById('btnClearCart');
             const label = document.getElementById('clearCartLabel');
-
             if (!isConfirmingClear) {
                 isConfirmingClear = true;
                 btn.classList.remove('bg-rose-50', 'dark:bg-rose-500/10', 'text-rose-600');
@@ -462,7 +480,6 @@
                 ping.classList.remove('hidden');
                 setTimeout(() => ping.classList.add('hidden'), 500);
             }
-
             renderCart(true, targetIdx);
         }
 
@@ -485,15 +502,9 @@
             const item = cart[index];
             const maxQty = item.factor > 0 ? (item.stock_kg / item.factor) : item.stock_kg;
             const newQty = item.qty + delta;
-
-            if (newQty > maxQty) {
-                item.qty = maxQty;
-                showToast(`گەیشتیتە ئەوپەڕی بڕی بەردەست`);
-            } else if (newQty <= 0) {
-                cart.splice(index, 1);
-            } else {
-                item.qty = newQty;
-            }
+            if (newQty > maxQty) { item.qty = maxQty; showToast(`گەیشتیتە ئەوپەڕی بڕی بەردەست`); } 
+            else if (newQty <= 0) { cart.splice(index, 1); } 
+            else { item.qty = newQty; }
             renderCart(false);
         }
 
@@ -502,13 +513,8 @@
             const maxQty = item.factor > 0 ? (item.stock_kg / item.factor) : item.stock_kg;
             let num = parseFloat(val);
             if (isNaN(num) || num <= 0) num = 1;
-
-            if (num > maxQty) {
-                showToast(`تەنها (${maxQty.toFixed(2).replace(/\.00$/, '')}) ماوە لە کۆگا`);
-                item.qty = maxQty;
-            } else {
-                item.qty = num;
-            }
+            if (num > maxQty) { showToast(`تەنها (${maxQty.toFixed(2).replace(/\.00$/, '')}) ماوە لە کۆگا`); item.qty = maxQty; } 
+            else { item.qty = num; }
             renderCart(false);
         }
 
@@ -521,9 +527,9 @@
 
             if (cart.length === 0) {
                 container.innerHTML = `
-                    <div class="h-40 flex flex-col items-center justify-center text-slate-300 dark:text-slate-600 space-y-3">
-                        <i class="fa-solid fa-cart-arrow-down text-4xl"></i>
-                        <p class="text-xs font-bold">هیچ کاڵایەک لە سەبەتەدا نییە</p>
+                    <div class="h-32 flex flex-col items-center justify-center text-slate-300 dark:text-slate-600 space-y-2">
+                        <i class="fa-solid fa-cart-arrow-down text-3xl"></i>
+                        <p class="text-[11px] font-bold">هیچ کاڵایەک لە سەبەتەدا نییە</p>
                     </div>`;
                 document.getElementById('subTotalText').innerText = '0 IQD';
                 document.getElementById('grandTotalText').innerText = '0 IQD';
@@ -540,22 +546,22 @@
 
                 const div = document.createElement('div');
                 div.id = `cart-row-${idx}`;
-                div.className = 'bg-white dark:bg-[#070b14] border border-slate-100 dark:border-slate-800 rounded-2xl p-3 shadow-sm hover:border-brand-300 dark:hover:border-brand-700 transition-colors group relative overflow-hidden';
+                div.className = 'bg-white dark:bg-[#070b14] border border-slate-100 dark:border-slate-800 rounded-2xl p-2 md:p-3 shadow-sm hover:border-brand-300 dark:hover:border-brand-700 transition-colors group relative overflow-hidden';
                 
                 div.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
                         <div class="pr-1">
-                            <h4 class="font-extrabold text-slate-800 dark:text-white text-xs leading-tight">${item.name}</h4>
-                            <p class="text-[10px] text-slate-400 font-num mt-1 font-bold">ب. بەردەست: <span class="text-emerald-500">${maxStockOfUnit.toFixed(2).replace(/\.00$/, '')} ${curUnit?.name ?? ''}</span></p>
+                            <h4 class="font-extrabold text-slate-800 dark:text-white text-[11px] md:text-xs leading-tight">${item.name}</h4>
+                            <p class="text-[9px] md:text-[10px] text-slate-400 font-num mt-0.5 font-bold">ماوە: <span class="text-emerald-500">${maxStockOfUnit.toFixed(2).replace(/\.00$/, '')} ${curUnit?.name ?? ''}</span></p>
                         </div>
-                        <button type="button" onclick="removeItem(${idx})" class="text-rose-300 hover:text-rose-500 bg-rose-50 dark:bg-rose-500/10 w-6 h-6 rounded-lg flex items-center justify-center transition-colors">
-                            <i class="fa-solid fa-xmark text-xs"></i>
+                        <button type="button" onclick="removeItem(${idx})" class="text-rose-300 hover:text-rose-500 bg-rose-50 dark:bg-rose-500/10 w-5 h-5 md:w-6 md:h-6 rounded-lg flex items-center justify-center transition-colors">
+                            <i class="fa-solid fa-xmark text-[10px]"></i>
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-12 gap-2 items-center bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800/80">
+                    <div class="grid grid-cols-12 gap-1.5 md:gap-2 items-center bg-slate-50 dark:bg-slate-900/50 p-1 md:p-1.5 rounded-xl border border-slate-100 dark:border-slate-800/80">
                         <div class="col-span-4">
-                            <select onchange="updateItemUnit(${idx}, this.value)" class="w-full bg-transparent text-slate-700 dark:text-slate-300 text-[10px] font-bold focus:outline-none appearance-none cursor-pointer">
+                            <select onchange="updateItemUnit(${idx}, this.value)" class="w-full bg-transparent text-slate-700 dark:text-slate-300 text-[9px] md:text-[10px] font-bold focus:outline-none appearance-none cursor-pointer">
                                 ${unitOpts}
                             </select>
                         </div>
@@ -563,19 +569,17 @@
                         <div class="col-span-4 border-r border-slate-200 dark:border-slate-700">
                             <input type="number" step="any" min="0" value="${item.price}" 
                                    onchange="updateItemPrice(${idx}, this.value)" 
-                                   class="w-full bg-transparent text-center text-slate-700 dark:text-slate-300 font-num text-[11px] font-bold focus:outline-none">
+                                   class="w-full bg-transparent text-center text-slate-700 dark:text-slate-300 font-num text-[10px] md:text-[11px] font-bold focus:outline-none">
                         </div>
 
-                        <div class="col-span-4 flex items-center justify-between px-1 border-r border-slate-200 dark:border-slate-700">
-                            <button type="button" onclick="updateQty(${idx}, -1)" class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-brand-500 font-bold">-</button>
+                        <div class="col-span-4 flex items-center justify-between px-0.5 md:px-1 border-r border-slate-200 dark:border-slate-700">
+                            <button type="button" onclick="updateQty(${idx}, -1)" class="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-slate-400 hover:text-brand-500 font-bold">-</button>
                             <input type="number" step="any" min="0.01" value="${item.qty}" 
                                    id="qty-input-${idx}" onchange="setQtyDirect(${idx}, this.value)" 
-                                   class="w-8 text-center bg-transparent font-num text-brand-600 dark:text-brand-400 text-[11px] font-black focus:outline-none p-0">
-                            <button type="button" onclick="updateQty(${idx}, 1)" class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-brand-500 font-bold">+</button>
+                                   class="w-6 md:w-8 text-center bg-transparent font-num text-brand-600 dark:text-brand-400 text-[10px] md:text-[11px] font-black focus:outline-none p-0">
+                            <button type="button" onclick="updateQty(${idx}, 1)" class="w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-slate-400 hover:text-brand-500 font-bold">+</button>
                         </div>
                     </div>
-
-                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 `;
                 container.appendChild(div);
             });
@@ -598,7 +602,6 @@
             const isDebt = document.querySelector('input[name="paymentType"]:checked').value === 'debt';
             const selector = document.getElementById('paymentSelector');
             const box = document.getElementById('paidAmountBox');
-            
             if (isDebt) {
                 selector.style.transform = 'translateX(-100%)';
                 selector.className = 'absolute top-1 bottom-1 w-[calc(50%-4px)] bg-amber-500 rounded-lg shadow-sm transition-all duration-300 ease-out';
@@ -637,27 +640,22 @@
             .then(res => res.json())
             .then(data => {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane text-lg"></i> <span>تەواوکردنی فرۆشتن و چاپی پسوولە</span>';
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane text-base"></i> <span>فرۆشتن و پسوولە</span>';
 
                 if (data.success) {
                     cart = []; document.getElementById('cartDiscount').value = 0; renderCart(false);
                     document.getElementById('printInvoiceBtn').href = '/sales/print/' + data.sale_id;
                     document.getElementById('successModal').classList.remove('hidden');
-                } else {
-                    showToast('هەڵە: ' + (data.error || 'فرۆشتن تەواو نەبوو'), 'error');
-                }
+                } else { showToast('هەڵە: ' + (data.error || 'فرۆشتن تەواو نەبوو'), 'error'); }
             })
             .catch(err => {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane text-lg"></i> <span>تەواوکردنی فرۆشتن و چاپی پسوولە</span>';
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane text-base"></i> <span>فرۆشتن و پسوولە</span>';
                 showToast('کێشەیەک ڕوویدا: ' + err.message, 'error');
             });
         }
 
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.add('hidden');
-            location.reload();
-        }
+        function closeSuccessModal() { document.getElementById('successModal').classList.add('hidden'); location.reload(); }
     </script>
 </body>
 </html>
