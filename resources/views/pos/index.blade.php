@@ -234,15 +234,18 @@
                         <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="w-full pl-8 pr-3 py-2 rounded-xl bg-transparent border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-num text-[11px] focus:outline-none focus:border-brand-500">
                     </div>
 
-                    <div class="relative">
-                        <i class="fa-solid fa-user-tag absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                        <select id="customerId" class="w-full pl-8 pr-3 py-2 rounded-xl bg-transparent border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white text-xs font-bold focus:outline-none focus:border-brand-500 appearance-none">
-                            <option value="">کڕیاری گشتی (نەقد)</option>
-                            @foreach($customers as $c)
-                                <option value="{{ $c->id }}">{{ $c->name }} ({{ number_format($c->balance ?? 0) }} IQD)</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <!-- دوگمەی "زیاتر" کە دەکرێتەوە بۆ بەشەکانی تر -->
+<div class="relative">
+    <button type="button" onclick="document.getElementById('moreDropdown').classList.toggle('hidden')" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1">
+        زیاتر <i class="fa-solid fa-chevron-down text-[10px]"></i>
+    </button>
+    <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden">
+        <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5"></i> کاتیگۆری</a>
+        <a href="{{ route('partners.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-handshake w-5"></i> هاوبەشەکان</a>
+        <a href="{{ route('returns.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-rotate-left w-5"></i> گەڕاوەکان</a>
+        <a href="{{ route('users.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"><i class="fa-solid fa-user-shield w-5"></i> کارمەندان</a>
+    </div>
+</div>
 
                     <!-- سویچی پارەدان (Toggle Switch Style) -->
                     <div class="flex p-1 bg-slate-200/50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 relative">
