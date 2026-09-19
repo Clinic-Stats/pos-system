@@ -143,7 +143,7 @@
                             هەمووی
                         </button>
                         
-                        @foreach($categories as $cat)
+                        @foreach($categories as$cat)
                         <button type="button" onclick="filterCategory('{{ $cat->id }}')" id="cat-btn-{{ $cat->id }}"
                                 class="cat-filter-btn btn-press bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap border border-slate-200 dark:border-slate-700">
                             {{ $cat->name }}
@@ -156,12 +156,12 @@
 
             <div class="grow overflow-y-auto pt-2 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 content-start" id="productsGrid">
                 
-                @foreach($products as $p)
+                @foreach($products as$p)
                 @php
                     $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
                     $alertVal = (float) ($p->alert_quantity ?? 5);
-                    $isOut = $stockVal <= 0;
-                    $isLow = !$isOut && $stockVal <= $alertVal;
+                    $isOut =$stockVal <= 0;
+                    $isLow = !$isOut && $stockVal <=$alertVal;
                 @endphp
                 
                 <div class="product-card group relative bg-white dark:bg-[#0f172a] hover:bg-brand-50 dark:hover:bg-slate-800/80 border {{ $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50') }} rounded-xl p-1.5 cursor-pointer flex flex-col justify-between select-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
