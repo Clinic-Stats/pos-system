@@ -58,7 +58,6 @@
 </head>
 <body class="text-slate-800 dark:text-slate-100 h-screen p-1 md:p-2 overflow-hidden select-none transition-colors duration-500 flex flex-col">
 
-    <!-- سەرپەڕەی زۆر بچووک و کۆمپاکت (Navbar) -->
     <header class="glass-panel px-2 py-1.5 md:py-2 rounded-xl mb-2 flex items-center justify-between shadow-sm z-[100] shrink-0">
         
         <div class="flex items-center justify-between w-full lg:w-auto">
@@ -143,23 +142,26 @@
                                 class="cat-filter-btn btn-press bg-brand-600 text-white px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap shadow-sm">
                             هەمووی
                         </button>
-                        @foreach ($categories as$cat)
+                        
+                        @foreach($categories as $cat)
                         <button type="button" onclick="filterCategory('{{ $cat->id }}')" id="cat-btn-{{ $cat->id }}"
                                 class="cat-filter-btn btn-press bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap border border-slate-200 dark:border-slate-700">
                             {{ $cat->name }}
                         </button>
                         @endforeach
+
                     </div>
                 </div>
             </div>
 
             <div class="grow overflow-y-auto pt-2 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 content-start" id="productsGrid">
-                @foreach ($products as$p)
+                
+                @foreach($products as $p)
                 @php
                     $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
                     $alertVal = (float) ($p->alert_quantity ?? 5);
-                    $isOut =$stockVal <= 0;
-                    $isLow = !$isOut && $stockVal <=$alertVal;
+                    $isOut = $stockVal <= 0;
+                    $isLow = !$isOut && $stockVal <= $alertVal;
                 @endphp
                 
                 <div class="product-card group relative bg-white dark:bg-[#0f172a] hover:bg-brand-50 dark:hover:bg-slate-800/80 border {{ $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50') }} rounded-xl p-1.5 cursor-pointer flex flex-col justify-between select-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
@@ -189,6 +191,7 @@
                     </div>
                 </div>
                 @endforeach
+
             </div>
         </div>
 
@@ -217,9 +220,11 @@
                         <div class="relative flex-1">
                             <select id="customerId" class="w-full px-2 py-1 rounded-lg bg-white border border-slate-200 dark:bg-slate-800 text-[10px] font-bold focus:outline-none">
                                 <option value="">کڕیاری نەقد</option>
-                                @foreach ($customers as$c)
+                                
+                                @foreach($customers as$c)
                                     <option value="{{ $c->id }}">{{ $c->name }}</option>
                                 @endforeach
+
                             </select>
                         </div>
                     </div>
@@ -268,6 +273,7 @@
 
     </div>
 
+    <!-- مۆداڵی سەرکەوتنی فرۆشتن -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-[999]">
         <div class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-xs p-5 text-center shadow-2xl">
             <div class="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-full flex items-center justify-center text-2xl shadow-lg">
