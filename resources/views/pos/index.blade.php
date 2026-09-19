@@ -56,7 +56,6 @@
         }
     </style>
 </head>
-<!-- پەراوێز و بۆشاییەکان زۆر کەمکراونەتەوە بۆ گەورەکردنی شاشە -->
 <body class="text-slate-800 dark:text-slate-100 h-screen p-1 md:p-2 overflow-hidden select-none transition-colors duration-500 flex flex-col">
 
     <!-- سەرپەڕەی زۆر بچووک و کۆمپاکت (Navbar) -->
@@ -74,7 +73,6 @@
                 </div>
             </div>
 
-            <!-- مۆبایل ئایکۆن -->
             <div class="flex lg:hidden items-center gap-1.5 shrink-0 relative z-50">
                 <button type="button" onclick="toggleTheme()" class="btn-press w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center border border-slate-200 dark:border-slate-700">
                     <i id="themeIconMobile" class="fa-solid fa-moon text-[9px]"></i>
@@ -88,7 +86,6 @@
             </div>
         </div>
 
-        <!-- مێنیوی ناوەڕاست -->
         <div class="flex items-center gap-1 text-[10px] md:text-[11px] font-bold overflow-x-auto no-scrollbar relative z-50 w-full lg:w-auto px-1 lg:px-0">
             <a href="{{ route('purchases.create') }}" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-box-open"></i> کڕین</a>
             <a href="{{ route('products.index') }}" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-boxes-stacked"></i> کۆگا</a>
@@ -129,10 +126,8 @@
         </div>
     </header>
 
-    <!-- پەنجەرەی سەرەکی بە 12 ستوون بۆ ئەوەی کاڵا زۆرترین جێگە بگرێت -->
     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2 h-full overflow-hidden relative z-0">
         
-        <!-- بەشی کاڵاکان (9 ستوون لە 12 ستوون = %75 ی شاشە) -->
         <div class="lg:col-span-9 glass-panel rounded-xl p-2 flex flex-col h-[55vh] lg:h-full overflow-hidden relative z-0">
             
             <div class="shrink-0 space-y-2 pb-2 border-b border-slate-200 dark:border-slate-700/50">
@@ -148,7 +143,7 @@
                                 class="cat-filter-btn btn-press bg-brand-600 text-white px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap shadow-sm">
                             هەمووی
                         </button>
-                        @foreach($categories as $cat)
+                        @foreach ($categories as$cat)
                         <button type="button" onclick="filterCategory('{{ $cat->id }}')" id="cat-btn-{{ $cat->id }}"
                                 class="cat-filter-btn btn-press bg-white dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap border border-slate-200 dark:border-slate-700">
                             {{ $cat->name }}
@@ -158,14 +153,13 @@
                 </div>
             </div>
 
-            <!-- گریدی کاڵاکان زۆر چڕ کراوەتەوە (لە کۆمپیوتەر 6 بۆ 7 کاڵا لە ڕیزێک، مۆبایل 3 کاڵا) -->
             <div class="grow overflow-y-auto pt-2 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 content-start" id="productsGrid">
-                @foreach($products as $p)
+                @foreach ($products as$p)
                 @php
                     $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
                     $alertVal = (float) ($p->alert_quantity ?? 5);
-                    $isOut = $stockVal <= 0;
-                    $isLow = !$isOut && $stockVal <= $alertVal;
+                    $isOut =$stockVal <= 0;
+                    $isLow = !$isOut && $stockVal <=$alertVal;
                 @endphp
                 
                 <div class="product-card group relative bg-white dark:bg-[#0f172a] hover:bg-brand-50 dark:hover:bg-slate-800/80 border {{ $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50') }} rounded-xl p-1.5 cursor-pointer flex flex-col justify-between select-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
@@ -198,7 +192,6 @@
             </div>
         </div>
 
-        <!-- بەشی سەبەتە (3 ستوون لە 12 ستوون = %25 ی شاشە) -->
         <div class="lg:col-span-3 glass-panel rounded-xl p-2 flex flex-col h-[40vh] lg:h-full overflow-hidden relative shadow-md">
             
             <div class="shrink-0 pb-2 border-b border-slate-200 dark:border-slate-700/50">
@@ -224,7 +217,7 @@
                         <div class="relative flex-1">
                             <select id="customerId" class="w-full px-2 py-1 rounded-lg bg-white border border-slate-200 dark:bg-slate-800 text-[10px] font-bold focus:outline-none">
                                 <option value="">کڕیاری نەقد</option>
-                                @foreach($customers as$c)
+                                @foreach ($customers as$c)
                                     <option value="{{ $c->id }}">{{ $c->name }}</option>
                                 @endforeach
                             </select>
@@ -275,7 +268,6 @@
 
     </div>
 
-    <!-- مۆداڵی سەرکەوتنی فرۆشتن -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-[999]">
         <div class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-xs p-5 text-center shadow-2xl">
             <div class="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-full flex items-center justify-center text-2xl shadow-lg">
