@@ -34,7 +34,6 @@
         .dark body { background-color: #0b1120; background-image: radial-gradient(circle at top right, rgba(30,58,138,0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(16,185,129,0.05), transparent 40%); }
         .font-num { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        /* سکرۆڵباری خاوێن و مۆدێرن */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
@@ -42,7 +41,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* ئانیماسیۆن و ئیفێکتی مایکرۆ (Micro-interactions) */
         .btn-press { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .btn-press:active { transform: scale(0.95); }
         
@@ -61,9 +59,7 @@
 </head>
 <body class="text-slate-800 dark:text-slate-100 min-h-screen p-3 overflow-hidden select-none transition-colors duration-500">
 
-    <!-- سەرپەڕەی مۆدێرن (Navbar) -->
-    <header class="glass-panel px-4 py-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm z-50 relative">
-        <!-- لۆگۆ و بەشی ڕاست -->
+    <header class="glass-panel px-4 py-3 rounded-2xl mb-4 flex items-center justify-between shadow-sm z-[100] relative">
         <div class="flex items-center gap-4 shrink-0">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-blue-400 text-white flex items-center justify-center text-lg shadow-glow">
                 <i class="fa-solid fa-bolt"></i>
@@ -76,19 +72,17 @@
             </div>
         </div>
 
-        <!-- مێنیوی ناوەڕاست (شیک و کورت) -->
-        <div class="hidden lg:flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar relative z-50">
+        <div class="hidden lg:flex items-center gap-2 text-xs font-bold relative z-50">
             <a href="{{ route('purchases.create') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-box-open ml-1"></i> کڕینی نوێ</a>
             <a href="{{ route('products.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-boxes-stacked ml-1"></i> کۆگا</a>
             <a href="{{ route('customers.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-users ml-1"></i> کڕیاران</a>
             <a href="{{ route('reports.index') }}" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"><i class="fa-solid fa-chart-pie ml-1"></i> ڕاپۆرت</a>
             
-            <!-- دوگمەی "زیاتر" کە دەکرێتەوە بۆ بەشەکانی تر (ڕاستکراوەتەوە) -->
-            <div class="relative">
-                <button type="button" onclick="document.getElementById('moreDropdown').classList.toggle('hidden')" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1">
+            <div class="relative inline-block">
+                <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="btn-press px-4 py-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1">
                     زیاتر <i class="fa-solid fa-chevron-down text-[10px]"></i>
                 </button>
-                <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[100] overflow-hidden">
+                <div id="moreDropdown" class="hidden absolute left-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[9999] overflow-hidden">
                     <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5"></i> کاتیگۆری</a>
                     <a href="{{ route('partners.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-handshake w-5"></i> هاوبەشەکان</a>
                     <a href="{{ route('returns.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-rotate-left w-5"></i> گەڕاوەکان</a>
@@ -97,7 +91,6 @@
             </div>
         </div>
 
-        <!-- بەشی چەپ (یوزەر، دۆخ، دەرچوون) -->
         <div class="flex items-center gap-2 md:gap-3 shrink-0 relative z-50">
             <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="btn-press w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center shadow-sm border border-slate-200 dark:border-slate-700 transition">
                 <i id="themeIcon" class="fa-solid fa-moon"></i>
@@ -119,13 +112,9 @@
         </div>
     </header>
 
-    <!-- پەنجەرەی سەرەکی (Layout) -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-88px)] relative z-0">
-
-        <!-- بەشی کاڵاکان و گەڕان (لای ڕاست - فراوانتر) -->
-        <div class="lg:col-span-3 glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative">
+        <div class="lg:col-span-3 glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative z-0">
             
-            <!-- سێرچ و کاتیگۆری -->
             <div class="shrink-0 space-y-4 pb-4 border-b border-slate-200 dark:border-slate-700/50">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <h2 class="text-sm font-black flex items-center gap-2 text-slate-800 dark:text-white">
@@ -133,17 +122,14 @@
                         کاڵاکانی کۆگا
                     </h2>
                     
-                    <!-- گەڕانی پێشکەوتوو -->
                     <div class="w-full md:w-96 relative group">
                         <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بەپێی ناو یان بارکۆد..." 
                                class="w-full pl-10 pr-4 py-3 rounded-2xl bg-white dark:bg-[#070b14] border-2 border-transparent focus:border-brand-500/50 focus:bg-white dark:focus:bg-slate-900 text-slate-800 dark:text-white text-sm transition-all duration-300 shadow-sm focus:shadow-glow">
                         <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 group-focus-within:text-brand-500 transition-colors"></i>
-                        <!-- هێمای بارکۆد سکانەر -->
                         <div class="absolute right-3 top-2.5 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-400 text-[10px] font-bold border border-slate-200 dark:border-slate-700">F2</div>
                     </div>
                 </div>
 
-                <!-- فلتەری کاتیگۆرییەکان بە دیزاینی Pill -->
                 <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                     <button type="button" onclick="filterCategory('all')" id="cat-btn-all"
                             class="cat-filter-btn btn-press bg-brand-600 text-white px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-md shadow-brand-500/30">
@@ -158,7 +144,6 @@
                 </div>
             </div>
 
-            <!-- گریدی کاڵاکان (مۆدێرن و سەرنجڕاکێش) -->
             <div class="grow overflow-y-auto pt-4 pr-1 custom-scrollbar grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 content-start" id="productsGrid">
                 @foreach($products as $p)
                 @php
@@ -175,7 +160,6 @@
                      data-category="{{ $p->category_id }}"
                      onclick="addToCart({{ json_encode($p) }})">
                     
-                    <!-- تاگی بارکۆد و دۆخ لە سەرەوە -->
                     <div class="flex justify-between items-start mb-3 relative z-10">
                         <span class="text-[10px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700 group-hover:text-brand-600 dark:group-hover:text-brand-400 group-hover:border-brand-200 transition-colors">{{ $p->code }}</span>
                         
@@ -186,7 +170,6 @@
                         @endif
                     </div>
 
-                    <!-- زانیاری کاڵا -->
                     <div class="text-center my-2 relative z-10">
                         <h3 class="font-extrabold text-slate-800 dark:text-white text-sm line-clamp-2 leading-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{{ $p->name }}</h3>
                         <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-2 font-medium">
@@ -194,24 +177,20 @@
                         </p>
                     </div>
 
-                    <!-- نرخ بە دیزاینی Gradient -->
                     <div class="mt-3 relative z-10">
                         <div class="w-full bg-slate-50 dark:bg-slate-900 group-hover:bg-gradient-to-r group-hover:from-emerald-50 group-hover:to-teal-50 dark:group-hover:from-emerald-900/20 dark:group-hover:to-teal-900/20 rounded-xl py-2 px-2 text-center border border-slate-200 dark:border-slate-800 group-hover:border-emerald-200 dark:group-hover:border-emerald-800/50 transition-colors">
                             <span class="text-sm font-black font-num text-slate-700 dark:text-slate-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" dir="ltr">{{ number_format($p->base_sale_price) }} IQD</span>
                         </div>
                     </div>
                     
-                    <!-- ئیفێکتی ڕووناکی لە پشتەوەی کارت -->
                     <div class="absolute inset-0 bg-gradient-to-br from-brand-500/0 to-brand-500/0 group-hover:from-brand-500/5 group-hover:to-purple-500/5 rounded-2xl transition-all duration-500 pointer-events-none"></div>
                 </div>
                 @endforeach
             </div>
         </div>
 
-        <!-- بەشی سەبەتە (لای چەپ - شیک و مۆدێرن) -->
-        <div class="glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative shadow-lg">
+        <div class="glass-panel rounded-3xl p-4 flex flex-col h-full overflow-hidden relative z-10 shadow-lg">
             
-            <!-- سەردێڕی سەبەتە -->
             <div class="shrink-0 pb-3 border-b border-slate-200 dark:border-slate-700/50">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
@@ -227,7 +206,6 @@
                     </button>
                 </div>
 
-                <!-- زانیارییەکانی پسوولە (تێکەڵەی مۆدێرن) -->
                 <div class="bg-white/50 dark:bg-[#070b14]/50 p-3 rounded-2xl border border-slate-200 dark:border-slate-700/50 space-y-2.5">
                     <div class="relative">
                         <i class="fa-regular fa-calendar absolute left-3 top-2.5 text-slate-400 text-xs"></i>
@@ -244,7 +222,6 @@
                         </select>
                     </div>
 
-                    <!-- سویچی پارەدان (Toggle Switch Style) -->
                     <div class="flex p-1 bg-slate-200/50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 relative">
                         <label class="flex-1 text-center py-1.5 rounded-lg cursor-pointer font-bold text-xs transition-all duration-300 z-10 has-[:checked]:text-white">
                             <input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()" class="hidden peer">
@@ -254,7 +231,6 @@
                             <input type="radio" name="paymentType" value="debt" onchange="togglePaymentType()" class="hidden peer">
                             <span>قەرز</span>
                         </label>
-                        <!-- باکگراوندی جووڵاو -->
                         <div class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-emerald-500 rounded-lg shadow-sm transition-all duration-300 ease-out transform translate-x-0" id="paymentSelector"></div>
                     </div>
 
@@ -264,12 +240,10 @@
                 </div>
             </div>
 
-            <!-- لیستی کاڵاکانی ناو سەبەتە -->
             <div id="cartItemsContainer" class="grow overflow-y-auto py-3 pr-1 space-y-2.5 custom-scrollbar">
                 <!-- بە جاڤاسکریپت پڕ دەبێتەوە -->
             </div>
 
-            <!-- بەشی کۆتایی (پارە و تەواوکردن) بە دیزاینی هەڵواسراو (Floating) -->
             <div class="shrink-0 pt-3 mt-1 border-t border-slate-200 dark:border-slate-700/50 bg-white/30 dark:bg-slate-900/30 rounded-2xl px-2 pb-1">
                 
                 <div class="space-y-2 mb-4 px-2 text-xs">
@@ -291,7 +265,6 @@
                     </div>
                 </div>
 
-                <!-- دوگمەی نایابی تەواوکردن -->
                 <button type="button" onclick="submitSale()" id="btnSubmitSale" 
                         class="btn-press w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black py-4 rounded-2xl text-sm shadow-glow-emerald flex items-center justify-center gap-2 relative overflow-hidden group">
                     <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
@@ -304,7 +277,6 @@
 
     </div>
 
-    <!-- مۆداڵی سەرکەوتنی فرۆشتن (مۆدێرن) -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-[2rem] w-full max-w-sm p-8 text-center shadow-2xl transform scale-100 transition-transform">
             <div class="relative w-20 h-20 mx-auto mb-6">
@@ -327,7 +299,6 @@
         </div>
     </div>
 
-    <!-- بۆکسی پەیامی مۆدێرنی Toast -->
     <div id="toastContainer" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] space-y-2 pointer-events-none flex flex-col items-center"></div>
 
     <script>
@@ -336,7 +307,6 @@
         let clearCartTimer = null;
         let isConfirmingClear = false;
 
-        // داخستنی مێنیوی زیاتر کاتێک لە دەرەوەی کلیک دەکرێت
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('moreDropdown');
             const moreBtn = dropdown?.previousElementSibling;
@@ -345,7 +315,6 @@
             }
         });
 
-        // پاراستن و گۆڕینی دۆخی شاشە
         function initTheme() {
             const savedTheme = localStorage.getItem('pos_theme') || 'dark';
             applyTheme(savedTheme);
@@ -370,7 +339,6 @@
 
         initTheme();
 
-        // پەیامی Toast بە دیزاینی زۆر شیک و ناوەڕاست
         function showToast(message, type = 'warning') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -391,7 +359,6 @@
             }, 3000);
         }
 
-        // سڕینەوەی پسوولە
         function handleClearCartTwoClicks() {
             if (cart.length === 0) return;
             const btn = document.getElementById('btnClearCart');
@@ -421,7 +388,6 @@
             label.innerText = 'سڕینەوە';
         }
 
-        // فلتەری کاتیگۆری
         function filterCategory(catId) {
             document.querySelectorAll('.cat-filter-btn').forEach(btn => {
                 btn.classList.remove('bg-brand-600', 'text-white', 'shadow-md', 'shadow-brand-500/30');
@@ -438,7 +404,6 @@
             });
         }
 
-        // گەڕان
         function searchProducts() {
             const query = document.getElementById('searchBox').value.toLowerCase().trim();
             document.querySelectorAll('.product-card').forEach(card => {
@@ -455,7 +420,6 @@
             return parseFloat(unit?.factor_to_base) || 1.0;
         }
 
-        // زیادکردن بۆ سەبەتە و ئیفێکتی نایاب
         function addToCart(p) {
             const stockAvailable = parseFloat(p.stock_kg !== undefined ? p.stock_kg : (p.stock || 0));
             if (stockAvailable <= 0) {
@@ -493,7 +457,6 @@
                 targetIdx = cart.length - 1;
             }
 
-            // ئیفێکتی Ping بۆ ئایکۆنی سەبەتە
             const ping = document.getElementById('cartPing');
             if(ping) {
                 ping.classList.remove('hidden');
@@ -503,7 +466,6 @@
             renderCart(true, targetIdx);
         }
 
-        // دەستکاریکردنی کاڵاکانی ناو سەبەتە
         function updateItemPrice(index, val) { cart[index].price = parseFloat(val) || 0; renderCart(false); }
         
         function updateItemUnit(index, unitId) {
@@ -552,7 +514,6 @@
 
         function removeItem(index) { cart.splice(index, 1); renderCart(false); }
 
-        // نەخشاندنی سەبەتە بە دیزاینی مۆدێرن
         function renderCart(shouldFocus = false, focusIdx = -1) {
             const container = document.getElementById('cartItemsContainer');
             container.innerHTML = '';
@@ -593,21 +554,18 @@
                     </div>
 
                     <div class="grid grid-cols-12 gap-2 items-center bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800/80">
-                        <!-- یەکە -->
                         <div class="col-span-4">
                             <select onchange="updateItemUnit(${idx}, this.value)" class="w-full bg-transparent text-slate-700 dark:text-slate-300 text-[10px] font-bold focus:outline-none appearance-none cursor-pointer">
                                 ${unitOpts}
                             </select>
                         </div>
                         
-                        <!-- نرخ -->
                         <div class="col-span-4 border-r border-slate-200 dark:border-slate-700">
                             <input type="number" step="any" min="0" value="${item.price}" 
                                    onchange="updateItemPrice(${idx}, this.value)" 
                                    class="w-full bg-transparent text-center text-slate-700 dark:text-slate-300 font-num text-[11px] font-bold focus:outline-none">
                         </div>
 
-                        <!-- بڕ -->
                         <div class="col-span-4 flex items-center justify-between px-1 border-r border-slate-200 dark:border-slate-700">
                             <button type="button" onclick="updateQty(${idx}, -1)" class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-brand-500 font-bold">-</button>
                             <input type="number" step="any" min="0.01" value="${item.qty}" 
@@ -617,7 +575,6 @@
                         </div>
                     </div>
 
-                    <!-- کۆی دێڕ -->
                     <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 `;
                 container.appendChild(div);
@@ -637,24 +594,22 @@
             }
         }
 
-        // سویچی پارەدان
         function togglePaymentType() {
             const isDebt = document.querySelector('input[name="paymentType"]:checked').value === 'debt';
             const selector = document.getElementById('paymentSelector');
             const box = document.getElementById('paidAmountBox');
             
             if (isDebt) {
-                selector.style.transform = 'translateX(-100%)'; // بۆ لای قەرز (لە ڕاستەوە بۆ چەپ لە RTL)
+                selector.style.transform = 'translateX(-100%)';
                 selector.className = 'absolute top-1 bottom-1 w-[calc(50%-4px)] bg-amber-500 rounded-lg shadow-sm transition-all duration-300 ease-out';
                 box.classList.remove('hidden');
             } else {
-                selector.style.transform = 'translateX(0)'; // بۆ لای نەقد
+                selector.style.transform = 'translateX(0)';
                 selector.className = 'absolute top-1 bottom-1 w-[calc(50%-4px)] bg-emerald-500 rounded-lg shadow-sm transition-all duration-300 ease-out';
                 box.classList.add('hidden');
             }
         }
 
-        // تەواوکردنی فرۆشتن
         function submitSale() {
             if (cart.length === 0) { showToast('تکایە سەرەتا کاڵا دیاری بکە', 'error'); return; }
 
