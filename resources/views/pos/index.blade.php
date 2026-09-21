@@ -54,21 +54,54 @@
             background: rgba(15, 23, 42, 0.65);
             border: 1px solid rgba(51, 65, 85, 0.5);
         }
-        
-        /* شێوازی Liquid Button */
-        .liquid-container {
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+
+        /* ستايلی تایبەت بە Liquid Button بۆ دوگمەکانی سەرەوە */
+        .liquid-nav-btn {
+            position: relative;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 9999px;
+            box-shadow: 
+                inset 0 4px 6px rgba(255, 255, 255, 0.9),  /* بریقەی سەرەوە */
+                inset 0 -4px 6px rgba(0, 0, 0, 0.05),      /* سێبەری خوارەوەی ناوەوە */
+                0 4px 10px rgba(0, 0, 0, 0.05);           /* سێبەری دەرەوە */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #475569; /* text-slate-600 */
         }
-        .dark .liquid-container {
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        .dark .liquid-nav-btn {
+            background: rgba(30, 41, 59, 0.6); /* slate-800/60 */
+            box-shadow: 
+                inset 0 3px 5px rgba(255, 255, 255, 0.15), 
+                inset 0 -4px 6px rgba(0, 0, 0, 0.4), 
+                0 4px 10px rgba(0, 0, 0, 0.3);
+            color: #cbd5e1; /* text-slate-300 */
+        }
+        .liquid-nav-btn:hover, .liquid-nav-btn:active {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: white;
+            box-shadow: 
+                inset 0 4px 6px rgba(255, 255, 255, 0.4), 
+                inset 0 -4px 6px rgba(0, 0, 0, 0.2), 
+                0 6px 15px rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+        .dark .liquid-nav-btn:hover, .dark .liquid-nav-btn:active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            box-shadow: 
+                inset 0 3px 5px rgba(255, 255, 255, 0.2), 
+                inset 0 -4px 6px rgba(0, 0, 0, 0.4), 
+                0 6px 15px rgba(59, 130, 246, 0.3);
+        }
+        .liquid-nav-btn:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
 <body class="text-slate-800 dark:text-slate-100 h-screen p-1 md:p-2 overflow-hidden select-none transition-colors duration-500 flex flex-col">
 
-    <header class="glass-panel px-2 py-1.5 md:py-2 rounded-xl mb-2 flex flex-col md:flex-row items-center justify-between shadow-sm z-[100] shrink-0 gap-2 md:gap-0">
+    <header class="glass-panel px-2 py-1.5 md:py-2 rounded-xl mb-2 flex items-center justify-between shadow-sm z-[100] shrink-0">
         
-        <div class="flex items-center justify-between w-full md:w-auto">
+        <div class="flex items-center justify-between w-full lg:w-auto">
             <div class="flex items-center gap-2 shrink-0">
                 <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-blue-400 text-white flex items-center justify-center text-xs shadow-glow">
                     <i class="fa-solid fa-bolt"></i>
@@ -80,7 +113,7 @@
                 </div>
             </div>
 
-            <div class="flex md:hidden items-center gap-1.5 shrink-0 relative z-50">
+            <div class="flex lg:hidden items-center gap-1.5 shrink-0 relative z-50">
                 <button type="button" onclick="toggleTheme()" class="btn-press w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center border border-slate-200 dark:border-slate-700">
                     <i id="themeIconMobile" class="fa-solid fa-moon text-[9px]"></i>
                 </button>
@@ -93,27 +126,35 @@
             </div>
         </div>
 
-        <!-- بەکارهێنانی flex-wrap بۆ ئەوەی مێنیوەکە نەبڕدرێت (ئێستا زیاتر بە جوانی دەکرێتەوە) -->
-        <div class="flex flex-wrap items-center justify-center gap-1 text-[10px] md:text-[11px] font-bold relative z-50 w-full md:w-auto">
-            <a href="{{ route('purchases.create') }}" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-box-open"></i> کڕین</a>
-            <a href="{{ route('products.index') }}" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-boxes-stacked"></i> کۆگا</a>
-            <a href="{{ route('customers.index') }}" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-users"></i> کڕیار</a>
-            <a href="{{ route('reports.index') }}" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-chart-pie"></i> ڕاپۆرت</a>
+        <!-- بەکارهێنانی ستايلی Liquid Button بۆ مێنیوی سەرەوە -->
+        <div class="flex items-center gap-2 text-[10px] md:text-xs font-bold overflow-x-auto no-scrollbar relative z-50 w-full lg:w-auto px-1 lg:px-0 py-1">
+            <a href="{{ route('purchases.create') }}" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-box-open"></i> کڕین
+            </a>
+            <a href="{{ route('products.index') }}" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-boxes-stacked"></i> کۆگا
+            </a>
+            <a href="{{ route('customers.index') }}" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-users"></i> کڕیار
+            </a>
+            <a href="{{ route('reports.index') }}" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-chart-pie"></i> ڕاپۆرت
+            </a>
             
             <div class="relative inline-block">
-                <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1 whitespace-nowrap">
-                    زیاتر <i class="fa-solid fa-chevron-down text-[8px]"></i>
+                <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+                    زیاتر <i class="fa-solid fa-chevron-down text-[8px] mt-0.5"></i>
                 </button>
-                <div id="moreDropdown" class="hidden absolute left-0 top-full mt-1 w-40 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] overflow-hidden text-[11px]">
-                    <a href="{{ route('categories.index') }}" class="block px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-4"></i> کاتیگۆری</a>
-                    <a href="{{ route('partners.index') }}" class="block px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-handshake w-4"></i> هاوبەشەکان</a>
-                    <a href="{{ route('returns.index') }}" class="block px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-rotate-left w-4"></i> گەڕاوەکان</a>
-                    <a href="{{ route('users.index') }}" class="block px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"><i class="fa-solid fa-user-shield w-4"></i> کارمەندان</a>
+                <div id="moreDropdown" class="hidden absolute left-0 top-full mt-2 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] overflow-hidden text-xs">
+                    <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5 text-center"></i> کاتیگۆری</a>
+                    <a href="{{ route('partners.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-handshake w-5 text-center"></i> هاوبەشەکان</a>
+                    <a href="{{ route('returns.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-rotate-left w-5 text-center"></i> گەڕاوەکان</a>
+                    <a href="{{ route('users.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"><i class="fa-solid fa-user-shield w-5 text-center"></i> کارمەندان</a>
                 </div>
             </div>
         </div>
 
-        <div class="hidden md:flex items-center gap-2 shrink-0 relative z-50">
+        <div class="hidden lg:flex items-center gap-2 shrink-0 relative z-50">
             <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="btn-press w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center border border-slate-200 dark:border-slate-700">
                 <i id="themeIcon" class="fa-solid fa-moon text-[10px]"></i>
             </button>
@@ -194,25 +235,13 @@
                         </div>
                     </div>
 
-                    <!-- دیزاینی Liquid Button بە جووڵەی Animation ەوە -->
-                    <!-- بەهۆی RTL یەکەم دوگمە دەکەوێتە لای ڕاست وە کۆتا دانە دەکەوێتە لای چەپ -->
-                    <div class="mt-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-between border border-slate-200 dark:border-slate-700 liquid-container backdrop-blur-sm relative overflow-hidden">
+                    <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1">
+                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">+</button>
                         
-                        <!-- دوگمەی زیادکردن (+) دانراوە وەک یەکەم دانە تا بچێتە لای ڕاست -->
-                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" class="w-7 h-7 rounded-full bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center font-bold shadow transition-transform active:scale-90 z-10">
-                            <i class="fa-solid fa-plus text-[10px]"></i>
-                        </button>
+                        <!-- ئایدی بۆ ئەنیمەیشنی نرخەکە دانراوە -->
+                        <span id="price-anim-<?php echo $p->id; ?>" class="text-[10px] font-black font-num text-emerald-500 transition-all duration-200 inline-block" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
                         
-                        <!-- نرخ کە جووڵە دەکات کاتێک کلیک دەکرێت -->
-                        <span id="price-anim-<?php echo $p->id; ?>" class="flex-1 text-center text-[10px] md:text-[11px] font-black font-num text-slate-700 dark:text-slate-200 transition-all duration-200 transform z-10 pointer-events-none" dir="ltr">
-                            <?php echo number_format($p->base_sale_price); ?>
-                        </span>
-                        
-                        <!-- دوگمەی کەمکردنەوە (-) دانراوە وەک کۆتا دانە تا بچێتە لای چەپ -->
-                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-7 h-7 rounded-full bg-white dark:bg-slate-900 hover:bg-rose-50 text-slate-700 dark:text-slate-300 hover:text-rose-500 flex items-center justify-center font-bold shadow transition-transform active:scale-90 z-10">
-                            <i class="fa-solid fa-minus text-[10px]"></i>
-                        </button>
-
+                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">-</button>
                     </div>
 
                 </div>
@@ -452,17 +481,17 @@
             renderCart(false);
         }
 
-        // زیادکردنی خێرا لەگەڵ ئەنیمەیشنی Liquid Button
+        // زیادکردن لەگەڵ ئەنیمەیشنی گەورەبوون
         function quickIncrease(p) { 
-            addToCart(p); 
+            addToCart(p);
             let el = document.getElementById('price-anim-' + p.id);
             if(el) {
-                el.classList.add('scale-125', 'text-emerald-500');
-                setTimeout(() => el.classList.remove('scale-125', 'text-emerald-500'), 150);
+                el.classList.add('scale-125', 'text-brand-500');
+                setTimeout(() => el.classList.remove('scale-125', 'text-brand-500'), 150);
             }
         }
 
-        // کەمکردنەوەی خێرا لەگەڵ ئەنیمەیشنی Liquid Button
+        // کەمکردنەوە لەگەڵ ئەنیمەیشنی بچووکبوون
         function quickDecrease(productId) {
             let idx = cart.findIndex(i => i.id === productId);
             if (idx !== -1) {
