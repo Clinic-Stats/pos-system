@@ -167,10 +167,9 @@
                 
                 <div class="product-card group relative bg-white dark:bg-[#0f172a] border <?php echo $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50'); ?> rounded-xl p-1.5 flex flex-col justify-between select-none shadow-sm hover:shadow-md transition-all">
                     
-                    <!-- کلیک لەسەر ناوەڕۆکی کارت بۆ زیادکردن -->
                     <div class="cursor-pointer" onclick="addToCart(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)">
                         <div class="flex justify-between items-start mb-1 relative z-10">
-                            <span class="text-[8px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-200 dark:border-slate-700"><?php echo $p->code; ?></span>
+                            <span class="text-[8px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700"><?php echo $p->code; ?></span>
                             <?php if($isOut): ?>
                                 <span class="text-[8px] font-extrabold text-rose-600 bg-rose-100 px-1 py-0.5 rounded">نەماوە</span>
                             <?php elseif($isLow): ?>
@@ -186,7 +185,7 @@
                         </div>
                     </div>
 
-                    <!-- دوگمەکانی زیادکردن و کەمکردنەوە ڕاستەوخۆ لە ژێر هەر ماددەیەکدا -->
+                    <!-- دوگمەکانی زیادکردن (+) لای ڕاست و کەمکردنەوە (-) لای چەپ -->
                     <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1">
                         <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-6 h-6 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-600 dark:text-slate-300 hover:text-rose-600 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">-</button>
                         <span class="text-[10px] font-black font-num text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
@@ -250,6 +249,7 @@
                 </div>
             </div>
 
+            <!-- لیستی کاڵاکانی ناو سەبەتە -->
             <div id="cartItemsContainer" class="grow overflow-y-auto py-1.5 pr-0.5 space-y-1.5 custom-scrollbar"></div>
 
             <div class="shrink-0 pt-1.5 mt-1 border-t border-slate-200 dark:border-slate-700/50">
@@ -276,18 +276,43 @@
 
     </div>
 
-    <!-- مۆداڵی سەرکەوتنی فرۆشتن -->
-    <div id="successModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-[999]">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-xs p-5 text-center shadow-2xl">
-            <div class="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-emerald-400 to-emerald-600 text-white rounded-full flex items-center justify-center text-2xl shadow-lg">
-                <i class="fa-solid fa-check"></i>
+    <!-- مۆداڵی سەرکەوتنی فرۆشتن و پیشاندانی وردەکاری بۆ چاپکردن -->
+    <div id="successModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[999]">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-5 text-right shadow-2xl flex flex-col max-h-[90vh]">
+            
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-receipt"></i></div>
+                    <div>
+                        <h3 class="text-sm font-black dark:text-white">وەسڵی فرۆشتن</h3>
+                        <p class="text-[10px] text-slate-400">دەتوانیت کاڵاکان لە خوارەوە کەم و زیاد بکەیت پێش چاپکردن</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeSuccessModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-rose-100 hover:text-rose-500"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <h3 class="text-sm font-black mb-1">سەرکەوتوو بوو!</h3>
-            <p class="text-[10px] text-slate-500 mb-4">وەسڵەکە بە سەرکەوتوویی تۆمارکرا.</p>
-            <div class="flex flex-col gap-2">
-                <a href="#" id="printInvoiceBtn" target="_blank" class="btn-press py-2 bg-emerald-500 text-white rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5"><i class="fa-solid fa-print"></i> چاپکردن</a>
-                <button type="button" onclick="closeSuccessModal()" class="btn-press py-2 bg-slate-100 text-slate-600 rounded-lg text-[11px] font-bold">داخستن</button>
+
+            <!-- خشتەی کاڵاکانی وەسڵ بۆ دەستکاریکردن پێش پرینت -->
+            <div class="grow overflow-y-auto py-3 custom-scrollbar space-y-2" id="modalItemsList">
+                <!-- لێرەدا بە JS کاڵاکان دادەنرێن -->
             </div>
+
+            <!-- کۆی گشتی و دوگمەی پرینت -->
+            <div class="shrink-0 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                <div class="flex justify-between items-center text-xs font-black">
+                    <span>کۆی گشتی پارە:</span>
+                    <span id="modalGrandTotal" class="text-emerald-500 text-base font-num" dir="ltr">0 IQD</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <a href="#" id="printInvoiceBtn" target="_blank" class="btn-press py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md">
+                        <i class="fa-solid fa-print"></i> پرینتی کۆتایی
+                    </a>
+                    <button type="button" onclick="closeSuccessModal()" class="btn-press py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold">
+                        داخستن / فرۆشتنی نوێ
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -298,6 +323,8 @@
         let cart = [];
         let clearCartTimer = null;
         let isConfirmingClear = false;
+        let lastSaleItems = []; // بۆ پاشەکەوتکردنی کاڵاکانی پسوولەی کۆتایی
+        let activeSaleId = null;
 
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('moreDropdown');
@@ -372,6 +399,12 @@
             });
         }
 
+        // دڵنیابوونەوە لەوەی یەکە دایم لەسەر کیلۆ بێت (یەکەم یەکە یان ئەوەی ناوی کیلۆیە)
+        function getDefaultUnitId() {
+            const kgUnit = units.find(u => (u.name || '').toLowerCase().includes('کیلۆ') || (u.name || '').toLowerCase().includes('kg'));
+            return kgUnit ? kgUnit.id : (units[0] ? units[0].id : 1);
+        }
+
         function getUnitFactor(product, unit) {
             const n = (unit?.name || '').toLowerCase();
             if (n.includes('کارتۆن') || n.includes('carton')) return parseFloat(product.kg_per_carton) || 1;
@@ -383,7 +416,8 @@
             const stock = parseFloat(p.stock_kg !== undefined ? p.stock_kg : (p.stock || 0));
             if (stock <= 0) { showToast('نەماوە!', 'error'); return; }
 
-            const initialUnit = units[0] || { id: 1, name: 'دانە', factor_to_base: 1 };
+            const defaultUnitId = getDefaultUnitId();
+            const initialUnit = units.find(u => u.id == defaultUnitId) || units[0] || { id: 1, name: 'کیلۆ', factor_to_base: 1 };
             const factor = getUnitFactor(p, initialUnit);
             
             let idx = cart.findIndex(i => i.id === p.id);
@@ -394,57 +428,45 @@
                 if (cart[idx].qty + 1 > max) { showToast('تەواو بوو!'); cart[idx].qty = max; } else { cart[idx].qty++; }
             } else {
                 cart.push({ id: p.id, name: p.name, code: p.code, price: parseFloat(p.base_sale_price)||0, stock_kg: stock, kg_per_carton: parseFloat(p.kg_per_carton)||1, qty: 1, unit_id: initialUnit.id, factor: factor });
-                idx = cart.length - 1;
             }
             
             const ping = document.getElementById('cartPing');
             if(ping) { ping.classList.remove('hidden'); setTimeout(() => ping.classList.add('hidden'), 300); }
-            renderCart(false); // بۆ ئەوەی فۆکەس نەچێتە سەر بڕی کاڵا لە سەبەتەدا
+            renderCart(false); // فۆکەس لابرا بۆ پاراستنی بێزاری مۆبایل
         }
 
-        // زیادکردنی خێرا لە کارتەوە (+ ڕاستەوخۆ)
-        function quickIncrease(p) {
-            event.stopPropagation();
-            addToCart(p);
-        }
-
-        // کەمکردنەوەی خێرا لە کارتەوە (- ڕاستەوخۆ)
+        function quickIncrease(p) { addToCart(p); }
         function quickDecrease(productId) {
-            event.stopPropagation();
             let idx = cart.findIndex(i => i.id === productId);
             if (idx !== -1) {
-                if (cart[idx].qty > 1) {
-                    cart[idx].qty--;
-                } else {
-                    cart.splice(idx, 1);
-                }
+                if (cart[idx].qty > 1) { cart[idx].qty--; } else { cart.splice(idx, 1); }
                 renderCart(false);
             }
         }
 
-        function updateItemPrice(index, val) { cart[index].price = parseFloat(val) || 0; renderCart(); }
+        function updateItemPrice(index, val) { cart[index].price = parseFloat(val) || 0; renderCart(false); }
         function updateItemUnit(index, unitId) {
             const i = cart[index]; const u = units.find(x => x.id == unitId);
             i.unit_id = unitId; i.factor = getUnitFactor(i, u);
             const max = i.factor > 0 ? (i.stock_kg / i.factor) : i.stock_kg;
             if (i.qty > max) i.qty = max;
-            renderCart();
+            renderCart(false);
         }
         function updateQty(index, delta) {
             const i = cart[index]; const max = i.factor > 0 ? (i.stock_kg / i.factor) : i.stock_kg;
             const n = i.qty + delta;
             if (n > max) i.qty = max; else if (n <= 0) cart.splice(index, 1); else i.qty = n;
-            renderCart();
+            renderCart(false);
         }
         function setQtyDirect(index, val) {
             const i = cart[index]; const max = i.factor > 0 ? (i.stock_kg / i.factor) : i.stock_kg;
             let num = parseFloat(val); if (isNaN(num) || num <= 0) num = 1;
             i.qty = num > max ? max : num;
-            renderCart();
+            renderCart(false);
         }
-        function removeItem(index) { cart.splice(index, 1); renderCart(); }
+        function removeItem(index) { cart.splice(index, 1); renderCart(false); }
 
-        function renderCart(shouldFocus = false, focusIdx = -1) {
+        function renderCart(shouldFocus = false) {
             const container = document.getElementById('cartItemsContainer'); container.innerHTML = ''; let subtotal = 0;
             if (cart.length === 0) {
                 container.innerHTML = `<div class="h-20 flex flex-col items-center justify-center text-slate-400 text-[10px] font-bold"><i class="fa-solid fa-cart-arrow-down text-xl mb-1"></i>بەتاڵە</div>`;
@@ -454,7 +476,6 @@
 
             cart.forEach((item, idx) => {
                 subtotal += item.qty * (item.price * item.factor);
-                const max = item.factor > 0 ? (item.stock_kg / item.factor) : item.stock_kg;
                 const opts = units.map(u => `<option value="${u.id}" ${item.unit_id == u.id ? 'selected' : ''}>${u.name}</option>`).join('');
 
                 const div = document.createElement('div'); div.id = `cart-row-${idx}`;
@@ -469,7 +490,7 @@
                         <div class="col-span-4 border-r border-slate-200 dark:border-slate-700"><input type="number" step="any" min="0" value="${item.price}" onchange="updateItemPrice(${idx}, this.value)" class="w-full bg-transparent text-center text-[10px] font-bold font-num focus:outline-none"></div>
                         <div class="col-span-4 flex items-center justify-between px-0.5 border-r border-slate-200 dark:border-slate-700">
                             <button type="button" onclick="updateQty(${idx}, -1)" class="w-4 h-4 text-slate-400 font-bold text-[10px]">-</button>
-                            <input type="number" step="any" min="0.01" value="${item.qty}" id="qty-input-${idx}" onchange="setQtyDirect(${idx}, this.value)" class="w-6 text-center bg-transparent font-num text-brand-600 text-[10px] font-black focus:outline-none p-0">
+                            <input type="number" step="any" min="0.01" value="${item.qty}" onchange="setQtyDirect(${idx}, this.value)" class="w-6 text-center bg-transparent font-num text-brand-600 text-[10px] font-black focus:outline-none p-0">
                             <button type="button" onclick="updateQty(${idx}, 1)" class="w-4 h-4 text-slate-400 font-bold text-[10px]">+</button>
                         </div>
                     </div>`;
@@ -479,11 +500,6 @@
             const discount = parseFloat(document.getElementById('cartDiscount').value) || 0;
             document.getElementById('subTotalText').innerText = Math.round(subtotal).toLocaleString();
             document.getElementById('grandTotalText').innerText = Math.round(Math.max(0, subtotal - discount)).toLocaleString();
-
-            if (shouldFocus && focusIdx !== -1) {
-                document.getElementById(`cart-row-${focusIdx}`)?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                const qInput = document.getElementById(`qty-input-${focusIdx}`); if (qInput) setTimeout(() => { qInput.focus(); qInput.select(); }, 100);
-            }
         }
 
         function togglePaymentType() {
@@ -502,6 +518,8 @@
             const btn = document.getElementById('btnSubmitSale'); btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
+            lastSaleItems = JSON.parse(JSON.stringify(cart)); // کۆپیەک بۆ دەستکاری لە مۆداڵ
+
             fetch('/sales', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '<?php echo csrf_token(); ?>', 'Accept': 'application/json' },
@@ -515,15 +533,62 @@
             }).then(res => res.json()).then(data => {
                 btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> پسوولە';
                 if (data.success) {
-                    cart = []; document.getElementById('cartDiscount').value = 0; renderCart(false);
-                    document.getElementById('printInvoiceBtn').href = '/sales/print/' + data.sale_id;
+                    activeSaleId = data.sale_id;
+                    document.getElementById('printInvoiceBtn').href = '/sales/print/'.concat(data.sale_id);
+                    renderModalItems();
                     document.getElementById('successModal').classList.remove('hidden');
+                    cart = []; document.getElementById('cartDiscount').value = 0; renderCart(false);
                 } else { showToast(data.error || 'هەڵە', 'error'); }
             }).catch(err => {
                 btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> پسوولە';
                 showToast('کێشەیەک ڕوویدا', 'error');
             });
         }
+
+        // پیشاندانی کاڵاکان لە مۆداڵی سەرکەوتن بۆ دەستکاری پێش پرینت
+        function renderModalItems() {
+            const listContainer = document.getElementById('modalItemsList');
+            listContainer.innerHTML = '';
+            let total = 0;
+
+            lastSaleItems.forEach((item, index) => {
+                const lineTotal = item.qty * (item.price * item.factor);
+                total += lineTotal;
+                const u = units.find(x => x.id == item.unit_id);
+
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs';
+                row.innerHTML = `
+                    <div class="w-1/3 font-bold truncate">${item.name}</div>
+                    <div class="w-1/4 flex items-center gap-1">
+                        <input type="number" step="any" min="0.01" value="${item.qty}" onchange="updateModalQty(${index}, this.value)" class="w-12 bg-white dark:bg-slate-900 text-center font-num border border-slate-300 dark:border-slate-600 rounded p-1 text-xs">
+                        <span class="text-[10px] text-slate-400">${u ? u.name : ''}</span>
+                    </div>
+                    <div class="w-1/4">
+                        <input type="number" step="any" min="0" value="${item.price}" onchange="updateModalPrice(${index}, this.value)" class="w-20 bg-white dark:bg-slate-900 text-center font-num border border-slate-300 dark:border-slate-600 rounded p-1 text-xs text-emerald-500 font-bold">
+                    </div>
+                    <div class="w-1/6 text-left font-num font-black" dir="ltr">${Math.round(lineTotal).toLocaleString()}</div>
+                `;
+                listContainer.appendChild(row);
+            });
+
+            document.getElementById('modalGrandTotal').innerText = Math.round(total).toLocaleString().concat(' IQD');
+        }
+
+        function updateModalQty(index, val) {
+            let q = parseFloat(val);
+            if (isNaN(q) || q <= 0) q = 1;
+            lastSaleItems[index].qty = q;
+            renderModalItems();
+        }
+
+        function updateModalPrice(index, val) {
+            let p = parseFloat(val);
+            if (isNaN(p) || p < 0) p = 0;
+            lastSaleItems[index].price = p;
+            renderModalItems();
+        }
+
         function closeSuccessModal() { document.getElementById('successModal').classList.add('hidden'); location.reload(); }
     </script>
 </body>
