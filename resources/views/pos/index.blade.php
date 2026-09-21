@@ -54,13 +54,21 @@
             background: rgba(15, 23, 42, 0.65);
             border: 1px solid rgba(51, 65, 85, 0.5);
         }
+        
+        /* شێوازی Liquid Button */
+        .liquid-container {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        .dark .liquid-container {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body class="text-slate-800 dark:text-slate-100 h-screen p-1 md:p-2 overflow-hidden select-none transition-colors duration-500 flex flex-col">
 
-    <header class="glass-panel px-2 py-1.5 md:py-2 rounded-xl mb-2 flex items-center justify-between shadow-sm z-[100] shrink-0">
+    <header class="glass-panel px-2 py-1.5 md:py-2 rounded-xl mb-2 flex flex-col md:flex-row items-center justify-between shadow-sm z-[100] shrink-0 gap-2 md:gap-0">
         
-        <div class="flex items-center justify-between w-full lg:w-auto">
+        <div class="flex items-center justify-between w-full md:w-auto">
             <div class="flex items-center gap-2 shrink-0">
                 <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-blue-400 text-white flex items-center justify-center text-xs shadow-glow">
                     <i class="fa-solid fa-bolt"></i>
@@ -72,20 +80,21 @@
                 </div>
             </div>
 
-            <div class="flex lg:hidden items-center gap-1.5 shrink-0 relative z-50">
+            <div class="flex md:hidden items-center gap-1.5 shrink-0 relative z-50">
                 <button type="button" onclick="toggleTheme()" class="btn-press w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center border border-slate-200 dark:border-slate-700">
                     <i id="themeIconMobile" class="fa-solid fa-moon text-[9px]"></i>
                 </button>
                 <form action="{{ route('logout') }}" method="POST" class="m-0">
                     <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
-                    <button type="submit" class="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center border border-rose-200 dark:border-slate-800">
+                    <button type="submit" class="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center border border-rose-200 dark:border-rose-800">
                         <i class="fa-solid fa-power-off text-[9px]"></i>
                     </button>
                 </form>
             </div>
         </div>
 
-        <div class="flex items-center gap-1 text-[10px] md:text-[11px] font-bold overflow-x-auto no-scrollbar relative z-50 w-full lg:w-auto px-1 lg:px-0">
+        <!-- بەکارهێنانی flex-wrap بۆ ئەوەی مێنیوەکە نەبڕدرێت (ئێستا زیاتر بە جوانی دەکرێتەوە) -->
+        <div class="flex flex-wrap items-center justify-center gap-1 text-[10px] md:text-[11px] font-bold relative z-50 w-full md:w-auto">
             <a href="{{ route('purchases.create') }}" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-box-open"></i> کڕین</a>
             <a href="{{ route('products.index') }}" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-boxes-stacked"></i> کۆگا</a>
             <a href="{{ route('customers.index') }}" class="btn-press px-2.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-users"></i> کڕیار</a>
@@ -104,7 +113,7 @@
             </div>
         </div>
 
-        <div class="hidden lg:flex items-center gap-2 shrink-0 relative z-50">
+        <div class="hidden md:flex items-center gap-2 shrink-0 relative z-50">
             <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="btn-press w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center border border-slate-200 dark:border-slate-700">
                 <i id="themeIcon" class="fa-solid fa-moon text-[10px]"></i>
             </button>
@@ -185,15 +194,25 @@
                         </div>
                     </div>
 
-                    <!-- دوگمەی (+) لای ڕاست و (-) لای چەپ -->
-                    <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1">
-                        <!-- دوگمەی زیادکردن (+) -->
-                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">+</button>
+                    <!-- دیزاینی Liquid Button بە جووڵەی Animation ەوە -->
+                    <!-- بەهۆی RTL یەکەم دوگمە دەکەوێتە لای ڕاست وە کۆتا دانە دەکەوێتە لای چەپ -->
+                    <div class="mt-1 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-between border border-slate-200 dark:border-slate-700 liquid-container backdrop-blur-sm relative overflow-hidden">
                         
-                        <span class="text-[10px] font-black font-num text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
+                        <!-- دوگمەی زیادکردن (+) دانراوە وەک یەکەم دانە تا بچێتە لای ڕاست -->
+                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" class="w-7 h-7 rounded-full bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center font-bold shadow transition-transform active:scale-90 z-10">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                        </button>
                         
-                        <!-- دوگمەی کەمکردنەوە (-) -->
-                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">-</button>
+                        <!-- نرخ کە جووڵە دەکات کاتێک کلیک دەکرێت -->
+                        <span id="price-anim-<?php echo $p->id; ?>" class="flex-1 text-center text-[10px] md:text-[11px] font-black font-num text-slate-700 dark:text-slate-200 transition-all duration-200 transform z-10 pointer-events-none" dir="ltr">
+                            <?php echo number_format($p->base_sale_price); ?>
+                        </span>
+                        
+                        <!-- دوگمەی کەمکردنەوە (-) دانراوە وەک کۆتا دانە تا بچێتە لای چەپ -->
+                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-7 h-7 rounded-full bg-white dark:bg-slate-900 hover:bg-rose-50 text-slate-700 dark:text-slate-300 hover:text-rose-500 flex items-center justify-center font-bold shadow transition-transform active:scale-90 z-10">
+                            <i class="fa-solid fa-minus text-[10px]"></i>
+                        </button>
+
                     </div>
 
                 </div>
@@ -398,7 +417,6 @@
             });
         }
 
-        // یەکە هەمیشە لەسەر کیلۆ بێت
         function getDefaultUnitId() {
             const kgUnit = units.find(u => (u.name || '').toLowerCase().includes('کیلۆ') || (u.name || '').toLowerCase().includes('kg'));
             return kgUnit ? kgUnit.id : (units[0] ? units[0].id : 1);
@@ -434,12 +452,28 @@
             renderCart(false);
         }
 
-        function quickIncrease(p) { addToCart(p); }
+        // زیادکردنی خێرا لەگەڵ ئەنیمەیشنی Liquid Button
+        function quickIncrease(p) { 
+            addToCart(p); 
+            let el = document.getElementById('price-anim-' + p.id);
+            if(el) {
+                el.classList.add('scale-125', 'text-emerald-500');
+                setTimeout(() => el.classList.remove('scale-125', 'text-emerald-500'), 150);
+            }
+        }
+
+        // کەمکردنەوەی خێرا لەگەڵ ئەنیمەیشنی Liquid Button
         function quickDecrease(productId) {
             let idx = cart.findIndex(i => i.id === productId);
             if (idx !== -1) {
                 if (cart[idx].qty > 1) { cart[idx].qty--; } else { cart.splice(idx, 1); }
                 renderCart(false);
+                
+                let el = document.getElementById('price-anim-' + productId);
+                if(el) {
+                    el.classList.add('scale-75', 'text-rose-500');
+                    setTimeout(() => el.classList.remove('scale-75', 'text-rose-500'), 150);
+                }
             }
         }
 
@@ -488,7 +522,6 @@
                         <div class="col-span-4"><select onchange="updateItemUnit(${idx}, this.value)" class="w-full bg-transparent text-[9px] font-bold focus:outline-none appearance-none cursor-pointer">${opts}</select></div>
                         <div class="col-span-4 border-r border-slate-200 dark:border-slate-700"><input type="number" step="any" min="0" value="${item.price}" onchange="updateItemPrice(${idx}, this.value)" class="w-full bg-transparent text-center text-[10px] font-bold font-num focus:outline-none"></div>
                         <div class="col-span-4 flex items-center justify-between px-0.5 border-r border-slate-200 dark:border-slate-700">
-                            <!-- گۆڕینی لای + و - لەناو سەبەتەشدا بۆ ئەوەی وەک یەک بن -->
                             <button type="button" onclick="updateQty(${idx}, 1)" class="w-4 h-4 text-brand-500 font-bold text-[10px]">+</button>
                             <input type="number" step="any" min="0.01" value="${item.qty}" onchange="setQtyDirect(${idx}, this.value)" class="w-6 text-center bg-transparent font-num text-brand-600 text-[10px] font-black focus:outline-none p-0">
                             <button type="button" onclick="updateQty(${idx}, -1)" class="w-4 h-4 text-slate-400 font-bold text-[10px]">-</button>
@@ -588,7 +621,6 @@
             renderModalItems();
         }
 
-        // گەڕانەوە بۆ هەمان وەسڵی فرۆشتن (هێنانی کاڵاکان بۆ ناو سەبەتە و داخستنی مۆداڵ)
         function returnToSameSale() {
             if (lastSaleItems && lastSaleItems.length > 0) {
                 cart = JSON.parse(JSON.stringify(lastSaleItems));
