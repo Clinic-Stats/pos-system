@@ -55,7 +55,6 @@
             border: 1px solid rgba(51, 65, 85, 0.5);
         }
 
-        /* ئەنیمەیشنی نوێی دوگمەکانی سەرەوە (Glow on hover) */
         .glow-on-hover {
             border: none;
             outline: none;
@@ -86,15 +85,9 @@
             transition: opacity .3s ease-in-out;
             border-radius: 10px;
         }
-        .glow-on-hover:active {
-            transform: scale(0.95);
-        }
-        .glow-on-hover:active:after {
-            background: transparent;
-        }
-        .glow-on-hover:hover:before {
-            opacity: 1;
-        }
+        .glow-on-hover:active { transform: scale(0.95); }
+        .glow-on-hover:active:after { background: transparent; }
+        .glow-on-hover:hover:before { opacity: 1; }
         .glow-on-hover:after {
             z-index: -1;
             content: '';
@@ -142,7 +135,6 @@
             </div>
         </div>
 
-        <!-- دوگمەکان گۆڕدراون بۆ glow-on-hover -->
         <div class="flex flex-wrap items-center justify-center gap-1.5 text-[10px] md:text-[11px] font-bold relative z-[105] w-full md:w-auto">
             <a href="{{ route('purchases.create') }}" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-box-open"></i> کڕین
@@ -193,6 +185,7 @@
 
     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2 h-full overflow-hidden relative z-0">
         
+        <!-- بەشی کاڵاکان -->
         <div class="lg:col-span-9 glass-panel rounded-xl p-2 flex flex-col h-[55vh] lg:h-full overflow-hidden relative z-0">
             
             <div class="shrink-0 space-y-2 pb-2 border-b border-slate-200 dark:border-slate-700/50">
@@ -219,6 +212,7 @@
                 </div>
             </div>
 
+            <!-- کاڵاکان -->
             <div class="grow overflow-y-auto pt-2 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 content-start" id="productsGrid">
                 
                 <?php foreach($products as $p): ?>
@@ -231,6 +225,11 @@
                 
                 <div class="product-card group relative bg-white dark:bg-[#0f172a] border <?php echo $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50'); ?> rounded-xl p-1.5 flex flex-col justify-between select-none shadow-sm hover:shadow-md transition-all">
                     
+                    <!-- نیشانەی چەندە لە سەبەتە (لە خوارەوە لای چەپ - دەردەکەوێت ئەگەر فرۆشرابێت) -->
+                    <div id="qty-badge-<?php echo $p->id; ?>" class="qty-badge hidden absolute bottom-[40px] left-1.5 bg-emerald-500 text-white font-num font-black text-[9px] px-1.5 py-0.5 rounded shadow-glow-emerald border border-emerald-400 z-20 transition-all duration-300 transform scale-0 flex items-center gap-0.5 pointer-events-none">
+                        <i class="fa-solid fa-check text-[7px]"></i> <span class="badge-val">0</span>
+                    </div>
+
                     <div class="cursor-pointer" onclick="addToCart(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)">
                         <div class="flex justify-between items-start mb-1 relative z-10">
                             <span class="text-[8px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700"><?php echo $p->code; ?></span>
@@ -249,10 +248,13 @@
                         </div>
                     </div>
 
-                    <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1 relative">
-                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, event)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm z-10">+</button>
+                    <!-- دوگمەی (+) لای ڕاست و (-) لای چەپ -->
+                    <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1 relative z-10">
+                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, event)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">+</button>
+                        
                         <span id="price-anim-<?php echo $p->id; ?>" class="text-[10px] font-black font-num text-emerald-500 transition-all duration-200 inline-block" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
-                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>, event)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm z-10">-</button>
+                        
+                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>, event)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">-</button>
                     </div>
 
                 </div>
@@ -469,7 +471,6 @@
             return parseFloat(unit?.factor_to_base) || 1;
         }
 
-        // فەنکشن بۆ دروستکردنی ئەنیمەیشنی فڕین
         function animateFly(startX, startY, endX, endY, text, colorClass) {
             const flyEl = document.createElement('div');
             flyEl.className = `fixed z-[9999] flex items-center justify-center w-6 h-6 rounded-full text-white text-[11px] font-black shadow-lg transition-all ease-in-out ${colorClass}`;
@@ -482,8 +483,6 @@
             flyEl.style.pointerEvents = 'none';
             
             document.body.appendChild(flyEl);
-
-            // پێویستە بۆ ئەوەی بزانێت کە پێویستە بجوڵێت
             void flyEl.offsetWidth;
 
             flyEl.style.left = endX + 'px';
@@ -491,9 +490,7 @@
             flyEl.style.opacity = '0.5';
             flyEl.style.transform = 'scale(0.5)';
 
-            setTimeout(() => {
-                flyEl.remove();
-            }, 500);
+            setTimeout(() => { flyEl.remove(); }, 500);
         }
 
         function addToCart(p) {
@@ -521,7 +518,6 @@
             event.stopPropagation();
             addToCart(p);
 
-            // ئەنیمەیشنی فڕین بۆ لای سەبەتە (چەپ)
             const btnRect = event.currentTarget.getBoundingClientRect();
             const cartIcon = document.getElementById('cartIconAnim');
             if(cartIcon) {
@@ -533,7 +529,6 @@
                 animateFly(startX, startY, endX, endY, '+1', 'bg-brand-500');
             }
             
-            // ئەنیمەیشنی گەورەبوونی نرخ
             let el = document.getElementById('price-anim-' + p.id);
             if(el) {
                 el.classList.add('scale-125', 'text-brand-500');
@@ -548,7 +543,6 @@
                 if (cart[idx].qty > 1) { cart[idx].qty--; } else { cart.splice(idx, 1); }
                 renderCart(false);
                 
-                // ئەنیمەیشنی فڕین لە سەبەتەوە بەرەو دوگمەکە (ڕاست)
                 const btnRect = event.currentTarget.getBoundingClientRect();
                 const cartIcon = document.getElementById('cartIconAnim');
                 if(cartIcon) {
@@ -560,7 +554,6 @@
                     animateFly(startX, startY, endX, endY, '-1', 'bg-rose-500');
                 }
 
-                // ئەنیمەیشنی بچووکبوونی نرخ
                 let el = document.getElementById('price-anim-' + productId);
                 if(el) {
                     el.classList.add('scale-75', 'text-rose-500');
@@ -591,12 +584,32 @@
         }
         function removeItem(index) { cart.splice(index, 1); renderCart(false); }
 
+        function updateProductBadges() {
+            document.querySelectorAll('.qty-badge').forEach(badge => {
+                badge.classList.add('hidden', 'scale-0');
+                badge.classList.remove('scale-100');
+            });
+            cart.forEach(item => {
+                let badge = document.getElementById('qty-badge-' + item.id);
+                if (badge) {
+                    let valSpan = badge.querySelector('.badge-val');
+                    if(valSpan) {
+                        valSpan.innerText = item.qty % 1 === 0 ? item.qty : parseFloat(item.qty).toFixed(2);
+                    }
+                    badge.classList.remove('hidden', 'scale-0');
+                    badge.classList.add('scale-100');
+                }
+            });
+        }
+
         function renderCart(shouldFocus = false) {
             const container = document.getElementById('cartItemsContainer'); container.innerHTML = ''; let subtotal = 0;
             if (cart.length === 0) {
                 container.innerHTML = `<div class="h-20 flex flex-col items-center justify-center text-slate-400 text-[10px] font-bold"><i class="fa-solid fa-cart-arrow-down text-xl mb-1"></i>بەتاڵە</div>`;
                 document.getElementById('subTotalText').innerText = '0'; document.getElementById('grandTotalText').innerText = '0';
-                resetClearCartButton(); return;
+                resetClearCartButton(); 
+                updateProductBadges();
+                return;
             }
 
             cart.forEach((item, idx) => {
@@ -625,6 +638,8 @@
             const discount = parseFloat(document.getElementById('cartDiscount').value) || 0;
             document.getElementById('subTotalText').innerText = Math.round(subtotal).toLocaleString();
             document.getElementById('grandTotalText').innerText = Math.round(Math.max(0, subtotal - discount)).toLocaleString();
+
+            updateProductBadges();
         }
 
         function togglePaymentType() {
