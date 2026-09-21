@@ -185,7 +185,7 @@
                         </div>
                     </div>
 
-                    <!-- دوگمەکانی زیادکردن (+) لای ڕاست و کەمکردنەوە (-) لای چەپ - قەبارە گەورەتر -->
+                    <!-- دوگمەی (-) لای ڕاست و (+) لای چەپ - گەورە و ئاسان بۆ کلیک -->
                     <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1">
                         <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">-</button>
                         <span class="text-[10px] font-black font-num text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
@@ -275,7 +275,7 @@
 
     </div>
 
-    <!-- مۆداڵی سەرکەوتنی فرۆشتن و گەڕانەوە بۆ وەسڵی فرۆشتن -->
+    <!-- مۆداڵی سەرکەوتنی فرۆشتن و گەڕانەوە بۆ هەمان وەسڵی فرۆشتن -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[999]">
         <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-5 text-right shadow-2xl flex flex-col max-h-[90vh]">
             
@@ -287,7 +287,7 @@
                         <p class="text-[10px] text-slate-400">دەتوانیت کاڵاکان لە خوارەوە کەم و زیاد بکەیت پێش چاپکردن</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeSuccessModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-rose-100 hover:text-rose-500"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="returnToSameSale()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-rose-100 hover:text-rose-500"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="grow overflow-y-auto py-3 custom-scrollbar space-y-2" id="modalItemsList"></div>
@@ -302,7 +302,7 @@
                     <a href="#" id="printInvoiceBtn" target="_blank" class="btn-press py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md">
                         <i class="fa-solid fa-print"></i> پرینتی کۆتایی
                     </a>
-                    <button type="button" onclick="closeSuccessModal()" class="btn-press py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md">
+                    <button type="button" onclick="returnToSameSale()" class="btn-press py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md">
                         گەڕانەوە بۆ هەمان وەسڵی فرۆشتن
                     </button>
                 </div>
@@ -394,7 +394,7 @@
             });
         }
 
-        // دڵنیابوونەوە لەوەی یەکە دایم لەسەر کیلۆ بێت (یەکەم یەکە یان ئەوەی ناوی کیلۆیە)
+        // یەکە هەمیشە لەسەر کیلۆ بێت
         function getDefaultUnitId() {
             const kgUnit = units.find(u => (u.name || '').toLowerCase().includes('کیلۆ') || (u.name || '').toLowerCase().includes('kg'));
             return kgUnit ? kgUnit.id : (units[0] ? units[0].id : 1);
@@ -583,7 +583,15 @@
             renderModalItems();
         }
 
-        function closeSuccessModal() { document.getElementById('successModal').classList.add('hidden'); }
+        // گەڕانەوە بۆ هەمان وەسڵی فرۆشتن (هێنانی کاڵاکان بۆ ناو سەبەتە و داخستنی مۆداڵ)
+        function returnToSameSale() {
+            if (lastSaleItems && lastSaleItems.length > 0) {
+                cart = JSON.parse(JSON.stringify(lastSaleItems));
+                renderCart(false);
+                lastSaleItems = [];
+            }
+            document.getElementById('successModal').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
