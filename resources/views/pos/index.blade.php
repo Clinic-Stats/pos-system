@@ -77,7 +77,7 @@
                     <i id="themeIconMobile" class="fa-solid fa-moon text-[9px]"></i>
                 </button>
                 <form action="{{ route('logout') }}" method="POST" class="m-0">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
                     <button type="submit" class="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center border border-rose-200 dark:border-rose-800">
                         <i class="fa-solid fa-power-off text-[9px]"></i>
                     </button>
@@ -116,7 +116,7 @@
                 <span class="font-extrabold text-[10px]">{{ auth()->user()->name ?? 'کاشیر' }}</span>
                 <div class="h-3 w-px bg-slate-300 dark:bg-slate-600 mx-0.5"></div>
                 <form action="{{ route('logout') }}" method="POST" class="inline m-0">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
                     <button type="submit" class="text-rose-500 hover:text-rose-600 text-xs p-1" title="دەرچوون">
                         <i class="fa-solid fa-power-off"></i>
                     </button>
@@ -127,6 +127,7 @@
 
     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2 h-full overflow-hidden relative z-0">
         
+        <!-- بەشی کاڵاکان -->
         <div class="lg:col-span-9 glass-panel rounded-xl p-2 flex flex-col h-[55vh] lg:h-full overflow-hidden relative z-0">
             
             <div class="shrink-0 space-y-2 pb-2 border-b border-slate-200 dark:border-slate-700/50">
@@ -149,11 +150,11 @@
                             <?php echo $cat->name; ?>
                         </button>
                         <?php endforeach; ?>
-
                     </div>
                 </div>
             </div>
 
+            <!-- کاڵاکان -->
             <div class="grow overflow-y-auto pt-2 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 content-start" id="productsGrid">
                 
                 <?php foreach($products as $p): ?>
@@ -164,37 +165,41 @@
                     $isLow = !$isOut && $stockVal <= $alertVal;
                 ?>
                 
-                <div class="product-card group relative bg-white dark:bg-[#0f172a] hover:bg-brand-50 dark:hover:bg-slate-800/80 border <?php echo $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50'); ?> rounded-xl p-1.5 cursor-pointer flex flex-col justify-between select-none transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                     data-id="<?php echo $p->id; ?>" data-name="<?php echo $p->name; ?>" data-code="<?php echo $p->code; ?>" data-category="<?php echo $p->category_id; ?>"
-                     onclick='addToCart(<?php echo json_encode($p); ?>)'>
+                <div class="product-card group relative bg-white dark:bg-[#0f172a] border <?php echo $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50'); ?> rounded-xl p-1.5 flex flex-col justify-between select-none shadow-sm hover:shadow-md transition-all">
                     
-                    <div class="flex justify-between items-start mb-1 relative z-10">
-                        <span class="text-[8px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700"><?php echo $p->code; ?></span>
-                        <?php if($isOut): ?>
-                            <span class="text-[8px] font-extrabold text-rose-600 bg-rose-100 px-1 py-0.5 rounded">نەماوە</span>
-                        <?php elseif($isLow): ?>
-                            <span class="text-[8px] font-extrabold text-amber-600 bg-amber-100 px-1 py-0.5 rounded">کەمە</span>
-                        <?php endif; ?>
-                    </div>
+                    <!-- کلیک لەسەر ناوەڕۆکی کارت بۆ زیادکردن -->
+                    <div class="cursor-pointer" onclick="addToCart(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)">
+                        <div class="flex justify-between items-start mb-1 relative z-10">
+                            <span class="text-[8px] font-num font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-200 dark:border-slate-700"><?php echo $p->code; ?></span>
+                            <?php if($isOut): ?>
+                                <span class="text-[8px] font-extrabold text-rose-600 bg-rose-100 px-1 py-0.5 rounded">نەماوە</span>
+                            <?php elseif($isLow): ?>
+                                <span class="text-[8px] font-extrabold text-amber-600 bg-amber-100 px-1 py-0.5 rounded">کەمە</span>
+                            <?php endif; ?>
+                        </div>
 
-                    <div class="text-center my-1 relative z-10">
-                        <h3 class="font-bold text-slate-800 dark:text-white text-[10px] md:text-[11px] line-clamp-2 leading-tight"><?php echo $p->name; ?></h3>
-                        <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 font-bold">
-                            ماوە: <span class="font-num <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-500'); ?>"><?php echo $stockVal; ?></span>
-                        </p>
-                    </div>
-
-                    <div class="mt-1 relative z-10">
-                        <div class="w-full bg-slate-50 dark:bg-slate-900 rounded-lg py-1 px-0.5 text-center border border-slate-200 dark:border-slate-800">
-                            <span class="text-[10px] md:text-[11px] font-black font-num text-slate-700 dark:text-slate-300 group-hover:text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
+                        <div class="text-center my-1 relative z-10">
+                            <h3 class="font-bold text-slate-800 dark:text-white text-[10px] md:text-[11px] line-clamp-2 leading-tight"><?php echo $p->name; ?></h3>
+                            <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 font-bold">
+                                ماوە: <span class="font-num <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-500'); ?>"><?php echo $stockVal; ?></span>
+                            </p>
                         </div>
                     </div>
+
+                    <!-- دوگمەکانی زیادکردن و کەمکردنەوە ڕاستەوخۆ لە ژێر هەر ماددەیەکدا -->
+                    <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1">
+                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-6 h-6 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-600 dark:text-slate-300 hover:text-rose-600 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">-</button>
+                        <span class="text-[10px] font-black font-num text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
+                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" class="w-6 h-6 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-600 text-brand-600 dark:text-brand-300 hover:text-white rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">+</button>
+                    </div>
+
                 </div>
                 <?php endforeach; ?>
 
             </div>
         </div>
 
+        <!-- بەشی سەبەتە -->
         <div class="lg:col-span-3 glass-panel rounded-xl p-2 flex flex-col h-[40vh] lg:h-full overflow-hidden relative shadow-md">
             
             <div class="shrink-0 pb-2 border-b border-slate-200 dark:border-slate-700/50">
@@ -220,11 +225,9 @@
                         <div class="relative flex-1">
                             <select id="customerId" class="w-full px-2 py-1 rounded-lg bg-white border border-slate-200 dark:bg-slate-800 text-[10px] font-bold focus:outline-none">
                                 <option value="">کڕیاری نەقد</option>
-                                
-                                <?php foreach($customers as$c): ?>
+                                <?php foreach($customers as $c): ?>
                                     <option value="<?php echo $c->id; ?>"><?php echo $c->name; ?></option>
                                 <?php endforeach; ?>
-
                             </select>
                         </div>
                     </div>
@@ -396,7 +399,27 @@
             
             const ping = document.getElementById('cartPing');
             if(ping) { ping.classList.remove('hidden'); setTimeout(() => ping.classList.add('hidden'), 300); }
-            renderCart(true, idx);
+            renderCart(false); // بۆ ئەوەی فۆکەس نەچێتە سەر بڕی کاڵا لە سەبەتەدا
+        }
+
+        // زیادکردنی خێرا لە کارتەوە (+ ڕاستەوخۆ)
+        function quickIncrease(p) {
+            event.stopPropagation();
+            addToCart(p);
+        }
+
+        // کەمکردنەوەی خێرا لە کارتەوە (- ڕاستەوخۆ)
+        function quickDecrease(productId) {
+            event.stopPropagation();
+            let idx = cart.findIndex(i => i.id === productId);
+            if (idx !== -1) {
+                if (cart[idx].qty > 1) {
+                    cart[idx].qty--;
+                } else {
+                    cart.splice(idx, 1);
+                }
+                renderCart(false);
+            }
         }
 
         function updateItemPrice(index, val) { cart[index].price = parseFloat(val) || 0; renderCart(); }
