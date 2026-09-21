@@ -78,7 +78,7 @@
                 </button>
                 <form action="{{ route('logout') }}" method="POST" class="m-0">
                     <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
-                    <button type="submit" class="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center border border-rose-200 dark:border-rose-800">
+                    <button type="submit" class="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center border border-rose-200 dark:border-slate-800">
                         <i class="fa-solid fa-power-off text-[9px]"></i>
                     </button>
                 </form>
@@ -185,11 +185,15 @@
                         </div>
                     </div>
 
-                    <!-- دوگمەی (-) لای ڕاست و (+) لای چەپ - گەورە و ئاسان بۆ کلیک -->
+                    <!-- دوگمەی (+) لای ڕاست و (-) لای چەپ -->
                     <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1">
-                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">-</button>
-                        <span class="text-[10px] font-black font-num text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
+                        <!-- دوگمەی زیادکردن (+) -->
                         <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">+</button>
+                        
+                        <span class="text-[10px] font-black font-num text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
+                        
+                        <!-- دوگمەی کەمکردنەوە (-) -->
+                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">-</button>
                     </div>
 
                 </div>
@@ -484,9 +488,10 @@
                         <div class="col-span-4"><select onchange="updateItemUnit(${idx}, this.value)" class="w-full bg-transparent text-[9px] font-bold focus:outline-none appearance-none cursor-pointer">${opts}</select></div>
                         <div class="col-span-4 border-r border-slate-200 dark:border-slate-700"><input type="number" step="any" min="0" value="${item.price}" onchange="updateItemPrice(${idx}, this.value)" class="w-full bg-transparent text-center text-[10px] font-bold font-num focus:outline-none"></div>
                         <div class="col-span-4 flex items-center justify-between px-0.5 border-r border-slate-200 dark:border-slate-700">
-                            <button type="button" onclick="updateQty(${idx}, -1)" class="w-4 h-4 text-slate-400 font-bold text-[10px]">-</button>
+                            <!-- گۆڕینی لای + و - لەناو سەبەتەشدا بۆ ئەوەی وەک یەک بن -->
+                            <button type="button" onclick="updateQty(${idx}, 1)" class="w-4 h-4 text-brand-500 font-bold text-[10px]">+</button>
                             <input type="number" step="any" min="0.01" value="${item.qty}" onchange="setQtyDirect(${idx}, this.value)" class="w-6 text-center bg-transparent font-num text-brand-600 text-[10px] font-black focus:outline-none p-0">
-                            <button type="button" onclick="updateQty(${idx}, 1)" class="w-4 h-4 text-slate-400 font-bold text-[10px]">+</button>
+                            <button type="button" onclick="updateQty(${idx}, -1)" class="w-4 h-4 text-slate-400 font-bold text-[10px]">-</button>
                         </div>
                     </div>`;
                 container.appendChild(div);
