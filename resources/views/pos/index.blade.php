@@ -62,19 +62,19 @@
             backdrop-filter: blur(10px);
             border-radius: 9999px;
             box-shadow: 
-                inset 0 4px 6px rgba(255, 255, 255, 0.9),  /* بریقەی سەرەوە */
-                inset 0 -4px 6px rgba(0, 0, 0, 0.05),      /* سێبەری خوارەوەی ناوەوە */
-                0 4px 10px rgba(0, 0, 0, 0.05);           /* سێبەری دەرەوە */
+                inset 0 4px 6px rgba(255, 255, 255, 0.9),
+                inset 0 -4px 6px rgba(0, 0, 0, 0.05),
+                0 4px 10px rgba(0, 0, 0, 0.05);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            color: #475569; /* text-slate-600 */
+            color: #475569;
         }
         .dark .liquid-nav-btn {
-            background: rgba(30, 41, 59, 0.6); /* slate-800/60 */
+            background: rgba(30, 41, 59, 0.6);
             box-shadow: 
                 inset 0 3px 5px rgba(255, 255, 255, 0.15), 
                 inset 0 -4px 6px rgba(0, 0, 0, 0.4), 
                 0 4px 10px rgba(0, 0, 0, 0.3);
-            color: #cbd5e1; /* text-slate-300 */
+            color: #cbd5e1;
         }
         .liquid-nav-btn:hover, .liquid-nav-btn:active {
             background: linear-gradient(135deg, #60a5fa, #3b82f6);
@@ -99,9 +99,9 @@
 </head>
 <body class="text-slate-800 dark:text-slate-100 h-screen p-1 md:p-2 overflow-hidden select-none transition-colors duration-500 flex flex-col">
 
-    <header class="glass-panel px-2 py-1.5 md:py-2 rounded-xl mb-2 flex items-center justify-between shadow-sm z-[100] shrink-0">
+    <header class="glass-panel px-2 py-1.5 md:py-2 rounded-xl mb-2 flex flex-col md:flex-row items-center justify-between shadow-sm z-[100] shrink-0 gap-2 md:gap-0">
         
-        <div class="flex items-center justify-between w-full lg:w-auto">
+        <div class="flex items-center justify-between w-full md:w-auto">
             <div class="flex items-center gap-2 shrink-0">
                 <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-blue-400 text-white flex items-center justify-center text-xs shadow-glow">
                     <i class="fa-solid fa-bolt"></i>
@@ -113,7 +113,7 @@
                 </div>
             </div>
 
-            <div class="flex lg:hidden items-center gap-1.5 shrink-0 relative z-50">
+            <div class="flex md:hidden items-center gap-1.5 shrink-0 relative z-50">
                 <button type="button" onclick="toggleTheme()" class="btn-press w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center border border-slate-200 dark:border-slate-700">
                     <i id="themeIconMobile" class="fa-solid fa-moon text-[9px]"></i>
                 </button>
@@ -126,26 +126,26 @@
             </div>
         </div>
 
-        <!-- بەکارهێنانی ستايلی Liquid Button بۆ مێنیوی سەرەوە -->
-        <div class="flex items-center gap-2 text-[10px] md:text-xs font-bold overflow-x-auto no-scrollbar relative z-50 w-full lg:w-auto px-1 lg:px-0 py-1">
-            <a href="{{ route('purchases.create') }}" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+        <!-- کێشەی بڕانی دوگمەی زیاتر چارەسەر کرا بە گۆڕینی سکرۆڵ بۆ flex-wrap -->
+        <div class="flex flex-wrap items-center justify-center gap-1 text-[10px] md:text-[11px] font-bold relative z-[105] w-full md:w-auto">
+            <a href="{{ route('purchases.create') }}" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-box-open"></i> کڕین
             </a>
-            <a href="{{ route('products.index') }}" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+            <a href="{{ route('products.index') }}" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-boxes-stacked"></i> کۆگا
             </a>
-            <a href="{{ route('customers.index') }}" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+            <a href="{{ route('customers.index') }}" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-users"></i> کڕیار
             </a>
-            <a href="{{ route('reports.index') }}" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+            <a href="{{ route('reports.index') }}" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-chart-pie"></i> ڕاپۆرت
             </a>
             
             <div class="relative inline-block">
-                <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="liquid-nav-btn px-4 py-1.5 flex items-center gap-1.5 whitespace-nowrap">
+                <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                     زیاتر <i class="fa-solid fa-chevron-down text-[8px] mt-0.5"></i>
                 </button>
-                <div id="moreDropdown" class="hidden absolute left-0 top-full mt-2 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] overflow-hidden text-xs">
+                <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] overflow-hidden text-xs">
                     <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5 text-center"></i> کاتیگۆری</a>
                     <a href="{{ route('partners.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-handshake w-5 text-center"></i> هاوبەشەکان</a>
                     <a href="{{ route('returns.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-rotate-left w-5 text-center"></i> گەڕاوەکان</a>
@@ -154,7 +154,7 @@
             </div>
         </div>
 
-        <div class="hidden lg:flex items-center gap-2 shrink-0 relative z-50">
+        <div class="hidden md:flex items-center gap-2 shrink-0 relative z-50">
             <button type="button" onclick="toggleTheme()" id="themeToggleBtn" class="btn-press w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-amber-500 flex items-center justify-center border border-slate-200 dark:border-slate-700">
                 <i id="themeIcon" class="fa-solid fa-moon text-[10px]"></i>
             </button>
@@ -235,13 +235,13 @@
                         </div>
                     </div>
 
-                    <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1">
-                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">+</button>
+                    <!-- دوگمەی (+) و (-) بەپێی RTL یەکەم جار (+) دێت دەکەوێتە لای ڕاست -->
+                    <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1 relative">
+                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, event)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm z-10">+</button>
                         
-                        <!-- ئایدی بۆ ئەنیمەیشنی نرخەکە دانراوە -->
-                        <span id="price-anim-<?php echo $p->id; ?>" class="text-[10px] font-black font-num text-emerald-500 transition-all duration-200 inline-block" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
+                        <span class="text-[10px] font-black font-num text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
                         
-                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">-</button>
+                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>, event)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm z-10">-</button>
                     </div>
 
                 </div>
@@ -257,7 +257,8 @@
                 <div class="flex justify-between items-center mb-1.5">
                     <h2 class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
                         <span class="relative">
-                            <i class="fa-solid fa-cart-shopping text-emerald-500"></i>
+                            <!-- لێرەدا ئایدی cartIconAnim مان داناوە بۆ ئەوەی ئەنیمەیشنەکە بزانێت بچێت بۆ کوێ -->
+                            <i id="cartIconAnim" class="fa-solid fa-cart-shopping text-emerald-500"></i>
                             <span class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-ping opacity-75 hidden" id="cartPing"></span>
                         </span>
                         سەبەتە
@@ -327,7 +328,7 @@
 
     </div>
 
-    <!-- مۆداڵی سەرکەوتنی فرۆشتن و گەڕانەوە بۆ هەمان وەسڵی فرۆشتن -->
+    <!-- مۆداڵی سەرکەوتنی فرۆشتن -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[999]">
         <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-5 text-right shadow-2xl flex flex-col max-h-[90vh]">
             
@@ -458,6 +459,33 @@
             return parseFloat(unit?.factor_to_base) || 1;
         }
 
+        // دروستکردنی فەنکشنی فڕینی بازنەکە بۆ ئەنیمەیشن
+        function animateFly(startX, startY, endX, endY, text, colorClass) {
+            const flyEl = document.createElement('div');
+            flyEl.className = `fixed z-[9999] flex items-center justify-center w-6 h-6 rounded-full text-white text-[11px] font-black shadow-lg transition-all ease-in-out ${colorClass}`;
+            flyEl.style.transitionDuration = '0.5s';
+            flyEl.innerText = text;
+            flyEl.style.left = startX + 'px';
+            flyEl.style.top = startY + 'px';
+            flyEl.style.opacity = '1';
+            flyEl.style.transform = 'scale(1)';
+            flyEl.style.pointerEvents = 'none';
+            
+            document.body.appendChild(flyEl);
+
+            // Trigger reflow
+            void flyEl.offsetWidth;
+
+            flyEl.style.left = endX + 'px';
+            flyEl.style.top = endY + 'px';
+            flyEl.style.opacity = '0.5';
+            flyEl.style.transform = 'scale(0.5)';
+
+            setTimeout(() => {
+                flyEl.remove();
+            }, 500);
+        }
+
         function addToCart(p) {
             const stock = parseFloat(p.stock_kg !== undefined ? p.stock_kg : (p.stock || 0));
             if (stock <= 0) { showToast('نەماوە!', 'error'); return; }
@@ -476,33 +504,46 @@
                 cart.push({ id: p.id, name: p.name, code: p.code, price: parseFloat(p.base_sale_price)||0, stock_kg: stock, kg_per_carton: parseFloat(p.kg_per_carton)||1, qty: 1, unit_id: initialUnit.id, factor: factor });
             }
             
-            const ping = document.getElementById('cartPing');
-            if(ping) { ping.classList.remove('hidden'); setTimeout(() => ping.classList.add('hidden'), 300); }
             renderCart(false);
         }
 
-        // زیادکردن لەگەڵ ئەنیمەیشنی گەورەبوون
-        function quickIncrease(p) { 
+        // کاتێک کلیک لە (+) دەکەیت بازنەیەکی شین دەفڕێت بۆ لای سەبەتە (چەپ)
+        function quickIncrease(p, event) { 
+            event.stopPropagation();
             addToCart(p);
-            let el = document.getElementById('price-anim-' + p.id);
-            if(el) {
-                el.classList.add('scale-125', 'text-brand-500');
-                setTimeout(() => el.classList.remove('scale-125', 'text-brand-500'), 150);
-            }
+
+            const btnRect = event.currentTarget.getBoundingClientRect();
+            const cartIcon = document.getElementById('cartIconAnim');
+            if(!cartIcon) return;
+            const cartRect = cartIcon.getBoundingClientRect();
+            
+            const startX = btnRect.left + (btnRect.width / 2);
+            const startY = btnRect.top + (btnRect.height / 2);
+            const endX = cartRect.left + (cartRect.width / 2);
+            const endY = cartRect.top + (cartRect.height / 2);
+            
+            animateFly(startX, startY, endX, endY, '+1', 'bg-brand-500');
         }
 
-        // کەمکردنەوە لەگەڵ ئەنیمەیشنی بچووکبوون
-        function quickDecrease(productId) {
+        // کاتێک کلیک لە (-) دەکەیت بازنەیەکی سوور لە سەبەتەوە دەفڕێت بۆ لای دوگمەکە (ڕاست)
+        function quickDecrease(productId, event) {
+            event.stopPropagation();
             let idx = cart.findIndex(i => i.id === productId);
             if (idx !== -1) {
                 if (cart[idx].qty > 1) { cart[idx].qty--; } else { cart.splice(idx, 1); }
                 renderCart(false);
                 
-                let el = document.getElementById('price-anim-' + productId);
-                if(el) {
-                    el.classList.add('scale-75', 'text-rose-500');
-                    setTimeout(() => el.classList.remove('scale-75', 'text-rose-500'), 150);
-                }
+                const btnRect = event.currentTarget.getBoundingClientRect();
+                const cartIcon = document.getElementById('cartIconAnim');
+                if(!cartIcon) return;
+                const cartRect = cartIcon.getBoundingClientRect();
+                
+                const startX = cartRect.left + (cartRect.width / 2);
+                const startY = cartRect.top + (cartRect.height / 2);
+                const endX = btnRect.left + (btnRect.width / 2);
+                const endY = btnRect.top + (btnRect.height / 2);
+                
+                animateFly(startX, startY, endX, endY, '-1', 'bg-rose-500');
             }
         }
 
