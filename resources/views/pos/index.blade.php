@@ -55,45 +55,61 @@
             border: 1px solid rgba(51, 65, 85, 0.5);
         }
 
-        /* ستايلی تایبەت بە Liquid Button بۆ دوگمەکانی سەرەوە */
-        .liquid-nav-btn {
+        /* ئەنیمەیشنی نوێی دوگمەکانی سەرەوە (Glow on hover) */
+        .glow-on-hover {
+            border: none;
+            outline: none;
+            cursor: pointer;
             position: relative;
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 9999px;
-            box-shadow: 
-                inset 0 4px 6px rgba(255, 255, 255, 0.9),
-                inset 0 -4px 6px rgba(0, 0, 0, 0.05),
-                0 4px 10px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+            border-radius: 10px;
+            background: #ffffff;
             color: #475569;
         }
-        .dark .liquid-nav-btn {
-            background: rgba(30, 41, 59, 0.6);
-            box-shadow: 
-                inset 0 3px 5px rgba(255, 255, 255, 0.15), 
-                inset 0 -4px 6px rgba(0, 0, 0, 0.4), 
-                0 4px 10px rgba(0, 0, 0, 0.3);
-            color: #cbd5e1;
+        .dark .glow-on-hover {
+            background: #1e293b;
+            color: #f8fafc;
         }
-        .liquid-nav-btn:hover, .liquid-nav-btn:active {
-            background: linear-gradient(135deg, #60a5fa, #3b82f6);
-            color: white;
-            box-shadow: 
-                inset 0 4px 6px rgba(255, 255, 255, 0.4), 
-                inset 0 -4px 6px rgba(0, 0, 0, 0.2), 
-                0 6px 15px rgba(59, 130, 246, 0.4);
-            transform: translateY(-2px);
+        .glow-on-hover:before {
+            content: '';
+            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            background-size: 400%;
+            z-index: -1;
+            filter: blur(5px);
+            width: calc(100% + 4px);
+            height: calc(100% + 4px);
+            animation: glowing 20s linear infinite;
+            opacity: 0;
+            transition: opacity .3s ease-in-out;
+            border-radius: 10px;
         }
-        .dark .liquid-nav-btn:hover, .dark .liquid-nav-btn:active {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            box-shadow: 
-                inset 0 3px 5px rgba(255, 255, 255, 0.2), 
-                inset 0 -4px 6px rgba(0, 0, 0, 0.4), 
-                0 6px 15px rgba(59, 130, 246, 0.3);
-        }
-        .liquid-nav-btn:active {
+        .glow-on-hover:active {
             transform: scale(0.95);
+        }
+        .glow-on-hover:active:after {
+            background: transparent;
+        }
+        .glow-on-hover:hover:before {
+            opacity: 1;
+        }
+        .glow-on-hover:after {
+            z-index: -1;
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            left: 0;
+            top: 0;
+            border-radius: 10px;
+        }
+        @keyframes glowing {
+            0% { background-position: 0 0; }
+            50% { background-position: 400% 0; }
+            100% { background-position: 0 0; }
         }
     </style>
 </head>
@@ -126,23 +142,23 @@
             </div>
         </div>
 
-        <!-- کێشەی بڕانی دوگمەی زیاتر چارەسەر کرا بە گۆڕینی سکرۆڵ بۆ flex-wrap -->
-        <div class="flex flex-wrap items-center justify-center gap-1 text-[10px] md:text-[11px] font-bold relative z-[105] w-full md:w-auto">
-            <a href="{{ route('purchases.create') }}" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
+        <!-- دوگمەکان گۆڕدراون بۆ glow-on-hover -->
+        <div class="flex flex-wrap items-center justify-center gap-1.5 text-[10px] md:text-[11px] font-bold relative z-[105] w-full md:w-auto">
+            <a href="{{ route('purchases.create') }}" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-box-open"></i> کڕین
             </a>
-            <a href="{{ route('products.index') }}" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
+            <a href="{{ route('products.index') }}" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-boxes-stacked"></i> کۆگا
             </a>
-            <a href="{{ route('customers.index') }}" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
+            <a href="{{ route('customers.index') }}" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-users"></i> کڕیار
             </a>
-            <a href="{{ route('reports.index') }}" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
+            <a href="{{ route('reports.index') }}" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-chart-pie"></i> ڕاپۆرت
             </a>
             
             <div class="relative inline-block">
-                <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="liquid-nav-btn px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
+                <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                     زیاتر <i class="fa-solid fa-chevron-down text-[8px] mt-0.5"></i>
                 </button>
                 <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] overflow-hidden text-xs">
@@ -177,7 +193,6 @@
 
     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2 h-full overflow-hidden relative z-0">
         
-        <!-- بەشی کاڵاکان -->
         <div class="lg:col-span-9 glass-panel rounded-xl p-2 flex flex-col h-[55vh] lg:h-full overflow-hidden relative z-0">
             
             <div class="shrink-0 space-y-2 pb-2 border-b border-slate-200 dark:border-slate-700/50">
@@ -204,7 +219,6 @@
                 </div>
             </div>
 
-            <!-- کاڵاکان -->
             <div class="grow overflow-y-auto pt-2 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 content-start" id="productsGrid">
                 
                 <?php foreach($products as $p): ?>
@@ -235,12 +249,9 @@
                         </div>
                     </div>
 
-                    <!-- دوگمەی (+) و (-) بەپێی RTL یەکەم جار (+) دێت دەکەوێتە لای ڕاست -->
                     <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1 relative">
                         <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, event)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm z-10">+</button>
-                        
-                        <span class="text-[10px] font-black font-num text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
-                        
+                        <span id="price-anim-<?php echo $p->id; ?>" class="text-[10px] font-black font-num text-emerald-500 transition-all duration-200 inline-block" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
                         <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>, event)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm z-10">-</button>
                     </div>
 
@@ -257,7 +268,6 @@
                 <div class="flex justify-between items-center mb-1.5">
                     <h2 class="text-xs font-black text-slate-800 dark:text-white flex items-center gap-1.5">
                         <span class="relative">
-                            <!-- لێرەدا ئایدی cartIconAnim مان داناوە بۆ ئەوەی ئەنیمەیشنەکە بزانێت بچێت بۆ کوێ -->
                             <i id="cartIconAnim" class="fa-solid fa-cart-shopping text-emerald-500"></i>
                             <span class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full animate-ping opacity-75 hidden" id="cartPing"></span>
                         </span>
@@ -459,7 +469,7 @@
             return parseFloat(unit?.factor_to_base) || 1;
         }
 
-        // دروستکردنی فەنکشنی فڕینی بازنەکە بۆ ئەنیمەیشن
+        // فەنکشن بۆ دروستکردنی ئەنیمەیشنی فڕین
         function animateFly(startX, startY, endX, endY, text, colorClass) {
             const flyEl = document.createElement('div');
             flyEl.className = `fixed z-[9999] flex items-center justify-center w-6 h-6 rounded-full text-white text-[11px] font-black shadow-lg transition-all ease-in-out ${colorClass}`;
@@ -473,7 +483,7 @@
             
             document.body.appendChild(flyEl);
 
-            // Trigger reflow
+            // پێویستە بۆ ئەوەی بزانێت کە پێویستە بجوڵێت
             void flyEl.offsetWidth;
 
             flyEl.style.left = endX + 'px';
@@ -507,25 +517,30 @@
             renderCart(false);
         }
 
-        // کاتێک کلیک لە (+) دەکەیت بازنەیەکی شین دەفڕێت بۆ لای سەبەتە (چەپ)
         function quickIncrease(p, event) { 
             event.stopPropagation();
             addToCart(p);
 
+            // ئەنیمەیشنی فڕین بۆ لای سەبەتە (چەپ)
             const btnRect = event.currentTarget.getBoundingClientRect();
             const cartIcon = document.getElementById('cartIconAnim');
-            if(!cartIcon) return;
-            const cartRect = cartIcon.getBoundingClientRect();
+            if(cartIcon) {
+                const cartRect = cartIcon.getBoundingClientRect();
+                const startX = btnRect.left + (btnRect.width / 2);
+                const startY = btnRect.top + (btnRect.height / 2);
+                const endX = cartRect.left + (cartRect.width / 2);
+                const endY = cartRect.top + (cartRect.height / 2);
+                animateFly(startX, startY, endX, endY, '+1', 'bg-brand-500');
+            }
             
-            const startX = btnRect.left + (btnRect.width / 2);
-            const startY = btnRect.top + (btnRect.height / 2);
-            const endX = cartRect.left + (cartRect.width / 2);
-            const endY = cartRect.top + (cartRect.height / 2);
-            
-            animateFly(startX, startY, endX, endY, '+1', 'bg-brand-500');
+            // ئەنیمەیشنی گەورەبوونی نرخ
+            let el = document.getElementById('price-anim-' + p.id);
+            if(el) {
+                el.classList.add('scale-125', 'text-brand-500');
+                setTimeout(() => el.classList.remove('scale-125', 'text-brand-500'), 150);
+            }
         }
 
-        // کاتێک کلیک لە (-) دەکەیت بازنەیەکی سوور لە سەبەتەوە دەفڕێت بۆ لای دوگمەکە (ڕاست)
         function quickDecrease(productId, event) {
             event.stopPropagation();
             let idx = cart.findIndex(i => i.id === productId);
@@ -533,17 +548,24 @@
                 if (cart[idx].qty > 1) { cart[idx].qty--; } else { cart.splice(idx, 1); }
                 renderCart(false);
                 
+                // ئەنیمەیشنی فڕین لە سەبەتەوە بەرەو دوگمەکە (ڕاست)
                 const btnRect = event.currentTarget.getBoundingClientRect();
                 const cartIcon = document.getElementById('cartIconAnim');
-                if(!cartIcon) return;
-                const cartRect = cartIcon.getBoundingClientRect();
-                
-                const startX = cartRect.left + (cartRect.width / 2);
-                const startY = cartRect.top + (cartRect.height / 2);
-                const endX = btnRect.left + (btnRect.width / 2);
-                const endY = btnRect.top + (btnRect.height / 2);
-                
-                animateFly(startX, startY, endX, endY, '-1', 'bg-rose-500');
+                if(cartIcon) {
+                    const cartRect = cartIcon.getBoundingClientRect();
+                    const startX = cartRect.left + (cartRect.width / 2);
+                    const startY = cartRect.top + (cartRect.height / 2);
+                    const endX = btnRect.left + (btnRect.width / 2);
+                    const endY = btnRect.top + (btnRect.height / 2);
+                    animateFly(startX, startY, endX, endY, '-1', 'bg-rose-500');
+                }
+
+                // ئەنیمەیشنی بچووکبوونی نرخ
+                let el = document.getElementById('price-anim-' + productId);
+                if(el) {
+                    el.classList.add('scale-75', 'text-rose-500');
+                    setTimeout(() => el.classList.remove('scale-75', 'text-rose-500'), 150);
+                }
             }
         }
 
