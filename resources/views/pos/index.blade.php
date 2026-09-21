@@ -185,11 +185,11 @@
                         </div>
                     </div>
 
-                    <!-- دوگمەکانی زیادکردن (+) لای ڕاست و کەمکردنەوە (-) لای چەپ -->
+                    <!-- دوگمەکانی زیادکردن (+) لای ڕاست و کەمکردنەوە (-) لای چەپ - قەبارە گەورەتر -->
                     <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1">
-                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-6 h-6 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-600 dark:text-slate-300 hover:text-rose-600 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">-</button>
+                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>)" class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-700 dark:text-slate-200 hover:text-rose-600 rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">-</button>
                         <span class="text-[10px] font-black font-num text-emerald-500" dir="ltr"><?php echo number_format($p->base_sale_price); ?></span>
-                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" class="w-6 h-6 bg-brand-50 dark:bg-brand-900/40 hover:bg-brand-600 text-brand-600 dark:text-brand-300 hover:text-white rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">+</button>
+                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">+</button>
                     </div>
 
                 </div>
@@ -249,7 +249,6 @@
                 </div>
             </div>
 
-            <!-- لیستی کاڵاکانی ناو سەبەتە -->
             <div id="cartItemsContainer" class="grow overflow-y-auto py-1.5 pr-0.5 space-y-1.5 custom-scrollbar"></div>
 
             <div class="shrink-0 pt-1.5 mt-1 border-t border-slate-200 dark:border-slate-700/50">
@@ -276,7 +275,7 @@
 
     </div>
 
-    <!-- مۆداڵی سەرکەوتنی فرۆشتن و پیشاندانی وردەکاری بۆ چاپکردن -->
+    <!-- مۆداڵی سەرکەوتنی فرۆشتن و گەڕانەوە بۆ وەسڵی فرۆشتن -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[999]">
         <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-5 text-right shadow-2xl flex flex-col max-h-[90vh]">
             
@@ -291,12 +290,8 @@
                 <button type="button" onclick="closeSuccessModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-rose-100 hover:text-rose-500"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- خشتەی کاڵاکانی وەسڵ بۆ دەستکاریکردن پێش پرینت -->
-            <div class="grow overflow-y-auto py-3 custom-scrollbar space-y-2" id="modalItemsList">
-                <!-- لێرەدا بە JS کاڵاکان دادەنرێن -->
-            </div>
+            <div class="grow overflow-y-auto py-3 custom-scrollbar space-y-2" id="modalItemsList"></div>
 
-            <!-- کۆی گشتی و دوگمەی پرینت -->
             <div class="shrink-0 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
                 <div class="flex justify-between items-center text-xs font-black">
                     <span>کۆی گشتی پارە:</span>
@@ -307,8 +302,8 @@
                     <a href="#" id="printInvoiceBtn" target="_blank" class="btn-press py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md">
                         <i class="fa-solid fa-print"></i> پرینتی کۆتایی
                     </a>
-                    <button type="button" onclick="closeSuccessModal()" class="btn-press py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold">
-                        داخستن / فرۆشتنی نوێ
+                    <button type="button" onclick="closeSuccessModal()" class="btn-press py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md">
+                        گەڕانەوە بۆ هەمان وەسڵی فرۆشتن
                     </button>
                 </div>
             </div>
@@ -323,7 +318,7 @@
         let cart = [];
         let clearCartTimer = null;
         let isConfirmingClear = false;
-        let lastSaleItems = []; // بۆ پاشەکەوتکردنی کاڵاکانی پسوولەی کۆتایی
+        let lastSaleItems = [];
         let activeSaleId = null;
 
         document.addEventListener('click', function(event) {
@@ -432,7 +427,7 @@
             
             const ping = document.getElementById('cartPing');
             if(ping) { ping.classList.remove('hidden'); setTimeout(() => ping.classList.add('hidden'), 300); }
-            renderCart(false); // فۆکەس لابرا بۆ پاراستنی بێزاری مۆبایل
+            renderCart(false);
         }
 
         function quickIncrease(p) { addToCart(p); }
@@ -518,7 +513,7 @@
             const btn = document.getElementById('btnSubmitSale'); btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
-            lastSaleItems = JSON.parse(JSON.stringify(cart)); // کۆپیەک بۆ دەستکاری لە مۆداڵ
+            lastSaleItems = JSON.parse(JSON.stringify(cart));
 
             fetch('/sales', {
                 method: 'POST',
@@ -545,7 +540,6 @@
             });
         }
 
-        // پیشاندانی کاڵاکان لە مۆداڵی سەرکەوتن بۆ دەستکاری پێش پرینت
         function renderModalItems() {
             const listContainer = document.getElementById('modalItemsList');
             listContainer.innerHTML = '';
@@ -589,7 +583,7 @@
             renderModalItems();
         }
 
-        function closeSuccessModal() { document.getElementById('successModal').classList.add('hidden'); location.reload(); }
+        function closeSuccessModal() { document.getElementById('successModal').classList.add('hidden'); }
     </script>
 </body>
 </html>
