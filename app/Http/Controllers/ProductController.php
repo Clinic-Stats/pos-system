@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -12,7 +13,8 @@ class ProductController extends Controller
     {
         $categories = Category::all();
         $products = Product::with('category')->latest()->get();
-        return view('products.index', compact('products', 'categories'));
+        $setting = Setting::first();
+        return view('products.index', compact('products', 'categories', 'setting'));
     }
 
     public function store(Request $request)
@@ -26,12 +28,24 @@ class ProductController extends Controller
             'stock_kg'        => 'nullable|numeric|min:0',
         ]);
 
+        // گۆڕینی نرخەکان بۆ دۆلار ئەگەر بە دینار بوون
+        $currency = $request->input('currency', 'USD');
+        $exchangeRate = (float) $request->input('exchange_rate', 1500);
+        
+        $buyPrice = (float) $request->base_buy_price;
+        $salePrice = (float) $request->base_sale_price;
+        
+        if ($currency === 'IQD' && $exchangeRate > 0) {
+            $buyPrice = $buyPrice / $exchangeRate;
+            $salePrice = $salePrice / $exchangeRate;
+        }
+
         Product::create([
             'name'            => $request->name,
             'code'            => $request->code,
             'category_id'     => $request->category_id,
-            'base_buy_price'  => $request->base_buy_price,
-            'base_sale_price' => $request->base_sale_price,
+            'base_buy_price'  => round($buyPrice, 4),
+            'base_sale_price' => round($salePrice, 4),
             'stock_kg'        => $request->stock_kg ?? 0,
             'is_active'       => $request->has('is_active') ? 1 : 0,
         ]);
@@ -51,12 +65,24 @@ class ProductController extends Controller
             'base_sale_price' => 'required|numeric|min:0',
         ]);
 
+        // گۆڕینی نرخەکان بۆ دۆلار ئەگەر بە دینار بوون
+        $currency = $request->input('currency', 'USD');
+        $exchangeRate = (float) $request->input('exchange_rate', 1500);
+        
+        $buyPrice = (float) $request->base_buy_price;
+        $salePrice = (float) $request->base_sale_price;
+        
+        if ($currency === 'IQD' && $exchangeRate > 0) {
+            $buyPrice = $buyPrice / $exchangeRate;
+            $salePrice = $salePrice / $exchangeRate;
+        }
+
         $product->update([
             'name'            => $request->name,
             'code'            => $request->code,
             'category_id'     => $request->category_id,
-            'base_buy_price'  => $request->base_buy_price,
-            'base_sale_price' => $request->base_sale_price,
+            'base_buy_price'  => round($buyPrice, 4),
+            'base_sale_price' => round($salePrice, 4),
             'is_active'       => $request->has('is_active') ? 1 : 0,
         ]);
 
@@ -85,7 +111,7 @@ class ProductController extends Controller
         return redirect()->back()->with('success', "بڕی {$request->added_stock} کیلۆ بۆ مەخزەن زیادکرا");
     }
 
-   public function destroy($id)
+    public function destroy($id)
     {
         try {
             $product = \App\Models\Product::findOrFail($id);
@@ -95,7 +121,6 @@ class ProductController extends Controller
                 ->with('success', 'کاڵاکە بە سەرکەوتوویی سڕایەوە.');
                 
         } catch (\Illuminate\Database\QueryException $e) {
-            // ئەگەر کۆدی ئیرۆرەکە 23000 بوو، واتە کاڵاکە لە خشتەی تری وەک فرۆشتن بەکارهاتووە
             if ($e->getCode() == "23000") {
                 return redirect()->back()
                     ->with('error', 'نەتوانرا کاڵاکە بسڕدرێتەوە! ئەم کاڵایە پێشتر لە پسوولەی فرۆشتن یان کڕیندا بەکارهاتووە و پاراستنی بۆ کراوە.');

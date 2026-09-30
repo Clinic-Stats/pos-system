@@ -55,6 +55,7 @@
     @php
         $outOfStockCount = $products->where('stock_kg', '<=', 0)->count();
         $lowStockCount = $products->filter(function($p) { return $p->stock_kg > 0 && $p->stock_kg <= ($p->alert_quantity ?? 5); })->count();
+        $exchangeRate = $setting->exchange_rate ?? 1500;
     @endphp
 
     <!-- کارتەکانی هۆشداری -->
@@ -112,16 +113,32 @@
                         @endforeach
                     </select>
                 </div>
+
+                <!-- دراوی فۆرم -->
+                <div class="flex items-center justify-between gap-1 bg-slate-700/40 p-1.5 rounded-lg border border-slate-600">
+                    <span class="text-[10px] font-bold text-slate-300">دراوی نرخ:</span>
+                    <div class="flex items-center gap-1">
+                        <button type="button" onclick="setFormCurrency('USD')" id="form-cur-usd" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors">دۆلار</button>
+                        <button type="button" onclick="setFormCurrency('IQD')" id="form-cur-iqd" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors">دینار</button>
+                    </div>
+                </div>
+                <input type="hidden" name="currency" id="form_currency" value="USD">
+                <input type="hidden" name="exchange_rate" id="form_exchange_rate" value="{{ $exchangeRate }}">
+
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-slate-300 text-[11px] font-bold mb-1">نرخی کڕین (١ کگ):</label>
+                        <label class="block text-slate-300 text-[11px] font-bold mb-1">نرخی کڕین (<span id="label-buy-cur">$</span>):</label>
                         <input type="number" step="any" min="0" name="base_buy_price" id="field_buy_price" required class="enter-nav w-full p-2 rounded-lg border border-slate-600 bg-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none text-xs">
                     </div>
                     <div>
-                        <label class="block text-slate-300 text-[11px] font-bold mb-1">نرخی فرۆشتن (١ کگ):</label>
+                        <label class="block text-slate-300 text-[11px] font-bold mb-1">نرخی فرۆشتن (<span id="label-sale-cur">$</span>):</label>
                         <input type="number" step="any" min="0" name="base_sale_price" id="field_sale_price" required class="enter-nav w-full p-2 rounded-lg border border-slate-600 bg-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none text-xs">
                     </div>
                 </div>
+                <p class="text-[10px] text-emerald-400 bg-emerald-900/20 p-2 rounded-lg border border-emerald-700/30" id="currencyHint">
+                    نرخەکان بە دۆلار پاشەکەوت دەکرێن
+                </p>
+
                 <div>
                     <label class="block text-slate-300 text-[11px] font-bold mb-1">بڕی سەرەتایی بە کیلۆ:</label>
                     <input type="number" step="any" min="0" name="stock_kg" id="field_stock" value="0" required class="enter-nav w-full p-2 rounded-lg border border-slate-600 bg-slate-700 text-white font-mono focus:border-blue-500 focus:outline-none text-xs">
@@ -181,6 +198,7 @@
                         <tr>
                             <th class="p-2">کۆد / ناو</th>
                             <th class="p-2">کاتیگۆری</th>
+                            <th class="p-2">نرخی کڕین</th>
                             <th class="p-2">نرخی فرۆشتن</th>
                             <th class="p-2">مەخزەن (کگ)</th>
                             <th class="p-2 text-center">دۆخ</th>
@@ -193,6 +211,8 @@
                             $stock = (float) $p->stock_kg;
                             $isOut = $stock <= 0;
                             $isLow = !$isOut && $stock <= ($p->alert_quantity ?? 5);
+                            $buyIqd = $p->base_buy_price * $exchangeRate;
+                            $saleIqd = $p->base_sale_price * $exchangeRate;
                         @endphp
                         <tr class="product-row hover:bg-slate-700/30 transition {{ $isOut ? 'bg-rose-950/20' : ($isLow ? 'bg-amber-950/20' : '') }} {{ !$p->is_active ? 'opacity-60' : '' }}"
                             data-name="{{ mb_strtolower($p->name) }}"
@@ -210,7 +230,19 @@
                                 <span class="text-[10px] font-mono text-blue-400">{{ $p->code }}</span>
                             </td>
                             <td class="p-2 text-[11px] text-slate-400">{{ $p->category->name ?? '-' }}</td>
-                            <td class="p-2 font-mono font-bold text-emerald-400 text-[11px]" dir="ltr">{{ number_format($p->base_sale_price) }}</td>
+                            
+                            <!-- نرخی کڕین -->
+                            <td class="p-2">
+                                <div class="font-mono font-bold text-blue-300 text-[11px]" dir="ltr">${{ number_format($p->base_buy_price, 2) }}</div>
+                                <div class="font-mono text-[9px] text-slate-500" dir="ltr">≈ {{ number_format($buyIqd) }} IQD</div>
+                            </td>
+                            
+                            <!-- نرخی فرۆشتن -->
+                            <td class="p-2">
+                                <div class="font-mono font-bold text-emerald-400 text-[11px]" dir="ltr">${{ number_format($p->base_sale_price, 2) }}</div>
+                                <div class="font-mono text-[9px] text-slate-500" dir="ltr">≈ {{ number_format($saleIqd) }} IQD</div>
+                            </td>
+                            
                             <td class="p-2 font-mono font-bold text-[11px] {{ $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-400' : 'text-slate-200') }}">
                                 {{ $p->stock_kg }}
                             </td>
@@ -241,7 +273,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr id="emptyRow"><td colspan="6" class="p-4 text-center text-slate-500 text-xs">هیچ کاڵایەک تۆمار نەکراوە</td></tr>
+                        <tr id="emptyRow"><td colspan="7" class="p-4 text-center text-slate-500 text-xs">هیچ کاڵایەک تۆمار نەکراوە</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -304,16 +336,32 @@
                         @foreach($categories as $cat) <option value="{{ $cat->id }}">{{ $cat->name }}</option> @endforeach
                     </select>
                 </div>
+
+                <!-- دراوی مۆداڵی دەستکاری -->
+                <div class="flex items-center justify-between gap-1 bg-slate-700/40 p-1.5 rounded-lg border border-slate-600">
+                    <span class="text-[10px] font-bold text-slate-300">دراوی نرخ:</span>
+                    <div class="flex items-center gap-1">
+                        <button type="button" onclick="setEditCurrency('USD')" id="edit-cur-usd" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors">دۆلار</button>
+                        <button type="button" onclick="setEditCurrency('IQD')" id="edit-cur-iqd" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors">دینار</button>
+                    </div>
+                </div>
+                <input type="hidden" name="currency" id="edit_currency" value="USD">
+                <input type="hidden" name="exchange_rate" id="edit_exchange_rate" value="{{ $exchangeRate }}">
+
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block font-bold text-slate-300 mb-1 text-[11px]">نرخی کڕین (١ کگ):</label>
+                        <label class="block font-bold text-slate-300 mb-1 text-[11px]">نرخی کڕین (<span id="edit-label-buy">$</span>):</label>
                         <input type="number" step="any" min="0" name="base_buy_price" id="edit_buy_price" required class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono text-xs">
                     </div>
                     <div>
-                        <label class="block font-bold text-slate-300 mb-1 text-[11px]">نرخی فرۆشتن (١ کگ):</label>
+                        <label class="block font-bold text-slate-300 mb-1 text-[11px]">نرخی فرۆشتن (<span id="edit-label-sale">$</span>):</label>
                         <input type="number" step="any" min="0" name="base_sale_price" id="edit_sale_price" required class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-white font-mono text-xs">
                     </div>
                 </div>
+                <p class="text-[10px] text-emerald-400 bg-emerald-900/20 p-1.5 rounded-lg border border-emerald-700/30" id="edit-currencyHint">
+                    نرخەکان بە دۆلار پاشەکەوت دەکرێن
+                </p>
+
                 <div class="pt-1">
                     <label class="flex items-center gap-2 bg-slate-900 p-2 rounded-lg cursor-pointer">
                         <input type="checkbox" name="is_active" id="edit_is_active" value="1" class="rounded text-blue-600 w-3.5 h-3.5">
@@ -347,13 +395,92 @@
     </div>
 
     <script>
-        // =====================================================
-        // 🔥 چارەسەری سەرەکی: پاشەکەوت و گەڕاندنەوەی داتای فۆرم
-        // =====================================================
+        // ============================================
+        // دراوی فۆرمی زیادکردنی کاڵا
+        // ============================================
+        let formCurrency = 'USD';
+        const formExchangeRate = {{ $exchangeRate }};
 
+        function setFormCurrency(currency) {
+            formCurrency = currency;
+            document.getElementById('form_currency').value = currency;
+            
+            const btnUsd = document.getElementById('form-cur-usd');
+            const btnIqd = document.getElementById('form-cur-iqd');
+            const labelBuy = document.getElementById('label-buy-cur');
+            const labelSale = document.getElementById('label-sale-cur');
+            const hint = document.getElementById('currencyHint');
+
+            if (currency === 'USD') {
+                btnUsd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors';
+                btnIqd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors';
+                labelBuy.innerText = '$';
+                labelSale.innerText = '$';
+                hint.innerText = 'نرخەکان بە دۆلار پاشەکەوت دەکرێن';
+                hint.className = 'text-[10px] text-emerald-400 bg-emerald-900/20 p-2 rounded-lg border border-emerald-700/30';
+            } else {
+                btnIqd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors';
+                btnUsd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors';
+                labelBuy.innerText = 'IQD';
+                labelSale.innerText = 'IQD';
+                hint.innerText = 'نرخەکان بە دینار دەنووسیت و بە نرخی ئاڵوگۆڕ بۆ دۆلار دەگۆڕدرێن';
+                hint.className = 'text-[10px] text-amber-400 bg-amber-900/20 p-2 rounded-lg border border-amber-700/30';
+            }
+        }
+
+        // ============================================
+        // دراوی مۆداڵی دەستکاری
+        // ============================================
+        let editCurrency = 'USD';
+
+        function setEditCurrency(currency) {
+            editCurrency = currency;
+            document.getElementById('edit_currency').value = currency;
+            
+            const btnUsd = document.getElementById('edit-cur-usd');
+            const btnIqd = document.getElementById('edit-cur-iqd');
+            const labelBuy = document.getElementById('edit-label-buy');
+            const labelSale = document.getElementById('edit-label-sale');
+            const hint = document.getElementById('edit-currencyHint');
+
+            if (currency === 'USD') {
+                btnUsd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors';
+                btnIqd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors';
+                labelBuy.innerText = '$';
+                labelSale.innerText = '$';
+                hint.innerText = 'نرخەکان بە دۆلار پاشەکەوت دەکرێن';
+                hint.className = 'text-[10px] text-emerald-400 bg-emerald-900/20 p-1.5 rounded-lg border border-emerald-700/30';
+            } else {
+                btnIqd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors';
+                btnUsd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors';
+                labelBuy.innerText = 'IQD';
+                labelSale.innerText = 'IQD';
+                hint.innerText = 'نرخەکان بە دینار دەنووسیت و بە نرخی ئاڵوگۆڕ بۆ دۆلار دەگۆڕدرێن';
+                hint.className = 'text-[10px] text-amber-400 bg-amber-900/20 p-1.5 rounded-lg border border-amber-700/30';
+            }
+        }
+
+        // ============================================
+        // مۆداڵەکان
+        // ============================================
+        function openImportModal() { document.getElementById('importProductModal').classList.remove('hidden'); }
+        function closeImportModal() { document.getElementById('importProductModal').classList.add('hidden'); }
+
+        function openQuickCategoryModal() {
+            saveProductFormData();
+            document.getElementById('quickCategoryModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('quick_category_name').focus(), 100);
+        }
+        function closeQuickCategoryModal() { 
+            document.getElementById('quickCategoryModal').classList.add('hidden'); 
+            sessionStorage.removeItem('pos_product_form_data_v1');
+        }
+
+        // ============================================
+        // پاشەکەوتکردنی داتای فۆرم
+        // ============================================
         const FORM_DATA_KEY = 'pos_product_form_data_v1';
 
-        // پاشەکەوتکردنی داتای فۆرم پێش هەر گۆڕانکاری
         function saveProductFormData() {
             const formData = {
                 name: document.getElementById('field_name').value,
@@ -362,73 +489,43 @@
                 base_buy_price: document.getElementById('field_buy_price').value,
                 base_sale_price: document.getElementById('field_sale_price').value,
                 stock_kg: document.getElementById('field_stock').value,
-                is_active: document.getElementById('field_is_active').checked
+                is_active: document.getElementById('field_is_active').checked,
+                currency: formCurrency
             };
             sessionStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
         }
 
-        // گەڕاندنەوەی داتای فۆرم دوای نوێبوونەوەی لاپەڕە
         document.addEventListener('DOMContentLoaded', function() {
             const saved = sessionStorage.getItem(FORM_DATA_KEY);
             if (saved) {
                 try {
                     const data = JSON.parse(saved);
-                    
-                    // گەڕاندنەوەی نرخەکان
                     if (data.name) document.getElementById('field_name').value = data.name;
                     if (data.code) document.getElementById('field_code').value = data.code;
                     if (data.base_buy_price) document.getElementById('field_buy_price').value = data.base_buy_price;
                     if (data.base_sale_price) document.getElementById('field_sale_price').value = data.base_sale_price;
                     if (data.stock_kg) document.getElementById('field_stock').value = data.stock_kg;
+                    if (data.is_active !== undefined) document.getElementById('field_is_active').checked = data.is_active;
+                    if (data.currency) setFormCurrency(data.currency);
                     
-                    // دۆخی چالاک
-                    if (data.is_active !== undefined) {
-                        document.getElementById('field_is_active').checked = data.is_active;
-                    }
-                    
-                    // دیاریکردنی کاتیگۆری
                     const catSelect = document.getElementById('field_category');
                     if (catSelect.options.length > 0) {
-                        // چونکە کاتیگۆری نوێ زیادکراوە، دوایین هەڵبژاردن هەڵدەبژێرین
                         catSelect.selectedIndex = catSelect.options.length - 1;
                     }
-                    
-                    // پاککردنەوەی داتای پاشەکەوتکراو
                     sessionStorage.removeItem(FORM_DATA_KEY);
-                    
-                    // فۆکس لەسەر ناوی کاڵا دانەین چونکە بەکارهێنەر لەوانەیە نامەوێت
                 } catch(e) {
-                    console.error('Error restoring form data:', e);
                     sessionStorage.removeItem(FORM_DATA_KEY);
                 }
             }
         });
 
-        // =====================================================
-        // مۆداڵەکان و فەنکشنەکانی تر
-        // =====================================================
-
-        function openImportModal() { document.getElementById('importProductModal').classList.remove('hidden'); }
-        function closeImportModal() { document.getElementById('importProductModal').classList.add('hidden'); }
-
-        // 🔥 کردنەوەی مۆداڵی کاتیگۆری لەگەڵ پاشەکەوتکردنی داتا
-        function openQuickCategoryModal() {
-            saveProductFormData();
-            document.getElementById('quickCategoryModal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('quick_category_name').focus(), 100);
-        }
-        
-        function closeQuickCategoryModal() { 
-            document.getElementById('quickCategoryModal').classList.add('hidden'); 
-            sessionStorage.removeItem(FORM_DATA_KEY);
-        }
-
-        // پاشەکەوتکردنی داتا لە کاتی ناردنی فۆرمی کاتیگۆری
         document.getElementById('quickCategoryForm').addEventListener('submit', function() {
             saveProductFormData();
         });
 
-        // جووڵاندنی فۆڕم بە Enter
+        // ============================================
+        // جووڵاندنی فۆرم بە Enter
+        // ============================================
         const inputs = Array.from(document.querySelectorAll('.enter-nav'));
         inputs.forEach((input, index) => {
             input.addEventListener('keydown', function (e) {
@@ -444,7 +541,9 @@
             });
         });
 
+        // ============================================
         // فلتەری خشتە
+        // ============================================
         function filterStockTable() {
             const searchText = document.getElementById('stockSearchInput').value.toLowerCase().trim();
             const selectedCat = document.getElementById('stockCategoryFilter').value;
@@ -484,15 +583,24 @@
             if (statusSelect) { statusSelect.value = state; filterStockTable(); }
         }
 
+        // ============================================
         // مۆداڵی دەستکاری
+        // ============================================
         function openEditProductModal(item) {
             document.getElementById('edit_name').value = item.name || '';
             document.getElementById('edit_code').value = item.code || '';
             document.getElementById('edit_category_id').value = item.category_id || '';
-            document.getElementById('edit_buy_price').value = item.base_buy_price || 0;
-            document.getElementById('edit_sale_price').value = item.base_sale_price || 0;
+            
+            // نرخەکان بە دۆلار پیشان دەدرێن چونکە بە دۆلار پاشەکەوت کراون
+            document.getElementById('edit_buy_price').value = parseFloat(item.base_buy_price || 0).toFixed(2);
+            document.getElementById('edit_sale_price').value = parseFloat(item.base_sale_price || 0).toFixed(2);
+            
             document.getElementById('edit_is_active').checked = (item.is_active == 1);
             document.getElementById('editProductForm').action = '/products/' + item.id;
+            
+            // ڕێکخستنی دراو بۆ دۆلار
+            setEditCurrency('USD');
+            
             document.getElementById('editProductModal').classList.remove('hidden');
         }
 
