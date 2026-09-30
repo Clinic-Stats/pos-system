@@ -1,179 +1,361 @@
-<!DOCTYPE html>
-<html lang="ckb" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لیستی فرۆشتنەکان</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style> 
-        body { font-family: 'Almarai', sans-serif; } 
-        .font-num { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
-    </style>
-</head>
-<body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden p-3 gap-3">
+<?php
 
-    <!-- سەرپەڕە -->
-    <div class="shrink-0 flex flex-wrap justify-between items-center bg-slate-800 p-3 rounded-xl border border-slate-700 gap-2 text-xs">
-        <h1 class="text-sm font-bold flex items-center gap-2 text-white">
-            <i class="fa-solid fa-receipt text-emerald-400"></i>
-            لیستی هەموو وەسڵەکانی فرۆشتن
-        </h1>
-        <div class="flex flex-wrap items-center gap-1.5 font-bold">
-            <a href="{{ route('reports.index') }}" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg transition">
-                <i class="fa-solid fa-chart-pie"></i> ڕاپۆرتەکان
-            </a>
-            <a href="{{ route('pos.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition shadow">
-                <i class="fa-solid fa-cash-register"></i> POS
-            </a>
-        </div>
-    </div>
+namespace App\Http\Controllers;
 
-    @if(session('success'))
-        <div class="shrink-0 bg-emerald-600/20 border border-emerald-500 text-emerald-400 p-2 rounded-lg text-xs font-bold flex items-center gap-2">
-            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-        </div>
-    @endif
+use App\Models\Sale;
+use App\Models\SaleDetail;
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\Unit;
+use App\Models\Customer;
+use App\Models\User;
+use App\Models\Setting;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
-    <!-- فلتەرەکان -->
-    <div class="shrink-0 bg-slate-800 p-3 rounded-xl border border-slate-700">
-        <form method="GET" action="{{ route('sales.list') }}" class="grid grid-cols-1 md:grid-cols-5 gap-2 text-xs">
-            <div>
-                <label class="block text-[10px] text-slate-400 font-bold mb-1">لە بەرواری:</label>
-                <input type="date" name="from_date" value="{{ request('from_date') }}" class="w-full p-2 rounded-lg bg-slate-700 border border-slate-600 text-white text-[11px] focus:outline-none">
-            </div>
-            <div>
-                <label class="block text-[10px] text-slate-400 font-bold mb-1">بۆ بەرواری:</label>
-                <input type="date" name="to_date" value="{{ request('to_date') }}" class="w-full p-2 rounded-lg bg-slate-700 border border-slate-600 text-white text-[11px] focus:outline-none">
-            </div>
-            <div>
-                <label class="block text-[10px] text-slate-400 font-bold mb-1">جۆری پارەدان:</label>
-                <select name="payment_type" class="w-full p-2 rounded-lg bg-slate-700 border border-slate-600 text-white text-[11px] focus:outline-none">
-                    <option value="">هەموو</option>
-                    <option value="cash" {{ request('payment_type') == 'cash' ? 'selected' : '' }}>نەقد</option>
-                    <option value="debt" {{ request('payment_type') == 'debt' ? 'selected' : '' }}>قەرز</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-[10px] text-slate-400 font-bold mb-1">گەڕان (ژمارە وەسڵ / کڕیار):</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="INV-xxx یان ناوی کڕیار..." class="w-full p-2 rounded-lg bg-slate-700 border border-slate-600 text-white text-[11px] focus:outline-none">
-            </div>
-            <div class="flex items-end gap-1.5">
-                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-[11px] transition">
-                    <i class="fa-solid fa-filter"></i> فلتەرکردن
-                </button>
-                <a href="{{ route('sales.list') }}" class="bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-3 rounded-lg text-[11px] transition">
-                    <i class="fa-solid fa-rotate"></i>
-                </a>
-            </div>
-        </form>
-    </div>
+class SaleController extends Controller
+{
+  public function index()
+    {
+        $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
+        $alertCol = Schema::hasColumn('products', 'alert_quantity') ? 'alert_quantity' : null;
 
-    <!-- خشتەی فرۆشتنەکان -->
-    <div class="flex-1 bg-slate-800 p-3 rounded-xl border border-slate-700 flex flex-col overflow-hidden">
-        
-        <div class="shrink-0 flex justify-between items-center border-b border-slate-700 pb-2 mb-2">
-            <span class="text-xs font-bold text-slate-300">
-                کۆی گشتی: <span class="font-num text-emerald-400">{{ $sales->total() }}</span> وەسڵ
-            </span>
-        </div>
+        // تەنها پەیوەندی category بهێڵەرەوە
+        $products = Product::with('category')
+            ->where('is_active', 1)
+            ->get();
 
-        <div class="flex-1 overflow-auto custom-scrollbar rounded-lg border border-slate-700/80">
-            <table class="w-full text-xs text-right text-slate-300">
-                <thead class="bg-slate-700/50 text-[11px] text-slate-400 sticky top-0 z-10">
-                    <tr>
-                        <th class="p-2.5">#</th>
-                        <th class="p-2.5">ژمارەی وەسڵ</th>
-                        <th class="p-2.5">کڕیار</th>
-                        <th class="p-2.5">کۆی پارە</th>
-                        <th class="p-2.5">قازانج</th>
-                        <th class="p-2.5">دراو</th>
-                        <th class="p-2.5">جۆر</th>
-                        <th class="p-2.5">بەروار</th>
-                        <th class="p-2.5 text-center">کردارەکان</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-700">
-                    @forelse($sales as $index => $sale)
-                    <tr class="hover:bg-slate-700/30 transition {{ $sale->remaining_amount > 0 ? 'bg-amber-950/20' : '' }}">
-                        <td class="p-2.5 font-num text-slate-500">{{ $sales->firstItem() + $index }}</td>
-                        <td class="p-2.5 font-mono text-blue-400 text-[11px]">{{ $sale->invoice_no }}</td>
-                        <td class="p-2.5 text-[11px]">{{ $sale->customer->name ?? 'کڕیاری نەقد' }}</td>
-                        <td class="p-2.5 font-mono font-bold text-emerald-400 text-[11px]" dir="ltr">
-                            @if($sale->currency == 'USD')
-                                ${{ number_format($sale->total_amount, 2) }}
-                            @else
-                                {{ number_format($sale->total_amount) }} IQD
-                            @endif
-                        </td>
-                        <td class="p-2.5 font-mono font-bold text-blue-400 text-[11px]" dir="ltr">
-                            @if($sale->currency == 'USD')
-                                ${{ number_format($sale->total_profit, 2) }}
-                            @else
-                                {{ number_format($sale->total_profit) }} IQD
-                            @endif
-                        </td>
-                        <td class="p-2.5 text-[10px] font-bold text-slate-400">
-                            {{ $sale->currency ?? 'IQD' }}
-                        </td>
-                        <td class="p-2.5">
-                            @if($sale->payment_type == 'cash')
-                                <span class="bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[10px] font-bold">نەقد</span>
-                            @else
-                                <span class="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[10px] font-bold">قەرز</span>
-                                @if($sale->remaining_amount > 0)
-                                    <span class="block text-[9px] text-rose-400 mt-0.5 font-num" dir="ltr">ماوە: {{ number_format($sale->remaining_amount) }}</span>
-                                @endif
-                            @endif
-                        </td>
-                        <td class="p-2.5 text-[10px] text-slate-400 font-mono">{{ $sale->created_at->format('Y-m-d H:i') }}</td>
-                        <td class="p-2.5">
-                            <div class="flex items-center justify-center gap-1">
-                                <!-- چاپکردن -->
-                                <a href="{{ route('sales.print', $sale->id) }}" target="_blank" title="چاپکردن"
-                                   class="bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
-                                    <i class="fa-solid fa-print"></i>
-                                </a>
+        $lowStockProducts = collect();
+        $outOfStockProducts = $products->where($stockCol, '<=', 0);
 
-                                <!-- دەستکاری -->
-                                <a href="{{ route('sales.edit', $sale->id) }}" title="دەستکاریکردن"
-                                   class="bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
+        if ($alertCol) {
+            $lowStockProducts = $products->filter(function ($item) use ($stockCol, $alertCol) {
+                return $item->{$stockCol} > 0 && $item->{$stockCol} <= ($item->{$alertCol} ?: 5);
+            });
+        }
 
-                                <!-- سڕینەوە -->
-                                <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" onsubmit="return confirm('ئایا دڵنیایت لە سڕینەوەی ئەم وەسڵە؟ کاڵاکان دەگەڕێنەوە کۆگا.')" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" title="سڕینەوە"
-                                            class="bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="9" class="p-8 text-center text-slate-500 text-xs">
-                            <i class="fa-solid fa-inbox text-2xl block mb-2"></i>
-                            هیچ وەسڵێکی فرۆشتن نەدۆزرایەوە
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+        $categories = Category::all();
+        $units = Unit::all();
+        $customers = Customer::all();
 
-        <!-- پەیجینەیشن -->
-        <div class="shrink-0 pt-2 mt-2 border-t border-slate-700">
-            {{ $sales->appends(request()->query())->links() }}
-        </div>
+        return view('pos.index', compact(
+            'products', 
+            'categories', 
+            'units', 
+            'customers', 
+            'lowStockProducts', 
+            'outOfStockProducts'
+        ));
+    }
+    public function store(Request $request)
+    {
+        $request->validate([
+            'items'        => 'required|array|min:1',
+            'payment_type' => 'required|in:cash,debt',
+            'paid_amount'  => 'nullable|numeric|min:0',
+            'discount'     => 'nullable|numeric|min:0',
+        ]);
 
-    </div>
+        try {
+            $sale = DB::transaction(function () use ($request) {
+                $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
-</body>
-</html>
+                // پشکنینی سەرەتایی مەخزەن پێش هیچ کردارێک
+                foreach ($request->items as $item) {
+                    $product = Product::findOrFail($item['product_id']);
+                    $unit = Unit::findOrFail($item['unit_id']);
+                    $factor = $this->getUnitFactor($product, $unit);
+
+                    $requestedQty = (float) $item['quantity'];
+                    $neededStock = $requestedQty * $factor;
+                    $availableStock = (float) $product->{$stockCol};
+
+                    if ($availableStock <= 0) {
+                        throw new \Exception("کاڵای ({$product->name}) لە کۆگا نەماوە و ناتوانرێت بفرۆشرێت!");
+                    }
+
+                    if ($neededStock > $availableStock) {
+                        // حیسابکردنی ئەوەی چەند دانە/کیلۆ لەسەر بنەمای یەکە هەڵبژێردراوەکە ماوە
+                        $maxPossible = $factor > 0 ? floor(($availableStock / $factor) * 100) / 100 : 0;
+                        throw new \Exception("بڕی داواکراو بۆ ({$product->name}) لە مەخزەن نییە! تەنها ({$maxPossible} {$unit->name}) بەردەستە.");
+                    }
+                }
+
+                $user = auth()->user() ?? User::first();
+                if (!$user) {
+                    $user = User::create([
+                        'name'     => 'ئەدمین',
+                        'email'    => 'admin@pos.com',
+                        'password' => bcrypt('12345678'),
+                    ]);
+                }
+
+                $subtotal = 0;
+                $totalCost = 0;
+
+                // حیسابکردنی تێچوو و کۆی فرۆشتن
+                foreach ($request->items as $item) {
+                    $product = Product::findOrFail($item['product_id']);
+                    $unit = Unit::findOrFail($item['unit_id']);
+
+                    $factor = $this->getUnitFactor($product, $unit);
+                    $itemPrice = (float) ($item['base_price'] ?? $product->base_sale_price);
+
+                    $lineTotal = $item['quantity'] * ($itemPrice * $factor);
+                    $lineCost  = $item['quantity'] * ($product->base_buy_price * $factor);
+
+                    $subtotal += $lineTotal;
+                    $totalCost += $lineCost;
+                }
+
+                $discount = (float) ($request->discount ?? 0);
+                $totalAmount = max(0, $subtotal - $discount);
+                $totalProfit = $totalAmount - $totalCost;
+
+                $paid = ($request->payment_type === 'cash') ? $totalAmount : ($request->paid_amount ?? 0);
+                $remaining = $totalAmount - $paid;
+
+                $saleData = [
+                    'invoice_no'       => 'INV-' . strtoupper(uniqid()),
+                    'customer_id'      => $request->customer_id ?: null,
+                    'user_id'          => auth()->id() ?? ($user ? $user->id : null),
+                    'total_amount'     => $totalAmount,
+                    'total_cost'       => $totalCost,
+                    'total_profit'     => $totalProfit,
+                    'paid_amount'      => $paid,
+                    'remaining_amount' => $remaining,
+                    'payment_type'     => $request->payment_type ?? 'cash',
+                    'created_at'       => $request->filled('created_at') ? Carbon::parse($request->created_at) : now(),
+                ];
+
+                if (Schema::hasColumn('sales', 'discount')) {
+                    $saleData['discount'] = $discount;
+                }
+
+                $sale = Sale::create($saleData);
+
+                foreach ($request->items as $item) {
+                    $product = Product::findOrFail($item['product_id']);
+                    $unit = Unit::findOrFail($item['unit_id']);
+
+                    $factor = $this->getUnitFactor($product, $unit);
+                    $itemPrice = (float) ($item['base_price'] ?? $product->base_sale_price);
+
+                    $unitPrice  = $itemPrice * $factor;
+                    $unitCost   = $product->base_buy_price * $factor;
+                    $lineTotal  = $item['quantity'] * $unitPrice;
+                    $lineCost   = $item['quantity'] * $unitCost;
+                    $lineProfit = $lineTotal - $lineCost;
+
+                    SaleDetail::create([
+                        'sale_id'     => $sale->id,
+                        'product_id'  => $product->id,
+                        'unit_id'     => $unit->id,
+                        'quantity'    => $item['quantity'],
+                        'unit_price'  => $unitPrice,
+                        'unit_cost'   => $unitCost,
+                        'subtotal'    => $lineTotal,
+                        'line_total'  => $lineTotal,
+                        'line_profit' => $lineProfit,
+                    ]);
+
+                    $deductedKg = $item['quantity'] * $factor;
+                    $product->decrement($stockCol, $deductedKg);
+                }
+
+                return $sale;
+            });
+
+            return response()->json([
+                'success' => true,
+                'sale_id' => $sale->id,
+                'message' => 'فرۆشتن بە سەرکەوتوویی تەواو بوو'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error'   => $e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function edit($id)
+    {
+        $sale = Sale::with('details.product', 'details.unit', 'customer')->findOrFail($id);
+        $products = Product::with('category')->where('is_active', 1)->get();
+        $categories = Category::all();
+        $units = Unit::all();
+        $customers = Customer::all();
+
+        return view('pos.edit', compact('sale', 'products', 'categories', 'units', 'customers'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'items'        => 'required|array|min:1',
+            'payment_type' => 'required|in:cash,debt',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request, $id) {
+                $sale = Sale::with('details')->findOrFail($id);
+                $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
+
+                // ١. گەڕاندنەوەی بڕەکانی پێشوو بۆ کۆگا تا باڵانسەکەی ئێستا دروست بێت
+                foreach ($sale->details as $oldDetail) {
+                    $product = Product::find($oldDetail->product_id);
+                    $unit = Unit::find($oldDetail->unit_id);
+                    $factor = ($product && $unit) ? $this->getUnitFactor($product, $unit) : 1;
+                    if ($product) {
+                        $product->increment($stockCol, $oldDetail->quantity * $factor);
+                    }
+                }
+
+                // ٢. پشکنینی کاڵاکانی فۆڕمە نوێیەکە ئایا بەشی دەکات
+                foreach ($request->items as $item) {
+                    $product = Product::findOrFail($item['product_id']);
+                    $unit = Unit::findOrFail($item['unit_id']);
+                    $factor = $this->getUnitFactor($product, $unit);
+
+                    $requestedQty = (float) $item['quantity'];
+                    $neededStock = $requestedQty * $factor;
+                    $availableStock = (float) $product->fresh()->{$stockCol};
+
+                    if ($availableStock <= 0) {
+                        throw new \Exception("کاڵای ({$product->name}) لە کۆگا نەماوە!");
+                    }
+
+                    if ($neededStock > $availableStock) {
+                        $maxPossible = $factor > 0 ? floor(($availableStock / $factor) * 100) / 100 : 0;
+                        throw new \Exception("بڕی داواکراو بۆ ({$product->name}) لە کۆگا نییە! تەنها ({$maxPossible} {$unit->name}) ماوە.");
+                    }
+                }
+
+                $sale->details()->delete();
+
+                $subtotal = 0;
+                $totalCost = 0;
+
+                foreach ($request->items as $item) {
+                    $product = Product::findOrFail($item['product_id']);
+                    $unit = Unit::findOrFail($item['unit_id']);
+
+                    $factor = $this->getUnitFactor($product, $unit);
+                    $itemPrice = (float) ($item['base_price'] ?? $product->base_sale_price);
+
+                    $unitPrice = $itemPrice * $factor;
+                    $unitCost  = $product->base_buy_price * $factor;
+                    $lineTotal = $item['quantity'] * $unitPrice;
+                    $lineCost  = $item['quantity'] * $unitCost;
+                    $lineProfit = $lineTotal - $lineCost;
+
+                    $subtotal += $lineTotal;
+                    $totalCost += $lineCost;
+
+                    SaleDetail::create([
+                        'sale_id'     => $sale->id,
+                        'product_id'  => $product->id,
+                        'unit_id'     => $unit->id,
+                        'quantity'    => $item['quantity'],
+                        'unit_price'  => $unitPrice,
+                        'unit_cost'   => $unitCost,
+                        'subtotal'    => $lineTotal,
+                        'line_total'  => $lineTotal,
+                        'line_profit' => $lineProfit,
+                    ]);
+
+                    $deductedKg = $item['quantity'] * $factor;
+                    $product->decrement($stockCol, $deductedKg);
+                }
+
+                $discount = (float) ($request->discount ?? 0);
+                $totalAmount = max(0, $subtotal - $discount);
+                $totalProfit = $totalAmount - $totalCost;
+
+                $paid = ($request->payment_type === 'cash') ? $totalAmount : ($request->paid_amount ?? 0);
+                $remaining = $totalAmount - $paid;
+
+                $updateData = [
+                    'customer_id'      => $request->customer_id ?: null,
+                    'total_amount'     => $totalAmount,
+                    'total_cost'       => $totalCost,
+                    'total_profit'     => $totalProfit,
+                    'paid_amount'      => $paid,
+                    'remaining_amount' => $remaining,
+                    'payment_type'     => $request->payment_type ?? 'cash',
+                ];
+
+                if (Schema::hasColumn('sales', 'discount')) {
+                    $updateData['discount'] = $discount;
+                }
+
+                if ($request->filled('created_at')) {
+                    $updateData['created_at'] = Carbon::parse($request->created_at);
+                }
+
+                $sale->update($updateData);
+            });
+
+            return response()->json(['success' => true, 'message' => 'وەسڵەکە بە سەرکەوتوویی نوێکرایەوە']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            DB::transaction(function () use ($id) {
+                $sale = Sale::with('details')->findOrFail($id);
+                $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
+
+                foreach ($sale->details as $detail) {
+                    $product = Product::find($detail->product_id);
+                    $unit = Unit::find($detail->unit_id);
+                    $factor = ($product && $unit) ? $this->getUnitFactor($product, $unit) : 1;
+                    
+                    if ($product) {
+                        $product->increment($stockCol, $detail->quantity * $factor);
+                    }
+                }
+
+                $sale->details()->delete();
+                $sale->delete();
+            });
+
+            return redirect()->route('reports.index')->with('success', 'وەسڵی فرۆشتن سڕایەوە و کاڵاکان گەڕانەوە کۆگا');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'هەڵەیەک ڕوویدا: ' . $e->getMessage());
+        }
+    }
+
+    public function print(Request $request, $id)
+    {
+        $sale = Sale::with(['details.product', 'details.unit', 'customer', 'user'])->findOrFail($id);
+        $setting = Setting::first();
+
+        if ($request->get('type') === 'a4' || ($setting && $setting->receipt_width === 'a4')) {
+            return view('pos.print_a4', compact('sale'));
+        }
+
+        return view('pos.print', compact('sale'));
+    }
+
+    private function getUnitFactor($product, $unit)
+    {
+        $unitName = mb_strtolower(trim($unit->name));
+
+        if (str_contains($unitName, 'کارتۆن') || str_contains($unitName, 'carton')) {
+            return (float) ($product->kg_per_carton ?: 1);
+        }
+
+        if (str_contains($unitName, 'تەن') || str_contains($unitName, 'ton')) {
+            return 1000.0;
+        }
+
+        return (float) ($unit->factor_to_base ?: 1);
+    }
+}
