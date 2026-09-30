@@ -153,14 +153,17 @@
                 <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                     زیاتر <i class="fa-solid fa-chevron-down text-[8px] mt-0.5"></i>
                 </button>
-                <!-- لێرەدا بەشەکانی (یەکە، کۆمپانیا، خەرجییەکان) زیاد کران و سکرۆڵ بۆ مێنیوەکە داندراوە -->
+                
+                <!-- لیستی زیاتر نوێکرایەوە لەسەر بنەمای web.php ی خۆت -->
                 <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] max-h-72 overflow-y-auto custom-scrollbar text-xs">
                     <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5 text-center"></i> کاتیگۆری</a>
                     <a href="{{ route('units.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-scale-balanced w-5 text-center"></i> یەکەکان</a>
-                    <a href="{{ route('companies.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-building w-5 text-center"></i> کۆمپانیاکان</a>
+                    <a href="{{ route('suppliers.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-truck-field w-5 text-center"></i> دابینکەران</a>
                     <a href="{{ route('expenses.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-money-bill-trend-up w-5 text-center"></i> خەرجییەکان</a>
                     <a href="{{ route('partners.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-handshake w-5 text-center"></i> هاوبەشەکان</a>
                     <a href="{{ route('returns.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-rotate-left w-5 text-center"></i> گەڕاوەکان</a>
+                    <a href="{{ route('mandub.dashboard') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-motorcycle w-5 text-center"></i> مەندووب</a>
+                    <a href="{{ route('settings.receipt') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-gear w-5 text-center"></i> ڕێکخستنی وەسڵ</a>
                     <a href="{{ route('users.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"><i class="fa-solid fa-user-shield w-5 text-center"></i> کارمەندان</a>
                 </div>
             </div>
@@ -339,6 +342,7 @@
 
     </div>
 
+    <!-- مۆداڵی سەرکەوتنی فرۆشتن -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[999]">
         <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-5 text-right shadow-2xl flex flex-col max-h-[90vh]">
             
