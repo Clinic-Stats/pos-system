@@ -17,15 +17,12 @@ use Carbon\Carbon;
 
 class SaleController extends Controller
 {
-  public function index()
+    public function index()
     {
         $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
         $alertCol = Schema::hasColumn('products', 'alert_quantity') ? 'alert_quantity' : null;
 
-        // تەنها پەیوەندی category بهێڵەرەوە
-        $products = Product::with('category')
-            ->where('is_active', 1)
-            ->get();
+        $products = Product::with('category')->where('is_active', 1)->get();
 
         $lowStockProducts = collect();
         $outOfStockProducts = $products->where($stockCol, '<=', 0);
@@ -39,16 +36,14 @@ class SaleController extends Controller
         $categories = Category::all();
         $units = Unit::all();
         $customers = Customer::all();
+        $setting = Setting::first(); // بۆ هێنانی نرخی ئاڵوگۆڕی بنەڕەتی
 
         return view('pos.index', compact(
-            'products', 
-            'categories', 
-            'units', 
-            'customers', 
-            'lowStockProducts', 
-            'outOfStockProducts'
+            'products', 'categories', 'units', 'customers', 
+            'lowStockProducts', 'outOfStockProducts', 'setting'
         ));
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -56,13 +51,14 @@ class SaleController extends Controller
             'payment_type' => 'required|in:cash,debt',
             'paid_amount'  => 'nullable|numeric|min:0',
             'discount'     => 'nullable|numeric|min:0',
+            'currency'     => 'required|in:USD,IQD',
+            'exchange_rate'=> 'required|numeric|min:1',
         ]);
 
         try {
             $sale = DB::transaction(function () use ($request) {
                 $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
-                // پشکنینی سەرەتایی مەخزەن پێش هیچ کردارێک
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
                     $unit = Unit::findOrFail($item['unit_id']);
@@ -77,7 +73,6 @@ class SaleController extends Controller
                     }
 
                     if ($neededStock > $availableStock) {
-                        // حیسابکردنی ئەوەی چەند دانە/کیلۆ لەسەر بنەمای یەکە هەڵبژێردراوەکە ماوە
                         $maxPossible = $factor > 0 ? floor(($availableStock / $factor) * 100) / 100 : 0;
                         throw new \Exception("بڕی داواکراو بۆ ({$product->name}) لە مەخزەن نییە! تەنها ({$maxPossible} {$unit->name}) بەردەستە.");
                     }
@@ -92,19 +87,33 @@ class SaleController extends Controller
                     ]);
                 }
 
+                $currency = $request->currency;
+                $exchangeRate = (float) $request->exchange_rate;
+
                 $subtotal = 0;
                 $totalCost = 0;
 
-                // حیسابکردنی تێچوو و کۆی فرۆشتن
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
                     $unit = Unit::findOrFail($item['unit_id']);
 
                     $factor = $this->getUnitFactor($product, $unit);
-                    $itemPrice = (float) ($item['base_price'] ?? $product->base_sale_price);
+                    
+                    // نرخی بنەڕەتی بە دۆلارە
+                    $itemPriceUsd = (float) ($item['base_price'] ?? $product->base_sale_price);
+                    $itemCostUsd = (float) $product->base_buy_price;
 
-                    $lineTotal = $item['quantity'] * ($itemPrice * $factor);
-                    $lineCost  = $item['quantity'] * ($product->base_buy_price * $factor);
+                    // ئەگەر دراوەکە دینار بوو، بگۆڕە بۆ دینار
+                    if ($currency === 'IQD') {
+                        $unitPrice = $itemPriceUsd * $exchangeRate;
+                        $unitCost = $itemCostUsd * $exchangeRate;
+                    } else {
+                        $unitPrice = $itemPriceUsd;
+                        $unitCost = $itemCostUsd;
+                    }
+
+                    $lineTotal = $item['quantity'] * ($unitPrice * $factor);
+                    $lineCost  = $item['quantity'] * ($unitCost * $factor);
 
                     $subtotal += $lineTotal;
                     $totalCost += $lineCost;
@@ -127,6 +136,8 @@ class SaleController extends Controller
                     'paid_amount'      => $paid,
                     'remaining_amount' => $remaining,
                     'payment_type'     => $request->payment_type ?? 'cash',
+                    'currency'         => $currency,
+                    'exchange_rate'    => $exchangeRate,
                     'created_at'       => $request->filled('created_at') ? Carbon::parse($request->created_at) : now(),
                 ];
 
@@ -141,12 +152,19 @@ class SaleController extends Controller
                     $unit = Unit::findOrFail($item['unit_id']);
 
                     $factor = $this->getUnitFactor($product, $unit);
-                    $itemPrice = (float) ($item['base_price'] ?? $product->base_sale_price);
+                    $itemPriceUsd = (float) ($item['base_price'] ?? $product->base_sale_price);
+                    $itemCostUsd = (float) $product->base_buy_price;
 
-                    $unitPrice  = $itemPrice * $factor;
-                    $unitCost   = $product->base_buy_price * $factor;
-                    $lineTotal  = $item['quantity'] * $unitPrice;
-                    $lineCost   = $item['quantity'] * $unitCost;
+                    if ($currency === 'IQD') {
+                        $unitPrice = $itemPriceUsd * $exchangeRate;
+                        $unitCost = $itemCostUsd * $exchangeRate;
+                    } else {
+                        $unitPrice = $itemPriceUsd;
+                        $unitCost = $itemCostUsd;
+                    }
+
+                    $lineTotal  = $item['quantity'] * $unitPrice * $factor;
+                    $lineCost   = $item['quantity'] * $unitCost * $factor;
                     $lineProfit = $lineTotal - $lineCost;
 
                     SaleDetail::create([
@@ -154,8 +172,8 @@ class SaleController extends Controller
                         'product_id'  => $product->id,
                         'unit_id'     => $unit->id,
                         'quantity'    => $item['quantity'],
-                        'unit_price'  => $unitPrice,
-                        'unit_cost'   => $unitCost,
+                        'unit_price'  => $unitPrice * $factor,
+                        'unit_cost'   => $unitCost * $factor,
                         'subtotal'    => $lineTotal,
                         'line_total'  => $lineTotal,
                         'line_profit' => $lineProfit,
@@ -188,8 +206,9 @@ class SaleController extends Controller
         $categories = Category::all();
         $units = Unit::all();
         $customers = Customer::all();
+        $setting = Setting::first();
 
-        return view('pos.edit', compact('sale', 'products', 'categories', 'units', 'customers'));
+        return view('pos.edit', compact('sale', 'products', 'categories', 'units', 'customers', 'setting'));
     }
 
     public function update(Request $request, $id)
@@ -197,6 +216,8 @@ class SaleController extends Controller
         $request->validate([
             'items'        => 'required|array|min:1',
             'payment_type' => 'required|in:cash,debt',
+            'currency'     => 'required|in:USD,IQD',
+            'exchange_rate'=> 'required|numeric|min:1',
         ]);
 
         try {
@@ -204,7 +225,6 @@ class SaleController extends Controller
                 $sale = Sale::with('details')->findOrFail($id);
                 $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
-                // ١. گەڕاندنەوەی بڕەکانی پێشوو بۆ کۆگا تا باڵانسەکەی ئێستا دروست بێت
                 foreach ($sale->details as $oldDetail) {
                     $product = Product::find($oldDetail->product_id);
                     $unit = Unit::find($oldDetail->unit_id);
@@ -214,7 +234,6 @@ class SaleController extends Controller
                     }
                 }
 
-                // ٢. پشکنینی کاڵاکانی فۆڕمە نوێیەکە ئایا بەشی دەکات
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
                     $unit = Unit::findOrFail($item['unit_id']);
@@ -236,6 +255,8 @@ class SaleController extends Controller
 
                 $sale->details()->delete();
 
+                $currency = $request->currency;
+                $exchangeRate = (float) $request->exchange_rate;
                 $subtotal = 0;
                 $totalCost = 0;
 
@@ -244,12 +265,19 @@ class SaleController extends Controller
                     $unit = Unit::findOrFail($item['unit_id']);
 
                     $factor = $this->getUnitFactor($product, $unit);
-                    $itemPrice = (float) ($item['base_price'] ?? $product->base_sale_price);
+                    $itemPriceUsd = (float) ($item['base_price'] ?? $product->base_sale_price);
+                    $itemCostUsd = (float) $product->base_buy_price;
 
-                    $unitPrice = $itemPrice * $factor;
-                    $unitCost  = $product->base_buy_price * $factor;
-                    $lineTotal = $item['quantity'] * $unitPrice;
-                    $lineCost  = $item['quantity'] * $unitCost;
+                    if ($currency === 'IQD') {
+                        $unitPrice = $itemPriceUsd * $exchangeRate;
+                        $unitCost = $itemCostUsd * $exchangeRate;
+                    } else {
+                        $unitPrice = $itemPriceUsd;
+                        $unitCost = $itemCostUsd;
+                    }
+
+                    $lineTotal = $item['quantity'] * $unitPrice * $factor;
+                    $lineCost  = $item['quantity'] * $unitCost * $factor;
                     $lineProfit = $lineTotal - $lineCost;
 
                     $subtotal += $lineTotal;
@@ -260,8 +288,8 @@ class SaleController extends Controller
                         'product_id'  => $product->id,
                         'unit_id'     => $unit->id,
                         'quantity'    => $item['quantity'],
-                        'unit_price'  => $unitPrice,
-                        'unit_cost'   => $unitCost,
+                        'unit_price'  => $unitPrice * $factor,
+                        'unit_cost'   => $unitCost * $factor,
                         'subtotal'    => $lineTotal,
                         'line_total'  => $lineTotal,
                         'line_profit' => $lineProfit,
@@ -286,6 +314,8 @@ class SaleController extends Controller
                     'paid_amount'      => $paid,
                     'remaining_amount' => $remaining,
                     'payment_type'     => $request->payment_type ?? 'cash',
+                    'currency'         => $currency,
+                    'exchange_rate'    => $exchangeRate,
                 ];
 
                 if (Schema::hasColumn('sales', 'discount')) {

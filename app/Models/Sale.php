@@ -17,6 +17,8 @@ class Sale extends Model
         'paid_amount',
         'remaining_amount',
         'payment_type',
+        'currency', 
+        'exchange_rate',
         'created_at',
     ];
 
