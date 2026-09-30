@@ -85,16 +85,25 @@ class ProductController extends Controller
         return redirect()->back()->with('success', "بڕی {$request->added_stock} کیلۆ بۆ مەخزەن زیادکرا");
     }
 
-    public function destroy($id)
+   public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-
-        if ($product->stock_kg > 0) {
-            return redirect()->back()->with('error', 'ناتوانیت ئەم کاڵایە بسڕیتەوە چونکە بڕی مەخزەنەکەی لە سفر زیاترە (' . $product->stock_kg . ' کگ ماوە). پێویستە سفر بێت یان ناچالاکی بکەیت.');
+        try {
+            $product = \App\Models\Product::findOrFail($id);
+            $product->delete();
+            
+            return redirect()->route('products.index')
+                ->with('success', 'کاڵاکە بە سەرکەوتوویی سڕایەوە.');
+                
+        } catch (\Illuminate\Database\QueryException $e) {
+            // ئەگەر کۆدی ئیرۆرەکە 23000 بوو، واتە کاڵاکە لە خشتەی تری وەک فرۆشتن بەکارهاتووە
+            if ($e->getCode() == "23000") {
+                return redirect()->back()
+                    ->with('error', 'نەتوانرا کاڵاکە بسڕدرێتەوە! ئەم کاڵایە پێشتر لە پسوولەی فرۆشتن یان کڕیندا بەکارهاتووە و پاراستنی بۆ کراوە.');
+            }
+            
+            return redirect()->back()
+                ->with('error', 'هەڵەیەک ڕوویدا لە کاتی سڕینەوەی کاڵاکەدا.');
         }
-
-        $product->delete();
-        return redirect()->route('products.index')->with('success', 'کاڵاکە بە سەرکەوتوویی سڕایەوە');
     }
 
     public function importCsv(Request $request)
