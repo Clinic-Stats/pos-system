@@ -94,10 +94,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
         Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
-        Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
-Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
-Route::put('/suppliers/{id}', [SupplierController::class, 'update'])->name('suppliers.update'); // ئەمە زیاد بکە
-Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+        
     });
 
     // هاوبەشەکان (بە کەشف و ڕاپۆرتی گشتییەوە)

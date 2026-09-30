@@ -26,24 +26,6 @@ class SupplierController extends Controller
         return redirect()->back()->with('success', 'شوێنی کڕین بە سەرکەوتوویی زیادکرا');
     }
 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-        ]);
-
-        $supplier = \App\Models\Supplier::findOrFail($id);
-        $supplier->update([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'address' => $request->address,
-        ]);
-
-        return redirect()->route('suppliers.index')->with('success', 'زانیاری دابینکەر بە سەرکەوتوویی نوێکرایەوە.');
-    }
-
     public function destroy($id)
     {
         Supplier::findOrFail($id)->delete();
