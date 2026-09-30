@@ -20,6 +20,19 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\BackupAndExportController;
 
+// ============================================
+// ڕاوتێکی کاتی بۆ پاککردنەوەی کاشەکە
+// دوای ئەوەی کێشەکە چارەسەر بوو، ئەم بەشە بسڕەوە
+// ============================================
+Route::get('/clear-all-cache', function() {
+    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+    \Illuminate\Support\Facades\Artisan::call('route:clear');
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    return '✅ کاشەکە بە سەرکەوتوویی پاککرایەوە!';
+});
+
 // ڕووتی لۆگین و دەرچوون
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -66,17 +79,18 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:products')->group(function () {
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');
         Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-            Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
-    Route::patch('/products/{id}', [ProductController::class, 'update'])->name('products.update.patch'); 
+        
+        // 👇 ئەم دوو ڕاوتە بۆ نوێکردنەوەی کاڵا زۆر گرنگن
+        Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
+        Route::patch('/products/{id}', [ProductController::class, 'update'])->name('products.update.patch');
+        
         Route::post('/products/{id}/add-stock', [ProductController::class, 'addStock'])->name('products.addStock');
         Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
         Route::patch('/products/{id}/toggle', [ProductController::class, 'toggleStatus'])->name('products.toggle');
 
-
         Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
         Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
         Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-
 
         Route::get('/global-search', [GlobalSearchController::class, 'search'])->name('global.search');
 
@@ -98,10 +112,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
         Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
-        
     });
 
-    // هاوبەشەکان (بە کەشف و ڕاپۆرتی گشتییەوە)
+    // هاوبەشەکان
     Route::middleware('permission:partners')->group(function () {
         Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
         Route::post('/partners', [PartnerController::class, 'store'])->name('partners.store');
@@ -114,7 +127,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/partners/all-report', [PartnerController::class, 'allReport'])->name('partners.allReport');
         Route::get('/partners/{id}/statement', [PartnerController::class, 'show'])->name('partners.show');
     });
-   // خەرجییەکان
+
+    // خەرجییەکان
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     Route::put('/expenses/{id}', [ExpenseController::class, 'update'])->name('expenses.update');
@@ -128,13 +142,13 @@ Route::middleware(['auth'])->group(function () {
     // ڕاپۆرتەکان
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:reports');
 
-// هەناردەکردن بۆ ئیکسڵ و باکئەپ
+    // هەناردەکردن بۆ ئیکسڵ و باکئەپ
     Route::get('/export/products', [BackupAndExportController::class, 'exportProducts'])->name('export.products');
     Route::get('/export/customers', [BackupAndExportController::class, 'exportCustomers'])->name('export.customers');
     Route::get('/backup/database', [BackupAndExportController::class, 'backupDatabase'])->name('backup.database');
 
     Route::post('/products/import-csv', [App\Http\Controllers\ProductController::class, 'importCsv'])->name('products.importCsv');
 
-    // بەڕێوەبردنی کارمەندان (Users) - تەنها ئەدمین
+    // بەڕێوەبردنی کارمەندان (Users)
     Route::resource('users', UserController::class);
 });
