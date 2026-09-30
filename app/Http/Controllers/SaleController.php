@@ -44,6 +44,40 @@ class SaleController extends Controller
         ));
     }
 
+    public function listSales(Request $request)
+    {
+        $query = Sale::with(['customer', 'user', 'details.product']);
+
+        // فلتەرکردن بەپێی بەروار
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+
+        // فلتەرکردن بەپێی جۆری پارەدان
+        if ($request->filled('payment_type')) {
+            $query->where('payment_type', $request->payment_type);
+        }
+
+        // گەڕان بەپێی ژمارەی وەسڵ یان ناوی کڕیار
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('invoice_no', 'like', "%{$search}%")
+                  ->orWhereHas('customer', function($cq) use ($search) {
+                      $cq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $sales = $query->latest()->paginate(20);
+        $customers = Customer::all();
+
+        return view('sales.list', compact('sales', 'customers'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([

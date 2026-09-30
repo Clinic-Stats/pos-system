@@ -68,6 +68,9 @@
             <div class="relative inline-block">
                 <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">زیاتر <i class="fa-solid fa-chevron-down text-[8px] mt-0.5"></i></button>
                 <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] max-h-72 overflow-y-auto custom-scrollbar text-xs">
+                    <!-- 👇 لینکی نوێ: لیستی فرۆشتنەکان -->
+                    <a href="{{ route('sales.list') }}" class="block px-4 py-2.5 text-emerald-600 dark:text-emerald-400 font-bold hover:bg-emerald-50 dark:hover:bg-emerald-900/20 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-receipt w-5 text-center"></i> فرۆشتنەکان</a>
+                    
                     <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5 text-center"></i> کاتیگۆری</a>
                     <a href="{{ route('units.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-scale-balanced w-5 text-center"></i> یەکەکان</a>
                     <a href="{{ route('suppliers.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-truck-field w-5 text-center"></i> دابینکەران</a>

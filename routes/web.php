@@ -28,7 +28,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // هەموو بەشەکانی ناوەوەی سیستەم
 Route::middleware(['auth'])->group(function () {
-    
+        // لیستی هەموو فرۆشتنەکان
+    Route::get('/sales-list', [SaleController::class, 'listSales'])->name('sales.list')->middleware('permission:pos');
     // ڕادەستکردنی پارە (Handover)
     Route::post('/handovers', [CashHandoverController::class, 'store'])->name('handovers.store');
     Route::get('/handovers/{id}/print', [CashHandoverController::class, 'printReceipt'])->name('handovers.print');
