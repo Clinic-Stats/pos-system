@@ -66,13 +66,17 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:products')->group(function () {
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');
         Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+            Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
+    Route::patch('/products/{id}', [ProductController::class, 'update'])->name('products.update.patch'); 
         Route::post('/products/{id}/add-stock', [ProductController::class, 'addStock'])->name('products.addStock');
         Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
         Route::patch('/products/{id}/toggle', [ProductController::class, 'toggleStatus'])->name('products.toggle');
 
+
         Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
         Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
         Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
 
         Route::get('/global-search', [GlobalSearchController::class, 'search'])->name('global.search');
 
