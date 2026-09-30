@@ -24,6 +24,23 @@ class UnitController extends Controller
         return redirect()->back()->with('success', 'یەکە بە سەرکەوتوویی زیادکرا');
     }
 
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'factor_to_base' => 'required|numeric|min:0.0001',
+    ]);
+
+    $unit = \App\Models\Unit::findOrFail($id);
+    
+    $unit->update([
+        'name' => $request->name,
+        'factor_to_base' => $request->factor_to_base,
+    ]);
+
+    return redirect()->route('units.index')->with('success', 'یەکەکە بە سەرکەوتوویی نوێکرایەوە');
+}
+
     public function destroy($id)
     {
         Unit::findOrFail($id)->delete();
