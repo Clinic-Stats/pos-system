@@ -14,6 +14,8 @@ class Purchase extends Model
         'paid_amount',
         'remaining_amount',
         'payment_type',
+        'currency',        // 👈 زیادکرا
+        'exchange_rate',   // 👈 زیادکرا
         'user_id',
         'created_at',
         'updated_at',

@@ -39,8 +39,8 @@
         <form action="{{ route('purchases.store') }}" method="POST" id="purchaseForm" onsubmit="return validatePurchaseForm(event)" class="space-y-6">
             @csrf
 
-            {{-- بەشی سەرەوەی وەسڵ: شوێن و بەروار --}}
-            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {{-- بەشی سەرەوەی وەسڵ: شوێن و بەروار و دراو --}}
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">شوێنی کڕین (کۆمپانیا/دابینکەر):</label>
                     <select name="supplier_id" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
@@ -53,9 +53,22 @@
                     <label class="block text-xs font-bold text-slate-300 mb-1">بەرواری وەسڵ:</label>
                     <input type="date" name="created_at" value="{{ date('Y-m-d') }}" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500">
                 </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">دراوی وەسڵ:</label>
+                    <div class="flex items-center gap-1.5 bg-slate-700 p-1 rounded-xl">
+                        <button type="button" onclick="setCurrency('USD')" id="btn-cur-usd" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white transition-colors">دۆلار</button>
+                        <button type="button" onclick="setCurrency('IQD')" id="btn-cur-iqd" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 transition-colors">دینار</button>
+                    </div>
+                    <input type="hidden" name="currency" id="currency_input" value="USD">
+                </div>
+                <div id="exchangeRateBox" class="md:col-span-3 hidden">
+                    <label class="block text-xs font-bold text-slate-300 mb-1">نرخی ئاڵوگۆڕی دۆلار (١ دۆلار = چ دینار):</label>
+                    <input type="number" step="any" min="1" name="exchange_rate" id="exchange_rate_input" value="{{ $setting->exchange_rate ?? 1500 }}" class="w-full p-2.5 rounded-xl border border-amber-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-amber-500">
+                    <p class="text-[10px] text-amber-400 mt-1">ئەم نرخە بۆ گۆڕینی نرخی کڕین بۆ دۆلار بەکار دەهێنرێت پێش پاشەکەوتکردن</p>
+                </div>
             </div>
 
-            {{-- خشتەی کاڵاکان لە ناو وەسڵەکەدا --}}
+            {{-- خشتەی کاڵاکان --}}
             <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 space-y-4">
                 <div class="flex justify-between items-center">
                     <h2 class="text-sm font-bold text-white">لیستی کاڵاکانی ئەم وەسڵە</h2>
@@ -71,20 +84,34 @@
                                 <th class="p-2.5 w-44">کاڵا</th>
                                 <th class="p-2.5 w-32">یەکە</th>
                                 <th class="p-2.5 w-24">بڕ</th>
-                                <th class="p-2.5 w-32">نرخی یەکە (د.ع)</th>
+                                <th class="p-2.5 w-36">نرخی یەکە (<span id="priceLabel">$</span>)</th>
                                 <th class="p-2.5 w-36">کۆی پارە</th>
                                 <th class="p-2.5 text-center w-12">لابردن</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-700" id="tableBody">
-                            <!-- لێرە دێڕەکان بە JS زیاد دەبن -->
                         </tbody>
                     </table>
                 </div>
 
                 <div class="pt-4 border-t border-slate-700 flex justify-between items-center">
                     <span class="text-sm font-bold text-slate-300">کۆی گشتی وەسڵ:</span>
-                    <span id="grandTotal" class="text-emerald-400 font-mono font-black text-xl" dir="ltr">0 IQD</span>
+                    <span id="grandTotal" class="text-emerald-400 font-mono font-black text-xl" dir="ltr">$0.00</span>
+                </div>
+            </div>
+
+            {{-- پارەدان --}}
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">جۆری پارەدان:</label>
+                    <select name="payment_type" id="payment_type" onchange="togglePaid()" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
+                        <option value="cash">نەقد</option>
+                        <option value="debt">قەرز</option>
+                    </select>
+                </div>
+                <div id="paidAmountBox" class="hidden">
+                    <label class="block text-xs font-bold text-slate-300 mb-1">بڕی پارەی دراو:</label>
+                    <input type="number" step="any" min="0" name="paid_amount" id="paid_amount" value="0" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none">
                 </div>
             </div>
 
@@ -99,6 +126,41 @@
         const products = @json($products);
         const units = @json($units);
         let rowCount = 0;
+        let currentCurrency = 'USD';
+        let currentRate = {{ $setting->exchange_rate ?? 1500 }};
+
+        function setCurrency(currency) {
+            currentCurrency = currency;
+            document.getElementById('currency_input').value = currency;
+            
+            const btnIqd = document.getElementById('btn-cur-iqd');
+            const btnUsd = document.getElementById('btn-cur-usd');
+            const exchangeBox = document.getElementById('exchangeRateBox');
+            const priceLabel = document.getElementById('priceLabel');
+
+            if (currency === 'USD') {
+                btnUsd.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white transition-colors';
+                btnIqd.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 transition-colors';
+                exchangeBox.classList.add('hidden');
+                priceLabel.innerText = '$';
+            } else {
+                btnIqd.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white transition-colors';
+                btnUsd.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 transition-colors';
+                exchangeBox.classList.remove('hidden');
+                priceLabel.innerText = 'IQD';
+            }
+            calcTotal();
+        }
+
+        function togglePaid() {
+            const type = document.getElementById('payment_type').value;
+            const box = document.getElementById('paidAmountBox');
+            if (type === 'debt') {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
 
         function getUnitFactor(unitId, productId) {
             const unit = units.find(u => u.id == unitId);
@@ -106,9 +168,7 @@
             if (!unit) return 1;
 
             const uName = (unit.name || '').toLowerCase();
-            if (uName.includes('تەن') || uName.includes('ton')) {
-                return 1000;
-            }
+            if (uName.includes('تەن') || uName.includes('ton')) return 1000;
             if ((uName.includes('کارتۆن') || uName.includes('carton')) && product && product.kg_per_carton) {
                 return parseFloat(product.kg_per_carton) || 1;
             }
@@ -142,7 +202,7 @@
                 <td class="p-2">
                     <input type="number" step="any" min="0" name="items[${rowId}][buy_price]" value="0" oninput="calcTotal()" required class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono price-input">
                 </td>
-                <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr">0 IQD</td>
+                <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr">$0.00</td>
                 <td class="p-2 text-center">
                     <button type="button" onclick="removeRow(${rowId})" class="text-rose-400 hover:text-rose-300 text-sm">
                         <i class="fa-solid fa-trash"></i>
@@ -163,6 +223,8 @@
 
         function calcTotal() {
             let total = 0;
+            currentRate = parseFloat(document.getElementById('exchange_rate_input').value) || 1500;
+            
             const rows = document.querySelectorAll('#tableBody tr');
             rows.forEach(row => {
                 const prodId = row.querySelector('.prod-select')?.value;
@@ -173,41 +235,46 @@
                 const factor = getUnitFactor(unitId, prodId);
                 const sub = qty * (pricePerBase * factor);
 
+                const symbol = currentCurrency === 'USD' ? '$' : '';
+                const suffix = currentCurrency === 'IQD' ? ' IQD' : '';
+
                 if (row.querySelector('.row-total')) {
-                    row.querySelector('.row-total').innerText = Math.round(sub).toLocaleString() + ' IQD';
+                    row.querySelector('.row-total').innerText = symbol + sub.toLocaleString(undefined, {minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0, maximumFractionDigits: 2}) + suffix;
                 }
                 total += sub;
             });
-            document.getElementById('grandTotal').innerText = Math.round(total).toLocaleString() + ' IQD';
+            
+            const symbol = currentCurrency === 'USD' ? '$' : '';
+            const suffix = currentCurrency === 'IQD' ? ' IQD' : '';
+            document.getElementById('grandTotal').innerText = symbol + total.toLocaleString(undefined, {minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0, maximumFractionDigits: 2}) + suffix;
             return total;
         }
 
-        // پشکنینی وەسڵ پێش خەزنکردن
+        // گۆڕینی نرخی ئاڵوگۆڕ کاریگەری لەسەر کۆی گشتی هەیە
+        document.getElementById('exchange_rate_input').addEventListener('input', calcTotal);
+
         function validatePurchaseForm(e) {
             const rows = document.querySelectorAll('#tableBody tr');
             if (rows.length === 0) {
-                alert('وەسڵ ناتوانرێت بەتاڵ بێت! تکایە لانی کەم کاڵایەک زیاد بکە.');
+                alert('وەسڵ ناتوانرێت بەتاڵ بێت!');
                 e.preventDefault();
                 return false;
             }
 
-            let hasZeroPrice = false;
+            let hasZero = false;
             rows.forEach(row => {
                 const price = parseFloat(row.querySelector('.price-input')?.value) || 0;
                 const qty = parseFloat(row.querySelector('.qty-input')?.value) || 0;
-                if (price <= 0 || qty <= 0) {
-                    hasZeroPrice = true;
-                }
+                if (price <= 0 || qty <= 0) hasZero = true;
             });
 
-            if (hasZeroPrice) {
-                alert('تکایە نرخی کڕین و بڕی هەموو کاڵاکان بە دروستی پڕبکەرەوە (نابێت 0 بن).');
+            if (hasZero) {
+                alert('تکایە نرخی کڕین و بڕی هەموو کاڵاکان بە دروستی پڕبکەرەوە.');
                 e.preventDefault();
                 return false;
             }
 
-            const currentTotal = calcTotal();
-            if (currentTotal <= 0) {
+            if (calcTotal() <= 0) {
                 alert('کۆی گشتی وەسڵ ناتوانێت 0 بێت.');
                 e.preventDefault();
                 return false;
@@ -216,7 +283,6 @@
             return true;
         }
 
-        // خستنەگەڕی دێڕی یەکەم لە سەرەتادا
         addRow();
     </script>
 </body>
