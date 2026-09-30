@@ -10,7 +10,6 @@
     <style> 
         body { font-family: 'Almarai', sans-serif; } 
         .font-num { font-family: 'Plus Jakarta Sans', sans-serif; }
-        /* سکرۆڵباری تەنک بۆ خشتەکە */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
@@ -19,7 +18,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden p-3 gap-3">
 
-    <!-- سەرپەڕە (جێگیرە) -->
+    <!-- سەرپەڕە -->
     <div class="shrink-0 flex flex-wrap justify-between items-center bg-slate-800 p-3 rounded-xl border border-slate-700 gap-2 text-xs">
         <h1 class="text-sm font-bold flex items-center gap-2 text-white">
             <i class="fa-solid fa-boxes-stacked text-amber-500"></i>
@@ -34,7 +33,7 @@
         </div>
     </div>
 
-    <!-- نامەکانی سیستەم (جێگیرە) -->
+    <!-- نامەکانی سیستەم -->
     <div class="shrink-0 space-y-2">
         @if(session('success'))
             <div class="bg-emerald-600/20 border border-emerald-500 text-emerald-400 p-2 rounded-lg text-xs font-bold flex items-center gap-2">
@@ -58,7 +57,7 @@
         $lowStockCount = $products->filter(function($p) { return $p->stock_kg > 0 && $p->stock_kg <= ($p->alert_quantity ?? 5); })->count();
     @endphp
 
-    <!-- کارتەکانی هۆشداری (جێگیرە) -->
+    <!-- کارتەکانی هۆشداری -->
     <div class="shrink-0 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
         <div class="bg-slate-800 p-2.5 rounded-xl border border-rose-500/40 bg-rose-950/20 flex justify-between items-center cursor-pointer hover:border-rose-400 transition" onclick="filterByStockState('out')">
             <div>
@@ -83,10 +82,10 @@
         </div>
     </div>
 
-    <!-- بەشی سەرەکی: فۆرم و خشتە -->
+    <!-- بەشی سەرەکی -->
     <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-3 overflow-hidden min-h-0">
         
-        <!-- فۆڕمی زیادکردنی کاڵا (جێگیرە و بچووکە) -->
+        <!-- فۆڕمی زیادکردنی کاڵا -->
         <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden">
             <h2 class="shrink-0 text-sm font-bold text-white flex items-center gap-2 mb-2 border-b border-slate-700 pb-2">
                 <i class="fa-solid fa-square-plus text-blue-400"></i> زیادکردنی کاڵای نوێ
@@ -130,7 +129,7 @@
                 <div class="pt-1 flex items-center justify-between bg-slate-700/40 p-2 rounded-lg border border-slate-600">
                     <span class="text-[11px] font-bold text-slate-300">دۆخی کاڵا:</span>
                     <label class="flex items-center gap-1.5 cursor-pointer text-[11px]">
-                        <input type="checkbox" name="is_active" value="1" checked class="w-3.5 h-3.5 rounded text-emerald-500 focus:ring-0">
+                        <input type="checkbox" name="is_active" id="field_is_active" value="1" checked class="w-3.5 h-3.5 rounded text-emerald-500 focus:ring-0">
                         <span class="text-emerald-400 font-bold">چالاک بێت</span>
                     </label>
                 </div>
@@ -140,7 +139,7 @@
             </form>
         </div>
 
-        <!-- خشتەی کاڵاکان (سکرۆڵ دەکات) -->
+        <!-- خشتەی کاڵاکان -->
         <div class="lg:col-span-2 bg-slate-800 p-3 rounded-xl border border-slate-700 flex flex-col h-full overflow-hidden">
             
             <div class="shrink-0 flex flex-wrap justify-between items-center gap-2 border-b border-slate-700 pb-2 mb-2">
@@ -152,7 +151,6 @@
                 </span>
             </div>
 
-            <!-- گەڕان و فلتەر (جێگیرە) -->
             <div class="shrink-0 grid grid-cols-1 sm:grid-cols-3 gap-2 bg-slate-900/60 p-2 rounded-lg border border-slate-700/80 mb-2 text-xs">
                 <div class="relative">
                     <input type="text" id="stockSearchInput" onkeyup="filterStockTable()" placeholder="گەڕان..." class="w-full p-1.5 pl-7 rounded-lg bg-slate-800 border border-slate-600 text-white text-[11px] focus:outline-none focus:border-blue-500">
@@ -177,7 +175,6 @@
                 </div>
             </div>
 
-            <!-- خشتەکە (لێرەدا سکرۆڵ دەکات) -->
             <div class="flex-1 overflow-y-auto custom-scrollbar rounded-lg border border-slate-700/80 relative">
                 <table class="w-full text-xs text-right text-slate-300">
                     <thead class="bg-slate-800 text-[11px] text-slate-400 sticky top-0 z-10 shadow-sm border-b border-slate-700">
@@ -335,11 +332,11 @@
     <div id="quickCategoryModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl w-full max-w-sm space-y-3 text-xs">
             <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-tags text-blue-400"></i> زیادکردنی کاتیگۆری نوێ</h3>
-            <form action="{{ route('categories.store') }}" method="POST" class="space-y-2.5">
+            <form action="{{ route('categories.store') }}" method="POST" class="space-y-2.5" id="quickCategoryForm">
                 @csrf
                 <div>
                     <label class="block text-[11px] text-slate-300 mb-1">ناوی کاتیگۆری:</label>
-                    <input type="text" name="name" required class="w-full p-2 rounded-lg border border-slate-600 bg-slate-700 text-white text-xs">
+                    <input type="text" name="name" id="quick_category_name" required class="w-full p-2 rounded-lg border border-slate-600 bg-slate-700 text-white text-xs">
                 </div>
                 <div class="flex justify-end gap-2 pt-1">
                     <button type="button" onclick="closeQuickCategoryModal()" class="px-3 py-1.5 bg-slate-700 text-slate-300 rounded-lg text-[11px]">پاشگەزبوونەوە</button>
@@ -350,8 +347,86 @@
     </div>
 
     <script>
+        // =====================================================
+        // 🔥 چارەسەری سەرەکی: پاشەکەوت و گەڕاندنەوەی داتای فۆرم
+        // =====================================================
+
+        const FORM_DATA_KEY = 'pos_product_form_data_v1';
+
+        // پاشەکەوتکردنی داتای فۆرم پێش هەر گۆڕانکاری
+        function saveProductFormData() {
+            const formData = {
+                name: document.getElementById('field_name').value,
+                code: document.getElementById('field_code').value,
+                category_id: document.getElementById('field_category').value,
+                base_buy_price: document.getElementById('field_buy_price').value,
+                base_sale_price: document.getElementById('field_sale_price').value,
+                stock_kg: document.getElementById('field_stock').value,
+                is_active: document.getElementById('field_is_active').checked
+            };
+            sessionStorage.setItem(FORM_DATA_KEY, JSON.stringify(formData));
+        }
+
+        // گەڕاندنەوەی داتای فۆرم دوای نوێبوونەوەی لاپەڕە
+        document.addEventListener('DOMContentLoaded', function() {
+            const saved = sessionStorage.getItem(FORM_DATA_KEY);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    
+                    // گەڕاندنەوەی نرخەکان
+                    if (data.name) document.getElementById('field_name').value = data.name;
+                    if (data.code) document.getElementById('field_code').value = data.code;
+                    if (data.base_buy_price) document.getElementById('field_buy_price').value = data.base_buy_price;
+                    if (data.base_sale_price) document.getElementById('field_sale_price').value = data.base_sale_price;
+                    if (data.stock_kg) document.getElementById('field_stock').value = data.stock_kg;
+                    
+                    // دۆخی چالاک
+                    if (data.is_active !== undefined) {
+                        document.getElementById('field_is_active').checked = data.is_active;
+                    }
+                    
+                    // دیاریکردنی کاتیگۆری
+                    const catSelect = document.getElementById('field_category');
+                    if (catSelect.options.length > 0) {
+                        // چونکە کاتیگۆری نوێ زیادکراوە، دوایین هەڵبژاردن هەڵدەبژێرین
+                        catSelect.selectedIndex = catSelect.options.length - 1;
+                    }
+                    
+                    // پاککردنەوەی داتای پاشەکەوتکراو
+                    sessionStorage.removeItem(FORM_DATA_KEY);
+                    
+                    // فۆکس لەسەر ناوی کاڵا دانەین چونکە بەکارهێنەر لەوانەیە نامەوێت
+                } catch(e) {
+                    console.error('Error restoring form data:', e);
+                    sessionStorage.removeItem(FORM_DATA_KEY);
+                }
+            }
+        });
+
+        // =====================================================
+        // مۆداڵەکان و فەنکشنەکانی تر
+        // =====================================================
+
         function openImportModal() { document.getElementById('importProductModal').classList.remove('hidden'); }
         function closeImportModal() { document.getElementById('importProductModal').classList.add('hidden'); }
+
+        // 🔥 کردنەوەی مۆداڵی کاتیگۆری لەگەڵ پاشەکەوتکردنی داتا
+        function openQuickCategoryModal() {
+            saveProductFormData();
+            document.getElementById('quickCategoryModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('quick_category_name').focus(), 100);
+        }
+        
+        function closeQuickCategoryModal() { 
+            document.getElementById('quickCategoryModal').classList.add('hidden'); 
+            sessionStorage.removeItem(FORM_DATA_KEY);
+        }
+
+        // پاشەکەوتکردنی داتا لە کاتی ناردنی فۆرمی کاتیگۆری
+        document.getElementById('quickCategoryForm').addEventListener('submit', function() {
+            saveProductFormData();
+        });
 
         // جووڵاندنی فۆڕم بە Enter
         const inputs = Array.from(document.querySelectorAll('.enter-nav'));
@@ -408,10 +483,6 @@
             const statusSelect = document.getElementById('stockStatusFilter');
             if (statusSelect) { statusSelect.value = state; filterStockTable(); }
         }
-
-        // مۆداڵی کاتیگۆری
-        function openQuickCategoryModal() { document.getElementById('quickCategoryModal').classList.remove('hidden'); }
-        function closeQuickCategoryModal() { document.getElementById('quickCategoryModal').classList.add('hidden'); }
 
         // مۆداڵی دەستکاری
         function openEditProductModal(item) {
