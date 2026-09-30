@@ -153,8 +153,12 @@
                 <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">
                     زیاتر <i class="fa-solid fa-chevron-down text-[8px] mt-0.5"></i>
                 </button>
-                <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] overflow-hidden text-xs">
+                <!-- لێرەدا بەشەکانی (یەکە، کۆمپانیا، خەرجییەکان) زیاد کران و سکرۆڵ بۆ مێنیوەکە داندراوە -->
+                <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] max-h-72 overflow-y-auto custom-scrollbar text-xs">
                     <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5 text-center"></i> کاتیگۆری</a>
+                    <a href="{{ route('units.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-scale-balanced w-5 text-center"></i> یەکەکان</a>
+                    <a href="{{ route('companies.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-building w-5 text-center"></i> کۆمپانیاکان</a>
+                    <a href="{{ route('expenses.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-money-bill-trend-up w-5 text-center"></i> خەرجییەکان</a>
                     <a href="{{ route('partners.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-handshake w-5 text-center"></i> هاوبەشەکان</a>
                     <a href="{{ route('returns.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-rotate-left w-5 text-center"></i> گەڕاوەکان</a>
                     <a href="{{ route('users.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"><i class="fa-solid fa-user-shield w-5 text-center"></i> کارمەندان</a>
@@ -185,7 +189,6 @@
 
     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2 h-full overflow-hidden relative z-0">
         
-        <!-- بەشی کاڵاکان -->
         <div class="lg:col-span-9 glass-panel rounded-xl p-2 flex flex-col h-[55vh] lg:h-full overflow-hidden relative z-0">
             
             <div class="shrink-0 space-y-2 pb-2 border-b border-slate-200 dark:border-slate-700/50">
@@ -212,7 +215,6 @@
                 </div>
             </div>
 
-            <!-- کاڵاکان -->
             <div class="grow overflow-y-auto pt-2 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 content-start" id="productsGrid">
                 
                 <?php foreach($products as $p): ?>
@@ -225,7 +227,6 @@
                 
                 <div class="product-card group relative bg-white dark:bg-[#0f172a] border <?php echo $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50'); ?> rounded-xl p-1.5 flex flex-col justify-between select-none shadow-sm hover:shadow-md transition-all">
                     
-                    <!-- نیشانەی چەندە لە سەبەتە (لە خوارەوە لای چەپ - دەردەکەوێت ئەگەر فرۆشرابێت) -->
                     <div id="qty-badge-<?php echo $p->id; ?>" class="qty-badge hidden absolute bottom-[40px] left-1.5 bg-emerald-500 text-white font-num font-black text-[9px] px-1.5 py-0.5 rounded shadow-glow-emerald border border-emerald-400 z-20 transition-all duration-300 transform scale-0 flex items-center gap-0.5 pointer-events-none">
                         <i class="fa-solid fa-check text-[7px]"></i> <span class="badge-val">0</span>
                     </div>
@@ -248,7 +249,6 @@
                         </div>
                     </div>
 
-                    <!-- دوگمەی (+) لای ڕاست و (-) لای چەپ -->
                     <div class="mt-1 pt-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1 relative z-10">
                         <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, event)" class="w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-black flex items-center justify-center transition-colors shadow-sm">+</button>
                         
@@ -263,7 +263,6 @@
             </div>
         </div>
 
-        <!-- بەشی سەبەتە -->
         <div class="lg:col-span-3 glass-panel rounded-xl p-2 flex flex-col h-[40vh] lg:h-full overflow-hidden relative shadow-md">
             
             <div class="shrink-0 pb-2 border-b border-slate-200 dark:border-slate-700/50">
@@ -340,7 +339,6 @@
 
     </div>
 
-    <!-- مۆداڵی سەرکەوتنی فرۆشتن -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[999]">
         <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-5 text-right shadow-2xl flex flex-col max-h-[90vh]">
             
