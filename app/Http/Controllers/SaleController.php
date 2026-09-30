@@ -392,7 +392,7 @@ class SaleController extends Controller
                 $sale->delete();
             });
 
-            return redirect()->route('reports.index')->with('success', 'وەسڵی فرۆشتن سڕایەوە و کاڵاکان گەڕانەوە کۆگا');
+            return redirect()->route('sales.list')->with('success', 'وەسڵی فرۆشتن سڕایەوە و کاڵاکان گەڕانەوە کۆگا');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'هەڵەیەک ڕوویدا: ' . $e->getMessage());
         }
