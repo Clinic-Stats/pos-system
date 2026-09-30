@@ -228,7 +228,11 @@
                     $isLow = !$isOut && $stockVal <= $alertVal;
                 ?>
                 
-                <div class="product-card group relative bg-white dark:bg-[#0f172a] border <?php echo $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50'); ?> rounded-xl p-1.5 flex flex-col justify-between select-none shadow-sm hover:shadow-md transition-all">
+                <!-- لێرەدا تەنها ئەترێبیوتەکانی data زیادکراون بۆ ئەوەی کاتیگۆری و گەڕان ئیش بکەن -->
+                <div class="product-card group relative bg-white dark:bg-[#0f172a] border <?php echo $isOut ? 'border-rose-300/50 bg-rose-50/20 opacity-70' : ($isLow ? 'border-amber-300/50' : 'border-slate-200 dark:border-slate-700/50'); ?> rounded-xl p-1.5 flex flex-col justify-between select-none shadow-sm hover:shadow-md transition-all"
+                     data-category="<?php echo $p->category_id; ?>" 
+                     data-name="<?php echo htmlspecialchars($p->name, ENT_QUOTES, 'UTF-8'); ?>" 
+                     data-code="<?php echo htmlspecialchars($p->code, ENT_QUOTES, 'UTF-8'); ?>">
                     
                     <div id="qty-badge-<?php echo $p->id; ?>" class="qty-badge hidden absolute bottom-[40px] left-1.5 bg-emerald-500 text-white font-num font-black text-[9px] px-1.5 py-0.5 rounded shadow-glow-emerald border border-emerald-400 z-20 transition-all duration-300 transform scale-0 flex items-center gap-0.5 pointer-events-none">
                         <i class="fa-solid fa-check text-[7px]"></i> <span class="badge-val">0</span>
