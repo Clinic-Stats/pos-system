@@ -356,7 +356,7 @@
             loading.classList.remove('hidden');
             iframe.classList.add('hidden');
             
-            iframe.src = '{{ route("suppliers.index") }}';
+            iframe.src = '{{ route("suppliers.index") }}?embedded=1';
         }
 
         function closeSuppliersModal() {
