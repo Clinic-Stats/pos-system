@@ -22,7 +22,7 @@ class PurchaseController extends Controller
         $query = Purchase::with(['supplier', 'details.product', 'details.unit']);
 
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 if (Schema::hasColumn('purchases', 'purchase_no')) {
                     $q->orWhere('purchase_no', 'like', '%' . $request->search . '%');
                 }
@@ -103,7 +103,7 @@ class PurchaseController extends Controller
             DB::transaction(function () use ($request) {
                 $currency = $request->currency;
                 $exchangeRate = (float) $request->exchange_rate;
-                
+
                 $totalAmount = 0;
 
                 // ١. ژماردنی کۆی گشتی بەپێی دراوی هەڵبژێردراو
@@ -126,12 +126,12 @@ class PurchaseController extends Controller
                 $remaining = $totalAmount - $paid;
                 $invCode = 'PUR-' . strtoupper(uniqid());
 
-                $pDate = $request->filled('created_at') 
-                    ? Carbon::parse($request->created_at)->format('Y-m-d') 
+                $pDate = $request->filled('created_at')
+                    ? Carbon::parse($request->created_at)->format('Y-m-d')
                     : now()->format('Y-m-d');
 
-                $cDateTime = $request->filled('created_at') 
-                    ? Carbon::parse($request->created_at)->setTime(date('H'), date('i'), date('s')) 
+                $cDateTime = $request->filled('created_at')
+                    ? Carbon::parse($request->created_at)->setTime(date('H'), date('i'), date('s'))
                     : now();
 
                 $purchaseData = [
@@ -281,12 +281,12 @@ class PurchaseController extends Controller
                 $paid = ($request->payment_type === 'cash') ? $totalAmount : ($request->paid_amount ?? 0);
                 $remaining = $totalAmount - $paid;
 
-                $pDate = $request->filled('created_at') 
-                    ? Carbon::parse($request->created_at)->format('Y-m-d') 
+                $pDate = $request->filled('created_at')
+                    ? Carbon::parse($request->created_at)->format('Y-m-d')
                     : now()->format('Y-m-d');
 
-                $cDateTime = $request->filled('created_at') 
-                    ? Carbon::parse($request->created_at)->setTime(date('H'), date('i'), date('s')) 
+                $cDateTime = $request->filled('created_at')
+                    ? Carbon::parse($request->created_at)->setTime(date('H'), date('i'), date('s'))
                     : now();
 
                 $purchase->update([
@@ -375,6 +375,7 @@ class PurchaseController extends Controller
     public function print($id)
     {
         $purchase = Purchase::with(['supplier', 'details.product', 'details.unit'])->findOrFail($id);
-        return view('purchases.print', compact('purchase'));
+        $setting = Setting::first();
+        return view('purchases.print', compact('purchase', 'setting'));
     }
 }

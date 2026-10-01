@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ckb" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style> body { font-family: 'Noto Sans Arabic', sans-serif; } </style>
+    <style>
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+        }
+    </style>
+    @php
+    // نیشاندانی بڕ بەپێی دراوی هەر وەسڵێک
+    $fmt = fn($v, $cur) => ($cur ?? 'IQD') === 'USD'
+    ? '$' . number_format((float) $v, 2)
+    : number_format((float) $v) . ' IQD';
+    @endphp
 </head>
+
 <body class="bg-[#0f172a] text-slate-100 min-h-screen p-4">
 
     <div class="max-w-7xl mx-auto space-y-4">
@@ -30,10 +42,17 @@
         </header>
 
         @if(session('success'))
-            <div class="bg-emerald-950/40 border border-emerald-500/50 text-emerald-400 p-3 rounded-xl text-xs font-bold flex items-center gap-2">
-                <i class="fa-solid fa-circle-check"></i>
-                {{ session('success') }}
-            </div>
+        <div class="bg-emerald-950/40 border border-emerald-500/50 text-emerald-400 p-3 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-circle-check"></i>
+            {{ session('success') }}
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="bg-rose-950/40 border border-rose-500/50 text-rose-400 p-3 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            {{ session('error') }}
+        </div>
         @endif
 
         <!-- فلتەرکردن -->
@@ -46,7 +65,7 @@
                 <select name="supplier_id" class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs">
                     <option value="">هەموو شوێنەکانی کڕین</option>
                     @foreach($suppliers as $s)
-                        <option value="{{ $s->id }}" {{ request('supplier_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
+                    <option value="{{ $s->id }}" {{ request('supplier_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -84,15 +103,15 @@
                             <td class="p-3 font-mono font-bold text-blue-400">{{ $p->purchase_no ?? $p->invoice_no }}</td>
                             <td class="p-3 font-mono text-slate-300">{{ $p->created_at ? $p->created_at->format('Y-m-d H:i') : $p->purchase_date }}</td>
                             <td class="p-3 font-bold text-white">{{ $p->supplier->name ?? 'دیارینەکراو' }}</td>
-                            <td class="p-3 font-mono font-bold text-emerald-400" dir="ltr">{{ number_format($p->total_amount) }} IQD</td>
-                            <td class="p-3 font-mono text-slate-300" dir="ltr">{{ number_format($p->paid_amount) }} IQD</td>
+                            <td class="p-3 font-mono font-bold text-emerald-400" dir="ltr">{{ $fmt($p->total_amount, $p->currency) }}</td>
+                            <td class="p-3 font-mono text-slate-300" dir="ltr">{{ $fmt($p->paid_amount, $p->currency) }}</td>
                             <td class="p-3 font-mono font-bold {{ $p->remaining_amount > 0 ? 'text-rose-400' : 'text-slate-400' }}" dir="ltr">
-                                {{ number_format($p->remaining_amount) }} IQD
+                                {{ $fmt($p->remaining_amount, $p->currency) }}
                             </td>
                             <td class="p-3">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <a href="{{ route('purchases.print', $p->id) }}" target="_blank" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-md text-[11px] font-bold">
-                                        <i class="fa-solid fa-print"></i> پرینت
+                                    <a href="{{ route('purchases.print', $p->id) }}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-md text-[11px] font-bold">
+                                        <i class="fa-solid fa-file-lines"></i> چاپی A4
                                     </a>
                                     <a href="{{ route('purchases.edit', $p->id) }}" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded-md text-[11px] font-bold">
                                         <i class="fa-solid fa-pen-to-square"></i> دەستکاری
@@ -117,13 +136,14 @@
             </div>
 
             @if($purchases->hasPages())
-                <div class="p-3 border-t border-slate-700">
-                    {{ $purchases->links() }}
-                </div>
+            <div class="p-3 border-t border-slate-700">
+                {{ $purchases->links() }}
+            </div>
             @endif
         </div>
 
     </div>
 
 </body>
+
 </html>
