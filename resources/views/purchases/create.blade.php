@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ckb" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style> 
-        body { font-family: 'Noto Sans Arabic', sans-serif; overflow-x: hidden !important; } 
-        html { overflow-x: hidden !important; }
+    <style>
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            overflow-x: hidden !important;
+        }
+
+        html {
+            overflow-x: hidden !important;
+        }
     </style>
 </head>
+
 <body class="bg-slate-900 text-slate-100 min-h-screen p-6">
 
     <div class="max-w-5xl mx-auto space-y-6">
@@ -27,16 +35,16 @@
         </div>
 
         @if(session('error'))
-            <div class="bg-rose-600/20 border border-rose-500 text-rose-300 p-3.5 rounded-xl text-xs font-bold flex items-center gap-2">
-                <i class="fa-solid fa-circle-exclamation text-rose-400"></i>
-                {{ session('error') }}
-            </div>
+        <div class="bg-rose-600/20 border border-rose-500 text-rose-300 p-3.5 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation text-rose-400"></i>
+            {{ session('error') }}
+        </div>
         @endif
 
         @if($errors->any())
-            <div class="bg-rose-600/20 border border-rose-500 text-rose-400 p-3.5 rounded-xl text-xs font-bold space-y-1">
-                @foreach($errors->all() as $err) <div>• {{ $err }}</div> @endforeach
-            </div>
+        <div class="bg-rose-600/20 border border-rose-500 text-rose-400 p-3.5 rounded-xl text-xs font-bold space-y-1">
+            @foreach($errors->all() as $err) <div>• {{ $err }}</div> @endforeach
+        </div>
         @endif
 
         <form action="{{ route('purchases.store') }}" method="POST" id="purchaseForm" onsubmit="return validatePurchaseForm(event)" class="space-y-6" autocomplete="off">
@@ -44,19 +52,30 @@
 
             {{-- بەشی سەرەوەی وەسڵ --}}
             <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-3 gap-4">
-                
+
+                <!-- ژمارەی پسوولە (دەستی) -->
+                <div class="md:col-span-3">
+                    <label class="block text-xs font-bold text-slate-300 mb-1">
+                        ژمارەی پسوولەی کڕین <span class="text-rose-400">*</span>
+                        <span class="text-slate-500 font-normal">(ئەو ژمارەیەی لەسەر پسوولە کاغەزییەکە نووسراوە)</span>
+                    </label>
+                    <input type="text" name="purchase_no" id="purchase_no" value="{{ old('purchase_no') }}" required maxlength="100"
+                        placeholder="بۆ نموونە: 1254"
+                        class="w-full p-2.5 rounded-xl border {{ $errors->has('purchase_no') ? 'border-rose-500' : 'border-slate-600' }} bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500" dir="ltr" style="text-align:right;">
+                </div>
+
                 <!-- شوێنی کڕین + دوگمەی بچووکی دابینکەران -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="block text-xs font-bold text-slate-300">شوێنی کڕین (کۆمپانیا/دابینکەر):</label>
-                        <button type="button" onclick="openSuppliersModal()" 
-                                class="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold transition-colors">
+                        <button type="button" onclick="openSuppliersModal()"
+                            class="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold transition-colors">
                             <i class="fa-solid fa-plus-circle"></i> بەڕێوەبردن
                         </button>
                     </div>
                     <select name="supplier_id" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
                         @foreach($suppliers as $sup)
-                            <option value="{{ $sup->id }}">{{ $sup->name }}</option>
+                        <option value="{{ $sup->id }}" {{ old('supplier_id') == $sup->id ? 'selected' : '' }}>{{ $sup->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -64,7 +83,7 @@
                 <!-- بەروار -->
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">بەرواری وەسڵ:</label>
-                    <input type="date" name="created_at" value="{{ date('Y-m-d') }}" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500">
+                    <input type="date" name="created_at" value="{{ old('created_at', date('Y-m-d')) }}" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500">
                 </div>
 
                 <!-- دراو -->
@@ -144,41 +163,38 @@
     <!-- ============================================ -->
     <div id="suppliersModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[100]">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-6xl h-[92vh] overflow-hidden flex flex-col shadow-2xl">
-            
-            <!-- سەرپەڕەی مۆداڵ -->
+
             <div class="flex justify-between items-center p-3 border-b border-slate-700 shrink-0 bg-slate-900/50">
                 <h3 class="text-sm font-black text-white flex items-center gap-2">
                     <i class="fa-solid fa-truck-field text-emerald-400"></i>
                     بەڕێوەبردنی دابینکەران
                 </h3>
                 <div class="flex items-center gap-2">
-                    <button type="button" onclick="refreshSuppliersIframe()" 
-                            title="نوێکردنەوەی لیستی دابینکەران"
-                            class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+                    <button type="button" onclick="refreshSuppliersIframe()"
+                        title="نوێکردنەوەی لیستی دابینکەران"
+                        class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-rotate"></i> نوێکردنەوە
                     </button>
-                    <button type="button" onclick="closeSuppliersModal()" 
-                            class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all">
+                    <button type="button" onclick="closeSuppliersModal()"
+                        class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             </div>
-            
-            <!-- شاشەی بارکردن -->
+
             <div id="suppliersLoading" class="flex-1 flex items-center justify-center bg-slate-900">
                 <div class="text-center">
                     <i class="fa-solid fa-spinner fa-spin text-emerald-400 text-3xl mb-3"></i>
                     <p class="text-slate-400 text-xs font-bold">چاوەڕوان بە...</p>
                 </div>
             </div>
-            
-            <!-- iframe ی دابینکەران -->
-            <iframe id="suppliersIframe" 
-                    src="" 
-                    onload="hideSuppliersLoading()"
-                    class="flex-1 w-full bg-white hidden"
-                    style="overflow-x: hidden;"
-                    frameborder="0"></iframe>
+
+            <iframe id="suppliersIframe"
+                src=""
+                onload="hideSuppliersLoading()"
+                class="flex-1 w-full bg-white hidden"
+                style="overflow-x: hidden;"
+                frameborder="0"></iframe>
         </div>
     </div>
 
@@ -187,12 +203,16 @@
         const units = @json($units);
         let rowCount = 0;
         let currentCurrency = 'USD';
-        let currentRate = {{ $setting->exchange_rate ?? 1500 }};
+        let currentRate = {
+            {
+                $setting - > exchange_rate ?? 1500
+            }
+        };
 
         function setCurrency(currency) {
             currentCurrency = currency;
             document.getElementById('currency_input').value = currency;
-            
+
             const btnIqd = document.getElementById('btn-cur-iqd');
             const btnUsd = document.getElementById('btn-cur-usd');
             const exchangeBox = document.getElementById('exchangeRateBox');
@@ -284,7 +304,7 @@
         function calcTotal() {
             let total = 0;
             currentRate = parseFloat(document.getElementById('exchange_rate_input').value) || 1500;
-            
+
             const rows = document.querySelectorAll('#tableBody tr');
             rows.forEach(row => {
                 const prodId = row.querySelector('.prod-select')?.value;
@@ -299,20 +319,34 @@
                 const suffix = currentCurrency === 'IQD' ? ' IQD' : '';
 
                 if (row.querySelector('.row-total')) {
-                    row.querySelector('.row-total').innerText = symbol + sub.toLocaleString(undefined, {minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0, maximumFractionDigits: 2}) + suffix;
+                    row.querySelector('.row-total').innerText = symbol + sub.toLocaleString(undefined, {
+                        minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0,
+                        maximumFractionDigits: 2
+                    }) + suffix;
                 }
                 total += sub;
             });
-            
+
             const symbol = currentCurrency === 'USD' ? '$' : '';
             const suffix = currentCurrency === 'IQD' ? ' IQD' : '';
-            document.getElementById('grandTotal').innerText = symbol + total.toLocaleString(undefined, {minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0, maximumFractionDigits: 2}) + suffix;
+            document.getElementById('grandTotal').innerText = symbol + total.toLocaleString(undefined, {
+                minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0,
+                maximumFractionDigits: 2
+            }) + suffix;
             return total;
         }
 
         document.getElementById('exchange_rate_input').addEventListener('input', calcTotal);
 
         function validatePurchaseForm(e) {
+            const noInput = document.getElementById('purchase_no');
+            if (!noInput.value.trim()) {
+                alert('تکایە ژمارەی پسوولەی کڕین بنووسە.');
+                noInput.focus();
+                e.preventDefault();
+                return false;
+            }
+
             const rows = document.querySelectorAll('#tableBody tr');
             if (rows.length === 0) {
                 alert('وەسڵ ناتوانرێت بەتاڵ بێت!');
@@ -351,28 +385,26 @@
             const modal = document.getElementById('suppliersModal');
             const iframe = document.getElementById('suppliersIframe');
             const loading = document.getElementById('suppliersLoading');
-            
+
             modal.classList.remove('hidden');
             loading.classList.remove('hidden');
             iframe.classList.add('hidden');
-            
+
             iframe.src = '{{ route("suppliers.index") }}?embedded=1';
         }
 
         function closeSuppliersModal() {
             const modal = document.getElementById('suppliersModal');
             const iframe = document.getElementById('suppliersIframe');
-            
+
             modal.classList.add('hidden');
             iframe.src = '';
-            
-            refreshParentSuppliersDropdown();
         }
 
         function refreshSuppliersIframe() {
             const iframe = document.getElementById('suppliersIframe');
             const loading = document.getElementById('suppliersLoading');
-            
+
             loading.classList.remove('hidden');
             iframe.classList.add('hidden');
             iframe.src = iframe.src;
@@ -381,16 +413,9 @@
         function hideSuppliersLoading() {
             const loading = document.getElementById('suppliersLoading');
             const iframe = document.getElementById('suppliersIframe');
-            
+
             loading.classList.add('hidden');
             iframe.classList.remove('hidden');
-        }
-
-        // نوێکردنەوەی dropdown ی دابینکەران دوای داخستنی مۆداڵ
-        function refreshParentSuppliersDropdown() {
-            // هەر تەنها لاپەڕەکە دووبارە بار بکەرەوە بۆ ئەوەی داتاکان نوێ ببنەوە
-            // بەڵام بە شێوەیەکی نەرم — تەنها dropdown نوێ بکەرەوە
-            // ئەمە بە AJAX دەکرێت
         }
 
         document.addEventListener('keydown', function(e) {
@@ -403,4 +428,5 @@
         });
     </script>
 </body>
+
 </html>

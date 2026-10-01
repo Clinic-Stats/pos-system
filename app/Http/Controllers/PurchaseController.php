@@ -13,6 +13,7 @@ use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
 class PurchaseController extends Controller
@@ -69,6 +70,39 @@ class PurchaseController extends Controller
         return (float) ($unit->factor_to_base ?: 1);
     }
 
+    /**
+     * زیادکردنی کۆگا + نوێکردنەوەی تێکڕای نرخی کڕین (بە دۆلار بۆ ١ کیلۆ)
+     * هەمان لۆژیک بۆ store و update بەکاردێت.
+     */
+    private function addStockAndAverageCost(Product $product, float $addedKg, float $priceUsdPerKg): void
+    {
+        $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
+
+        $product->refresh();
+        $currentStock   = max(0, (float) ($product->{$stockCol} ?? 0));
+        $currentCostUsd = (float) ($product->base_buy_price ?? $product->buy_price ?? 0);
+        $totalCombinedKg = $currentStock + $addedKg;
+
+        if ($totalCombinedKg > 0 && $currentStock > 0 && $currentCostUsd > 0) {
+            $averageCostUsd = (($currentStock * $currentCostUsd) + ($addedKg * $priceUsdPerKg)) / $totalCombinedKg;
+        } else {
+            $averageCostUsd = $priceUsdPerKg;
+        }
+
+        $product->increment($stockCol, $addedKg);
+
+        $updateFields = [];
+        if (Schema::hasColumn('products', 'base_buy_price')) {
+            $updateFields['base_buy_price'] = round($averageCostUsd, 4);
+        }
+        if (Schema::hasColumn('products', 'buy_price')) {
+            $updateFields['buy_price'] = round($averageCostUsd, 4);
+        }
+        if (!empty($updateFields)) {
+            $product->update($updateFields);
+        }
+    }
+
     public function create()
     {
         $products = Product::where('is_active', 1)->get();
@@ -83,6 +117,7 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'purchase_no'        => ['required', 'string', 'max:100', Rule::unique('purchases', 'purchase_no')],
             'supplier_id'        => 'required|exists:suppliers,id',
             'items'              => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -91,7 +126,11 @@ class PurchaseController extends Controller
             'items.*.buy_price'  => 'required|numeric|min:0',
             'currency'           => 'required|in:USD,IQD',
             'exchange_rate'      => 'required|numeric|min:1',
+            'payment_type'       => 'nullable|in:cash,debt',
+            'paid_amount'        => 'nullable|numeric|min:0',
         ], [
+            'purchase_no.required'        => 'تکایە ژمارەی پسوولەی کڕین بنووسە.',
+            'purchase_no.unique'          => 'ئەم ژمارەی پسوولەیە پێشتر بەکارهاتووە.',
             'supplier_id.required'        => 'تکایە شوێنی کڕین (کۆمپانیا) دیاری بکە.',
             'items.required'              => 'وەسڵ بەتاڵە! تکایە لانی کەم کاڵایەک زیاد بکە.',
             'items.min'                   => 'وەسڵ بەتاڵە! تکایە لانی کەم کاڵایەک زیاد بکە.',
@@ -112,26 +151,23 @@ class PurchaseController extends Controller
                     $unit = Unit::findOrFail($item['unit_id']);
                     $factor = $this->getFactorAndWeight($product, $unit);
 
-                    $priceInCurrency = (float)$item['buy_price'];
-                    $costPerUnit = $priceInCurrency * $factor;
-                    $lineTotal   = (float)$item['quantity'] * $costPerUnit;
-                    $totalAmount += $lineTotal;
+                    $totalAmount += (float) $item['quantity'] * ((float) $item['buy_price'] * $factor);
                 }
 
                 if ($totalAmount <= 0) {
                     throw new \Exception('وەسڵ ناتوانرێت خەزن بکرێت بە بەتاڵی یان بە نرخی 0!');
                 }
 
-                $paid = ($request->payment_type === 'cash') ? $totalAmount : ($request->paid_amount ?? 0);
+                $paid = ($request->payment_type === 'debt') ? (float) ($request->paid_amount ?? 0) : $totalAmount;
                 $remaining = $totalAmount - $paid;
-                $invCode = 'PUR-' . strtoupper(uniqid());
+                $invCode = trim($request->purchase_no);
 
                 $pDate = $request->filled('created_at')
                     ? Carbon::parse($request->created_at)->format('Y-m-d')
                     : now()->format('Y-m-d');
 
                 $cDateTime = $request->filled('created_at')
-                    ? Carbon::parse($request->created_at)->setTime(date('H'), date('i'), date('s'))
+                    ? Carbon::parse($request->created_at)->setTime((int) date('H'), (int) date('i'), (int) date('s'))
                     : now();
 
                 $purchaseData = [
@@ -154,23 +190,17 @@ class PurchaseController extends Controller
 
                 $purchase = Purchase::create($purchaseData);
 
-                // ٢. زیادکردن بۆ کۆگا و حیسابکردنی تێکڕای تێچوو (بە دۆلار)
+                // ٢. تۆمارکردنی کاڵاکان + کۆگا + تێکڕای تێچوو
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
                     $unit = Unit::findOrFail($item['unit_id']);
                     $factor = $this->getFactorAndWeight($product, $unit);
 
-                    $priceInCurrency = (float)$item['buy_price'];
+                    $priceInCurrency = (float) $item['buy_price'];
                     $costPerUnit = $priceInCurrency * $factor;
-                    $lineTotal   = (float)$item['quantity'] * $costPerUnit;
-                    $addedKg     = (float)$item['quantity'] * $factor;
-
-                    // گۆڕین بۆ دۆلار بۆ پاشەکەوتکردن لە products.base_buy_price
-                    if ($currency === 'IQD') {
-                        $priceUsdPerKg = $priceInCurrency / $exchangeRate;
-                    } else {
-                        $priceUsdPerKg = $priceInCurrency;
-                    }
+                    $lineTotal   = (float) $item['quantity'] * $costPerUnit;
+                    $addedKg     = (float) $item['quantity'] * $factor;
+                    $priceUsdPerKg = $currency === 'IQD' ? $priceInCurrency / $exchangeRate : $priceInCurrency;
 
                     PurchaseDetail::create([
                         'purchase_id'    => $purchase->id,
@@ -181,35 +211,7 @@ class PurchaseController extends Controller
                         'subtotal'       => $lineTotal,
                     ]);
 
-                    $currentStock    = (float) ($product->stock_kg ?? $product->stock ?? 0);
-                    $currentCostUsd  = (float) ($product->base_buy_price ?? $product->buy_price ?? 0);
-                    $newBoughtKg     = (float) $addedKg;
-
-                    $totalCombinedKg = $currentStock + $newBoughtKg;
-
-                    if ($totalCombinedKg > 0 && $currentStock > 0 && $currentCostUsd > 0) {
-                        $averageCostUsd = (($currentStock * $currentCostUsd) + ($newBoughtKg * $priceUsdPerKg)) / $totalCombinedKg;
-                    } else {
-                        $averageCostUsd = $priceUsdPerKg;
-                    }
-
-                    if (Schema::hasColumn('products', 'stock_kg')) {
-                        $product->increment('stock_kg', $addedKg);
-                    } else {
-                        $product->increment('stock', $addedKg);
-                    }
-
-                    $updateFields = [];
-                    if (Schema::hasColumn('products', 'base_buy_price')) {
-                        $updateFields['base_buy_price'] = round($averageCostUsd, 4);
-                    }
-                    if (Schema::hasColumn('products', 'buy_price')) {
-                        $updateFields['buy_price'] = round($averageCostUsd, 4);
-                    }
-
-                    if (!empty($updateFields)) {
-                        $product->update($updateFields);
-                    }
+                    $this->addStockAndAverageCost($product, $addedKg, $priceUsdPerKg);
                 }
             });
 
@@ -222,7 +224,9 @@ class PurchaseController extends Controller
     public function edit($id)
     {
         $purchase = Purchase::with(['details.product', 'details.unit', 'supplier'])->findOrFail($id);
-        $products = Product::where('is_active', 1)->get();
+        $products = Product::where('is_active', 1)
+            ->orWhereIn('id', $purchase->details->pluck('product_id'))
+            ->get();
         $categories = Category::all();
         $units = Unit::all();
         $suppliers = Supplier::all();
@@ -234,6 +238,7 @@ class PurchaseController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
+            'purchase_no'        => ['required', 'string', 'max:100', Rule::unique('purchases', 'purchase_no')->ignore($id)],
             'supplier_id'        => 'required|exists:suppliers,id',
             'items'              => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -242,6 +247,11 @@ class PurchaseController extends Controller
             'items.*.buy_price'  => 'required|numeric|min:0',
             'currency'           => 'required|in:USD,IQD',
             'exchange_rate'      => 'required|numeric|min:1',
+            'payment_type'       => 'nullable|in:cash,debt',
+            'paid_amount'        => 'nullable|numeric|min:0',
+        ], [
+            'purchase_no.required' => 'تکایە ژمارەی پسوولەی کڕین بنووسە.',
+            'purchase_no.unique'   => 'ئەم ژمارەی پسوولەیە پێشتر بەکارهاتووە.',
         ]);
 
         try {
@@ -249,16 +259,15 @@ class PurchaseController extends Controller
                 $purchase = Purchase::with('details.product', 'details.unit')->findOrFail($id);
                 $currency = $request->currency;
                 $exchangeRate = (float) $request->exchange_rate;
+                $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
-                // گەڕاندنەوەی بڕەکانی پێشوو
+                // گەڕاندنەوەی (کەمکردنەوەی) بڕە کۆنەکان لە کۆگا
                 foreach ($purchase->details as $oldDetail) {
-                    $factor = $this->getFactorAndWeight($oldDetail->product, $oldDetail->unit);
-                    $oldKg = $oldDetail->quantity * $factor;
-                    if (Schema::hasColumn('products', 'stock_kg')) {
-                        Product::where('id', $oldDetail->product_id)->decrement('stock_kg', $oldKg);
-                    } else {
-                        Product::where('id', $oldDetail->product_id)->decrement('stock', $oldKg);
+                    if (!$oldDetail->product || !$oldDetail->unit) {
+                        continue;
                     }
+                    $factor = $this->getFactorAndWeight($oldDetail->product, $oldDetail->unit);
+                    Product::where('id', $oldDetail->product_id)->decrement($stockCol, $oldDetail->quantity * $factor);
                 }
 
                 $purchase->details()->delete();
@@ -269,27 +278,30 @@ class PurchaseController extends Controller
                     $unit = Unit::findOrFail($item['unit_id']);
                     $factor = $this->getFactorAndWeight($product, $unit);
 
-                    $costPerUnit = (float)$item['buy_price'] * $factor;
-                    $lineTotal   = (float)$item['quantity'] * $costPerUnit;
-                    $totalAmount += $lineTotal;
+                    $totalAmount += (float) $item['quantity'] * ((float) $item['buy_price'] * $factor);
                 }
 
                 if ($totalAmount <= 0) {
                     throw new \Exception('وەسڵ ناتوانرێت خەزن بکرێت بە بەتاڵی!');
                 }
 
-                $paid = ($request->payment_type === 'cash') ? $totalAmount : ($request->paid_amount ?? 0);
+                $paid = ($request->payment_type === 'debt') ? (float) ($request->paid_amount ?? 0) : $totalAmount;
                 $remaining = $totalAmount - $paid;
 
                 $pDate = $request->filled('created_at')
                     ? Carbon::parse($request->created_at)->format('Y-m-d')
-                    : now()->format('Y-m-d');
+                    : ($purchase->purchase_date ?? now()->format('Y-m-d'));
 
+                // کاتژمێری وەسڵە کۆنەکە دەپارێزین، تەنها بەروارەکە دەگۆڕێت
+                $oldTime = $purchase->created_at ?: now();
                 $cDateTime = $request->filled('created_at')
-                    ? Carbon::parse($request->created_at)->setTime(date('H'), date('i'), date('s'))
-                    : now();
+                    ? Carbon::parse($request->created_at)->setTime($oldTime->hour, $oldTime->minute, $oldTime->second)
+                    : $oldTime;
 
-                $purchase->update([
+                $newNo = trim($request->purchase_no);
+
+                $updateData = [
+                    'purchase_no'      => $newNo,
                     'supplier_id'      => $request->supplier_id,
                     'total_amount'     => $totalAmount,
                     'paid_amount'      => $paid,
@@ -300,22 +312,24 @@ class PurchaseController extends Controller
                     'purchase_date'    => $pDate,
                     'created_at'       => $cDateTime,
                     'updated_at'       => now(),
-                ]);
+                ];
+
+                if (Schema::hasColumn('purchases', 'invoice_no')) {
+                    $updateData['invoice_no'] = $newNo;
+                }
+
+                $purchase->update($updateData);
 
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
                     $unit = Unit::findOrFail($item['unit_id']);
                     $factor = $this->getFactorAndWeight($product, $unit);
 
-                    $costPerUnit = (float)$item['buy_price'] * $factor;
-                    $lineTotal   = (float)$item['quantity'] * $costPerUnit;
-                    $addedKg     = (float)$item['quantity'] * $factor;
-
-                    if ($currency === 'IQD') {
-                        $priceUsdPerKg = (float)$item['buy_price'] / $exchangeRate;
-                    } else {
-                        $priceUsdPerKg = (float)$item['buy_price'];
-                    }
+                    $priceInCurrency = (float) $item['buy_price'];
+                    $costPerUnit = $priceInCurrency * $factor;
+                    $lineTotal   = (float) $item['quantity'] * $costPerUnit;
+                    $addedKg     = (float) $item['quantity'] * $factor;
+                    $priceUsdPerKg = $currency === 'IQD' ? $priceInCurrency / $exchangeRate : $priceInCurrency;
 
                     PurchaseDetail::create([
                         'purchase_id'    => $purchase->id,
@@ -326,17 +340,8 @@ class PurchaseController extends Controller
                         'subtotal'       => $lineTotal,
                     ]);
 
-                    if (Schema::hasColumn('products', 'stock_kg')) {
-                        $product->increment('stock_kg', $addedKg);
-                    } else {
-                        $product->increment('stock', $addedKg);
-                    }
-
-                    if (Schema::hasColumn('products', 'base_buy_price')) {
-                        $product->update(['base_buy_price' => round($priceUsdPerKg, 4)]);
-                    } elseif (Schema::hasColumn('products', 'buy_price')) {
-                        $product->update(['buy_price' => round($priceUsdPerKg, 4)]);
-                    }
+                    // هەمان تێکڕای کێشراو وەک store (پێشتر لێرە نرخەکە بە نرخی کۆتایی دەنووسرایەوە)
+                    $this->addStockAndAverageCost($product, $addedKg, $priceUsdPerKg);
                 }
             });
 
@@ -351,15 +356,14 @@ class PurchaseController extends Controller
         try {
             DB::transaction(function () use ($id) {
                 $purchase = Purchase::with('details.product', 'details.unit')->findOrFail($id);
+                $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
                 foreach ($purchase->details as $detail) {
-                    $factor = $this->getFactorAndWeight($detail->product, $detail->unit);
-                    $deductedKg = $detail->quantity * $factor;
-                    if (Schema::hasColumn('products', 'stock_kg')) {
-                        Product::where('id', $detail->product_id)->decrement('stock_kg', $deductedKg);
-                    } else {
-                        Product::where('id', $detail->product_id)->decrement('stock', $deductedKg);
+                    if (!$detail->product || !$detail->unit) {
+                        continue;
                     }
+                    $factor = $this->getFactorAndWeight($detail->product, $detail->unit);
+                    Product::where('id', $detail->product_id)->decrement($stockCol, $detail->quantity * $factor);
                 }
 
                 $purchase->details()->delete();
