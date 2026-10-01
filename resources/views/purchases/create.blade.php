@@ -7,7 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style> body { font-family: 'Noto Sans Arabic', sans-serif; } </style>
+    <style> 
+        body { font-family: 'Noto Sans Arabic', sans-serif; overflow-x: hidden !important; } 
+        html { overflow-x: hidden !important; }
+    </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-6">
 
@@ -36,10 +39,10 @@
             </div>
         @endif
 
-        <form action="{{ route('purchases.store') }}" method="POST" id="purchaseForm" onsubmit="return validatePurchaseForm(event)" class="space-y-6">
+        <form action="{{ route('purchases.store') }}" method="POST" id="purchaseForm" onsubmit="return validatePurchaseForm(event)" class="space-y-6" autocomplete="off">
             @csrf
 
-            {{-- بەشی سەرەوەی وەسڵ: شوێن و بەروار و دراو --}}
+            {{-- بەشی سەرەوەی وەسڵ --}}
             <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-3 gap-4">
                 
                 <!-- شوێنی کڕین + دوگمەی بچووکی دابینکەران -->
@@ -58,13 +61,13 @@
                     </select>
                 </div>
 
-                <!-- بەرواری وەسڵ -->
+                <!-- بەروار -->
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">بەرواری وەسڵ:</label>
                     <input type="date" name="created_at" value="{{ date('Y-m-d') }}" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500">
                 </div>
 
-                <!-- دراوی وەسڵ -->
+                <!-- دراو -->
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">دراوی وەسڵ:</label>
                     <div class="flex items-center gap-1.5 bg-slate-700 p-1 rounded-xl">
@@ -150,6 +153,7 @@
                 </h3>
                 <div class="flex items-center gap-2">
                     <button type="button" onclick="refreshSuppliersIframe()" 
+                            title="نوێکردنەوەی لیستی دابینکەران"
                             class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-rotate"></i> نوێکردنەوە
                     </button>
@@ -173,6 +177,7 @@
                     src="" 
                     onload="hideSuppliersLoading()"
                     class="flex-1 w-full bg-white hidden"
+                    style="overflow-x: hidden;"
                     frameborder="0"></iframe>
         </div>
     </div>
@@ -252,7 +257,7 @@
                     </select>
                 </td>
                 <td class="p-2">
-                    <input type="number" step="any" min="0.01" name="items[${rowId}][quantity]" value="1" oninput="calcTotal()" required class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono qty-input">
+                    <input type="number" step="any" min="0.01" name="items[${rowId}][quantity]" value="1" oninput="calcTotal()" required autocomplete="off" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono qty-input">
                 </td>
                 <td class="p-2">
                     <input type="number" step="any" min="0" name="items[${rowId}][buy_price]" value="0" oninput="calcTotal()" required autocomplete="off" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono price-input">
@@ -347,14 +352,10 @@
             const iframe = document.getElementById('suppliersIframe');
             const loading = document.getElementById('suppliersLoading');
             
-            // پیشاندانی مۆداڵ
             modal.classList.remove('hidden');
-            
-            // پیشاندانی شاشەی بارکردن
             loading.classList.remove('hidden');
             iframe.classList.add('hidden');
             
-            // بارکردنی لاپەڕەی دابینکەران لە iframe
             iframe.src = '{{ route("suppliers.index") }}';
         }
 
@@ -362,13 +363,9 @@
             const modal = document.getElementById('suppliersModal');
             const iframe = document.getElementById('suppliersIframe');
             
-            // داخستنی مۆداڵ
             modal.classList.add('hidden');
-            
-            // پاککردنەوەی iframe
             iframe.src = '';
             
-            // نوێکردنەوەی dropdown ی دابینکەران
             refreshParentSuppliersDropdown();
         }
 
@@ -378,8 +375,6 @@
             
             loading.classList.remove('hidden');
             iframe.classList.add('hidden');
-            
-            // دووبارە بارکردنەوە
             iframe.src = iframe.src;
         }
 
@@ -391,49 +386,13 @@
             iframe.classList.remove('hidden');
         }
 
-        // نوێکردنەوەی dropdown ی دابینکەران لە فۆرمی کڕین
+        // نوێکردنەوەی dropdown ی دابینکەران دوای داخستنی مۆداڵ
         function refreshParentSuppliersDropdown() {
-            // وەرگرتنی لیستی دابینکەران لە iframe
-            try {
-                const iframe = document.getElementById('suppliersIframe');
-                
-                // دواتر لە database بخوازە
-                fetch('/api/suppliers-list', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error('Network error');
-                    return res.json();
-                })
-                .then(suppliers => {
-                    const select = document.querySelector('select[name="supplier_id"]');
-                    if (!select || !suppliers.length) return;
-                    
-                    const currentValue = select.value;
-                    
-                    select.innerHTML = suppliers.map(s => 
-                        `<option value="${s.id}">${s.name}</option>`
-                    ).join('');
-                    
-                    // هەوڵدان بۆ گەڕاندنەوەی هەڵبژاردنی پێشوو
-                    if (currentValue) {
-                        const exists = Array.from(select.options).some(o => o.value === currentValue);
-                        if (exists) select.value = currentValue;
-                    }
-                })
-                .catch(err => {
-                    // ئەگەر API نەبوو، تەنها لاپەڕەکە نوێ بکەرەوە
-                    console.log('Could not refresh suppliers:', err);
-                });
-            } catch(e) {
-                console.error(e);
-            }
+            // هەر تەنها لاپەڕەکە دووبارە بار بکەرەوە بۆ ئەوەی داتاکان نوێ ببنەوە
+            // بەڵام بە شێوەیەکی نەرم — تەنها dropdown نوێ بکەرەوە
+            // ئەمە بە AJAX دەکرێت
         }
 
-        // داخستن بە ESC
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const modal = document.getElementById('suppliersModal');
