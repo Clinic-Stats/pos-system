@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>پسوولەی فرۆشتن - {{ $sale->invoice_no }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     @php
     $setting = \App\Models\Setting::first();
     $paperWidth = $setting ? $setting->receipt_width : '80mm';
@@ -98,51 +97,22 @@
             line-height: 1;
         }
 
-        .screen-buttons {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-            z-index: 9999;
-        }
-
-        .btn {
-            padding: 10px 16px;
+        .btn-print {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            background: #2563eb;
+            color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 13px;
-            color: white;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-blue {
-            background: #2563eb;
-        }
-
-        .btn-green {
-            background: #059669;
-        }
-
-        .btn-red {
-            background: #dc2626;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
+            margin-bottom: 10px;
         }
 
         @media print {
-            .screen-buttons {
-                display: none !important;
+            .btn-print {
+                display: none;
             }
         }
     </style>
@@ -150,31 +120,13 @@
 
 <body>
 
-    <!-- ============================================ -->
-    <!-- دوگمەکان - تەنها لە شاشەدا -->
-    <!-- ============================================ -->
-    <div class="screen-buttons">
-        <div style="display: flex; gap: 8px;">
-            <button onclick="window.print()" class="btn btn-blue">
-                <i class="fa-solid fa-print"></i> پرینت
-            </button>
-            <a href="{{ route('pos.index') }}" class="btn btn-green">
-                <i class="fa-solid fa-plus-circle"></i> وەسڵی نوێ
-            </a>
-        </div>
-        <button onclick="window.close()" class="btn btn-red">
-            <i class="fa-solid fa-xmark"></i> داخستن
-        </button>
-    </div>
+    <button onclick="window.print()" class="btn-print">چاپکردنی پسوولە</button>
 
-    <!-- ============================================ -->
-    <!-- ناوەڕۆکی وەسڵ -->
-    <!-- ============================================ -->
-    <div style="margin-top: 70px;"></div>
-
+    <!-- بەشی سەردێڕ و لۆگۆ بە شێوەی داینامیک لە Settings -->
+    <!-- بەشی سەردێڕ و لۆگۆ -->
     <div class="text-center">
         @if(!empty($setting->shop_logo) && file_exists(public_path($setting->shop_logo)))
-        <img src="{{ asset($setting->shop_logo) }}" style="max-height: 65px; max-width: 80%; margin: 0 auto 6px auto; display: block; object-fit: contain;">
+        <img src="{{ asset($setting->shop_logo) }}" style="max-height: 65px; max-width: 80%; margin: 0 auto 6px auto; display: block; object-contain: contain;">
         @endif
         <h2 style="margin: 0; font-size: 15px; font-weight: bold;">{{ $setting->shop_name ?? 'کۆمپانیای ساموا' }}</h2>
         @if(!empty($setting->shop_phone))
@@ -193,7 +145,7 @@
         <div><strong>بەروار:</strong> {{ $sale->created_at->format('Y-m-d H:i') }}</div>
         <div><strong>کڕیار:</strong> {{ $sale->customer->name ?? 'کڕیاری گشتی' }}</div>
         <div><strong>جۆری پارەدان:</strong> {{ $sale->payment_type == 'cash' ? 'نەقد' : 'قەرز' }}</div>
-        <div><b>کاشیر:</b> <span style="font-weight: bold;">{{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</span></div>
+        <div><b>نوێنەری فرۆشتن / کاشیر:</b> <span style="font-weight: bold;">{{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</span></div>
     </div>
 
     <div class="border-b my-2"></div>
@@ -270,6 +222,7 @@
 
     <div class="border-b my-2"></div>
 
+    <!-- فووتەر و ڕێنمایی دیاریکراو لە Settings -->
     <div class="text-center" style="font-size: 10px; margin-top: 6px;">
         <p style="margin: 0 0 4px 0;">{{ $setting->invoice_footer ?? 'سوپاس بۆ مامەڵەکەتان' }}</p>
 
@@ -281,20 +234,9 @@
     </div>
 
     <script>
-        // کورتکراوەکان
-        document.addEventListener('keydown', function(e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-                e.preventDefault();
-                window.print();
-            }
-            if (e.key === 'Escape') {
-                window.close();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-                e.preventDefault();
-                window.location.href = '{{ route("pos.index") }}';
-            }
-        });
+        window.onload = function() {
+            window.print();
+        };
     </script>
 </body>
 

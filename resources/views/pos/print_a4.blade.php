@@ -7,7 +7,6 @@
     <title>پسوولەی فرۆشتن A4 - {{ $sale->invoice_no }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&family=Libre+Barcode+39&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     @php
     $setting = \App\Models\Setting::first();
     @endphp
@@ -42,26 +41,18 @@
     </style>
 </head>
 
-<body class="bg-slate-100 text-slate-900 min-h-screen p-6">
-
-    <!-- ============================================ -->
-    <!-- دوگمەکان - تەنها لە شاشەدا -->
-    <!-- ============================================ -->
-    <div class="no-print max-w-4xl mx-auto mb-4 flex justify-between items-center gap-3 flex-wrap">
-        <div class="flex gap-2 flex-wrap">
-            <button onclick="window.print()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition flex items-center gap-2 active:scale-95 shadow-lg">
-                <i class="fa-solid fa-print"></i> پرینتکردن
-            </button>
-            <a href="{{ route('pos.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-bold transition flex items-center gap-2 active:scale-95 shadow-lg">
-                <i class="fa-solid fa-plus-circle"></i> وەسڵی نوێ
-            </a>
-        </div>
-        <button onclick="window.close()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold transition flex items-center gap-2 active:scale-95 shadow-lg">
-            <i class="fa-solid fa-xmark"></i> داخستن
-        </button>
-    </div>
+<body class="bg-slate-100 text-slate-900 min-h-screen p-6" onload="window.print()">
 
     <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-xs">
+
+        <!-- دوگمەی چاپ و داخستن -->
+        <div class="no-print flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
+            <a href="{{ route('reports.index') }}" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold transition">گەڕانەوە بۆ ڕاپۆرتەکان</a>
+            <div class="flex gap-2">
+                <button onclick="window.print()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition">دووبارە چاپکردن</button>
+                <button onclick="window.close()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold transition">داخستن</button>
+            </div>
+        </div>
 
         <!-- هێدەری فەرمی A4 -->
         <div class="flex justify-between items-center pb-6 border-b-2 border-slate-800 gap-4">
@@ -102,7 +93,7 @@
                 <span class="inline-block px-2.5 py-0.5 rounded-md font-bold {{ $sale->payment_type === 'cash' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
                     {{ $sale->payment_type === 'cash' ? 'نەقد' : 'قەرز' }}
                 </span>
-                <span class="block text-[11px] text-slate-600">کاشیر / مەندووب: <b>{{ $sale->user->name ?? 'ئەدمین' }}</b></span>
+                <span class="block text-[11px] text-slate-600">کاسیە / مەندووب: <b>{{ $sale->user->name ?? 'ئەدمین' }}</b></span>
             </div>
         </div>
 
@@ -171,7 +162,7 @@
                 @endif
 
                 <div class="flex justify-between text-base font-black text-slate-900 pt-1 border-t border-slate-300">
-                    <span>کۆی گشتی:</span>
+                    <span>کۆی گشتی ماوە:</span>
                     <span class="font-mono text-emerald-700" dir="ltr">{{ number_format($sale->total_amount) }} د.ع</span>
                 </div>
 
@@ -208,21 +199,6 @@
 
     </div>
 
-    <script>
-        document.addEventListener('keydown', function(e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-                e.preventDefault();
-                window.print();
-            }
-            if (e.key === 'Escape') {
-                window.close();
-            }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-                e.preventDefault();
-                window.location.href = '{{ route("pos.index") }}';
-            }
-        });
-    </script>
 </body>
 
 </html>
