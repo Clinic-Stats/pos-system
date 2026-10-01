@@ -47,9 +47,6 @@
         body { font-family: 'Almarai', sans-serif; }
         .font-num { font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        /* ============================================ */
-        /* Animated Background - Aurora Effect */
-        /* ============================================ */
         body { 
             background: linear-gradient(-45deg, #f8fafc, #e0e7ff, #fce7f3, #cffafe, #f8fafc);
             background-size: 400% 400%;
@@ -64,51 +61,29 @@
                 radial-gradient(ellipse at 90% 20%, rgba(16, 185, 129, 0.15), transparent 50%);
         }
         
-        /* ============================================ */
-        /* Premium Glassmorphism */
-        /* ============================================ */
         .glass-panel {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(30px) saturate(200%);
             -webkit-backdrop-filter: blur(30px) saturate(200%);
             border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 
-                0 8px 32px rgba(31, 38, 135, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
         .dark .glass-panel {
             background: rgba(10, 15, 30, 0.6);
             border: 1px solid rgba(168, 85, 247, 0.2);
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.5),
-                0 0 60px rgba(168, 85, 247, 0.05),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 60px rgba(168, 85, 247, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
         
-        /* ============================================ */
-        /* Custom Scrollbar */
-        /* ============================================ */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { 
-            background: linear-gradient(180deg, #a855f7, #ec4899); 
-            border-radius: 10px; 
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { 
-            background: linear-gradient(180deg, #9333ea, #db2777); 
-        }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #a855f7, #ec4899); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #9333ea, #db2777); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* ============================================ */
-        /* Buttons */
-        /* ============================================ */
         .btn-press { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .btn-press:active { transform: scale(0.94); }
         
-        /* ============================================ */
-        /* Nav Buttons - Premium */
-        /* ============================================ */
         .nav-btn {
             position: relative;
             display: flex;
@@ -154,28 +129,17 @@
             box-shadow: 0 12px 24px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2);
         }
         
-        /* ============================================ */
-        /* Product Cards - Premium */
-        /* ============================================ */
         .product-card {
             position: relative;
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             overflow: hidden;
             isolation: isolate;
         }
-        .product-card:hover {
-            transform: translateY(-6px) scale(1.03);
-        }
+        .product-card:hover { transform: translateY(-6px) scale(1.03); }
         .dark .product-card:hover {
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.5),
-                0 0 30px rgba(168, 85, 247, 0.3),
-                0 0 60px rgba(236, 72, 153, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(168, 85, 247, 0.3), 0 0 60px rgba(236, 72, 153, 0.15);
         }
         
-        /* ============================================ */
-        /* Gradient Buttons */
-        /* ============================================ */
         .gradient-btn-emerald {
             background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
             background-size: 200% 200%;
@@ -198,9 +162,6 @@
             transform: translateY(-2px);
         }
         
-        /* ============================================ */
-        /* ویجێتی ئاڵوگۆڕ - بچووکتر */
-        /* ============================================ */
         @keyframes colorShift {
             0%   { background: linear-gradient(135deg, #f59e0b, #ea580c, #dc2626); box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 8px 20px rgba(0,0,0,0.3); }
             25%  { background: linear-gradient(135deg, #10b981, #059669, #047857); box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 8px 20px rgba(0,0,0,0.3); }
@@ -220,20 +181,13 @@
             animation: colorShift 10s ease-in-out infinite;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        #exchangeRateWidget:hover > div:first-child {
-            transform: scale(1.08);
-        }
-        #exchangeRateWidget #rateIcon {
-            animation: iconSpin 4s ease-in-out infinite, iconFloat 2s ease-in-out infinite;
-        }
+        #exchangeRateWidget:hover > div:first-child { transform: scale(1.08); }
+        #exchangeRateWidget #rateIcon { animation: iconSpin 4s ease-in-out infinite, iconFloat 2s ease-in-out infinite; }
         #exchangeRateWidget #newExchangeRate {
             background: rgba(255, 255, 255, 0.95);
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        /* ============================================ */
-        /* Floating shapes */
-        /* ============================================ */
         .bg-shape {
             position: fixed;
             border-radius: 50%;
@@ -244,18 +198,12 @@
             animation: float 20s ease-in-out infinite;
         }
         
-        /* ============================================ */
-        /* Cart Item Animation */
-        /* ============================================ */
         @keyframes slideInRight {
             0% { transform: translateX(-30px) scale(0.95); opacity: 0; }
             100% { transform: translateX(0) scale(1); opacity: 1; }
         }
         .cart-item-enter { animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         
-        /* ============================================ */
-        /* Category pills */
-        /* ============================================ */
         .cat-pill {
             position: relative;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -279,14 +227,8 @@
             box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
         }
         
-        /* ============================================ */
-        /* Interactive Qty Input */
-        /* ============================================ */
         input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
         
         @media (max-width: 768px) {
@@ -301,15 +243,11 @@
 </head>
 <body class="text-slate-800 dark:text-slate-100 h-screen p-1 md:p-2 overflow-hidden select-none transition-colors duration-500 flex flex-col">
 
-    <!-- بەشەکانی پشتەوەی جوڵاو -->
     <div class="bg-shape" style="width:500px;height:500px;background:radial-gradient(circle, #a855f7, transparent);top:-150px;right:-100px;"></div>
     <div class="bg-shape" style="width:400px;height:400px;background:radial-gradient(circle, #06b6d4, transparent);bottom:-150px;left:-100px;animation-delay:-7s;"></div>
     <div class="bg-shape" style="width:350px;height:350px;background:radial-gradient(circle, #ec4899, transparent);top:40%;left:40%;animation-delay:-12s;"></div>
     <div class="bg-shape" style="width:300px;height:300px;background:radial-gradient(circle, #10b981, transparent);top:20%;left:20%;animation-delay:-4s;"></div>
 
-    <!-- ============================================ -->
-    <!-- هێدەر -->
-    <!-- ============================================ -->
     <header class="glass-panel px-3 py-2.5 rounded-3xl mb-2 flex flex-col md:flex-row items-center justify-between shadow-2xl z-[100] shrink-0 gap-2 relative">
         
         <div class="flex items-center justify-between w-full md:w-auto gap-3">
@@ -400,14 +338,8 @@
         </div>
     </header>
 
-    <!-- ============================================ -->
-    <!-- بەشی سەرەکی -->
-    <!-- ============================================ -->
     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2 h-full overflow-hidden relative z-0">
         
-        <!-- ============================================ -->
-        <!-- لیستی کاڵاکان -->
-        <!-- ============================================ -->
         <div class="lg:col-span-9 glass-panel rounded-3xl p-3 flex flex-col h-[55vh] lg:h-full overflow-hidden relative">
             
             <div class="shrink-0 space-y-2.5 pb-2.5 border-b border-slate-200/60 dark:border-purple-500/10">
@@ -503,9 +435,6 @@
             </div>
         </div>
 
-        <!-- ============================================ -->
-        <!-- سەبەتە -->
-        <!-- ============================================ -->
         <div class="lg:col-span-3 glass-panel rounded-3xl p-3 flex flex-col h-[40vh] lg:h-full overflow-hidden relative shadow-2xl">
             
             <div class="shrink-0 pb-3 border-b border-slate-200/60 dark:border-purple-500/10">
@@ -617,9 +546,6 @@
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- مۆداڵی سەرکەوتن -->
-    <!-- ============================================ -->
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-2 md:p-4 z-[999]">
         <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-6 text-right shadow-2xl flex flex-col max-h-[90vh] animate-scale-in border-2 border-purple-500/30 dark:border-purple-500/40 relative overflow-hidden">
             
@@ -662,12 +588,8 @@
         </div>
     </div>
 
-    <!-- Toast Container -->
     <div id="toastContainer" class="fixed top-3 left-1/2 transform -translate-x-1/2 z-[999] space-y-2 pointer-events-none flex flex-col items-center"></div>
 
-    <!-- ============================================ -->
-    <!-- ویجێتی ئاڵوگۆڕ - بچووکتر و بەرەو ناوەڕاست -->
-    <!-- ============================================ -->
     <div id="exchangeRateWidget" class="fixed top-3 right-56 z-[9000]">
         <div class="rounded-2xl shadow-2xl p-2 min-w-[180px] border-2 border-white/30 backdrop-blur-sm transition-all duration-300">
             <div id="rateDisplay" onclick="toggleRateEdit()" class="flex items-center justify-between gap-2 cursor-pointer">
@@ -849,7 +771,7 @@
         }
 
         // ============================================
-        // ئەنیمەیشنی جوڵان بۆ سەبەتە - چاککراو
+        // ئەنیمەیشنی جوڵان بۆ سەبەتە
         // ============================================
         function animateFly(startX, startY, endX, endY, text, colorClass) {
             const flyEl = document.createElement('div');
@@ -878,9 +800,17 @@
             setTimeout(() => { flyEl.remove(); }, 800);
         }
 
+        // ============================================
+        // addToCart — ئێستا true/false دەگەڕێنێتەوە
+        // ============================================
         function addToCart(p) {
             const stock = parseFloat(p.stock_kg !== undefined ? p.stock_kg : (p.stock || 0));
-            if (stock <= 0) { showToast('نەماوە!', 'error'); return; }
+            
+            // ئەگەر کاڵاکە نەماوە، هیچ مەکە
+            if (stock <= 0) { 
+                showToast('نەماوە!', 'error'); 
+                return false; 
+            }
 
             const defaultUnitId = getDefaultUnitId();
             const initialUnit = units.find(u => u.id == defaultUnitId) || units[0] || { id: 1, name: 'کیلۆ', factor_to_base: 1 };
@@ -892,42 +822,72 @@
                 const u = units.find(u => u.id == cart[idx].unit_id) || initialUnit;
                 const cFactor = getUnitFactor(p, u);
                 const max = cFactor > 0 ? (stock / cFactor) : stock;
-                if (cart[idx].qty + 1 > max) { showToast('تەواو بوو!'); cart[idx].qty = max; } else { cart[idx].qty++; }
+                
+                // ئەگەر گەیشتووەتە ئەوپەڕی، هیچ مەکە
+                if (cart[idx].qty >= max) { 
+                    showToast('تەواو بوو!'); 
+                    return false; 
+                }
+                
+                if (cart[idx].qty + 1 > max) { 
+                    showToast('تەواو بوو!'); 
+                    cart[idx].qty = max; 
+                    renderCart(false);
+                    return false;
+                } else { 
+                    cart[idx].qty++; 
+                }
             } else {
                 cart.push({ id: p.id, name: p.name, code: p.code, price_usd: basePriceUsd, stock_kg: stock, kg_per_carton: parseFloat(p.kg_per_carton)||1, qty: 1, unit_id: initialUnit.id, factor: factor });
             }
             renderCart(false);
+            return true;
         }
 
+        // ============================================
+        // quickIncrease — تەنها ئەگەر سەرکەوتوو بوو ئەنیمەیشن
+        // ============================================
         function quickIncrease(p, event) { 
             event.stopPropagation(); 
-            addToCart(p);
-            const btnRect = event.currentTarget.getBoundingClientRect();
-            const cartIcon = document.getElementById('cartIconAnim');
-            if(cartIcon) {
-                const cartRect = cartIcon.getBoundingClientRect();
-                animateFly(
-                    btnRect.left + (btnRect.width / 2), 
-                    btnRect.top + (btnRect.height / 2), 
-                    cartRect.left + (cartRect.width / 2), 
-                    cartRect.top + (cartRect.height / 2), 
-                    '+1', 
-                    'bg-gradient-to-br from-purple-500 to-pink-600'
-                );
-            }
-            let el = document.getElementById('price-anim-' + p.id);
-            if(el) { 
-                el.classList.add('scale-125'); 
-                setTimeout(() => el.classList.remove('scale-125'), 200); 
+            
+            const success = addToCart(p);
+            
+            if (success) {
+                const btnRect = event.currentTarget.getBoundingClientRect();
+                const cartIcon = document.getElementById('cartIconAnim');
+                if(cartIcon) {
+                    const cartRect = cartIcon.getBoundingClientRect();
+                    animateFly(
+                        btnRect.left + (btnRect.width / 2), 
+                        btnRect.top + (btnRect.height / 2), 
+                        cartRect.left + (cartRect.width / 2), 
+                        cartRect.top + (cartRect.height / 2), 
+                        '+1', 
+                        'bg-gradient-to-br from-purple-500 to-pink-600'
+                    );
+                }
+                let el = document.getElementById('price-anim-' + p.id);
+                if(el) { 
+                    el.classList.add('scale-125'); 
+                    setTimeout(() => el.classList.remove('scale-125'), 200); 
+                }
             }
         }
 
+        // ============================================
+        // quickDecrease
+        // ============================================
         function quickDecrease(productId, event) {
             event.stopPropagation();
             let idx = cart.findIndex(i => i.id === productId);
             if (idx !== -1) {
-                if (cart[idx].qty > 1) { cart[idx].qty--; } else { cart.splice(idx, 1); }
+                if (cart[idx].qty > 1) { 
+                    cart[idx].qty--; 
+                } else { 
+                    cart.splice(idx, 1); 
+                }
                 renderCart(false);
+                
                 const btnRect = event.currentTarget.getBoundingClientRect();
                 const cartIcon = document.getElementById('cartIconAnim');
                 if(cartIcon) {
