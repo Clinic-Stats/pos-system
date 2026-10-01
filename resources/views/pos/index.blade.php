@@ -45,29 +45,55 @@
         .glow-on-hover:after { z-index: -1; content: ''; position: absolute; width: 100%; height: 100%; background: inherit; left: 0; top: 0; border-radius: 10px; }
         @keyframes glowing { 0% { background-position: 0 0; } 50% { background-position: 400% 0; } 100% { background-position: 0 0; } }
         
-        /* ئەنیمەیشنی ویجێتی ئاڵوگۆڕ */
-        @keyframes floatWidget {
+        /* ============================================ */
+        /* ئەنیمەیشنی ویجێتی نرخی ئاڵوگۆڕ - ڕەنگ دەگۆڕێت */
+        /* ============================================ */
+        @keyframes colorShift {
+            0%   { background: linear-gradient(135deg, #f59e0b, #ea580c); box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
+            25%  { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
+            50%  { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
+            75%  { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
+            100% { background: linear-gradient(135deg, #f59e0b, #ea580c); box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
+        }
+
+        @keyframes iconSpin {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(15deg) scale(1.15); }
+        }
+
+        @keyframes iconFloat {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
+            50% { transform: translateY(-3px); }
         }
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), 0 10px 30px rgba(0,0,0,0.3); }
-            50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.8), 0 10px 30px rgba(0,0,0,0.4); }
-        }
+
         #exchangeRateWidget > div:first-child {
-            animation: floatWidget 3s ease-in-out infinite, pulseGlow 2s ease-in-out infinite;
+            animation: colorShift 10s ease-in-out infinite;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         #exchangeRateWidget:hover > div:first-child {
-            animation: none;
-            transform: scale(1.08);
-            box-shadow: 0 0 40px rgba(251, 191, 36, 1), 0 15px 40px rgba(0,0,0,0.5);
+            transform: scale(1.1);
+            box-shadow: 0 0 45px rgba(255, 255, 255, 0.5), 0 15px 40px rgba(0,0,0,0.5);
         }
-        #exchangeRateWidget.editing > div:first-child {
-            animation: none;
+
+        #exchangeRateWidget #rateIcon {
+            animation: iconSpin 4s ease-in-out infinite, iconFloat 2s ease-in-out infinite;
         }
+
+        /* شێوازی مۆدێرن بۆ خانەی نرخ */
+        #exchangeRateWidget #newExchangeRate {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        #exchangeRateWidget #newExchangeRate:focus {
+            background: #ffffff;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.15), 0 0 0 3px rgba(255, 255, 255, 0.4);
+        }
+
         @media (max-width: 768px) {
             #exchangeRateWidget {
-                top: 60px !important;
+                top: 70px !important;
                 right: 8px !important;
                 min-width: 150px;
             }
@@ -256,15 +282,15 @@
     <div id="toastContainer" class="fixed top-2 left-1/2 transform -translate-x-1/2 z-[999] space-y-2 pointer-events-none flex flex-col items-center"></div>
 
     <!-- ============================================ -->
-    <!-- ویجێتی نرخی ئاڵوگۆڕ - سەرەوەی ڕاست -->
+    <!-- ویجێتی نرخی ئاڵوگۆڕ - جێگیر لە top-3 right-32 -->
     <!-- ============================================ -->
     <div id="exchangeRateWidget" class="fixed top-3 right-32 z-[9000]">
-        <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-2xl p-2.5 min-w-[190px] border-2 border-amber-300/50 backdrop-blur-sm cursor-pointer transition-all duration-300">
+        <div class="rounded-2xl shadow-2xl p-2.5 min-w-[190px] border-2 border-white/30 backdrop-blur-sm transition-all duration-300">
             
             <!-- دۆخی داخراو (تەنها پیشاندان) -->
-            <div id="rateDisplay" onclick="toggleRateEdit()" class="flex items-center justify-between gap-2">
+            <div id="rateDisplay" onclick="toggleRateEdit()" class="flex items-center justify-between gap-2 cursor-pointer">
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <div id="rateIcon" class="w-8 h-8 bg-white/25 rounded-lg flex items-center justify-center border border-white/30">
                         <i class="fa-solid fa-dollar-sign text-white text-sm"></i>
                     </div>
                     <div class="text-white">
@@ -288,15 +314,15 @@
                            value="{{ $setting->exchange_rate ?? 1500 }}" 
                            min="1" 
                            step="any"
-                           class="w-full bg-white text-amber-900 font-black font-mono text-sm p-1.5 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-white">
+                           class="w-full text-amber-900 font-black font-mono text-sm p-1.5 rounded-lg text-center focus:outline-none">
                     <button type="button" 
                             onclick="saveExchangeRate()" 
-                            class="bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded-lg transition-colors">
+                            class="bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded-lg transition-colors shadow-md">
                         <i class="fa-solid fa-check text-xs"></i>
                     </button>
                     <button type="button" 
                             onclick="toggleRateEdit()" 
-                            class="bg-slate-700 hover:bg-slate-800 text-white p-2 rounded-lg transition-colors">
+                            class="bg-slate-800/70 hover:bg-slate-900 text-white p-2 rounded-lg transition-colors shadow-md">
                         <i class="fa-solid fa-xmark text-xs"></i>
                     </button>
                 </div>
@@ -672,12 +698,10 @@
         function toggleRateEdit() {
             const display = document.getElementById('rateDisplay');
             const edit = document.getElementById('rateEdit');
-            const widget = document.getElementById('exchangeRateWidget');
             
             if (edit.classList.contains('hidden')) {
                 display.classList.add('hidden');
                 edit.classList.remove('hidden');
-                widget.classList.add('editing');
                 setTimeout(() => {
                     const inp = document.getElementById('newExchangeRate');
                     inp.focus();
@@ -686,7 +710,6 @@
             } else {
                 display.classList.remove('hidden');
                 edit.classList.add('hidden');
-                widget.classList.remove('editing');
             }
         }
         
@@ -733,87 +756,6 @@
                 console.error(err);
             });
         }
-        
-        // ============================================
-        // جوڵاندنی ویجێت (Drag and Drop) - بۆ سەرەوەی ڕاست
-        // ============================================
-        (function makeDraggable() {
-            const widget = document.getElementById('exchangeRateWidget');
-            let isDragging = false;
-            let startX, startY, startLeft, startTop;
-            let hasMoved = false;
-            
-            widget.addEventListener('mousedown', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-                
-                isDragging = false;
-                hasMoved = false;
-                startX = e.clientX;
-                startY = e.clientY;
-                
-                const rect = widget.getBoundingClientRect();
-                startLeft = rect.left;
-                startTop = rect.top;
-                
-                const moveHandler = function(ev) {
-                    const dx = ev.clientX - startX;
-                    const dy = ev.clientY - startY;
-                    
-                    if (!hasMoved && Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
-                    
-                    hasMoved = true;
-                    isDragging = true;
-                    widget.style.transition = 'none';
-                    widget.style.cursor = 'grabbing';
-                    
-                    let newLeft = startLeft + dx;
-                    let newTop = startTop + dy;
-                    
-                    const rectNow = widget.getBoundingClientRect();
-                    newLeft = Math.max(8, Math.min(newLeft, window.innerWidth - rectNow.width - 8));
-                    newTop = Math.max(8, Math.min(newTop, window.innerHeight - rectNow.height - 8));
-                    
-                    widget.style.left = newLeft + 'px';
-                    widget.style.top = newTop + 'px';
-                    widget.style.right = 'auto';
-                    widget.style.bottom = 'auto';
-                };
-                
-                const upHandler = function() {
-                    document.removeEventListener('mousemove', moveHandler);
-                    document.removeEventListener('mouseup', upHandler);
-                    
-                    if (isDragging) {
-                        widget.style.cursor = '';
-                        widget.style.transition = '';
-                        const rect = widget.getBoundingClientRect();
-                        localStorage.setItem('pos_exchange_widget_pos', JSON.stringify({
-                            left: rect.left,
-                            top: rect.top
-                        }));
-                    }
-                    isDragging = false;
-                };
-                
-                document.addEventListener('mousemove', moveHandler);
-                document.addEventListener('mouseup', upHandler);
-            });
-        })();
-        
-        // گەڕاندنەوەی شوێنی ویجێت
-        (function restoreWidgetPosition() {
-            const saved = localStorage.getItem('pos_exchange_widget_pos');
-            if (saved) {
-                try {
-                    const pos = JSON.parse(saved);
-                    const widget = document.getElementById('exchangeRateWidget');
-                    widget.style.left = pos.left + 'px';
-                    widget.style.top = pos.top + 'px';
-                    widget.style.right = 'auto';
-                    widget.style.bottom = 'auto';
-                } catch(e) {}
-            }
-        })();
         
         // Enter و Escape
         document.getElementById('newExchangeRate').addEventListener('keydown', function(e) {
