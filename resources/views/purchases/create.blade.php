@@ -53,7 +53,6 @@
             {{-- بەشی سەرەوەی وەسڵ --}}
             <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                <!-- ژمارەی پسوولە (دەستی) -->
                 <div class="md:col-span-3">
                     <label class="block text-xs font-bold text-slate-300 mb-1">
                         ژمارەی پسوولەی کڕین <span class="text-rose-400">*</span>
@@ -64,7 +63,6 @@
                         class="w-full p-2.5 rounded-xl border {{ $errors->has('purchase_no') ? 'border-rose-500' : 'border-slate-600' }} bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500" dir="ltr" style="text-align:right;">
                 </div>
 
-                <!-- شوێنی کڕین + دوگمەی بچووکی دابینکەران -->
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="block text-xs font-bold text-slate-300">شوێنی کڕین (کۆمپانیا/دابینکەر):</label>
@@ -80,13 +78,11 @@
                     </select>
                 </div>
 
-                <!-- بەروار -->
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">بەرواری وەسڵ:</label>
                     <input type="date" name="created_at" value="{{ old('created_at', date('Y-m-d')) }}" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500">
                 </div>
 
-                <!-- دراو -->
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">دراوی وەسڵ:</label>
                     <div class="flex items-center gap-1.5 bg-slate-700 p-1 rounded-xl">
@@ -96,7 +92,6 @@
                     <input type="hidden" name="currency" id="currency_input" value="USD">
                 </div>
 
-                <!-- نرخی ئاڵوگۆڕ -->
                 <div id="exchangeRateBox" class="md:col-span-3 hidden">
                     <label class="block text-xs font-bold text-slate-300 mb-1">نرخی ئاڵوگۆڕی دۆلار (١ دۆلار = چ دینار):</label>
                     <input type="number" step="any" min="1" name="exchange_rate" id="exchange_rate_input" value="{{ $setting->exchange_rate ?? 1500 }}" class="w-full p-2.5 rounded-xl border border-amber-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-amber-500">
@@ -120,7 +115,7 @@
                                 <th class="p-2.5 w-44">کاڵا</th>
                                 <th class="p-2.5 w-32">یەکە</th>
                                 <th class="p-2.5 w-24">بڕ</th>
-                                <th class="p-2.5 w-36">نرخی یەکە (<span id="priceLabel">$</span>)</th>
+                                <th class="p-2.5 w-36">نرخی ١ کیلۆ (<span id="priceLabel">$</span>)</th>
                                 <th class="p-2.5 w-36">کۆی پارە</th>
                                 <th class="p-2.5 text-center w-12">لابردن</th>
                             </tr>
@@ -158,9 +153,7 @@
 
     </div>
 
-    <!-- ============================================ -->
     <!-- مۆداڵی بەڕێوەبردنی دابینکەران -->
-    <!-- ============================================ -->
     <div id="suppliersModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[100]">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-6xl h-[92vh] overflow-hidden flex flex-col shadow-2xl">
 
@@ -203,11 +196,8 @@
         const units = @json($units);
         let rowCount = 0;
         let currentCurrency = 'USD';
-        let currentRate = {
-            {
-                $setting - > exchange_rate ?? 1500
-            }
-        };
+        // نرخی ئاڵوگۆڕ لە خودی input ەکەوە دەخوێنرێتەوە (بێ Blade لەناو JS)
+        let currentRate = parseFloat(document.getElementById('exchange_rate_input').value) || 1500;
 
         function setCurrency(currency) {
             currentCurrency = currency;
@@ -301,12 +291,20 @@
             }
         }
 
+        function fmtMoney(v) {
+            const symbol = currentCurrency === 'USD' ? '$' : '';
+            const suffix = currentCurrency === 'IQD' ? ' IQD' : '';
+            return symbol + v.toLocaleString(undefined, {
+                minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0,
+                maximumFractionDigits: 2
+            }) + suffix;
+        }
+
         function calcTotal() {
             let total = 0;
             currentRate = parseFloat(document.getElementById('exchange_rate_input').value) || 1500;
 
-            const rows = document.querySelectorAll('#tableBody tr');
-            rows.forEach(row => {
+            document.querySelectorAll('#tableBody tr').forEach(row => {
                 const prodId = row.querySelector('.prod-select')?.value;
                 const unitId = row.querySelector('.unit-select')?.value;
                 const qty = parseFloat(row.querySelector('.qty-input')?.value) || 0;
@@ -315,24 +313,12 @@
                 const factor = getUnitFactor(unitId, prodId);
                 const sub = qty * (pricePerBase * factor);
 
-                const symbol = currentCurrency === 'USD' ? '$' : '';
-                const suffix = currentCurrency === 'IQD' ? ' IQD' : '';
-
-                if (row.querySelector('.row-total')) {
-                    row.querySelector('.row-total').innerText = symbol + sub.toLocaleString(undefined, {
-                        minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0,
-                        maximumFractionDigits: 2
-                    }) + suffix;
-                }
+                const cell = row.querySelector('.row-total');
+                if (cell) cell.innerText = fmtMoney(sub);
                 total += sub;
             });
 
-            const symbol = currentCurrency === 'USD' ? '$' : '';
-            const suffix = currentCurrency === 'IQD' ? ' IQD' : '';
-            document.getElementById('grandTotal').innerText = symbol + total.toLocaleString(undefined, {
-                minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0,
-                maximumFractionDigits: 2
-            }) + suffix;
+            document.getElementById('grandTotal').innerText = fmtMoney(total);
             return total;
         }
 
@@ -378,9 +364,7 @@
 
         addRow();
 
-        // ============================================
         // مۆداڵی دابینکەران
-        // ============================================
         function openSuppliersModal() {
             const modal = document.getElementById('suppliersModal');
             const iframe = document.getElementById('suppliersIframe');
@@ -390,40 +374,32 @@
             loading.classList.remove('hidden');
             iframe.classList.add('hidden');
 
-            iframe.src = '{{ route("suppliers.index") }}?embedded=1';
+            iframe.src = @json(route('suppliers.index')) + '?embedded=1';
         }
 
         function closeSuppliersModal() {
-            const modal = document.getElementById('suppliersModal');
-            const iframe = document.getElementById('suppliersIframe');
-
-            modal.classList.add('hidden');
-            iframe.src = '';
+            document.getElementById('suppliersModal').classList.add('hidden');
+            document.getElementById('suppliersIframe').src = '';
         }
 
         function refreshSuppliersIframe() {
             const iframe = document.getElementById('suppliersIframe');
-            const loading = document.getElementById('suppliersLoading');
-
-            loading.classList.remove('hidden');
+            document.getElementById('suppliersLoading').classList.remove('hidden');
             iframe.classList.add('hidden');
             iframe.src = iframe.src;
         }
 
         function hideSuppliersLoading() {
-            const loading = document.getElementById('suppliersLoading');
             const iframe = document.getElementById('suppliersIframe');
-
-            loading.classList.add('hidden');
+            if (!iframe.getAttribute('src')) return;
+            document.getElementById('suppliersLoading').classList.add('hidden');
             iframe.classList.remove('hidden');
         }
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 const modal = document.getElementById('suppliersModal');
-                if (modal && !modal.classList.contains('hidden')) {
-                    closeSuppliersModal();
-                }
+                if (modal && !modal.classList.contains('hidden')) closeSuppliersModal();
             }
         });
     </script>
