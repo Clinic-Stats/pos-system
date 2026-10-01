@@ -27,28 +27,49 @@
             </div>
         @endif
 
-        <form action="{{ route('login.post') }}" method="POST" class="space-y-4 text-xs">
+        <form action="{{ route('login.post') }}" method="POST" class="space-y-4 text-xs" autocomplete="off">
             @csrf
             
             <div>
                 <label class="block font-bold text-slate-300 mb-1.5">ناوی بەکارهێنەر:</label>
                 <div class="relative">
-                    <input type="text" name="name" value="{{ old('name') }}" required autofocus placeholder="ناوی کارمەند" class="w-full p-3 bg-[#0b1329] border border-slate-700 rounded-xl text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                    <input type="text" 
+                           name="name" 
+                           value="{{ old('name') }}" 
+                           required 
+                           autofocus 
+                           placeholder="ناوی کارمەند" 
+                           autocomplete="off" 
+                           autocorrect="off" 
+                           autocapitalize="off" 
+                           spellcheck="false"
+                           class="w-full p-3 bg-[#0b1329] border border-slate-700 rounded-xl text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500">
                 </div>
             </div>
 
             <div>
                 <label class="block font-bold text-slate-300 mb-1.5">وشەی نهێنی (Password):</label>
                 <div class="relative">
-                    <input type="password" name="password" required placeholder="••••••••" class="w-full p-3 bg-[#0b1329] border border-slate-700 rounded-xl text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                    <input type="password" 
+                           name="password" 
+                           id="passwordField"
+                           required 
+                           placeholder="••••••••" 
+                           autocomplete="new-password"
+                           autocorrect="off" 
+                           autocapitalize="off" 
+                           spellcheck="false"
+                           class="w-full p-3 pl-11 bg-[#0b1329] border border-slate-700 rounded-xl text-white font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                    
+                    <!-- دوگمەی پیشاندانی پاسۆرد -->
+                    <button type="button" 
+                            onclick="togglePasswordVisibility()" 
+                            id="togglePasswordBtn"
+                            class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-400 transition-colors p-1"
+                            title="پیشاندانی پاسۆرد">
+                        <i id="eyeIcon" class="fa-solid fa-eye text-sm"></i>
+                    </button>
                 </div>
-            </div>
-
-            <div class="flex items-center justify-between pt-1">
-                <label class="flex items-center gap-2 cursor-pointer text-slate-400 text-xs">
-                    <input type="checkbox" name="remember" class="rounded bg-slate-800 border-slate-700 text-blue-600">
-                    لەبیرم مەبە
-                </label>
             </div>
 
             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition text-sm shadow-lg shadow-blue-600/30">
@@ -57,6 +78,30 @@
         </form>
 
     </div>
+
+    <script>
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('passwordField');
+            const eyeIcon = document.getElementById('eyeIcon');
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            
+            if (passwordField.type === 'password') {
+                // پیشاندانی پاسۆرد
+                passwordField.type = 'text';
+                eyeIcon.className = 'fa-solid fa-eye-slash text-sm';
+                toggleBtn.title = 'شاردنەوەی پاسۆرد';
+                toggleBtn.classList.add('text-blue-400');
+                toggleBtn.classList.remove('text-slate-500');
+            } else {
+                // شاردنەوەی پاسۆرد
+                passwordField.type = 'password';
+                eyeIcon.className = 'fa-solid fa-eye text-sm';
+                toggleBtn.title = 'پیشاندانی پاسۆرد';
+                toggleBtn.classList.remove('text-blue-400');
+                toggleBtn.classList.add('text-slate-500');
+            }
+        }
+    </script>
 
 </body>
 </html>

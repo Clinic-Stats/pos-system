@@ -349,6 +349,7 @@
                         <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl blur opacity-30 group-focus-within:opacity-70 transition duration-300"></div>
                         <div class="relative">
                             <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بۆ کاڵا..." 
+                                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                                    class="w-full pl-11 pr-16 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-purple-500 text-slate-800 dark:text-white text-xs transition-all shadow-sm font-bold">
                             <div class="absolute left-2 top-2 w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
                                 <i class="fa-solid fa-magnifying-glass text-white text-xs"></i>
@@ -474,6 +475,7 @@
                         </div>
                         <div class="flex items-center gap-1">
                             <input type="number" id="exchangeRate" value="<?php echo $setting->exchange_rate ?? 1500; ?>" onchange="renderCart(false)" 
+                                   autocomplete="off"
                                    class="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-[10px] font-num font-black text-center focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30">
                         </div>
                     </div>
@@ -482,6 +484,7 @@
                         <div class="relative flex-1">
                             <i class="fa-regular fa-calendar absolute left-3 top-2.5 text-purple-500 text-[10px]"></i>
                             <input type="datetime-local" id="saleCreatedAt" value="<?php echo date('Y-m-d\TH:i'); ?>" 
+                                   autocomplete="off"
                                    class="w-full pl-8 pr-2 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-num font-bold focus:outline-none focus:border-purple-500">
                         </div>
                         <div class="relative flex-1">
@@ -509,6 +512,7 @@
 
                     <div id="paidAmountBox" class="hidden">
                         <input type="number" id="paidAmount" placeholder="بڕی پارەی دراو" value="0" min="0" 
+                               autocomplete="off"
                                class="w-full p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 text-[11px] font-num font-black focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20">
                     </div>
                 </div>
@@ -529,6 +533,7 @@
                             <i class="fa-solid fa-percent text-amber-500 text-[10px]"></i> داشکاندن:
                         </span>
                         <input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart(false)" 
+                               autocomplete="off"
                                class="w-20 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg text-amber-600 dark:text-amber-400 font-num font-black text-left text-[10px] focus:outline-none border border-slate-200 dark:border-slate-700 focus:border-purple-500">
                     </div>
                     <div class="flex justify-between items-end pt-1.5 pb-1 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 px-2.5 py-2 rounded-xl border border-emerald-200/50 dark:border-emerald-800/30">
@@ -615,6 +620,7 @@
                 </label>
                 <div class="flex items-center gap-1">
                     <input type="number" id="newExchangeRate" value="{{ $setting->exchange_rate ?? 1500 }}" min="1" step="any"
+                           autocomplete="off"
                            class="w-full text-amber-900 font-black font-mono text-xs p-1.5 rounded-lg text-center focus:outline-none">
                     <button type="button" onclick="saveExchangeRate()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-1.5 rounded-lg transition-colors shadow-md">
                         <i class="fa-solid fa-check text-[10px]"></i>
@@ -770,9 +776,6 @@
             return parseFloat(unit?.factor_to_base) || 1;
         }
 
-        // ============================================
-        // ئەنیمەیشنی جوڵان بۆ سەبەتە
-        // ============================================
         function animateFly(startX, startY, endX, endY, text, colorClass) {
             const flyEl = document.createElement('div');
             flyEl.className = `fixed z-[9999] flex items-center justify-center w-8 h-8 rounded-full text-white text-[12px] font-black shadow-2xl ${colorClass}`;
@@ -800,13 +803,9 @@
             setTimeout(() => { flyEl.remove(); }, 800);
         }
 
-        // ============================================
-        // addToCart — ئێستا true/false دەگەڕێنێتەوە
-        // ============================================
         function addToCart(p) {
             const stock = parseFloat(p.stock_kg !== undefined ? p.stock_kg : (p.stock || 0));
             
-            // ئەگەر کاڵاکە نەماوە، هیچ مەکە
             if (stock <= 0) { 
                 showToast('نەماوە!', 'error'); 
                 return false; 
@@ -823,7 +822,6 @@
                 const cFactor = getUnitFactor(p, u);
                 const max = cFactor > 0 ? (stock / cFactor) : stock;
                 
-                // ئەگەر گەیشتووەتە ئەوپەڕی، هیچ مەکە
                 if (cart[idx].qty >= max) { 
                     showToast('تەواو بوو!'); 
                     return false; 
@@ -844,9 +842,6 @@
             return true;
         }
 
-        // ============================================
-        // quickIncrease — تەنها ئەگەر سەرکەوتوو بوو ئەنیمەیشن
-        // ============================================
         function quickIncrease(p, event) { 
             event.stopPropagation(); 
             
@@ -874,9 +869,6 @@
             }
         }
 
-        // ============================================
-        // quickDecrease
-        // ============================================
         function quickDecrease(productId, event) {
             event.stopPropagation();
             let idx = cart.findIndex(i => i.id === productId);
@@ -1011,12 +1003,14 @@
                         <div class="col-span-4 border-r border-purple-200/40 dark:border-purple-500/20">
                             <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? item.price_usd.toFixed(2) : item.price_usd}" 
                                    onchange="updateItemPrice(${idx}, this.value)" 
+                                   autocomplete="off"
                                    class="w-full bg-transparent text-center text-[10px] font-black font-num focus:outline-none text-emerald-600 dark:text-emerald-400">
                         </div>
                         <div class="col-span-4 flex items-center justify-between px-0.5 border-r border-purple-200/40 dark:border-purple-500/20">
                             <button type="button" onclick="updateQty(${idx}, 1)" class="w-5 h-5 rounded-md bg-gradient-to-br from-purple-500 to-pink-600 text-white font-black text-[10px] flex items-center justify-center active:scale-90 transition-transform shadow-sm">+</button>
                             <input type="number" step="any" min="0.01" value="${item.qty}" 
                                    onchange="setQtyDirect(${idx}, this.value)" 
+                                   autocomplete="off"
                                    class="w-7 text-center bg-transparent font-num text-purple-600 dark:text-purple-400 text-[11px] font-black focus:outline-none p-0">
                             <button type="button" onclick="updateQty(${idx}, -1)" class="w-5 h-5 rounded-md bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-black text-[10px] flex items-center justify-center active:scale-90 transition-transform">-</button>
                         </div>
@@ -1111,12 +1105,14 @@
                     <div class="w-1/3 font-black truncate text-slate-800 dark:text-white">${item.name}</div>
                     <div class="w-1/4 flex items-center gap-1">
                         <input type="number" step="any" min="0.01" value="${item.qty}" onchange="updateModalQty(${index}, this.value)" 
+                               autocomplete="off"
                                class="w-12 bg-white dark:bg-slate-900 text-center font-num font-bold border border-slate-300 dark:border-slate-600 rounded-lg p-1 text-xs">
                         <span class="text-[10px] text-slate-400 font-bold">${u ? u.name : ''}</span>
                     </div>
                     <div class="w-1/4">
                         <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? item.price_usd.toFixed(2) : item.price_usd}" 
                                onchange="updateModalPrice(${index}, this.value)" 
+                               autocomplete="off"
                                class="w-20 bg-white dark:bg-slate-900 text-center font-num border border-slate-300 dark:border-slate-600 rounded-lg p-1 text-xs text-emerald-500 font-black">
                     </div>
                     <div class="w-1/6 text-left font-num font-black text-emerald-600 dark:text-emerald-400" dir="ltr">${currentCurrency === 'USD' ? '$' + lineTotal.toFixed(2) : Math.round(lineTotal).toLocaleString()}</div>
@@ -1150,9 +1146,6 @@
             document.getElementById('successModal').classList.add('hidden');
         }
 
-        // ============================================
-        // ویجێتی نرخی ئاڵوگۆڕ
-        // ============================================
         function toggleRateEdit() {
             const display = document.getElementById('rateDisplay');
             const edit = document.getElementById('rateEdit');
