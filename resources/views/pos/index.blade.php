@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ckb" dir="rtl" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,10 +12,26 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
-                        neon: { purple: '#a855f7', pink: '#ec4899', cyan: '#06b6d4', emerald: '#10b981' }
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81'
+                        },
+                        neon: {
+                            purple: '#a855f7',
+                            pink: '#ec4899',
+                            cyan: '#06b6d4',
+                            emerald: '#10b981'
+                        }
                     },
-                    fontFamily: { sans: ['Almarai', 'sans-serif'], num: ['Plus Jakarta Sans', 'sans-serif'] },
+                    fontFamily: {
+                        sans: ['Almarai', 'sans-serif'],
+                        num: ['Plus Jakarta Sans', 'sans-serif']
+                    },
                     animation: {
                         'fade-in': 'fadeIn 0.4s ease-out',
                         'slide-up': 'slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
@@ -28,14 +45,74 @@
                         'wiggle': 'wiggle 1s ease-in-out infinite'
                     },
                     keyframes: {
-                        fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
-                        slideUp: { '0%': { transform: 'translateY(30px)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
-                        scaleIn: { '0%': { transform: 'scale(0.85)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } },
-                        shimmer: { '0%': { backgroundPosition: '-1000px 0' }, '100%': { backgroundPosition: '1000px 0' } },
-                        gradientX: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
-                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-15px)' } },
-                        glowPulse: { '0%, 100%': { boxShadow: '0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.2)' }, '50%': { boxShadow: '0 0 40px rgba(168, 85, 247, 0.8), 0 0 80px rgba(168, 85, 247, 0.4)' } },
-                        wiggle: { '0%, 100%': { transform: 'rotate(-3deg)' }, '50%': { transform: 'rotate(3deg)' } }
+                        fadeIn: {
+                            '0%': {
+                                opacity: 0
+                            },
+                            '100%': {
+                                opacity: 1
+                            }
+                        },
+                        slideUp: {
+                            '0%': {
+                                transform: 'translateY(30px)',
+                                opacity: 0
+                            },
+                            '100%': {
+                                transform: 'translateY(0)',
+                                opacity: 1
+                            }
+                        },
+                        scaleIn: {
+                            '0%': {
+                                transform: 'scale(0.85)',
+                                opacity: 0
+                            },
+                            '100%': {
+                                transform: 'scale(1)',
+                                opacity: 1
+                            }
+                        },
+                        shimmer: {
+                            '0%': {
+                                backgroundPosition: '-1000px 0'
+                            },
+                            '100%': {
+                                backgroundPosition: '1000px 0'
+                            }
+                        },
+                        gradientX: {
+                            '0%, 100%': {
+                                backgroundPosition: '0% 50%'
+                            },
+                            '50%': {
+                                backgroundPosition: '100% 50%'
+                            }
+                        },
+                        float: {
+                            '0%, 100%': {
+                                transform: 'translateY(0px)'
+                            },
+                            '50%': {
+                                transform: 'translateY(-15px)'
+                            }
+                        },
+                        glowPulse: {
+                            '0%, 100%': {
+                                boxShadow: '0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.2)'
+                            },
+                            '50%': {
+                                boxShadow: '0 0 40px rgba(168, 85, 247, 0.8), 0 0 80px rgba(168, 85, 247, 0.4)'
+                            }
+                        },
+                        wiggle: {
+                            '0%, 100%': {
+                                transform: 'rotate(-3deg)'
+                            },
+                            '50%': {
+                                transform: 'rotate(3deg)'
+                            }
+                        }
                     }
                 }
             }
@@ -43,24 +120,30 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style> 
-        body { font-family: 'Almarai', sans-serif; }
-        .font-num { font-family: 'Plus Jakarta Sans', sans-serif; }
-        
-        body { 
+    <style>
+        body {
+            font-family: 'Almarai', sans-serif;
+        }
+
+        .font-num {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
             background: linear-gradient(-45deg, #f8fafc, #e0e7ff, #fce7f3, #cffafe, #f8fafc);
             background-size: 400% 400%;
             animation: gradientX 15s ease infinite;
         }
-        .dark body { 
+
+        .dark body {
             background: #050810;
-            background-image: 
+            background-image:
                 radial-gradient(ellipse at 20% 10%, rgba(168, 85, 247, 0.25), transparent 50%),
                 radial-gradient(ellipse at 80% 90%, rgba(6, 182, 212, 0.2), transparent 50%),
                 radial-gradient(ellipse at 50% 50%, rgba(236, 72, 153, 0.15), transparent 60%),
                 radial-gradient(ellipse at 90% 20%, rgba(16, 185, 129, 0.15), transparent 50%);
         }
-        
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(30px) saturate(200%);
@@ -68,22 +151,48 @@
             border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
+
         .dark .glass-panel {
             background: rgba(10, 15, 30, 0.6);
             border: 1px solid rgba(168, 85, 247, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 60px rgba(168, 85, 247, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #a855f7, #ec4899); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #9333ea, #db2777); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .btn-press { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-press:active { transform: scale(0.94); }
-        
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #a855f7, #ec4899);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #9333ea, #db2777);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .btn-press {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-press:active {
+            transform: scale(0.94);
+        }
+
         .nav-btn {
             position: relative;
             display: flex;
@@ -101,6 +210,7 @@
             white-space: nowrap;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
+
         .nav-btn::after {
             content: '';
             position: absolute;
@@ -110,84 +220,139 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-        .nav-btn:hover::after { opacity: 1; }
+
+        .nav-btn:hover::after {
+            opacity: 1;
+        }
+
         .nav-btn:hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 12px 24px rgba(168, 85, 247, 0.2);
             border-color: rgba(168, 85, 247, 0.4);
             color: #9333ea;
         }
+
         .dark .nav-btn {
             background: rgba(20, 25, 45, 0.8);
             color: #cbd5e1;
             border-color: rgba(168, 85, 247, 0.15);
         }
+
         .dark .nav-btn:hover {
             background: rgba(168, 85, 247, 0.12);
             border-color: rgba(168, 85, 247, 0.5);
             color: #d8b4fe;
             box-shadow: 0 12px 24px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2);
         }
-        
+
         .product-card {
             position: relative;
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             overflow: hidden;
             isolation: isolate;
         }
-        .product-card:hover { transform: translateY(-6px) scale(1.03); }
+
+        .product-card:hover {
+            transform: translateY(-6px) scale(1.03);
+        }
+
         .dark .product-card:hover {
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(168, 85, 247, 0.3), 0 0 60px rgba(236, 72, 153, 0.15);
         }
-        
+
         .gradient-btn-emerald {
             background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
             background-size: 200% 200%;
             box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
             animation: gradientX 4s ease infinite;
         }
+
         .gradient-btn-emerald:hover {
             box-shadow: 0 12px 30px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
-        
+
         .gradient-btn-brand {
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
             background-size: 200% 200%;
             box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
             animation: gradientX 4s ease infinite;
         }
+
         .gradient-btn-brand:hover {
             box-shadow: 0 12px 30px rgba(168, 85, 247, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
-        
+
         @keyframes colorShift {
-            0%   { background: linear-gradient(135deg, #f59e0b, #ea580c, #dc2626); box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 8px 20px rgba(0,0,0,0.3); }
-            25%  { background: linear-gradient(135deg, #10b981, #059669, #047857); box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 8px 20px rgba(0,0,0,0.3); }
-            50%  { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 8px 20px rgba(0,0,0,0.3); }
-            75%  { background: linear-gradient(135deg, #06b6d4, #0ea5e9, #3b82f6); box-shadow: 0 0 20px rgba(6, 182, 212, 0.6), 0 8px 20px rgba(0,0,0,0.3); }
-            100% { background: linear-gradient(135deg, #f59e0b, #ea580c, #dc2626); box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 8px 20px rgba(0,0,0,0.3); }
+            0% {
+                background: linear-gradient(135deg, #f59e0b, #ea580c, #dc2626);
+                box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 8px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            25% {
+                background: linear-gradient(135deg, #10b981, #059669, #047857);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 8px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            50% {
+                background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+                box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 8px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            75% {
+                background: linear-gradient(135deg, #06b6d4, #0ea5e9, #3b82f6);
+                box-shadow: 0 0 20px rgba(6, 182, 212, 0.6), 0 8px 20px rgba(0, 0, 0, 0.3);
+            }
+
+            100% {
+                background: linear-gradient(135deg, #f59e0b, #ea580c, #dc2626);
+                box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), 0 8px 20px rgba(0, 0, 0, 0.3);
+            }
         }
+
         @keyframes iconSpin {
-            0%, 100% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(15deg) scale(1.15); }
+
+            0%,
+            100% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(15deg) scale(1.15);
+            }
         }
+
         @keyframes iconFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-3px); }
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-3px);
+            }
         }
-        #exchangeRateWidget > div:first-child {
+
+        #exchangeRateWidget>div:first-child {
             animation: colorShift 10s ease-in-out infinite;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        #exchangeRateWidget:hover > div:first-child { transform: scale(1.08); }
-        #exchangeRateWidget #rateIcon { animation: iconSpin 4s ease-in-out infinite, iconFloat 2s ease-in-out infinite; }
+
+        #exchangeRateWidget:hover>div:first-child {
+            transform: scale(1.08);
+        }
+
+        #exchangeRateWidget #rateIcon {
+            animation: iconSpin 4s ease-in-out infinite, iconFloat 2s ease-in-out infinite;
+        }
+
         #exchangeRateWidget #newExchangeRate {
             background: rgba(255, 255, 255, 0.95);
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        
+
         .bg-shape {
             position: fixed;
             border-radius: 50%;
@@ -197,18 +362,29 @@
             z-index: 0;
             animation: float 20s ease-in-out infinite;
         }
-        
+
         @keyframes slideInRight {
-            0% { transform: translateX(-30px) scale(0.95); opacity: 0; }
-            100% { transform: translateX(0) scale(1); opacity: 1; }
+            0% {
+                transform: translateX(-30px) scale(0.95);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
         }
-        .cart-item-enter { animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        
+
+        .cart-item-enter {
+            animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
         .cat-pill {
             position: relative;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             overflow: hidden;
         }
+
         .cat-pill::before {
             content: '';
             position: absolute;
@@ -219,18 +395,28 @@
             transition: opacity 0.3s;
             z-index: -1;
         }
-        .cat-pill:hover::before { opacity: 1; }
-        .cat-pill:hover { 
+
+        .cat-pill:hover::before {
+            opacity: 1;
+        }
+
+        .cat-pill:hover {
             transform: translateY(-2px) scale(1.05);
             color: white;
             border-color: transparent;
             box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
         }
-        
+
         input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type="number"] { -moz-appearance: textfield; }
-        
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
         @media (max-width: 768px) {
             #exchangeRateWidget {
                 top: 70px !important;
@@ -241,6 +427,7 @@
         }
     </style>
 </head>
+
 <body class="text-slate-800 dark:text-slate-100 h-screen p-1 md:p-2 overflow-hidden select-none transition-colors duration-500 flex flex-col">
 
     <div class="bg-shape" style="width:500px;height:500px;background:radial-gradient(circle, #a855f7, transparent);top:-150px;right:-100px;"></div>
@@ -249,7 +436,7 @@
     <div class="bg-shape" style="width:300px;height:300px;background:radial-gradient(circle, #10b981, transparent);top:20%;left:20%;animation-delay:-4s;"></div>
 
     <header class="glass-panel px-3 py-2.5 rounded-3xl mb-2 flex flex-col md:flex-row items-center justify-between shadow-2xl z-[100] shrink-0 gap-2 relative">
-        
+
         <div class="flex items-center justify-between w-full md:w-auto gap-3">
             <div class="flex items-center gap-3 shrink-0">
                 <div class="relative group">
@@ -312,7 +499,7 @@
             <button type="button" onclick="toggleTheme()" class="btn-press relative w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/40 hover:shadow-xl hover:shadow-amber-500/60 transition-all">
                 <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
             </button>
-            
+
             <div class="flex items-center gap-2.5 bg-white/70 dark:bg-slate-900/70 backdrop-blur px-3 py-1.5 rounded-2xl border border-slate-200/80 dark:border-purple-500/20 shadow-sm">
                 <div class="relative">
                     <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl blur opacity-60"></div>
@@ -339,105 +526,105 @@
     </header>
 
     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2 h-full overflow-hidden relative z-0">
-        
+
         <div class="lg:col-span-9 glass-panel rounded-3xl p-3 flex flex-col h-[55vh] lg:h-full overflow-hidden relative">
-            
+
             <div class="shrink-0 space-y-2.5 pb-2.5 border-b border-slate-200/60 dark:border-purple-500/10">
                 <div class="flex justify-between items-center gap-2.5">
-                    
+
                     <div class="w-full md:w-96 relative group">
                         <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl blur opacity-30 group-focus-within:opacity-70 transition duration-300"></div>
                         <div class="relative">
-                            <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بۆ کاڵا..." 
-                                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                   class="w-full pl-11 pr-16 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-purple-500 text-slate-800 dark:text-white text-xs transition-all shadow-sm font-bold">
+                            <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بۆ کاڵا..."
+                                autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                class="w-full pl-11 pr-16 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-purple-500 text-slate-800 dark:text-white text-xs transition-all shadow-sm font-bold">
                             <div class="absolute left-2 top-2 w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
                                 <i class="fa-solid fa-magnifying-glass text-white text-xs"></i>
                             </div>
                             <kbd class="absolute right-3 top-3 text-[9px] font-black text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hidden md:block">Ctrl+K</kbd>
                         </div>
                     </div>
-                    
+
                     <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full md:w-auto">
-                        <button type="button" onclick="filterCategory('all')" id="cat-btn-all" 
-                                class="cat-filter-btn cat-pill btn-press bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 text-white px-4 py-2.5 rounded-2xl text-[10px] font-black whitespace-nowrap shadow-lg shadow-purple-500/40">
+                        <button type="button" onclick="filterCategory('all')" id="cat-btn-all"
+                            class="cat-filter-btn cat-pill btn-press bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 text-white px-4 py-2.5 rounded-2xl text-[10px] font-black whitespace-nowrap shadow-lg shadow-purple-500/40">
                             <i class="fa-solid fa-star text-[9px]"></i> هەمووی
                         </button>
-                        <?php foreach($categories as $cat): ?>
-                        <button type="button" onclick="filterCategory('<?php echo $cat->id; ?>')" id="cat-btn-<?php echo $cat->id; ?>" 
+                        <?php foreach ($categories as $cat): ?>
+                            <button type="button" onclick="filterCategory('<?php echo $cat->id; ?>')" id="cat-btn-<?php echo $cat->id; ?>"
                                 class="cat-filter-btn cat-pill btn-press bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 px-4 py-2.5 rounded-2xl text-[10px] font-black whitespace-nowrap border border-slate-200 dark:border-slate-700">
-                            <?php echo $cat->name; ?>
-                        </button>
+                                <?php echo $cat->name; ?>
+                            </button>
                         <?php endforeach; ?>
                     </div>
                 </div>
             </div>
 
             <div class="grow overflow-y-auto pt-3 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2.5 content-start" id="productsGrid">
-                <?php foreach($products as $p): ?>
-                <?php
+                <?php foreach ($products as $p): ?>
+                    <?php
                     $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
                     $alertVal = (float) ($p->alert_quantity ?? 5);
                     $isOut = $stockVal <= 0;
                     $isLow = !$isOut && $stockVal <= $alertVal;
-                ?>
-                <div class="product-card group relative bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border <?php echo $isOut ? 'border-rose-300/60 dark:border-rose-500/40' : ($isLow ? 'border-amber-300/60 dark:border-amber-500/40' : 'border-slate-200/80 dark:border-purple-500/20'); ?> rounded-2xl p-2.5 flex flex-col justify-between shadow-lg hover:shadow-2xl transition-all duration-300 <?php echo $isOut ? 'opacity-60' : ''; ?>"
-                     data-category="<?php echo $p->category_id; ?>" 
-                     data-name="<?php echo htmlspecialchars($p->name, ENT_QUOTES, 'UTF-8'); ?>" 
-                     data-code="<?php echo htmlspecialchars($p->code, ENT_QUOTES, 'UTF-8'); ?>"
-                     data-price-usd="<?php echo $p->base_sale_price; ?>">
-                    
-                    <div id="qty-badge-<?php echo $p->id; ?>" class="qty-badge hidden absolute -top-2 -left-2 bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600 text-white font-num font-black text-[11px] px-2.5 py-1 rounded-full shadow-xl shadow-emerald-500/60 border-2 border-white dark:border-slate-900 z-20 transition-all duration-300 transform scale-0 flex items-center gap-1 pointer-events-none">
-                        <i class="fa-solid fa-check text-[8px]"></i> <span class="badge-val">0</span>
-                    </div>
+                    ?>
+                    <div class="product-card group relative bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border <?php echo $isOut ? 'border-rose-300/60 dark:border-rose-500/40' : ($isLow ? 'border-amber-300/60 dark:border-amber-500/40' : 'border-slate-200/80 dark:border-purple-500/20'); ?> rounded-2xl p-2.5 flex flex-col justify-between shadow-lg hover:shadow-2xl transition-all duration-300 <?php echo $isOut ? 'opacity-60' : ''; ?>"
+                        data-category="<?php echo $p->category_id; ?>"
+                        data-name="<?php echo htmlspecialchars($p->name, ENT_QUOTES, 'UTF-8'); ?>"
+                        data-code="<?php echo htmlspecialchars($p->code, ENT_QUOTES, 'UTF-8'); ?>"
+                        data-price-usd="<?php echo $p->base_sale_price; ?>">
 
-                    <div class="cursor-pointer" onclick="addToCart(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)">
-                        
-                        <div class="flex justify-between items-start mb-2 relative z-10">
-                            <span class="text-[8px] font-num font-black text-purple-600 dark:text-purple-300 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 px-2 py-1 rounded-lg border border-purple-200/50 dark:border-purple-700/50 shadow-sm"><?php echo $p->code; ?></span>
-                            <?php if($isOut): ?>
-                                <span class="text-[8px] font-black text-white bg-gradient-to-r from-rose-500 to-red-600 px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
-                                    <i class="fa-solid fa-xmark text-[7px]"></i> نەماوە
-                                </span>
-                            <?php elseif($isLow): ?>
-                                <span class="text-[8px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
-                                    <i class="fa-solid fa-triangle-exclamation text-[7px]"></i> کەمە
-                                </span>
-                            <?php endif; ?>
+                        <div id="qty-badge-<?php echo $p->id; ?>" class="qty-badge hidden absolute -top-3 -left-3 bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600 text-white font-num font-black text-[16px] px-3.5 py-1.5 rounded-full shadow-xl shadow-emerald-500/60 border-2 border-white dark:border-slate-900 z-20 transition-all duration-300 transform scale-0 flex items-center gap-1.5 pointer-events-none">
+                            <i class="fa-solid fa-check text-[12px]"></i> <span class="badge-val">0</span>
                         </div>
 
-                        <div class="text-center my-2 relative z-10">
-                            <h3 class="font-black text-slate-800 dark:text-white text-[11px] leading-tight mb-1.5 line-clamp-2"><?php echo $p->name; ?></h3>
-                            <div class="inline-flex items-center justify-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100/70 dark:bg-slate-800/70 border border-slate-200/50 dark:border-slate-700/50">
-                                <i class="fa-solid fa-cube text-[8px] <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-500'); ?>"></i>
-                                <span class="text-[9px] font-num font-black <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-600 dark:text-emerald-400'); ?>"><?php echo $stockVal; ?></span>
-                                <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold">کگ</span>
+                        <div class="cursor-pointer" onclick="addToCart(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)">
+
+                            <div class="flex justify-between items-start mb-2 relative z-10">
+                                <span class="text-[8px] font-num font-black text-purple-600 dark:text-purple-300 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 px-2 py-1 rounded-lg border border-purple-200/50 dark:border-purple-700/50 shadow-sm"><?php echo $p->code; ?></span>
+                                <?php if ($isOut): ?>
+                                    <span class="text-[8px] font-black text-white bg-gradient-to-r from-rose-500 to-red-600 px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
+                                        <i class="fa-solid fa-xmark text-[7px]"></i> نەماوە
+                                    </span>
+                                <?php elseif ($isLow): ?>
+                                    <span class="text-[8px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
+                                        <i class="fa-solid fa-triangle-exclamation text-[7px]"></i> کەمە
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+
+                            <div class="text-center my-2 relative z-10">
+                                <h3 class="font-black text-slate-800 dark:text-white text-[11px] leading-tight mb-1.5 line-clamp-2"><?php echo $p->name; ?></h3>
+                                <div class="inline-flex items-center justify-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100/70 dark:bg-slate-800/70 border border-slate-200/50 dark:border-slate-700/50">
+                                    <i class="fa-solid fa-cube text-[8px] <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-500'); ?>"></i>
+                                    <span class="text-[9px] font-num font-black <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-600 dark:text-emerald-400'); ?>"><?php echo $stockVal; ?></span>
+                                    <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold">کگ</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="mt-2 pt-2 border-t border-slate-200/70 dark:border-slate-700/40 flex items-center justify-between gap-1.5 relative z-10">
-                        <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, event)" 
+
+                        <div class="mt-2 pt-2 border-t border-slate-200/70 dark:border-slate-700/40 flex items-center justify-between gap-1.5 relative z-10">
+                            <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, event)"
                                 class="w-9 h-9 bg-gradient-to-br from-purple-500 via-purple-600 to-pink-600 hover:from-purple-600 hover:via-purple-700 hover:to-pink-700 text-white rounded-xl text-sm font-black flex items-center justify-center shadow-lg shadow-purple-500/40 hover:shadow-xl hover:shadow-purple-500/60 transition-all active:scale-90">
-                            <i class="fa-solid fa-plus text-[11px]"></i>
-                        </button>
-                        
-                        <div class="flex flex-col items-center">
-                            <span id="price-anim-<?php echo $p->id; ?>" class="text-[12px] font-black font-num bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent transition-all duration-200 inline-block" dir="ltr">$<?php echo number_format($p->base_sale_price, 2); ?></span>
-                        </div>
-                        
-                        <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>, event)" 
+                                <i class="fa-solid fa-plus text-[11px]"></i>
+                            </button>
+
+                            <div class="flex flex-col items-center">
+                                <span id="price-anim-<?php echo $p->id; ?>" class="text-[12px] font-black font-num bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent transition-all duration-200 inline-block" dir="ltr">$<?php echo number_format($p->base_sale_price, 2); ?></span>
+                            </div>
+
+                            <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>, event)"
                                 class="w-9 h-9 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 hover:from-rose-100 hover:to-rose-200 dark:hover:from-rose-900/40 dark:hover:to-rose-900/40 text-slate-600 dark:text-slate-300 hover:text-rose-600 rounded-xl text-sm font-black flex items-center justify-center transition-all active:scale-90 border border-slate-200 dark:border-slate-700">
-                            <i class="fa-solid fa-minus text-[11px]"></i>
-                        </button>
+                                <i class="fa-solid fa-minus text-[11px]"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
                 <?php endforeach; ?>
             </div>
         </div>
 
         <div class="lg:col-span-3 glass-panel rounded-3xl p-3 flex flex-col h-[40vh] lg:h-full overflow-hidden relative shadow-2xl">
-            
+
             <div class="shrink-0 pb-3 border-b border-slate-200/60 dark:border-purple-500/10">
                 <div class="flex justify-between items-center mb-2.5">
                     <h2 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
@@ -453,14 +640,14 @@
                             <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold">کاڵاکانی هەڵبژێردراو</span>
                         </div>
                     </h2>
-                    <button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" 
-                            class="btn-press bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-900/20 dark:to-red-900/20 text-rose-600 dark:text-rose-400 px-3 py-2 rounded-xl text-[9px] font-black border border-rose-200 dark:border-rose-800/50 hover:from-rose-100 hover:to-red-100 transition-all">
+                    <button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()"
+                        class="btn-press bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-900/20 dark:to-red-900/20 text-rose-600 dark:text-rose-400 px-3 py-2 rounded-xl text-[9px] font-black border border-rose-200 dark:border-rose-800/50 hover:from-rose-100 hover:to-red-100 transition-all">
                         <i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span>
                     </button>
                 </div>
 
                 <div class="bg-white/70 dark:bg-slate-900/60 p-2.5 rounded-2xl border border-slate-200/80 dark:border-purple-500/20 space-y-2 backdrop-blur">
-                    
+
                     <div class="flex items-center justify-between gap-1.5 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800/60 dark:to-slate-900/60 p-2 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
                         <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 flex items-center gap-1">
                             <i class="fa-solid fa-coins text-amber-500"></i> دراو:
@@ -474,24 +661,24 @@
                             </button>
                         </div>
                         <div class="flex items-center gap-1">
-                            <input type="number" id="exchangeRate" value="<?php echo $setting->exchange_rate ?? 1500; ?>" onchange="renderCart(false)" 
-                                   autocomplete="off"
-                                   class="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-[10px] font-num font-black text-center focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30">
+                            <input type="number" id="exchangeRate" value="<?php echo $setting->exchange_rate ?? 1500; ?>" onchange="renderCart(false)"
+                                autocomplete="off"
+                                class="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-[10px] font-num font-black text-center focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30">
                         </div>
                     </div>
 
                     <div class="flex gap-1.5">
                         <div class="relative flex-1">
                             <i class="fa-regular fa-calendar absolute left-3 top-2.5 text-purple-500 text-[10px]"></i>
-                            <input type="datetime-local" id="saleCreatedAt" value="<?php echo date('Y-m-d\TH:i'); ?>" 
-                                   autocomplete="off"
-                                   class="w-full pl-8 pr-2 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-num font-bold focus:outline-none focus:border-purple-500">
+                            <input type="datetime-local" id="saleCreatedAt" value="<?php echo date('Y-m-d\TH:i'); ?>"
+                                autocomplete="off"
+                                class="w-full pl-8 pr-2 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-num font-bold focus:outline-none focus:border-purple-500">
                         </div>
                         <div class="relative flex-1">
                             <i class="fa-solid fa-user absolute left-3 top-2.5 text-emerald-500 text-[10px]"></i>
                             <select id="customerId" class="w-full pl-8 pr-2 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-bold focus:outline-none focus:border-purple-500">
                                 <option value="">کڕیاری نەقد</option>
-                                <?php foreach($customers as $c): ?>
+                                <?php foreach ($customers as $c): ?>
                                     <option value="<?php echo $c->id; ?>"><?php echo $c->name; ?></option>
                                 <?php endforeach; ?>
                             </select>
@@ -511,9 +698,9 @@
                     </div>
 
                     <div id="paidAmountBox" class="hidden">
-                        <input type="number" id="paidAmount" placeholder="بڕی پارەی دراو" value="0" min="0" 
-                               autocomplete="off"
-                               class="w-full p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 text-[11px] font-num font-black focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20">
+                        <input type="number" id="paidAmount" placeholder="بڕی پارەی دراو" value="0" min="0"
+                            autocomplete="off"
+                            class="w-full p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 text-[11px] font-num font-black focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20">
                     </div>
                 </div>
             </div>
@@ -532,18 +719,18 @@
                         <span class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1.5">
                             <i class="fa-solid fa-percent text-amber-500 text-[10px]"></i> داشکاندن:
                         </span>
-                        <input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart(false)" 
-                               autocomplete="off"
-                               class="w-20 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg text-amber-600 dark:text-amber-400 font-num font-black text-left text-[10px] focus:outline-none border border-slate-200 dark:border-slate-700 focus:border-purple-500">
+                        <input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart(false)"
+                            autocomplete="off"
+                            class="w-20 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg text-amber-600 dark:text-amber-400 font-num font-black text-left text-[10px] focus:outline-none border border-slate-200 dark:border-slate-700 focus:border-purple-500">
                     </div>
                     <div class="flex justify-between items-end pt-1.5 pb-1 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 px-2.5 py-2 rounded-xl border border-emerald-200/50 dark:border-emerald-800/30">
                         <span class="font-black text-[12px] text-slate-800 dark:text-white">کۆی گشتی:</span>
                         <span id="grandTotalText" class="bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent font-num font-black text-xl" dir="ltr">0</span>
                     </div>
                 </div>
-                
-                <button type="button" onclick="submitSale()" id="btnSubmitSale" 
-                        class="btn-press w-full gradient-btn-emerald text-white font-black py-3.5 rounded-2xl text-[13px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-95 relative overflow-hidden group">
+
+                <button type="button" onclick="submitSale()" id="btnSubmitSale"
+                    class="btn-press w-full gradient-btn-emerald text-white font-black py-3.5 rounded-2xl text-[13px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-95 relative overflow-hidden group">
                     <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
                     <i class="fa-solid fa-paper-plane"></i> پسوولەکردن
                 </button>
@@ -553,7 +740,7 @@
 
     <div id="successModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-2 md:p-4 z-[999]">
         <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-6 text-right shadow-2xl flex flex-col max-h-[90vh] animate-scale-in border-2 border-purple-500/30 dark:border-purple-500/40 relative overflow-hidden">
-            
+
             <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="relative">
@@ -571,21 +758,21 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            
+
             <div class="grow overflow-y-auto py-4 custom-scrollbar space-y-2" id="modalItemsList"></div>
-            
+
             <div class="shrink-0 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
                 <div class="flex justify-between items-center px-4 py-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-900/20 dark:via-teal-900/20 dark:to-cyan-900/20 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800/50">
                     <span class="text-sm font-black text-slate-700 dark:text-slate-200">کۆی گشتی پارە:</span>
                     <span id="modalGrandTotal" class="text-emerald-500 text-xl font-num font-black" dir="ltr">0 IQD</span>
                 </div>
                 <div class="grid grid-cols-2 gap-2.5">
-                    <a href="#" id="printInvoiceBtn" target="_blank" 
-                       class="btn-press py-3.5 gradient-btn-emerald text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 shadow-lg">
+                    <a href="#" id="printInvoiceBtn" target="_blank"
+                        class="btn-press py-3.5 gradient-btn-emerald text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 shadow-lg">
                         <i class="fa-solid fa-print"></i> پرینتکردن
                     </a>
-                    <button type="button" onclick="returnToSameSale()" 
-                            class="btn-press py-3.5 gradient-btn-brand text-white rounded-2xl text-xs font-black active:scale-95 shadow-lg flex items-center justify-center gap-2">
+                    <button type="button" onclick="returnToSameSale()"
+                        class="btn-press py-3.5 gradient-btn-brand text-white rounded-2xl text-xs font-black active:scale-95 shadow-lg flex items-center justify-center gap-2">
                         <i class="fa-solid fa-rotate-right"></i> گەڕانەوە
                     </button>
                 </div>
@@ -620,8 +807,8 @@
                 </label>
                 <div class="flex items-center gap-1">
                     <input type="number" id="newExchangeRate" value="{{ $setting->exchange_rate ?? 1500 }}" min="1" step="any"
-                           autocomplete="off"
-                           class="w-full text-amber-900 font-black font-mono text-xs p-1.5 rounded-lg text-center focus:outline-none">
+                        autocomplete="off"
+                        class="w-full text-amber-900 font-black font-mono text-xs p-1.5 rounded-lg text-center focus:outline-none">
                     <button type="button" onclick="saveExchangeRate()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-1.5 rounded-lg transition-colors shadow-md">
                         <i class="fa-solid fa-check text-[10px]"></i>
                     </button>
@@ -647,7 +834,7 @@
         let isConfirmingClear = false;
         let lastSaleItems = [];
         let activeSaleId = null;
-        let currentCurrency = 'USD'; 
+        let currentCurrency = 'USD';
         let currentExchangeRate = <?php echo $setting->exchange_rate ?? 1500; ?>;
 
         document.addEventListener('click', function(event) {
@@ -663,19 +850,29 @@
             }
         });
 
-        function initTheme() { applyTheme(localStorage.getItem('pos_theme') || 'dark'); }
+        function initTheme() {
+            applyTheme(localStorage.getItem('pos_theme') || 'dark');
+        }
+
         function applyTheme(theme) {
             const icons = [document.getElementById('themeIcon'), document.getElementById('themeIconMobile')];
-            if (theme === 'dark') { 
-                document.documentElement.classList.add('dark'); 
-                icons.forEach(i => { if(i) i.className = 'fa-solid fa-moon text-sm'; }); 
-            } else { 
-                document.documentElement.classList.remove('dark'); 
-                icons.forEach(i => { if(i) i.className = 'fa-solid fa-sun text-sm'; }); 
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                icons.forEach(i => {
+                    if (i) i.className = 'fa-solid fa-moon text-sm';
+                });
+            } else {
+                document.documentElement.classList.remove('dark');
+                icons.forEach(i => {
+                    if (i) i.className = 'fa-solid fa-sun text-sm';
+                });
             }
             localStorage.setItem('pos_theme', theme);
         }
-        function toggleTheme() { applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark'); }
+
+        function toggleTheme() {
+            applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+        }
         initTheme();
 
         function showToast(message, type = 'warning') {
@@ -683,7 +880,7 @@
             const toast = document.createElement('div');
             let bgClass = 'bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 text-white';
             let icon = '<i class="fa-solid fa-circle-info"></i>';
-            
+
             if (type === 'error') {
                 bgClass = 'bg-gradient-to-r from-rose-500 to-red-600 text-white';
                 icon = '<i class="fa-solid fa-circle-exclamation"></i>';
@@ -691,14 +888,14 @@
                 bgClass = 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white';
                 icon = '<i class="fa-solid fa-circle-check"></i>';
             }
-            
+
             toast.className = `pointer-events-auto flex items-center gap-2.5 px-5 py-3 rounded-2xl ${bgClass} text-[11px] font-black shadow-2xl transition-all duration-500 transform -translate-y-10 opacity-0 backdrop-blur`;
             toast.innerHTML = `${icon}<span>${message}</span>`;
             container.appendChild(toast);
             setTimeout(() => toast.classList.remove('-translate-y-10', 'opacity-0'), 10);
-            setTimeout(() => { 
-                toast.classList.add('opacity-0', '-translate-y-10'); 
-                setTimeout(() => toast.remove(), 500); 
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-10');
+                setTimeout(() => toast.remove(), 500);
             }, 3000);
         }
 
@@ -706,7 +903,7 @@
             currentCurrency = currency;
             const btnIqd = document.getElementById('btn-cur-iqd');
             const btnUsd = document.getElementById('btn-cur-usd');
-            
+
             if (currency === 'USD') {
                 btnUsd.className = 'px-3 py-1.5 rounded-lg text-[10px] font-black bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/40 transition-all';
                 btnIqd.className = 'px-3 py-1.5 rounded-lg text-[10px] font-black bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all';
@@ -726,10 +923,10 @@
                 document.getElementById('clearCartLabel').innerText = 'دڵنیایت؟';
                 clearCartTimer = setTimeout(resetClearCartButton, 3000);
             } else {
-                clearTimeout(clearCartTimer); 
-                cart = []; 
+                clearTimeout(clearCartTimer);
+                cart = [];
                 document.getElementById('cartDiscount').value = 0;
-                renderCart(false); 
+                renderCart(false);
                 resetClearCartButton();
             }
         }
@@ -742,17 +939,17 @@
         }
 
         function filterCategory(catId) {
-            document.querySelectorAll('.cat-filter-btn').forEach(btn => { 
-                btn.classList.remove('bg-gradient-to-r', 'from-purple-500', 'via-pink-500', 'to-purple-500', 'text-white', 'shadow-lg', 'shadow-purple-500/40'); 
-                btn.classList.add('bg-white/80', 'dark:bg-slate-900/80', 'text-slate-600', 'dark:text-slate-300'); 
+            document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-gradient-to-r', 'from-purple-500', 'via-pink-500', 'to-purple-500', 'text-white', 'shadow-lg', 'shadow-purple-500/40');
+                btn.classList.add('bg-white/80', 'dark:bg-slate-900/80', 'text-slate-600', 'dark:text-slate-300');
             });
             const activeBtn = document.getElementById('cat-btn-' + catId);
-            if (activeBtn) { 
-                activeBtn.classList.add('bg-gradient-to-r', 'from-purple-500', 'via-pink-500', 'to-purple-500', 'text-white', 'shadow-lg', 'shadow-purple-500/40'); 
-                activeBtn.classList.remove('bg-white/80', 'dark:bg-slate-900/80', 'text-slate-600', 'dark:text-slate-300'); 
+            if (activeBtn) {
+                activeBtn.classList.add('bg-gradient-to-r', 'from-purple-500', 'via-pink-500', 'to-purple-500', 'text-white', 'shadow-lg', 'shadow-purple-500/40');
+                activeBtn.classList.remove('bg-white/80', 'dark:bg-slate-900/80', 'text-slate-600', 'dark:text-slate-300');
             }
-            document.querySelectorAll('.product-card').forEach(card => { 
-                card.style.display = (catId === 'all' || card.getAttribute('data-category') == catId) ? 'flex' : 'none'; 
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.style.display = (catId === 'all' || card.getAttribute('data-category') == catId) ? 'flex' : 'none';
             });
         }
 
@@ -779,92 +976,108 @@
         function animateFly(startX, startY, endX, endY, text, colorClass) {
             const flyEl = document.createElement('div');
             flyEl.className = `fixed z-[9999] flex items-center justify-center w-8 h-8 rounded-full text-white text-[12px] font-black shadow-2xl ${colorClass}`;
-            
+
             flyEl.style.transition = 'left 0.7s cubic-bezier(0.4, 0, 0.2, 1), top 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.7s ease, transform 0.7s ease';
             flyEl.innerText = text;
-            flyEl.style.left = startX + 'px'; 
+            flyEl.style.left = startX + 'px';
             flyEl.style.top = startY + 'px';
-            flyEl.style.opacity = '1'; 
-            flyEl.style.transform = 'scale(1)'; 
+            flyEl.style.opacity = '1';
+            flyEl.style.transform = 'scale(1)';
             flyEl.style.pointerEvents = 'none';
             flyEl.style.willChange = 'left, top, opacity, transform';
-            
-            document.body.appendChild(flyEl); 
-            
+
+            document.body.appendChild(flyEl);
+
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    flyEl.style.left = endX + 'px'; 
+                    flyEl.style.left = endX + 'px';
                     flyEl.style.top = endY + 'px';
-                    flyEl.style.opacity = '0.2'; 
+                    flyEl.style.opacity = '0.2';
                     flyEl.style.transform = 'scale(0.3)';
                 });
             });
-            
-            setTimeout(() => { flyEl.remove(); }, 800);
+
+            setTimeout(() => {
+                flyEl.remove();
+            }, 800);
         }
 
         function addToCart(p) {
             const stock = parseFloat(p.stock_kg !== undefined ? p.stock_kg : (p.stock || 0));
-            
-            if (stock <= 0) { 
-                showToast('نەماوە!', 'error'); 
-                return false; 
+
+            if (stock <= 0) {
+                showToast('نەماوە!', 'error');
+                return false;
             }
 
             const defaultUnitId = getDefaultUnitId();
-            const initialUnit = units.find(u => u.id == defaultUnitId) || units[0] || { id: 1, name: 'کیلۆ', factor_to_base: 1 };
+            const initialUnit = units.find(u => u.id == defaultUnitId) || units[0] || {
+                id: 1,
+                name: 'کیلۆ',
+                factor_to_base: 1
+            };
             const factor = getUnitFactor(p, initialUnit);
             const basePriceUsd = parseFloat(p.base_sale_price) || 0;
-            
+
             let idx = cart.findIndex(i => i.id === p.id);
             if (idx !== -1) {
                 const u = units.find(u => u.id == cart[idx].unit_id) || initialUnit;
                 const cFactor = getUnitFactor(p, u);
                 const max = cFactor > 0 ? (stock / cFactor) : stock;
-                
-                if (cart[idx].qty >= max) { 
-                    showToast('تەواو بوو!'); 
-                    return false; 
+
+                if (cart[idx].qty >= max) {
+                    showToast('تەواو بوو!');
+                    return false;
                 }
-                
-                if (cart[idx].qty + 1 > max) { 
-                    showToast('تەواو بوو!'); 
-                    cart[idx].qty = max; 
+
+                if (cart[idx].qty + 1 > max) {
+                    showToast('تەواو بوو!');
+                    cart[idx].qty = max;
                     renderCart(false);
                     return false;
-                } else { 
-                    cart[idx].qty++; 
+                } else {
+                    cart[idx].qty++;
                 }
             } else {
-                cart.push({ id: p.id, name: p.name, code: p.code, price_usd: basePriceUsd, stock_kg: stock, kg_per_carton: parseFloat(p.kg_per_carton)||1, qty: 1, unit_id: initialUnit.id, factor: factor });
+                cart.push({
+                    id: p.id,
+                    name: p.name,
+                    code: p.code,
+                    price_usd: basePriceUsd,
+                    stock_kg: stock,
+                    kg_per_carton: parseFloat(p.kg_per_carton) || 1,
+                    qty: 1,
+                    unit_id: initialUnit.id,
+                    factor: factor
+                });
             }
             renderCart(false);
             return true;
         }
 
-        function quickIncrease(p, event) { 
-            event.stopPropagation(); 
-            
+        function quickIncrease(p, event) {
+            event.stopPropagation();
+
             const success = addToCart(p);
-            
+
             if (success) {
                 const btnRect = event.currentTarget.getBoundingClientRect();
                 const cartIcon = document.getElementById('cartIconAnim');
-                if(cartIcon) {
+                if (cartIcon) {
                     const cartRect = cartIcon.getBoundingClientRect();
                     animateFly(
-                        btnRect.left + (btnRect.width / 2), 
-                        btnRect.top + (btnRect.height / 2), 
-                        cartRect.left + (cartRect.width / 2), 
-                        cartRect.top + (cartRect.height / 2), 
-                        '+1', 
+                        btnRect.left + (btnRect.width / 2),
+                        btnRect.top + (btnRect.height / 2),
+                        cartRect.left + (cartRect.width / 2),
+                        cartRect.top + (cartRect.height / 2),
+                        '+1',
                         'bg-gradient-to-br from-purple-500 to-pink-600'
                     );
                 }
                 let el = document.getElementById('price-anim-' + p.id);
-                if(el) { 
-                    el.classList.add('scale-125'); 
-                    setTimeout(() => el.classList.remove('scale-125'), 200); 
+                if (el) {
+                    el.classList.add('scale-125');
+                    setTimeout(() => el.classList.remove('scale-125'), 200);
                 }
             }
         }
@@ -873,87 +1086,97 @@
             event.stopPropagation();
             let idx = cart.findIndex(i => i.id === productId);
             if (idx !== -1) {
-                if (cart[idx].qty > 1) { 
-                    cart[idx].qty--; 
-                } else { 
-                    cart.splice(idx, 1); 
+                if (cart[idx].qty > 1) {
+                    cart[idx].qty--;
+                } else {
+                    cart.splice(idx, 1);
                 }
                 renderCart(false);
-                
+
                 const btnRect = event.currentTarget.getBoundingClientRect();
                 const cartIcon = document.getElementById('cartIconAnim');
-                if(cartIcon) {
+                if (cartIcon) {
                     const cartRect = cartIcon.getBoundingClientRect();
                     animateFly(
-                        cartRect.left + (cartRect.width / 2), 
-                        cartRect.top + (cartRect.height / 2), 
-                        btnRect.left + (btnRect.width / 2), 
-                        btnRect.top + (btnRect.height / 2), 
-                        '-1', 
+                        cartRect.left + (cartRect.width / 2),
+                        cartRect.top + (cartRect.height / 2),
+                        btnRect.left + (btnRect.width / 2),
+                        btnRect.top + (btnRect.height / 2),
+                        '-1',
                         'bg-gradient-to-br from-rose-500 to-red-600'
                     );
                 }
                 let el = document.getElementById('price-anim-' + productId);
-                if(el) { 
-                    el.classList.add('scale-75'); 
-                    setTimeout(() => el.classList.remove('scale-75'), 200); 
+                if (el) {
+                    el.classList.add('scale-75');
+                    setTimeout(() => el.classList.remove('scale-75'), 200);
                 }
             }
         }
 
-        function updateItemPrice(index, val) { cart[index].price_usd = parseFloat(val) || 0; renderCart(false); }
+        function updateItemPrice(index, val) {
+            cart[index].price_usd = parseFloat(val) || 0;
+            renderCart(false);
+        }
+
         function updateItemUnit(index, unitId) {
-            const i = cart[index]; 
+            const i = cart[index];
             const u = units.find(x => x.id == unitId);
-            i.unit_id = unitId; 
+            i.unit_id = unitId;
             i.factor = getUnitFactor(i, u);
             const max = i.factor > 0 ? (i.stock_kg / i.factor) : i.stock_kg;
             if (i.qty > max) i.qty = max;
             renderCart(false);
         }
+
         function updateQty(index, delta) {
-            const i = cart[index]; 
+            const i = cart[index];
             const max = i.factor > 0 ? (i.stock_kg / i.factor) : i.stock_kg;
             const n = i.qty + delta;
-            if (n > max) i.qty = max; 
-            else if (n <= 0) cart.splice(index, 1); 
+            if (n > max) i.qty = max;
+            else if (n <= 0) cart.splice(index, 1);
             else i.qty = n;
             renderCart(false);
         }
+
         function setQtyDirect(index, val) {
-            const i = cart[index]; 
+            const i = cart[index];
             const max = i.factor > 0 ? (i.stock_kg / i.factor) : i.stock_kg;
-            let num = parseFloat(val); 
+            let num = parseFloat(val);
             if (isNaN(num) || num <= 0) num = 1;
             i.qty = num > max ? max : num;
             renderCart(false);
         }
-        function removeItem(index) { cart.splice(index, 1); renderCart(false); }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            renderCart(false);
+        }
 
         function updateProductBadges() {
-            document.querySelectorAll('.qty-badge').forEach(badge => { 
-                badge.classList.add('hidden', 'scale-0'); 
-                badge.classList.remove('scale-100'); 
+            document.querySelectorAll('.qty-badge').forEach(badge => {
+                badge.classList.add('hidden', 'scale-0');
+                badge.classList.remove('scale-100');
             });
             cart.forEach(item => {
                 let badge = document.getElementById('qty-badge-' + item.id);
                 if (badge) {
                     let valSpan = badge.querySelector('.badge-val');
-                    if(valSpan) { 
-                        valSpan.innerText = item.qty % 1 === 0 ? item.qty : parseFloat(item.qty).toFixed(2); 
+                    if (valSpan) {
+                        valSpan.innerText = item.qty % 1 === 0 ? item.qty : parseFloat(item.qty).toFixed(2);
                     }
-                    badge.classList.remove('hidden', 'scale-0'); 
+                    badge.classList.remove('hidden', 'scale-0');
                     badge.classList.add('scale-100');
                 }
             });
         }
 
         function renderCart(shouldFocus = false) {
-            const container = document.getElementById('cartItemsContainer'); 
-            container.innerHTML = ''; 
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
             let subtotal = 0;
             currentExchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1500;
-            
+
             if (cart.length === 0) {
                 container.innerHTML = `
                     <div class="h-40 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 text-[10px] font-bold">
@@ -968,8 +1191,8 @@
                     </div>`;
                 document.getElementById('subTotalText').innerText = currentCurrency === 'USD' ? '$0.00' : '0';
                 document.getElementById('grandTotalText').innerText = currentCurrency === 'USD' ? '$0.00' : '0';
-                resetClearCartButton(); 
-                updateProductBadges(); 
+                resetClearCartButton();
+                updateProductBadges();
                 return;
             }
 
@@ -979,7 +1202,7 @@
                 subtotal += lineTotal;
                 const opts = units.map(u => `<option value="${u.id}" ${item.unit_id == u.id ? 'selected' : ''}>${u.name}</option>`).join('');
 
-                const div = document.createElement('div'); 
+                const div = document.createElement('div');
                 div.id = `cart-row-${idx}`;
                 div.className = 'cart-item-enter bg-gradient-to-br from-white via-purple-50/30 to-pink-50/30 dark:from-slate-900 dark:via-purple-950/20 dark:to-pink-950/20 border border-purple-200/60 dark:border-purple-500/30 rounded-2xl p-2.5 shadow-md hover:shadow-lg transition-all';
                 div.innerHTML = `
@@ -1020,7 +1243,7 @@
 
             const discount = parseFloat(document.getElementById('cartDiscount').value) || 0;
             const finalTotal = Math.max(0, subtotal - discount);
-            
+
             if (currentCurrency === 'USD') {
                 document.getElementById('subTotalText').innerText = '$' + subtotal.toFixed(2);
                 document.getElementById('grandTotalText').innerText = '$' + finalTotal.toFixed(2);
@@ -1033,56 +1256,74 @@
 
         function togglePaymentType() {
             const isDebt = document.querySelector('input[name="paymentType"]:checked').value === 'debt';
-            const selector = document.getElementById('paymentSelector'); 
+            const selector = document.getElementById('paymentSelector');
             const box = document.getElementById('paidAmountBox');
-            if (isDebt) { 
-                selector.style.transform = 'translateX(-100%)'; 
-                selector.className = 'absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg shadow-lg transition-all duration-300'; 
-                box.classList.remove('hidden'); 
-            } else { 
-                selector.style.transform = 'translateX(0)'; 
-                selector.className = 'absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg shadow-lg transition-all duration-300'; 
-                box.classList.add('hidden'); 
+            if (isDebt) {
+                selector.style.transform = 'translateX(-100%)';
+                selector.className = 'absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg shadow-lg transition-all duration-300';
+                box.classList.remove('hidden');
+            } else {
+                selector.style.transform = 'translateX(0)';
+                selector.className = 'absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg shadow-lg transition-all duration-300';
+                box.classList.add('hidden');
             }
         }
 
         function submitSale() {
-            if (cart.length === 0) { showToast('کاڵا نییە!', 'error'); return; }
+            if (cart.length === 0) {
+                showToast('کاڵا نییە!', 'error');
+                return;
+            }
             const isDebt = document.querySelector('input[name="paymentType"]:checked').value === 'debt';
             const customerId = document.getElementById('customerId').value;
-            if (isDebt && !customerId) { showToast('کڕیار دیاری بکە بۆ قەرز', 'error'); return; }
+            if (isDebt && !customerId) {
+                showToast('کڕیار دیاری بکە بۆ قەرز', 'error');
+                return;
+            }
 
-            const btn = document.getElementById('btnSubmitSale'); 
+            const btn = document.getElementById('btnSubmitSale');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> چاوەڕوان بە...';
             lastSaleItems = JSON.parse(JSON.stringify(cart));
 
             fetch('/sales', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '<?php echo csrf_token(); ?>', 'Accept': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '<?php echo csrf_token(); ?>',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({
-                    customer_id: customerId, payment_type: isDebt ? 'debt' : 'cash',
+                    customer_id: customerId,
+                    payment_type: isDebt ? 'debt' : 'cash',
                     paid_amount: isDebt ? parseFloat(document.getElementById('paidAmount').value) || 0 : null,
                     discount: parseFloat(document.getElementById('cartDiscount').value) || 0,
                     created_at: document.getElementById('saleCreatedAt').value,
                     currency: currentCurrency,
                     exchange_rate: parseFloat(document.getElementById('exchangeRate').value) || 1500,
-                    items: cart.map(i => ({ product_id: i.id, unit_id: i.unit_id, quantity: i.qty, base_price: i.price_usd }))
+                    items: cart.map(i => ({
+                        product_id: i.id,
+                        unit_id: i.unit_id,
+                        quantity: i.qty,
+                        base_price: i.price_usd
+                    }))
                 })
             }).then(res => res.json()).then(data => {
-                btn.disabled = false; 
+                btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> پسوولەکردن';
                 if (data.success) {
                     activeSaleId = data.sale_id;
                     document.getElementById('printInvoiceBtn').href = '/sales/print/'.concat(data.sale_id);
                     renderModalItems();
                     document.getElementById('successModal').classList.remove('hidden');
-                    cart = []; 
-                    document.getElementById('cartDiscount').value = 0; 
+                    cart = [];
+                    document.getElementById('cartDiscount').value = 0;
                     renderCart(false);
-                } else { showToast(data.error || 'هەڵە', 'error'); }
+                } else {
+                    showToast(data.error || 'هەڵە', 'error');
+                }
             }).catch(err => {
-                btn.disabled = false; 
+                btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> پسوولەکردن';
                 showToast('کێشەیەک ڕوویدا', 'error');
             });
@@ -1124,14 +1365,14 @@
         }
 
         function updateModalQty(index, val) {
-            let q = parseFloat(val); 
+            let q = parseFloat(val);
             if (isNaN(q) || q <= 0) q = 1;
-            lastSaleItems[index].qty = q; 
+            lastSaleItems[index].qty = q;
             renderModalItems();
         }
 
         function updateModalPrice(index, val) {
-            let p = parseFloat(val); 
+            let p = parseFloat(val);
             if (isNaN(p) || p < 0) p = 0;
             lastSaleItems[index].price_usd = currentCurrency === 'USD' ? p : p / currentExchangeRate;
             renderModalItems();
@@ -1149,7 +1390,7 @@
         function toggleRateEdit() {
             const display = document.getElementById('rateDisplay');
             const edit = document.getElementById('rateEdit');
-            
+
             if (edit.classList.contains('hidden')) {
                 display.classList.add('hidden');
                 edit.classList.remove('hidden');
@@ -1163,50 +1404,52 @@
                 edit.classList.add('hidden');
             }
         }
-        
+
         function saveExchangeRate() {
             const newRate = parseFloat(document.getElementById('newExchangeRate').value);
-            
+
             if (!newRate || newRate < 1) {
                 showToast('تکایە نرخێکی دروست بنووسە', 'error');
                 return;
             }
-            
+
             document.getElementById('rateSaving').classList.remove('hidden');
-            
+
             fetch('/update-exchange-rate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '<?php echo csrf_token(); ?>',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ exchange_rate: newRate })
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('rateSaving').classList.add('hidden');
-                
-                if (data.success) {
-                    document.getElementById('currentRateDisplay').innerText = `1$ = ${newRate.toLocaleString()}`;
-                    currentExchangeRate = newRate;
-                    
-                    const rateInput = document.getElementById('exchangeRate');
-                    if (rateInput) rateInput.value = newRate;
-                    
-                    renderCart(false);
-                    toggleRateEdit();
-                    showToast('نرخی ئاڵوگۆڕ نوێکرایەوە بۆ ' + newRate.toLocaleString(), 'success');
-                } else {
-                    showToast(data.message || 'هەڵەیەک ڕوویدا', 'error');
-                }
-            })
-            .catch(err => {
-                document.getElementById('rateSaving').classList.add('hidden');
-                showToast('کێشەیەک ڕوویدا', 'error');
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '<?php echo csrf_token(); ?>',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        exchange_rate: newRate
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('rateSaving').classList.add('hidden');
+
+                    if (data.success) {
+                        document.getElementById('currentRateDisplay').innerText = `1$ = ${newRate.toLocaleString()}`;
+                        currentExchangeRate = newRate;
+
+                        const rateInput = document.getElementById('exchangeRate');
+                        if (rateInput) rateInput.value = newRate;
+
+                        renderCart(false);
+                        toggleRateEdit();
+                        showToast('نرخی ئاڵوگۆڕ نوێکرایەوە بۆ ' + newRate.toLocaleString(), 'success');
+                    } else {
+                        showToast(data.message || 'هەڵەیەک ڕوویدا', 'error');
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('rateSaving').classList.add('hidden');
+                    showToast('کێشەیەک ڕوویدا', 'error');
+                });
         }
-        
+
         document.getElementById('newExchangeRate').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -1217,4 +1460,5 @@
         });
     </script>
 </body>
+
 </html>
