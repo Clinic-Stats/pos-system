@@ -146,4 +146,9 @@ Route::post('/update-exchange-rate', [SettingController::class, 'updateExchangeR
 
     // بەڕێوەبردنی کارمەندان (Users)
     Route::resource('users', UserController::class);
+
+    // API بۆ وەرگرتنی لیستی دابینکەران
+Route::get('/api/suppliers-list', function() {
+    return response()->json(\App\Models\Supplier::orderBy('name')->get(['id', 'name']));
+})->middleware('auth');
 });

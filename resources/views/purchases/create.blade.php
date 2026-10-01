@@ -46,10 +46,10 @@
                 <div>
                     <div class="flex justify-between items-center mb-1">
                         <label class="block text-xs font-bold text-slate-300">شوێنی کڕین (کۆمپانیا/دابینکەر):</label>
-                        <a href="{{ route('suppliers.index') }}" target="_blank" 
-                           class="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold transition-colors">
+                        <button type="button" onclick="openSuppliersModal()" 
+                                class="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold transition-colors">
                             <i class="fa-solid fa-plus-circle"></i> بەڕێوەبردن
-                        </a>
+                        </button>
                     </div>
                     <select name="supplier_id" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
                         @foreach($suppliers as $sup)
@@ -74,7 +74,7 @@
                     <input type="hidden" name="currency" id="currency_input" value="USD">
                 </div>
 
-                <!-- نرخی ئاڵوگۆڕ (کاتێک دینار هەڵدەبژێردرێت دەردەکەوێت) -->
+                <!-- نرخی ئاڵوگۆڕ -->
                 <div id="exchangeRateBox" class="md:col-span-3 hidden">
                     <label class="block text-xs font-bold text-slate-300 mb-1">نرخی ئاڵوگۆڕی دۆلار (١ دۆلار = چ دینار):</label>
                     <input type="number" step="any" min="1" name="exchange_rate" id="exchange_rate_input" value="{{ $setting->exchange_rate ?? 1500 }}" class="w-full p-2.5 rounded-xl border border-amber-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-amber-500">
@@ -134,6 +134,47 @@
             </button>
         </form>
 
+    </div>
+
+    <!-- ============================================ -->
+    <!-- مۆداڵی بەڕێوەبردنی دابینکەران -->
+    <!-- ============================================ -->
+    <div id="suppliersModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[100]">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-6xl h-[92vh] overflow-hidden flex flex-col shadow-2xl">
+            
+            <!-- سەرپەڕەی مۆداڵ -->
+            <div class="flex justify-between items-center p-3 border-b border-slate-700 shrink-0 bg-slate-900/50">
+                <h3 class="text-sm font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-truck-field text-emerald-400"></i>
+                    بەڕێوەبردنی دابینکەران
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="refreshSuppliersIframe()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-rotate"></i> نوێکردنەوە
+                    </button>
+                    <button type="button" onclick="closeSuppliersModal()" 
+                            class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- شاشەی بارکردن -->
+            <div id="suppliersLoading" class="flex-1 flex items-center justify-center bg-slate-900">
+                <div class="text-center">
+                    <i class="fa-solid fa-spinner fa-spin text-emerald-400 text-3xl mb-3"></i>
+                    <p class="text-slate-400 text-xs font-bold">چاوەڕوان بە...</p>
+                </div>
+            </div>
+            
+            <!-- iframe ی دابینکەران -->
+            <iframe id="suppliersIframe" 
+                    src="" 
+                    onload="hideSuppliersLoading()"
+                    class="flex-1 w-full bg-white hidden"
+                    frameborder="0"></iframe>
+        </div>
     </div>
 
     <script>
@@ -297,6 +338,110 @@
         }
 
         addRow();
+
+        // ============================================
+        // مۆداڵی دابینکەران
+        // ============================================
+        function openSuppliersModal() {
+            const modal = document.getElementById('suppliersModal');
+            const iframe = document.getElementById('suppliersIframe');
+            const loading = document.getElementById('suppliersLoading');
+            
+            // پیشاندانی مۆداڵ
+            modal.classList.remove('hidden');
+            
+            // پیشاندانی شاشەی بارکردن
+            loading.classList.remove('hidden');
+            iframe.classList.add('hidden');
+            
+            // بارکردنی لاپەڕەی دابینکەران لە iframe
+            iframe.src = '{{ route("suppliers.index") }}';
+        }
+
+        function closeSuppliersModal() {
+            const modal = document.getElementById('suppliersModal');
+            const iframe = document.getElementById('suppliersIframe');
+            
+            // داخستنی مۆداڵ
+            modal.classList.add('hidden');
+            
+            // پاککردنەوەی iframe
+            iframe.src = '';
+            
+            // نوێکردنەوەی dropdown ی دابینکەران
+            refreshParentSuppliersDropdown();
+        }
+
+        function refreshSuppliersIframe() {
+            const iframe = document.getElementById('suppliersIframe');
+            const loading = document.getElementById('suppliersLoading');
+            
+            loading.classList.remove('hidden');
+            iframe.classList.add('hidden');
+            
+            // دووبارە بارکردنەوە
+            iframe.src = iframe.src;
+        }
+
+        function hideSuppliersLoading() {
+            const loading = document.getElementById('suppliersLoading');
+            const iframe = document.getElementById('suppliersIframe');
+            
+            loading.classList.add('hidden');
+            iframe.classList.remove('hidden');
+        }
+
+        // نوێکردنەوەی dropdown ی دابینکەران لە فۆرمی کڕین
+        function refreshParentSuppliersDropdown() {
+            // وەرگرتنی لیستی دابینکەران لە iframe
+            try {
+                const iframe = document.getElementById('suppliersIframe');
+                
+                // دواتر لە database بخوازە
+                fetch('/api/suppliers-list', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error('Network error');
+                    return res.json();
+                })
+                .then(suppliers => {
+                    const select = document.querySelector('select[name="supplier_id"]');
+                    if (!select || !suppliers.length) return;
+                    
+                    const currentValue = select.value;
+                    
+                    select.innerHTML = suppliers.map(s => 
+                        `<option value="${s.id}">${s.name}</option>`
+                    ).join('');
+                    
+                    // هەوڵدان بۆ گەڕاندنەوەی هەڵبژاردنی پێشوو
+                    if (currentValue) {
+                        const exists = Array.from(select.options).some(o => o.value === currentValue);
+                        if (exists) select.value = currentValue;
+                    }
+                })
+                .catch(err => {
+                    // ئەگەر API نەبوو، تەنها لاپەڕەکە نوێ بکەرەوە
+                    console.log('Could not refresh suppliers:', err);
+                });
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        // داخستن بە ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('suppliersModal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    closeSuppliersModal();
+                }
+            }
+        });
     </script>
 </body>
 </html>
