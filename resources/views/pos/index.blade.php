@@ -436,7 +436,6 @@
     <div class="bg-shape" style="width:300px;height:300px;background:radial-gradient(circle, #10b981, transparent);top:20%;left:20%;animation-delay:-4s;"></div>
 
     <header class="glass-panel px-3 py-2.5 rounded-3xl mb-2 flex flex-col md:flex-row items-center justify-between shadow-2xl z-[100] shrink-0 gap-2 relative">
-
         <div class="flex items-center justify-between w-full md:w-auto gap-3">
             <div class="flex items-center gap-3 shrink-0">
                 <div class="relative group">
@@ -528,10 +527,8 @@
     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-2 h-full overflow-hidden relative z-0">
 
         <div class="lg:col-span-9 glass-panel rounded-3xl p-3 flex flex-col h-[55vh] lg:h-full overflow-hidden relative">
-
             <div class="shrink-0 space-y-2.5 pb-2.5 border-b border-slate-200/60 dark:border-purple-500/10">
                 <div class="flex justify-between items-center gap-2.5">
-
                     <div class="w-full md:w-96 relative group">
                         <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl blur opacity-30 group-focus-within:opacity-70 transition duration-300"></div>
                         <div class="relative">
@@ -579,7 +576,6 @@
                         </div>
 
                         <div class="cursor-pointer" onclick="addToCart(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)">
-
                             <div class="flex justify-between items-start mb-2 relative z-10">
                                 <span class="text-[8px] font-num font-black text-purple-600 dark:text-purple-300 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 px-2 py-1 rounded-lg border border-purple-200/50 dark:border-purple-700/50 shadow-sm"><?php echo $p->code; ?></span>
                                 <?php if ($isOut): ?>
@@ -640,14 +636,26 @@
                             <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold">کاڵاکانی هەڵبژێردراو</span>
                         </div>
                     </h2>
-                    <button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()"
-                        class="btn-press bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-900/20 dark:to-red-900/20 text-rose-600 dark:text-rose-400 px-3 py-2 rounded-xl text-[9px] font-black border border-rose-200 dark:border-rose-800/50 hover:from-rose-100 hover:to-red-100 transition-all">
-                        <i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span>
-                    </button>
+
+                    <!-- دوگمەکانی سەبەتە -->
+                    <div class="flex items-center gap-1.5">
+
+                        <!-- دوگمەی پسوولەی نوێ -->
+                        <button type="button" onclick="newInvoice()"
+                            title="دەستپێکردنی پسوولەی نوێ (Ctrl+N)"
+                            class="btn-press bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-3 py-2 rounded-xl text-[9px] font-black shadow-md shadow-emerald-500/30 active:scale-95 flex items-center gap-1 transition-all">
+                            <i class="fa-solid fa-plus-circle"></i> <span>نوێ</span>
+                        </button>
+
+                        <!-- دوگمەی سڕینەوە -->
+                        <button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()"
+                            class="btn-press bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-900/20 dark:to-red-900/20 text-rose-600 dark:text-rose-400 px-3 py-2 rounded-xl text-[9px] font-black border border-rose-200 dark:border-rose-800/50 hover:from-rose-100 hover:to-red-100 transition-all">
+                            <i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-white/70 dark:bg-slate-900/60 p-2.5 rounded-2xl border border-slate-200/80 dark:border-purple-500/20 space-y-2 backdrop-blur">
-
                     <div class="flex items-center justify-between gap-1.5 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800/60 dark:to-slate-900/60 p-2 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
                         <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 flex items-center gap-1">
                             <i class="fa-solid fa-coins text-amber-500"></i> دراو:
@@ -848,6 +856,10 @@
                 e.preventDefault();
                 document.getElementById('searchBox').focus();
             }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                newInvoice();
+            }
         });
 
         function initTheme() {
@@ -880,7 +892,6 @@
             const toast = document.createElement('div');
             let bgClass = 'bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 text-white';
             let icon = '<i class="fa-solid fa-circle-info"></i>';
-
             if (type === 'error') {
                 bgClass = 'bg-gradient-to-r from-rose-500 to-red-600 text-white';
                 icon = '<i class="fa-solid fa-circle-exclamation"></i>';
@@ -888,7 +899,6 @@
                 bgClass = 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white';
                 icon = '<i class="fa-solid fa-circle-check"></i>';
             }
-
             toast.className = `pointer-events-auto flex items-center gap-2.5 px-5 py-3 rounded-2xl ${bgClass} text-[11px] font-black shadow-2xl transition-all duration-500 transform -translate-y-10 opacity-0 backdrop-blur`;
             toast.innerHTML = `${icon}<span>${message}</span>`;
             container.appendChild(toast);
@@ -899,11 +909,49 @@
             }, 3000);
         }
 
+        // ============================================
+        // پسوولەی نوێ — پاککردنەوەی سەبەتە و دەستپێکردنەوە
+        // ============================================
+        function newInvoice() {
+            if (cart.length > 0) {
+                if (!confirm('ئایا دڵنیایت؟ سەبەتەی ئێستا دەسڕدرێتەوە و پسوولەیەکی نوێ دەست پێدەکەیت.')) {
+                    return;
+                }
+            }
+
+            // پاککردنەوەی سەبەتە
+            cart = [];
+            document.getElementById('cartDiscount').value = 0;
+            document.getElementById('paidAmount').value = 0;
+            document.getElementById('customerId').value = '';
+
+            // گەڕاندنەوەی بەروار بۆ ئێستا
+            const now = new Date();
+            const formattedDate = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + 'T' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('saleCreatedAt').value = formattedDate;
+
+            // گەڕاندنەوەی جۆری پارەدان بۆ نەقد
+            document.querySelector('input[name="paymentType"][value="cash"]').checked = true;
+            togglePaymentType();
+
+            // نوێکردنەوەی سەبەتە
+            renderCart(false);
+
+            // پیشاندانی نامە
+            showToast('پسوولەی نوێ ئامادەیە ✅', 'success');
+
+            // فۆکس لەسەر گەڕان
+            document.getElementById('searchBox').focus();
+        }
+
         function setCurrency(currency) {
             currentCurrency = currency;
             const btnIqd = document.getElementById('btn-cur-iqd');
             const btnUsd = document.getElementById('btn-cur-usd');
-
             if (currency === 'USD') {
                 btnUsd.className = 'px-3 py-1.5 rounded-lg text-[10px] font-black bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/40 transition-all';
                 btnIqd.className = 'px-3 py-1.5 rounded-lg text-[10px] font-black bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all';
@@ -976,7 +1024,6 @@
         function animateFly(startX, startY, endX, endY, text, colorClass) {
             const flyEl = document.createElement('div');
             flyEl.className = `fixed z-[9999] flex items-center justify-center w-8 h-8 rounded-full text-white text-[12px] font-black shadow-2xl ${colorClass}`;
-
             flyEl.style.transition = 'left 0.7s cubic-bezier(0.4, 0, 0.2, 1), top 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.7s ease, transform 0.7s ease';
             flyEl.innerText = text;
             flyEl.style.left = startX + 'px';
@@ -985,9 +1032,7 @@
             flyEl.style.transform = 'scale(1)';
             flyEl.style.pointerEvents = 'none';
             flyEl.style.willChange = 'left, top, opacity, transform';
-
             document.body.appendChild(flyEl);
-
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     flyEl.style.left = endX + 'px';
@@ -996,7 +1041,6 @@
                     flyEl.style.transform = 'scale(0.3)';
                 });
             });
-
             setTimeout(() => {
                 flyEl.remove();
             }, 800);
@@ -1004,12 +1048,10 @@
 
         function addToCart(p) {
             const stock = parseFloat(p.stock_kg !== undefined ? p.stock_kg : (p.stock || 0));
-
             if (stock <= 0) {
                 showToast('نەماوە!', 'error');
                 return false;
             }
-
             const defaultUnitId = getDefaultUnitId();
             const initialUnit = units.find(u => u.id == defaultUnitId) || units[0] || {
                 id: 1,
@@ -1018,18 +1060,15 @@
             };
             const factor = getUnitFactor(p, initialUnit);
             const basePriceUsd = parseFloat(p.base_sale_price) || 0;
-
             let idx = cart.findIndex(i => i.id === p.id);
             if (idx !== -1) {
                 const u = units.find(u => u.id == cart[idx].unit_id) || initialUnit;
                 const cFactor = getUnitFactor(p, u);
                 const max = cFactor > 0 ? (stock / cFactor) : stock;
-
                 if (cart[idx].qty >= max) {
                     showToast('تەواو بوو!');
                     return false;
                 }
-
                 if (cart[idx].qty + 1 > max) {
                     showToast('تەواو بوو!');
                     cart[idx].qty = max;
@@ -1057,22 +1096,13 @@
 
         function quickIncrease(p, event) {
             event.stopPropagation();
-
             const success = addToCart(p);
-
             if (success) {
                 const btnRect = event.currentTarget.getBoundingClientRect();
                 const cartIcon = document.getElementById('cartIconAnim');
                 if (cartIcon) {
                     const cartRect = cartIcon.getBoundingClientRect();
-                    animateFly(
-                        btnRect.left + (btnRect.width / 2),
-                        btnRect.top + (btnRect.height / 2),
-                        cartRect.left + (cartRect.width / 2),
-                        cartRect.top + (cartRect.height / 2),
-                        '+1',
-                        'bg-gradient-to-br from-purple-500 to-pink-600'
-                    );
+                    animateFly(btnRect.left + (btnRect.width / 2), btnRect.top + (btnRect.height / 2), cartRect.left + (cartRect.width / 2), cartRect.top + (cartRect.height / 2), '+1', 'bg-gradient-to-br from-purple-500 to-pink-600');
                 }
                 let el = document.getElementById('price-anim-' + p.id);
                 if (el) {
@@ -1092,19 +1122,11 @@
                     cart.splice(idx, 1);
                 }
                 renderCart(false);
-
                 const btnRect = event.currentTarget.getBoundingClientRect();
                 const cartIcon = document.getElementById('cartIconAnim');
                 if (cartIcon) {
                     const cartRect = cartIcon.getBoundingClientRect();
-                    animateFly(
-                        cartRect.left + (cartRect.width / 2),
-                        cartRect.top + (cartRect.height / 2),
-                        btnRect.left + (btnRect.width / 2),
-                        btnRect.top + (btnRect.height / 2),
-                        '-1',
-                        'bg-gradient-to-br from-rose-500 to-red-600'
-                    );
+                    animateFly(cartRect.left + (cartRect.width / 2), cartRect.top + (cartRect.height / 2), btnRect.left + (btnRect.width / 2), btnRect.top + (btnRect.height / 2), '-1', 'bg-gradient-to-br from-rose-500 to-red-600');
                 }
                 let el = document.getElementById('price-anim-' + productId);
                 if (el) {
@@ -1176,7 +1198,6 @@
             container.innerHTML = '';
             let subtotal = 0;
             currentExchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1500;
-
             if (cart.length === 0) {
                 container.innerHTML = `
                     <div class="h-40 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 text-[10px] font-bold">
@@ -1201,16 +1222,13 @@
                 const lineTotal = item.qty * (displayPrice * item.factor);
                 subtotal += lineTotal;
                 const opts = units.map(u => `<option value="${u.id}" ${item.unit_id == u.id ? 'selected' : ''}>${u.name}</option>`).join('');
-
                 const div = document.createElement('div');
                 div.id = `cart-row-${idx}`;
                 div.className = 'cart-item-enter bg-gradient-to-br from-white via-purple-50/30 to-pink-50/30 dark:from-slate-900 dark:via-purple-950/20 dark:to-pink-950/20 border border-purple-200/60 dark:border-purple-500/30 rounded-2xl p-2.5 shadow-md hover:shadow-lg transition-all';
                 div.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
                         <div class="pr-0.5 flex items-center gap-2">
-                            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-black shadow-md">
-                                ${idx + 1}
-                            </div>
+                            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-black shadow-md">${idx + 1}</div>
                             <h4 class="font-black text-[10px] leading-tight text-slate-800 dark:text-white">${item.name}</h4>
                         </div>
                         <button type="button" onclick="removeItem(${idx})" class="w-7 h-7 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white hover:rotate-90 transition-all duration-300">
@@ -1218,23 +1236,13 @@
                         </button>
                     </div>
                     <div class="grid grid-cols-12 gap-1 bg-white/60 dark:bg-slate-900/60 p-1.5 rounded-xl border border-purple-200/40 dark:border-purple-500/20">
-                        <div class="col-span-4">
-                            <select onchange="updateItemUnit(${idx}, this.value)" class="w-full bg-transparent text-[9px] font-black focus:outline-none appearance-none cursor-pointer text-purple-600 dark:text-purple-400">
-                                ${opts}
-                            </select>
-                        </div>
+                        <div class="col-span-4"><select onchange="updateItemUnit(${idx}, this.value)" class="w-full bg-transparent text-[9px] font-black focus:outline-none appearance-none cursor-pointer text-purple-600 dark:text-purple-400">${opts}</select></div>
                         <div class="col-span-4 border-r border-purple-200/40 dark:border-purple-500/20">
-                            <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? item.price_usd.toFixed(2) : item.price_usd}" 
-                                   onchange="updateItemPrice(${idx}, this.value)" 
-                                   autocomplete="off"
-                                   class="w-full bg-transparent text-center text-[10px] font-black font-num focus:outline-none text-emerald-600 dark:text-emerald-400">
+                            <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? item.price_usd.toFixed(2) : item.price_usd}" onchange="updateItemPrice(${idx}, this.value)" autocomplete="off" class="w-full bg-transparent text-center text-[10px] font-black font-num focus:outline-none text-emerald-600 dark:text-emerald-400">
                         </div>
                         <div class="col-span-4 flex items-center justify-between px-0.5 border-r border-purple-200/40 dark:border-purple-500/20">
                             <button type="button" onclick="updateQty(${idx}, 1)" class="w-5 h-5 rounded-md bg-gradient-to-br from-purple-500 to-pink-600 text-white font-black text-[10px] flex items-center justify-center active:scale-90 transition-transform shadow-sm">+</button>
-                            <input type="number" step="any" min="0.01" value="${item.qty}" 
-                                   onchange="setQtyDirect(${idx}, this.value)" 
-                                   autocomplete="off"
-                                   class="w-7 text-center bg-transparent font-num text-purple-600 dark:text-purple-400 text-[11px] font-black focus:outline-none p-0">
+                            <input type="number" step="any" min="0.01" value="${item.qty}" onchange="setQtyDirect(${idx}, this.value)" autocomplete="off" class="w-7 text-center bg-transparent font-num text-purple-600 dark:text-purple-400 text-[11px] font-black focus:outline-none p-0">
                             <button type="button" onclick="updateQty(${idx}, -1)" class="w-5 h-5 rounded-md bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-black text-[10px] flex items-center justify-center active:scale-90 transition-transform">-</button>
                         </div>
                     </div>`;
@@ -1243,7 +1251,6 @@
 
             const discount = parseFloat(document.getElementById('cartDiscount').value) || 0;
             const finalTotal = Math.max(0, subtotal - discount);
-
             if (currentCurrency === 'USD') {
                 document.getElementById('subTotalText').innerText = '$' + subtotal.toFixed(2);
                 document.getElementById('grandTotalText').innerText = '$' + finalTotal.toFixed(2);
@@ -1280,12 +1287,10 @@
                 showToast('کڕیار دیاری بکە بۆ قەرز', 'error');
                 return;
             }
-
             const btn = document.getElementById('btnSubmitSale');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> چاوەڕوان بە...';
             lastSaleItems = JSON.parse(JSON.stringify(cart));
-
             fetch('/sales', {
                 method: 'POST',
                 headers: {
@@ -1333,34 +1338,26 @@
             const listContainer = document.getElementById('modalItemsList');
             listContainer.innerHTML = '';
             let total = 0;
-
             lastSaleItems.forEach((item, index) => {
                 const displayPrice = currentCurrency === 'USD' ? item.price_usd : item.price_usd * currentExchangeRate;
                 const lineTotal = item.qty * (displayPrice * item.factor);
                 total += lineTotal;
                 const u = units.find(x => x.id == item.unit_id);
-
                 const row = document.createElement('div');
                 row.className = 'flex items-center justify-between gap-2 bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 p-3 rounded-xl border border-purple-200/50 dark:border-purple-500/20 text-xs';
                 row.innerHTML = `
                     <div class="w-1/3 font-black truncate text-slate-800 dark:text-white">${item.name}</div>
                     <div class="w-1/4 flex items-center gap-1">
-                        <input type="number" step="any" min="0.01" value="${item.qty}" onchange="updateModalQty(${index}, this.value)" 
-                               autocomplete="off"
-                               class="w-12 bg-white dark:bg-slate-900 text-center font-num font-bold border border-slate-300 dark:border-slate-600 rounded-lg p-1 text-xs">
+                        <input type="number" step="any" min="0.01" value="${item.qty}" onchange="updateModalQty(${index}, this.value)" autocomplete="off" class="w-12 bg-white dark:bg-slate-900 text-center font-num font-bold border border-slate-300 dark:border-slate-600 rounded-lg p-1 text-xs">
                         <span class="text-[10px] text-slate-400 font-bold">${u ? u.name : ''}</span>
                     </div>
                     <div class="w-1/4">
-                        <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? item.price_usd.toFixed(2) : item.price_usd}" 
-                               onchange="updateModalPrice(${index}, this.value)" 
-                               autocomplete="off"
-                               class="w-20 bg-white dark:bg-slate-900 text-center font-num border border-slate-300 dark:border-slate-600 rounded-lg p-1 text-xs text-emerald-500 font-black">
+                        <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? item.price_usd.toFixed(2) : item.price_usd}" onchange="updateModalPrice(${index}, this.value)" autocomplete="off" class="w-20 bg-white dark:bg-slate-900 text-center font-num border border-slate-300 dark:border-slate-600 rounded-lg p-1 text-xs text-emerald-500 font-black">
                     </div>
                     <div class="w-1/6 text-left font-num font-black text-emerald-600 dark:text-emerald-400" dir="ltr">${currentCurrency === 'USD' ? '$' + lineTotal.toFixed(2) : Math.round(lineTotal).toLocaleString()}</div>
                 `;
                 listContainer.appendChild(row);
             });
-
             document.getElementById('modalGrandTotal').innerText = currentCurrency === 'USD' ? '$' + total.toFixed(2) : Math.round(total).toLocaleString().concat(' IQD');
         }
 
@@ -1390,7 +1387,6 @@
         function toggleRateEdit() {
             const display = document.getElementById('rateDisplay');
             const edit = document.getElementById('rateEdit');
-
             if (edit.classList.contains('hidden')) {
                 display.classList.add('hidden');
                 edit.classList.remove('hidden');
@@ -1407,14 +1403,11 @@
 
         function saveExchangeRate() {
             const newRate = parseFloat(document.getElementById('newExchangeRate').value);
-
             if (!newRate || newRate < 1) {
                 showToast('تکایە نرخێکی دروست بنووسە', 'error');
                 return;
             }
-
             document.getElementById('rateSaving').classList.remove('hidden');
-
             fetch('/update-exchange-rate', {
                     method: 'POST',
                     headers: {
@@ -1429,14 +1422,11 @@
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('rateSaving').classList.add('hidden');
-
                     if (data.success) {
                         document.getElementById('currentRateDisplay').innerText = `1$ = ${newRate.toLocaleString()}`;
                         currentExchangeRate = newRate;
-
                         const rateInput = document.getElementById('exchangeRate');
                         if (rateInput) rateInput.value = newRate;
-
                         renderCart(false);
                         toggleRateEdit();
                         showToast('نرخی ئاڵوگۆڕ نوێکرایەوە بۆ ' + newRate.toLocaleString(), 'success');

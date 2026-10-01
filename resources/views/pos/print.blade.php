@@ -1,65 +1,187 @@
 <!DOCTYPE html>
 <html lang="ckb" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <title>پسوولەی فرۆشتن - {{ $sale->invoice_no }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     @php
-        $setting = \App\Models\Setting::first();
-        $paperWidth = $setting ? $setting->receipt_width : '80mm';
-        $bodyWidth = ($paperWidth === '58mm') ? '56mm' : '78mm';
+    $setting = \App\Models\Setting::first();
+    $paperWidth = $setting ? $setting->receipt_width : '80mm';
+    $bodyWidth = ($paperWidth === '58mm') ? '56mm' : '78mm';
     @endphp
     <style>
-        @page { size: {{ $paperWidth }} auto; margin: 0; }
+        @page {
+            size: {
+                    {
+                    $paperWidth
+                }
+            }
+
+            auto;
+            margin: 0;
+        }
+
         body {
             font-family: 'Tahoma', 'Noto Sans Arabic', sans-serif;
-            width: {{ $bodyWidth }};
+
+            width: {
+                    {
+                    $bodyWidth
+                }
+            }
+
+            ;
             margin: 0 auto;
-            padding: {{ ($paperWidth === '58mm') ? '4px' : '10px' }};
-            font-size: {{ ($paperWidth === '58mm') ? '10px' : '12px' }};
+
+            padding: {
+                    {
+                    ($paperWidth ==='58mm') ? '4px': '10px'
+                }
+            }
+
+            ;
+
+            font-size: {
+                    {
+                    ($paperWidth ==='58mm') ? '10px': '12px'
+                }
+            }
+
+            ;
             color: #000;
         }
-        .text-center { text-align: center; }
-        .text-left { text-align: left; }
-        .font-bold { font-weight: bold; }
-        .border-b { border-bottom: 1px dashed #000; }
-        .my-2 { margin: 6px 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-        th, td { padding: 4px 0; font-size: {{ ($paperWidth === '58mm') ? '10px' : '11px' }}; }
-        .barcode { font-family: 'Libre Barcode 39', cursive; font-size: 34px; line-height: 1; }
-        .btn-print {
-            display: block;
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .border-b {
+            border-bottom: 1px dashed #000;
+        }
+
+        .my-2 {
+            margin: 6px 0;
+        }
+
+        table {
             width: 100%;
-            padding: 8px;
-            background: #2563eb;
-            color: white;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        th,
+        td {
+            padding: 4px 0;
+
+            font-size: {
+                    {
+                    ($paperWidth ==='58mm') ? '10px': '11px'
+                }
+            }
+
+            ;
+        }
+
+        .barcode {
+            font-family: 'Libre Barcode 39', cursive;
+            font-size: 34px;
+            line-height: 1;
+        }
+
+        .screen-buttons {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            z-index: 9999;
+        }
+
+        .btn {
+            padding: 10px 16px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 10px;
+            font-size: 13px;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
+
+        .btn-blue {
+            background: #2563eb;
+        }
+
+        .btn-green {
+            background: #059669;
+        }
+
+        .btn-red {
+            background: #dc2626;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
         @media print {
-            .btn-print { display: none; }
+            .screen-buttons {
+                display: none !important;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <button onclick="window.print()" class="btn-print">چاپکردنی پسوولە</button>
+    <!-- ============================================ -->
+    <!-- دوگمەکان - تەنها لە شاشەدا -->
+    <!-- ============================================ -->
+    <div class="screen-buttons">
+        <div style="display: flex; gap: 8px;">
+            <button onclick="window.print()" class="btn btn-blue">
+                <i class="fa-solid fa-print"></i> پرینت
+            </button>
+            <a href="{{ route('pos.index') }}" class="btn btn-green">
+                <i class="fa-solid fa-plus-circle"></i> وەسڵی نوێ
+            </a>
+        </div>
+        <button onclick="window.close()" class="btn btn-red">
+            <i class="fa-solid fa-xmark"></i> داخستن
+        </button>
+    </div>
 
-    <!-- بەشی سەردێڕ و لۆگۆ بە شێوەی داینامیک لە Settings -->
-   <!-- بەشی سەردێڕ و لۆگۆ -->
+    <!-- ============================================ -->
+    <!-- ناوەڕۆکی وەسڵ -->
+    <!-- ============================================ -->
+    <div style="margin-top: 70px;"></div>
+
     <div class="text-center">
         @if(!empty($setting->shop_logo) && file_exists(public_path($setting->shop_logo)))
-            <img src="{{ asset($setting->shop_logo) }}" style="max-height: 65px; max-width: 80%; margin: 0 auto 6px auto; display: block; object-contain: contain;">
+        <img src="{{ asset($setting->shop_logo) }}" style="max-height: 65px; max-width: 80%; margin: 0 auto 6px auto; display: block; object-fit: contain;">
         @endif
         <h2 style="margin: 0; font-size: 15px; font-weight: bold;">{{ $setting->shop_name ?? 'کۆمپانیای ساموا' }}</h2>
         @if(!empty($setting->shop_phone))
-            <div style="font-size: 11px; margin-top: 2px;">تەلەفۆن: {{ $setting->shop_phone }}</div>
+        <div style="font-size: 11px; margin-top: 2px;">تەلەفۆن: {{ $setting->shop_phone }}</div>
         @endif
         @if(!empty($setting->shop_address))
-            <div style="font-size: 10px; color: #333;">{{ $setting->shop_address }}</div>
+        <div style="font-size: 10px; color: #333;">{{ $setting->shop_address }}</div>
         @endif
         <div style="font-size: 11px; margin-top: 3px; font-weight: bold;">وەسڵی فرۆشتن</div>
     </div>
@@ -71,7 +193,7 @@
         <div><strong>بەروار:</strong> {{ $sale->created_at->format('Y-m-d H:i') }}</div>
         <div><strong>کڕیار:</strong> {{ $sale->customer->name ?? 'کڕیاری گشتی' }}</div>
         <div><strong>جۆری پارەدان:</strong> {{ $sale->payment_type == 'cash' ? 'نەقد' : 'قەرز' }}</div>
-        <div><b>نوێنەری فرۆشتن / کاشیر:</b> <span style="font-weight: bold;">{{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</span></div>
+        <div><b>کاشیر:</b> <span style="font-weight: bold;">{{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</span></div>
     </div>
 
     <div class="border-b my-2"></div>
@@ -125,44 +247,55 @@
     </table>
 
     @php
-        $totalWeightKg = 0;
-        foreach($sale->details as $item) {
-            $unitName = strtolower(trim($item->unit->name ?? ''));
-            if (str_contains($unitName, 'کارتۆن') || str_contains($unitName, 'carton')) {
-                $totalWeightKg += $item->quantity * ($item->product->kg_per_carton ?: 1);
-            } elseif (str_contains($unitName, 'تەن') || str_contains($unitName, 'ton')) {
-                $totalWeightKg += $item->quantity * 1000;
-            } else {
-                $totalWeightKg += $item->quantity * ($item->unit->factor_to_base ?: 1);
-            }
-        }
+    $totalWeightKg = 0;
+    foreach($sale->details as $item) {
+    $unitName = strtolower(trim($item->unit->name ?? ''));
+    if (str_contains($unitName, 'کارتۆن') || str_contains($unitName, 'carton')) {
+    $totalWeightKg += $item->quantity * ($item->product->kg_per_carton ?: 1);
+    } elseif (str_contains($unitName, 'تەن') || str_contains($unitName, 'ton')) {
+    $totalWeightKg += $item->quantity * 1000;
+    } else {
+    $totalWeightKg += $item->quantity * ($item->unit->factor_to_base ?: 1);
+    }
+    }
     @endphp
 
     <div style="margin-top: 10px; padding: 6px; border: 1.5px dashed #000; text-align: center; font-weight: bold; font-size: 12px;">
-        کۆی کێشی گشتیی بار: 
+        کۆی کێشی گشتیی بار:
         <span>{{ number_format($totalWeightKg, 2) }} کگم</span>
         @if($totalWeightKg >= 1000)
-            ({{ number_format($totalWeightKg / 1000, 2) }} تەن)
+        ({{ number_format($totalWeightKg / 1000, 2) }} تەن)
         @endif
     </div>
 
     <div class="border-b my-2"></div>
 
-    <!-- فووتەر و ڕێنمایی دیاریکراو لە Settings -->
     <div class="text-center" style="font-size: 10px; margin-top: 6px;">
         <p style="margin: 0 0 4px 0;">{{ $setting->invoice_footer ?? 'سوپاس بۆ مامەڵەکەتان' }}</p>
 
         @if($setting && $setting->show_barcode)
-            <div style="margin-top: 4px;">
-                <span class="barcode">*{{ $sale->invoice_no }}*</span>
-            </div>
+        <div style="margin-top: 4px;">
+            <span class="barcode">*{{ $sale->invoice_no }}*</span>
+        </div>
         @endif
     </div>
 
     <script>
-        window.onload = function() {
-            window.print();
-        };
+        // کورتکراوەکان
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+            if (e.key === 'Escape') {
+                window.close();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                window.location.href = '{{ route("pos.index") }}';
+            }
+        });
     </script>
 </body>
+
 </html>
