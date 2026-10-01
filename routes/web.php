@@ -28,6 +28,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // هەموو بەشەکانی ناوەوەی سیستەم
 Route::middleware(['auth'])->group(function () {
+
+// نوێکردنەوەی نرخی ئاڵوگۆڕ لە شاشەی POS
+Route::post('/update-exchange-rate', [SettingController::class, 'updateExchangeRate'])->name('settings.updateExchangeRate');
         // لیستی هەموو فرۆشتنەکان
     Route::get('/sales-list', [SaleController::class, 'listSales'])->name('sales.list')->middleware('permission:pos');
     // ڕادەستکردنی پارە (Handover)

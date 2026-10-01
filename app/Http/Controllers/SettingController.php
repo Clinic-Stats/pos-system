@@ -13,6 +13,26 @@ class SettingController extends Controller
         return view('settings.receipt', compact('setting'));
     }
 
+    public function updateExchangeRate(Request $request)
+{
+    $request->validate([
+        'exchange_rate' => 'required|numeric|min:1',
+    ]);
+
+    $setting = Setting::first();
+    if (!$setting) {
+        $setting = Setting::create(['exchange_rate' => $request->exchange_rate]);
+    } else {
+        $setting->update(['exchange_rate' => $request->exchange_rate]);
+    }
+
+    return response()->json([
+        'success' => true,
+        'exchange_rate' => $setting->exchange_rate,
+        'message' => 'نرخی ئاڵوگۆڕ نوێکرایەوە'
+    ]);
+}
+
     public function update(Request $request)
     {
         $setting = Setting::firstOrCreate(['id' => 1]);

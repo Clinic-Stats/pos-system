@@ -44,6 +44,34 @@
         .glow-on-hover:hover:before { opacity: 1; }
         .glow-on-hover:after { z-index: -1; content: ''; position: absolute; width: 100%; height: 100%; background: inherit; left: 0; top: 0; border-radius: 10px; }
         @keyframes glowing { 0% { background-position: 0 0; } 50% { background-position: 400% 0; } 100% { background-position: 0 0; } }
+        
+        /* ئەنیمەیشنی ویجێتی ئاڵوگۆڕ */
+        @keyframes floatWidget {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), 0 10px 30px rgba(0,0,0,0.3); }
+            50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.8), 0 10px 30px rgba(0,0,0,0.4); }
+        }
+        #exchangeRateWidget > div:first-child {
+            animation: floatWidget 3s ease-in-out infinite, pulseGlow 2s ease-in-out infinite;
+        }
+        #exchangeRateWidget:hover > div:first-child {
+            animation: none;
+            transform: scale(1.08);
+            box-shadow: 0 0 40px rgba(251, 191, 36, 1), 0 15px 40px rgba(0,0,0,0.5);
+        }
+        #exchangeRateWidget.editing > div:first-child {
+            animation: none;
+        }
+        @media (max-width: 768px) {
+            #exchangeRateWidget {
+                bottom: 8px !important;
+                left: 8px !important;
+                min-width: 150px;
+            }
+        }
     </style>
 </head>
 <body class="text-slate-800 dark:text-slate-100 h-screen p-1 md:p-2 overflow-hidden select-none transition-colors duration-500 flex flex-col">
@@ -68,9 +96,7 @@
             <div class="relative inline-block">
                 <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="glow-on-hover px-3 py-1.5 flex items-center gap-1 whitespace-nowrap">زیاتر <i class="fa-solid fa-chevron-down text-[8px] mt-0.5"></i></button>
                 <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[9999] max-h-72 overflow-y-auto custom-scrollbar text-xs">
-                    <!-- 👇 لینکی نوێ: لیستی فرۆشتنەکان -->
                     <a href="{{ route('sales.list') }}" class="block px-4 py-2.5 text-emerald-600 dark:text-emerald-400 font-bold hover:bg-emerald-50 dark:hover:bg-emerald-900/20 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-receipt w-5 text-center"></i> فرۆشتنەکان</a>
-                    
                     <a href="{{ route('categories.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-tags w-5 text-center"></i> کاتیگۆری</a>
                     <a href="{{ route('units.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-scale-balanced w-5 text-center"></i> یەکەکان</a>
                     <a href="{{ route('suppliers.index') }}" class="block px-4 py-2.5 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50"><i class="fa-solid fa-truck-field w-5 text-center"></i> دابینکەران</a>
@@ -229,6 +255,66 @@
 
     <div id="toastContainer" class="fixed top-2 left-1/2 transform -translate-x-1/2 z-[999] space-y-2 pointer-events-none flex flex-col items-center"></div>
 
+    <!-- ============================================ -->
+    <!-- ویجێتی نرخی ئاڵوگۆڕ - جوڵاو -->
+    <!-- ============================================ -->
+    <div id="exchangeRateWidget" class="fixed bottom-4 left-4 z-[9000]">
+        <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-2xl p-2.5 min-w-[190px] border-2 border-amber-300/50 backdrop-blur-sm cursor-pointer transition-all duration-300">
+            
+            <!-- دۆخی داخراو (تەنها پیشاندان) -->
+            <div id="rateDisplay" onclick="toggleRateEdit()" class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fa-solid fa-dollar-sign text-white text-sm"></i>
+                    </div>
+                    <div class="text-white">
+                        <div class="text-[9px] font-bold opacity-90">نرخی ئاڵوگۆڕ</div>
+                        <div class="text-sm font-black font-mono" dir="ltr" id="currentRateDisplay">
+                            1$ = {{ number_format($setting->exchange_rate ?? 1500) }}
+                        </div>
+                    </div>
+                </div>
+                <i class="fa-solid fa-pen-to-square text-white/80 text-xs"></i>
+            </div>
+
+            <!-- دۆخی کراوە (دەستکاری) -->
+            <div id="rateEdit" class="hidden">
+                <label class="block text-[10px] font-bold text-white mb-1">
+                    <i class="fa-solid fa-edit"></i> نرخی نوێ (١ دۆلار = چ دینار)
+                </label>
+                <div class="flex items-center gap-1">
+                    <input type="number" 
+                           id="newExchangeRate" 
+                           value="{{ $setting->exchange_rate ?? 1500 }}" 
+                           min="1" 
+                           step="any"
+                           class="w-full bg-white text-amber-900 font-black font-mono text-sm p-1.5 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-white">
+                    <button type="button" 
+                            onclick="saveExchangeRate()" 
+                            class="bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded-lg transition-colors">
+                        <i class="fa-solid fa-check text-xs"></i>
+                    </button>
+                    <button type="button" 
+                            onclick="toggleRateEdit()" 
+                            class="bg-slate-700 hover:bg-slate-800 text-white p-2 rounded-lg transition-colors">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+                <p class="text-[9px] text-white/90 mt-1.5 text-center">
+                    <i class="fa-solid fa-info-circle"></i> هەموو سیستەمەکە نوێ دەبێتەوە
+                </p>
+            </div>
+        </div>
+
+        <!-- شاشەی بارکردن -->
+        <div id="rateSaving" class="hidden absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center">
+            <i class="fa-solid fa-spinner fa-spin text-white text-xl"></i>
+        </div>
+    </div>
+    <!-- ============================================ -->
+    <!-- کۆتایی ویجێتی نرخی ئاڵوگۆڕ -->
+    <!-- ============================================ -->
+
     <script>
         const units = <?php echo json_encode($units); ?>;
         let cart = [];
@@ -259,13 +345,22 @@
         function showToast(message, type = 'warning') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            let bgClass = type === 'error' ? 'bg-rose-500' : 'bg-slate-800 dark:bg-white';
-            let textClass = type === 'error' ? 'text-white' : 'text-white dark:text-slate-900';
-            toast.className = `pointer-events-auto flex items-center gap-2 px-3 py-1.5 rounded-full ${bgClass} ${textClass} text-[10px] font-bold shadow-xl transition-all duration-300 transform -translate-y-10 opacity-0`;
+            let bgClass = 'bg-slate-800 dark:bg-white';
+            let textClass = 'text-white dark:text-slate-900';
+            
+            if (type === 'error') {
+                bgClass = 'bg-rose-500';
+                textClass = 'text-white';
+            } else if (type === 'success') {
+                bgClass = 'bg-emerald-500';
+                textClass = 'text-white';
+            }
+            
+            toast.className = `pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-full ${bgClass} ${textClass} text-[10px] font-bold shadow-xl transition-all duration-300 transform -translate-y-10 opacity-0`;
             toast.innerHTML = `<span>${message}</span>`;
             container.appendChild(toast);
             setTimeout(() => toast.classList.remove('-translate-y-10', 'opacity-0'), 10);
-            setTimeout(() => { toast.classList.add('opacity-0', '-translate-y-10'); setTimeout(() => toast.remove(), 300); }, 2500);
+            setTimeout(() => { toast.classList.add('opacity-0', '-translate-y-10'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
         function setCurrency(currency) {
@@ -569,6 +664,166 @@
             }
             document.getElementById('successModal').classList.add('hidden');
         }
+
+        // ============================================
+        // ویجێتی نرخی ئاڵوگۆڕ
+        // ============================================
+        
+        function toggleRateEdit() {
+            const display = document.getElementById('rateDisplay');
+            const edit = document.getElementById('rateEdit');
+            const widget = document.getElementById('exchangeRateWidget');
+            
+            if (edit.classList.contains('hidden')) {
+                display.classList.add('hidden');
+                edit.classList.remove('hidden');
+                widget.classList.add('editing');
+                setTimeout(() => {
+                    const inp = document.getElementById('newExchangeRate');
+                    inp.focus();
+                    inp.select();
+                }, 100);
+            } else {
+                display.classList.remove('hidden');
+                edit.classList.add('hidden');
+                widget.classList.remove('editing');
+            }
+        }
+        
+        function saveExchangeRate() {
+            const newRate = parseFloat(document.getElementById('newExchangeRate').value);
+            
+            if (!newRate || newRate < 1) {
+                showToast('تکایە نرخێکی دروست بنووسە (لانی کەم 1)', 'error');
+                return;
+            }
+            
+            document.getElementById('rateSaving').classList.remove('hidden');
+            
+            fetch('/update-exchange-rate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '<?php echo csrf_token(); ?>',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ exchange_rate: newRate })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('rateSaving').classList.add('hidden');
+                
+                if (data.success) {
+                    document.getElementById('currentRateDisplay').innerText = `1$ = ${newRate.toLocaleString()}`;
+                    currentExchangeRate = newRate;
+                    
+                    const rateInput = document.getElementById('exchangeRate');
+                    if (rateInput) rateInput.value = newRate;
+                    
+                    renderCart(false);
+                    toggleRateEdit();
+                    showToast('✅ نرخی ئاڵوگۆڕ نوێکرایەوە بۆ ' + newRate.toLocaleString(), 'success');
+                } else {
+                    showToast(data.message || 'هەڵەیەک ڕوویدا', 'error');
+                }
+            })
+            .catch(err => {
+                document.getElementById('rateSaving').classList.add('hidden');
+                showToast('کێشەیەک ڕوویدا لە پەیوەندی', 'error');
+                console.error(err);
+            });
+        }
+        
+        // ============================================
+        // جوڵاندنی ویجێت (Drag and Drop)
+        // ============================================
+        (function makeDraggable() {
+            const widget = document.getElementById('exchangeRateWidget');
+            let isDragging = false;
+            let startX, startY, startLeft, startBottom;
+            let hasMoved = false;
+            
+            widget.addEventListener('mousedown', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+                
+                isDragging = false;
+                hasMoved = false;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                const rect = widget.getBoundingClientRect();
+                startLeft = rect.left;
+                startBottom = window.innerHeight - rect.bottom;
+                
+                const moveHandler = function(ev) {
+                    const dx = ev.clientX - startX;
+                    const dy = ev.clientY - startY;
+                    
+                    if (!hasMoved && Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+                    
+                    hasMoved = true;
+                    isDragging = true;
+                    widget.style.transition = 'none';
+                    widget.style.cursor = 'grabbing';
+                    
+                    let newLeft = startLeft + dx;
+                    let newBottom = startBottom - dy;
+                    
+                    const rectNow = widget.getBoundingClientRect();
+                    newLeft = Math.max(8, Math.min(newLeft, window.innerWidth - rectNow.width - 8));
+                    newBottom = Math.max(8, Math.min(newBottom, window.innerHeight - rectNow.height - 8));
+                    
+                    widget.style.left = newLeft + 'px';
+                    widget.style.bottom = newBottom + 'px';
+                    widget.style.right = 'auto';
+                    widget.style.top = 'auto';
+                };
+                
+                const upHandler = function() {
+                    document.removeEventListener('mousemove', moveHandler);
+                    document.removeEventListener('mouseup', upHandler);
+                    
+                    if (isDragging) {
+                        widget.style.cursor = '';
+                        widget.style.transition = '';
+                        const rect = widget.getBoundingClientRect();
+                        localStorage.setItem('pos_exchange_widget_pos', JSON.stringify({
+                            left: rect.left,
+                            bottom: window.innerHeight - rect.bottom
+                        }));
+                    }
+                    isDragging = false;
+                };
+                
+                document.addEventListener('mousemove', moveHandler);
+                document.addEventListener('mouseup', upHandler);
+            });
+        })();
+        
+        // گەڕاندنەوەی شوێنی ویجێت
+        (function restoreWidgetPosition() {
+            const saved = localStorage.getItem('pos_exchange_widget_pos');
+            if (saved) {
+                try {
+                    const pos = JSON.parse(saved);
+                    const widget = document.getElementById('exchangeRateWidget');
+                    widget.style.left = pos.left + 'px';
+                    widget.style.bottom = pos.bottom + 'px';
+                    widget.style.right = 'auto';
+                    widget.style.top = 'auto';
+                } catch(e) {}
+            }
+        })();
+        
+        // Enter و Escape
+        document.getElementById('newExchangeRate').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveExchangeRate();
+            } else if (e.key === 'Escape') {
+                toggleRateEdit();
+            }
+        });
     </script>
 </body>
 </html>
