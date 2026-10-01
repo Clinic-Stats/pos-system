@@ -67,8 +67,8 @@
         }
         @media (max-width: 768px) {
             #exchangeRateWidget {
-                bottom: 8px !important;
-                left: 8px !important;
+                top: 60px !important;
+                right: 8px !important;
                 min-width: 150px;
             }
         }
@@ -256,9 +256,9 @@
     <div id="toastContainer" class="fixed top-2 left-1/2 transform -translate-x-1/2 z-[999] space-y-2 pointer-events-none flex flex-col items-center"></div>
 
     <!-- ============================================ -->
-    <!-- ویجێتی نرخی ئاڵوگۆڕ - جوڵاو -->
+    <!-- ویجێتی نرخی ئاڵوگۆڕ - سەرەوەی ڕاست -->
     <!-- ============================================ -->
-    <div id="exchangeRateWidget" class="fixed bottom-4 left-4 z-[9000]">
+    <div id="exchangeRateWidget" class="fixed top-20 right-4 z-[9000]">
         <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-2xl p-2.5 min-w-[190px] border-2 border-amber-300/50 backdrop-blur-sm cursor-pointer transition-all duration-300">
             
             <!-- دۆخی داخراو (تەنها پیشاندان) -->
@@ -735,12 +735,12 @@
         }
         
         // ============================================
-        // جوڵاندنی ویجێت (Drag and Drop)
+        // جوڵاندنی ویجێت (Drag and Drop) - بۆ سەرەوەی ڕاست
         // ============================================
         (function makeDraggable() {
             const widget = document.getElementById('exchangeRateWidget');
             let isDragging = false;
-            let startX, startY, startLeft, startBottom;
+            let startX, startY, startLeft, startTop;
             let hasMoved = false;
             
             widget.addEventListener('mousedown', function(e) {
@@ -753,7 +753,7 @@
                 
                 const rect = widget.getBoundingClientRect();
                 startLeft = rect.left;
-                startBottom = window.innerHeight - rect.bottom;
+                startTop = rect.top;
                 
                 const moveHandler = function(ev) {
                     const dx = ev.clientX - startX;
@@ -767,16 +767,16 @@
                     widget.style.cursor = 'grabbing';
                     
                     let newLeft = startLeft + dx;
-                    let newBottom = startBottom - dy;
+                    let newTop = startTop + dy;
                     
                     const rectNow = widget.getBoundingClientRect();
                     newLeft = Math.max(8, Math.min(newLeft, window.innerWidth - rectNow.width - 8));
-                    newBottom = Math.max(8, Math.min(newBottom, window.innerHeight - rectNow.height - 8));
+                    newTop = Math.max(8, Math.min(newTop, window.innerHeight - rectNow.height - 8));
                     
                     widget.style.left = newLeft + 'px';
-                    widget.style.bottom = newBottom + 'px';
+                    widget.style.top = newTop + 'px';
                     widget.style.right = 'auto';
-                    widget.style.top = 'auto';
+                    widget.style.bottom = 'auto';
                 };
                 
                 const upHandler = function() {
@@ -789,7 +789,7 @@
                         const rect = widget.getBoundingClientRect();
                         localStorage.setItem('pos_exchange_widget_pos', JSON.stringify({
                             left: rect.left,
-                            bottom: window.innerHeight - rect.bottom
+                            top: rect.top
                         }));
                     }
                     isDragging = false;
@@ -808,9 +808,9 @@
                     const pos = JSON.parse(saved);
                     const widget = document.getElementById('exchangeRateWidget');
                     widget.style.left = pos.left + 'px';
-                    widget.style.bottom = pos.bottom + 'px';
+                    widget.style.top = pos.top + 'px';
                     widget.style.right = 'auto';
-                    widget.style.top = 'auto';
+                    widget.style.bottom = 'auto';
                 } catch(e) {}
             }
         })();
