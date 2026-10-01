@@ -40,23 +40,31 @@
             @csrf
 
             {{-- بەشی سەرەوەی وەسڵ: شوێن و بەروار و دراو --}}
-          <div>
-    <div class="flex justify-between items-center mb-1">
-        <label class="block text-xs font-bold text-slate-300">شوێنی کڕین (کۆمپانیا/دابینکەر):</label>
-        <a href="{{ route('suppliers.index') }}" target="_blank" 
-           class="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold transition-colors">
-            <i class="fa-solid fa-plus-circle"></i> بەڕێوەبردنی دابینکەران
-        </a>
-    </div>
-    <select name="supplier_id" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
-        @foreach($suppliers as $sup)
-            <option value="{{ $sup->id }}">{{ $sup->name }}</option>
-        @endforeach
-    </select>
-</div>
+            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <!-- شوێنی کڕین + دوگمەی بچووکی دابینکەران -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-bold text-slate-300">شوێنی کڕین (کۆمپانیا/دابینکەر):</label>
+                        <a href="{{ route('suppliers.index') }}" target="_blank" 
+                           class="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold transition-colors">
+                            <i class="fa-solid fa-plus-circle"></i> بەڕێوەبردن
+                        </a>
+                    </div>
+                    <select name="supplier_id" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
+                        @foreach($suppliers as $sup)
+                            <option value="{{ $sup->id }}">{{ $sup->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- بەرواری وەسڵ -->
+                <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">بەرواری وەسڵ:</label>
                     <input type="date" name="created_at" value="{{ date('Y-m-d') }}" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500">
                 </div>
+
+                <!-- دراوی وەسڵ -->
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">دراوی وەسڵ:</label>
                     <div class="flex items-center gap-1.5 bg-slate-700 p-1 rounded-xl">
@@ -65,6 +73,8 @@
                     </div>
                     <input type="hidden" name="currency" id="currency_input" value="USD">
                 </div>
+
+                <!-- نرخی ئاڵوگۆڕ (کاتێک دینار هەڵدەبژێردرێت دەردەکەوێت) -->
                 <div id="exchangeRateBox" class="md:col-span-3 hidden">
                     <label class="block text-xs font-bold text-slate-300 mb-1">نرخی ئاڵوگۆڕی دۆلار (١ دۆلار = چ دینار):</label>
                     <input type="number" step="any" min="1" name="exchange_rate" id="exchange_rate_input" value="{{ $setting->exchange_rate ?? 1500 }}" class="w-full p-2.5 rounded-xl border border-amber-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-amber-500">
@@ -115,7 +125,7 @@
                 </div>
                 <div id="paidAmountBox" class="hidden">
                     <label class="block text-xs font-bold text-slate-300 mb-1">بڕی پارەی دراو:</label>
-                    <input type="number" step="any" min="0" name="paid_amount" id="paid_amount" value="0" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none">
+                    <input type="number" step="any" min="0" name="paid_amount" id="paid_amount" value="0" autocomplete="off" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none">
                 </div>
             </div>
 
@@ -204,7 +214,7 @@
                     <input type="number" step="any" min="0.01" name="items[${rowId}][quantity]" value="1" oninput="calcTotal()" required class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono qty-input">
                 </td>
                 <td class="p-2">
-                    <input type="number" step="any" min="0" name="items[${rowId}][buy_price]" value="0" oninput="calcTotal()" required class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono price-input">
+                    <input type="number" step="any" min="0" name="items[${rowId}][buy_price]" value="0" oninput="calcTotal()" required autocomplete="off" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono price-input">
                 </td>
                 <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr">$0.00</td>
                 <td class="p-2 text-center">
@@ -254,7 +264,6 @@
             return total;
         }
 
-        // گۆڕینی نرخی ئاڵوگۆڕ کاریگەری لەسەر کۆی گشتی هەیە
         document.getElementById('exchange_rate_input').addEventListener('input', calcTotal);
 
         function validatePurchaseForm(e) {
