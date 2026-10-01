@@ -12,21 +12,30 @@
                 extend: {
                     colors: {
                         brand: { 50: '#eef2ff', 100: '#e0e7ff', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
-                        accent: { 400: '#34d399', 500: '#10b981', 600: '#059669' }
+                        neon: { purple: '#a855f7', pink: '#ec4899', cyan: '#06b6d4', emerald: '#10b981' }
                     },
                     fontFamily: { sans: ['Almarai', 'sans-serif'], num: ['Plus Jakarta Sans', 'sans-serif'] },
                     animation: {
-                        'fade-in': 'fadeIn 0.3s ease-out',
-                        'slide-up': 'slideUp 0.3s ease-out',
-                        'scale-in': 'scaleIn 0.2s ease-out',
-                        'shimmer': 'shimmer 2s linear infinite',
-                        'pulse-slow': 'pulse 3s ease-in-out infinite'
+                        'fade-in': 'fadeIn 0.4s ease-out',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        'scale-in': 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        'shimmer': 'shimmer 2.5s linear infinite',
+                        'gradient-x': 'gradientX 8s ease infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow-pulse': 'glowPulse 3s ease-in-out infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite'
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
-                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
-                        scaleIn: { '0%': { transform: 'scale(0.9)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } },
-                        shimmer: { '0%': { backgroundPosition: '-1000px 0' }, '100%': { backgroundPosition: '1000px 0' } }
+                        slideUp: { '0%': { transform: 'translateY(30px)', opacity: 0 }, '100%': { transform: 'translateY(0)', opacity: 1 } },
+                        scaleIn: { '0%': { transform: 'scale(0.85)', opacity: 0 }, '100%': { transform: 'scale(1)', opacity: 1 } },
+                        shimmer: { '0%': { backgroundPosition: '-1000px 0' }, '100%': { backgroundPosition: '1000px 0' } },
+                        gradientX: { '0%, 100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
+                        float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-15px)' } },
+                        glowPulse: { '0%, 100%': { boxShadow: '0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.2)' }, '50%': { boxShadow: '0 0 40px rgba(168, 85, 247, 0.8), 0 0 80px rgba(168, 85, 247, 0.4)' } },
+                        wiggle: { '0%, 100%': { transform: 'rotate(-3deg)' }, '50%': { transform: 'rotate(3deg)' } }
                     }
                 }
             }
@@ -39,34 +48,62 @@
         .font-num { font-family: 'Plus Jakarta Sans', sans-serif; }
         
         /* ============================================ */
-        /* ڕەنگی پشتەوە - مۆدێرن */
+        /* Animated Background - Aurora Effect */
         /* ============================================ */
         body { 
-            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
-            background-attachment: fixed;
+            background: linear-gradient(-45deg, #f8fafc, #e0e7ff, #fce7f3, #cffafe, #f8fafc);
+            background-size: 400% 400%;
+            animation: gradientX 15s ease infinite;
         }
         .dark body { 
-            background: #0a0e1a;
+            background: #050810;
             background-image: 
-                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15), transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.1), transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.08), transparent 60%);
+                radial-gradient(ellipse at 20% 10%, rgba(168, 85, 247, 0.25), transparent 50%),
+                radial-gradient(ellipse at 80% 90%, rgba(6, 182, 212, 0.2), transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(236, 72, 153, 0.15), transparent 60%),
+                radial-gradient(ellipse at 90% 20%, rgba(16, 185, 129, 0.15), transparent 50%);
         }
         
         /* ============================================ */
-        /* Glassmorphism Cards */
+        /* Premium Glassmorphism */
         /* ============================================ */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.08);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 
+                0 8px 32px rgba(31, 38, 135, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
         .dark .glass-panel {
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid rgba(99, 102, 241, 0.15);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            background: rgba(10, 15, 30, 0.6);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.5),
+                0 0 60px rgba(168, 85, 247, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        /* ============================================ */
+        /* Neon Borders */
+        /* ============================================ */
+        .neon-border {
+            position: relative;
+        }
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, #a855f7, #ec4899, #06b6d4, #10b981, #a855f7);
+            background-size: 300% 300%;
+            animation: gradientX 6s ease infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
         }
         
         /* ============================================ */
@@ -75,11 +112,11 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { 
-            background: linear-gradient(180deg, #6366f1, #8b5cf6); 
+            background: linear-gradient(180deg, #a855f7, #ec4899); 
             border-radius: 10px; 
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { 
-            background: linear-gradient(180deg, #4f46e5, #7c3aed); 
+            background: linear-gradient(180deg, #9333ea, #db2777); 
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -87,101 +124,132 @@
         /* ============================================ */
         /* Buttons */
         /* ============================================ */
-        .btn-press { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-press:active { transform: scale(0.96); }
+        .btn-press { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-press:active { transform: scale(0.94); }
         
         /* ============================================ */
-        /* Nav Buttons - Modern */
+        /* Nav Buttons - Premium */
         /* ============================================ */
         .nav-btn {
             position: relative;
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border-radius: 12px;
+            gap: 7px;
+            padding: 9px 18px;
+            border-radius: 14px;
             font-weight: 800;
             font-size: 11px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             background: rgba(255, 255, 255, 0.9);
             color: #475569;
             border: 1px solid rgba(226, 232, 240, 0.8);
             overflow: hidden;
             white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, transparent 0%, rgba(168, 85, 247, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .nav-btn:hover::after { opacity: 1; }
         .nav-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
-            border-color: rgba(99, 102, 241, 0.3);
-            color: #4f46e5;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(168, 85, 247, 0.2);
+            border-color: rgba(168, 85, 247, 0.4);
+            color: #9333ea;
         }
         .dark .nav-btn {
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(20, 25, 45, 0.8);
             color: #cbd5e1;
-            border-color: rgba(71, 85, 105, 0.5);
+            border-color: rgba(168, 85, 247, 0.15);
         }
         .dark .nav-btn:hover {
-            background: rgba(99, 102, 241, 0.15);
-            border-color: rgba(99, 102, 241, 0.4);
-            color: #a5b4fc;
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+            background: rgba(168, 85, 247, 0.12);
+            border-color: rgba(168, 85, 247, 0.5);
+            color: #d8b4fe;
+            box-shadow: 0 12px 24px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.2);
         }
         
         /* ============================================ */
-        /* Product Cards - Modern */
+        /* Product Cards - Premium */
         /* ============================================ */
         .product-card {
             position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             overflow: hidden;
+            isolation: isolate;
         }
         .product-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(168, 85, 247, 0.3), transparent 30%);
+            animation: spin-slow 8s linear infinite;
+            opacity: 0;
+            transition: opacity 0.5s;
+            z-index: -1;
         }
-        .product-card:hover::before {
-            left: 100%;
+        .product-card:hover::before { opacity: 1; }
+        .product-card::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            border-radius: inherit;
+            background: inherit;
+            z-index: -1;
         }
         .product-card:hover {
-            transform: translateY(-4px) scale(1.02);
+            transform: translateY(-6px) scale(1.03);
+        }
+        .dark .product-card:hover {
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(168, 85, 247, 0.3),
+                0 0 60px rgba(236, 72, 153, 0.15);
         }
         
         /* ============================================ */
         /* Gradient Buttons */
         /* ============================================ */
         .gradient-btn-emerald {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            background-size: 200% 200%;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            animation: gradientX 4s ease infinite;
         }
         .gradient-btn-emerald:hover {
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
         
         .gradient-btn-brand {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            background-size: 200% 200%;
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            animation: gradientX 4s ease infinite;
         }
         .gradient-btn-brand:hover {
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+            box-shadow: 0 12px 30px rgba(168, 85, 247, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
         
         /* ============================================ */
-        /* ویجێتی ئاڵوگۆڕ - ڕەنگ دەگۆڕێت */
+        /* ویجێتی ئاڵوگۆڕ */
         /* ============================================ */
         @keyframes colorShift {
-            0%   { background: linear-gradient(135deg, #f59e0b, #ea580c); box-shadow: 0 0 25px rgba(245, 158, 11, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
-            25%  { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 25px rgba(16, 185, 129, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
-            50%  { background: linear-gradient(135deg, #6366f1, #4f46e5); box-shadow: 0 0 25px rgba(99, 102, 241, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
-            75%  { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 0 25px rgba(139, 92, 246, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
-            100% { background: linear-gradient(135deg, #f59e0b, #ea580c); box-shadow: 0 0 25px rgba(245, 158, 11, 0.6), 0 8px 25px rgba(0,0,0,0.3); }
+            0%   { background: linear-gradient(135deg, #f59e0b, #ea580c, #dc2626); box-shadow: 0 0 30px rgba(245, 158, 11, 0.7), 0 10px 30px rgba(0,0,0,0.4); }
+            25%  { background: linear-gradient(135deg, #10b981, #059669, #047857); box-shadow: 0 0 30px rgba(16, 185, 129, 0.7), 0 10px 30px rgba(0,0,0,0.4); }
+            50%  { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); box-shadow: 0 0 30px rgba(168, 85, 247, 0.7), 0 10px 30px rgba(0,0,0,0.4); }
+            75%  { background: linear-gradient(135deg, #06b6d4, #0ea5e9, #3b82f6); box-shadow: 0 0 30px rgba(6, 182, 212, 0.7), 0 10px 30px rgba(0,0,0,0.4); }
+            100% { background: linear-gradient(135deg, #f59e0b, #ea580c, #dc2626); box-shadow: 0 0 30px rgba(245, 158, 11, 0.7), 0 10px 30px rgba(0,0,0,0.4); }
         }
         @keyframes iconSpin {
             0%, 100% { transform: rotate(0deg) scale(1); }
@@ -197,7 +265,6 @@
         }
         #exchangeRateWidget:hover > div:first-child {
             transform: scale(1.1);
-            box-shadow: 0 0 45px rgba(255, 255, 255, 0.5), 0 15px 40px rgba(0,0,0,0.5);
         }
         #exchangeRateWidget #rateIcon {
             animation: iconSpin 4s ease-in-out infinite, iconFloat 2s ease-in-out infinite;
@@ -205,39 +272,29 @@
         #exchangeRateWidget #newExchangeRate {
             background: rgba(255, 255, 255, 0.95);
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        #exchangeRateWidget #newExchangeRate:focus {
-            background: #ffffff;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.15), 0 0 0 3px rgba(255, 255, 255, 0.4);
         }
         
         /* ============================================ */
-        /* Floating background shapes */
+        /* Floating shapes */
         /* ============================================ */
         .bg-shape {
             position: fixed;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
+            filter: blur(100px);
+            opacity: 0.35;
             pointer-events: none;
             z-index: 0;
-            animation: floatShape 20s ease-in-out infinite;
-        }
-        @keyframes floatShape {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
+            animation: float 20s ease-in-out infinite;
         }
         
         /* ============================================ */
         /* Cart Item Animation */
         /* ============================================ */
         @keyframes slideInRight {
-            0% { transform: translateX(-20px); opacity: 0; }
-            100% { transform: translateX(0); opacity: 1; }
+            0% { transform: translateX(-30px) scale(0.95); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
         }
-        .cart-item-enter { animation: slideInRight 0.3s ease-out; }
+        .cart-item-enter { animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
         
         /* ============================================ */
         /* Glow effects */
@@ -246,18 +303,75 @@
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), 0 0 40px rgba(16, 185, 129, 0.2);
         }
         .glow-brand {
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5), 0 0 40px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.2);
         }
         
         /* ============================================ */
-        /* Stat cards hover */
+        /* Category pills */
         /* ============================================ */
-        .stat-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .cat-pill {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
         }
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        .cat-pill::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
+        .cat-pill:hover::before { opacity: 1; }
+        .cat-pill:hover { 
+            transform: translateY(-2px) scale(1.05);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+        }
+        
+        /* ============================================ */
+        /* Sparkle */
+        /* ============================================ */
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+        
+        /* ============================================ */
+        /* Interactive Qty Input */
+        /* ============================================ */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type="number"] { -moz-appearance: textfield; }
+        
+        /* ============================================ */
+        /* Pulse Ring */
+        /* ============================================ */
+        @keyframes pulseRing {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .pulse-ring::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            border: 2px solid currentColor;
+            animation: pulseRing 2s ease-out infinite;
         }
         
         @media (max-width: 768px) {
@@ -272,90 +386,100 @@
 <body class="text-slate-800 dark:text-slate-100 h-screen p-1 md:p-2 overflow-hidden select-none transition-colors duration-500 flex flex-col">
 
     <!-- بەشەکانی پشتەوەی جوڵاو -->
-    <div class="bg-shape" style="width:400px;height:400px;background:#6366f1;top:-100px;right:-100px;"></div>
-    <div class="bg-shape" style="width:300px;height:300px;background:#10b981;bottom:-100px;left:-100px;animation-delay:-10s;"></div>
-    <div class="bg-shape" style="width:250px;height:250px;background:#f59e0b;top:50%;left:50%;animation-delay:-5s;"></div>
+    <div class="bg-shape" style="width:500px;height:500px;background:radial-gradient(circle, #a855f7, transparent);top:-150px;right:-100px;"></div>
+    <div class="bg-shape" style="width:400px;height:400px;background:radial-gradient(circle, #06b6d4, transparent);bottom:-150px;left:-100px;animation-delay:-7s;"></div>
+    <div class="bg-shape" style="width:350px;height:350px;background:radial-gradient(circle, #ec4899, transparent);top:40%;left:40%;animation-delay:-12s;"></div>
+    <div class="bg-shape" style="width:300px;height:300px;background:radial-gradient(circle, #10b981, transparent);top:20%;left:20%;animation-delay:-4s;"></div>
 
     <!-- ============================================ -->
-    <!-- هێدەر - مۆدێرن -->
+    <!-- هێدەر -->
     <!-- ============================================ -->
-    <header class="glass-panel px-3 py-2 rounded-2xl mb-2 flex flex-col md:flex-row items-center justify-between shadow-lg z-[100] shrink-0 gap-2 relative">
+    <header class="glass-panel px-3 py-2.5 rounded-3xl mb-2 flex flex-col md:flex-row items-center justify-between shadow-2xl z-[100] shrink-0 gap-2 relative">
         
-        <!-- لۆگۆ و ناو -->
+        <!-- لۆگۆ -->
         <div class="flex items-center justify-between w-full md:w-auto gap-3">
-            <div class="flex items-center gap-2.5 shrink-0">
-                <div class="relative">
-                    <div class="w-10 h-10 md:w-11 md:h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-500 to-pink-500 text-white flex items-center justify-center text-lg shadow-lg shadow-indigo-500/40 rotate-3 hover:rotate-0 transition-transform duration-300">
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-500 rounded-2xl blur opacity-60 group-hover:opacity-100 transition duration-500 animate-glow-pulse"></div>
+                    <div class="relative w-11 h-11 md:w-12 md:h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-500 to-cyan-500 text-white flex items-center justify-center text-xl shadow-xl rotate-3 group-hover:rotate-0 transition-all duration-500">
                         <i class="fa-solid fa-bolt"></i>
                     </div>
-                    <div class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-ping"></div>
                 </div>
                 <div>
-                    <h1 class="text-sm md:text-base font-black tracking-tight text-slate-900 dark:text-white leading-none">
-                        POS <span class="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">PRO</span>
+                    <h1 class="text-base md:text-lg font-black tracking-tight leading-none">
+                        <span class="bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-500 bg-clip-text text-transparent">POS</span>
+                        <span class="text-slate-900 dark:text-white"> PRO</span>
                     </h1>
-                    <p class="text-[9px] text-slate-500 dark:text-slate-400 font-bold mt-0.5">سیستەمی فرۆشتنی مۆدێرن</p>
+                    <p class="text-[9px] text-slate-500 dark:text-slate-400 font-black mt-1 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                        سیستەمی مۆدێرن
+                    </p>
                 </div>
             </div>
 
-            <!-- مۆبایل: دوگمەکان -->
             <div class="flex md:hidden items-center gap-1.5 shrink-0">
-                <button type="button" onclick="toggleTheme()" class="btn-press w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center shadow-md">
-                    <i id="themeIconMobile" class="fa-solid fa-moon text-xs"></i>
+                <button type="button" onclick="toggleTheme()" class="btn-press w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center shadow-lg">
+                    <i id="themeIconMobile" class="fa-solid fa-moon text-sm"></i>
                 </button>
                 <form action="{{ route('logout') }}" method="POST" class="m-0">
                     <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
-                    <button type="submit" class="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white flex items-center justify-center shadow-md">
-                        <i class="fa-solid fa-power-off text-xs"></i>
+                    <button type="submit" class="w-9 h-9 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-power-off text-sm"></i>
                     </button>
                 </form>
             </div>
         </div>
 
-        <!-- دوگمەکانی ناڤیگەیشن -->
+        <!-- ناڤیگەیشن -->
         <div class="flex flex-wrap items-center justify-center gap-1.5 relative z-[105] w-full md:w-auto">
             <a href="{{ route('purchases.create') }}" class="nav-btn"><i class="fa-solid fa-box-open text-amber-500"></i> کڕین</a>
-            <a href="{{ route('products.index') }}" class="nav-btn"><i class="fa-solid fa-boxes-stacked text-blue-500"></i> کۆگا</a>
+            <a href="{{ route('products.index') }}" class="nav-btn"><i class="fa-solid fa-boxes-stacked text-cyan-500"></i> کۆگا</a>
             <a href="{{ route('customers.index') }}" class="nav-btn"><i class="fa-solid fa-users text-emerald-500"></i> کڕیار</a>
-            <a href="{{ route('reports.index') }}" class="nav-btn"><i class="fa-solid fa-chart-pie text-purple-500"></i> ڕاپۆرت</a>
+            <a href="{{ route('reports.index') }}" class="nav-btn"><i class="fa-solid fa-chart-pie text-pink-500"></i> ڕاپۆرت</a>
             <div class="relative inline-block">
                 <button type="button" onclick="event.stopPropagation(); document.getElementById('moreDropdown').classList.toggle('hidden')" class="nav-btn">
-                    <i class="fa-solid fa-ellipsis text-slate-500"></i> زیاتر
+                    <i class="fa-solid fa-ellipsis text-purple-500"></i> زیاتر
                     <i class="fa-solid fa-chevron-down text-[8px]"></i>
                 </button>
-                <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[9999] max-h-96 overflow-y-auto custom-scrollbar text-xs p-1.5 animate-slide-up">
-                    <a href="{{ route('sales.list') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-emerald-600 dark:text-emerald-400 font-bold hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"><i class="fa-solid fa-receipt w-5 text-center"></i> فرۆشتنەکان</a>
-                    <a href="{{ route('categories.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"><i class="fa-solid fa-tags w-5 text-center text-indigo-500"></i> کاتیگۆری</a>
-                    <a href="{{ route('units.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"><i class="fa-solid fa-scale-balanced w-5 text-center text-orange-500"></i> یەکەکان</a>
-                    <a href="{{ route('suppliers.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"><i class="fa-solid fa-truck-field w-5 text-center text-cyan-500"></i> دابینکەران</a>
-                    <a href="{{ route('expenses.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"><i class="fa-solid fa-money-bill-trend-up w-5 text-center text-rose-500"></i> خەرجییەکان</a>
-                    <a href="{{ route('partners.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"><i class="fa-solid fa-handshake w-5 text-center text-yellow-500"></i> هاوبەشەکان</a>
-                    <a href="{{ route('returns.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"><i class="fa-solid fa-rotate-left w-5 text-center text-red-500"></i> گەڕاوەکان</a>
-                    <a href="{{ route('mandub.dashboard') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"><i class="fa-solid fa-motorcycle w-5 text-center text-teal-500"></i> مەندووب</a>
-                    <a href="{{ route('settings.receipt') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"><i class="fa-solid fa-gear w-5 text-center text-slate-500"></i> ڕێکخستنی وەسڵ</a>
-                    <a href="{{ route('users.index') }}" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"><i class="fa-solid fa-user-shield w-5 text-center text-indigo-600"></i> کارمەندان</a>
+                <div id="moreDropdown" class="hidden absolute right-0 top-full mt-2 w-60 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-purple-500/20 z-[9999] max-h-96 overflow-y-auto custom-scrollbar text-xs p-2 animate-slide-up">
+                    <a href="{{ route('sales.list') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-emerald-600 dark:text-emerald-400 font-black hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 dark:hover:from-emerald-900/20 dark:hover:to-teal-900/20 transition-all"><i class="fa-solid fa-receipt w-5 text-center"></i> فرۆشتنەکان</a>
+                    <a href="{{ route('categories.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-900/20 dark:hover:to-pink-900/20 transition-all"><i class="fa-solid fa-tags w-5 text-center text-purple-500"></i> کاتیگۆری</a>
+                    <a href="{{ route('units.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 dark:hover:from-orange-900/20 dark:hover:to-amber-900/20 transition-all"><i class="fa-solid fa-scale-balanced w-5 text-center text-orange-500"></i> یەکەکان</a>
+                    <a href="{{ route('suppliers.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 dark:hover:from-cyan-900/20 dark:hover:to-blue-900/20 transition-all"><i class="fa-solid fa-truck-field w-5 text-center text-cyan-500"></i> دابینکەران</a>
+                    <a href="{{ route('expenses.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-rose-50 hover:to-red-50 dark:hover:from-rose-900/20 dark:hover:to-red-900/20 transition-all"><i class="fa-solid fa-money-bill-trend-up w-5 text-center text-rose-500"></i> خەرجییەکان</a>
+                    <a href="{{ route('partners.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-yellow-50 hover:to-amber-50 dark:hover:from-yellow-900/20 dark:hover:to-amber-900/20 transition-all"><i class="fa-solid fa-handshake w-5 text-center text-yellow-500"></i> هاوبەشەکان</a>
+                    <a href="{{ route('returns.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 dark:hover:from-red-900/20 dark:hover:to-rose-900/20 transition-all"><i class="fa-solid fa-rotate-left w-5 text-center text-red-500"></i> گەڕاوەکان</a>
+                    <a href="{{ route('mandub.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-teal-50 hover:to-emerald-50 dark:hover:from-teal-900/20 dark:hover:to-emerald-900/20 transition-all"><i class="fa-solid fa-motorcycle w-5 text-center text-teal-500"></i> مەندووب</a>
+                    <a href="{{ route('settings.receipt') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-slate-50 hover:to-gray-50 dark:hover:from-slate-700/50 dark:hover:to-gray-700/50 transition-all"><i class="fa-solid fa-gear w-5 text-center text-slate-500"></i> ڕێکخستنی وەسڵ</a>
+                    <a href="{{ route('users.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20 transition-all"><i class="fa-solid fa-user-shield w-5 text-center text-indigo-600"></i> کارمەندان</a>
                 </div>
             </div>
         </div>
 
-        <!-- بەشی بەکارهێنەر - دێسکتۆپ -->
+        <!-- بەکارهێنەر -->
         <div class="hidden md:flex items-center gap-2 shrink-0">
-            <button type="button" onclick="toggleTheme()" class="btn-press w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/50 transition-all">
+            <button type="button" onclick="toggleTheme()" class="btn-press relative w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/40 hover:shadow-xl hover:shadow-amber-500/60 transition-all">
                 <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
             </button>
             
-            <div class="flex items-center gap-2 bg-white/60 dark:bg-slate-800/60 backdrop-blur pl-3 pr-1.5 py-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-sm">
+            <div class="flex items-center gap-2.5 bg-white/70 dark:bg-slate-900/70 backdrop-blur px-3 py-1.5 rounded-2xl border border-slate-200/80 dark:border-purple-500/20 shadow-sm">
                 <div class="relative">
-                    <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center shadow-md">
-                        <i class="fa-solid fa-user text-[10px]"></i>
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl blur opacity-60"></div>
+                    <div class="relative w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-user text-[11px]"></i>
                     </div>
-                    <div class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800"></div>
                 </div>
-                <span class="font-extrabold text-[11px] text-slate-700 dark:text-slate-200">{{ auth()->user()->name ?? 'کاشیر' }}</span>
-                <div class="h-4 w-px bg-slate-300 dark:bg-slate-600"></div>
+                <div class="flex flex-col">
+                    <span class="font-black text-[11px] text-slate-800 dark:text-slate-100 leading-tight">{{ auth()->user()->name ?? 'کاشیر' }}</span>
+                    <span class="text-[8px] text-emerald-500 font-black flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                        ئۆنلاین
+                    </span>
+                </div>
+                <div class="h-5 w-px bg-slate-300 dark:bg-slate-700"></div>
                 <form action="{{ route('logout') }}" method="POST" class="inline m-0">
                     <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
-                    <button type="submit" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white transition-all flex items-center justify-center" title="دەرچوون">
+                    <button type="submit" class="w-8 h-8 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white transition-all flex items-center justify-center" title="دەرچوون">
                         <i class="fa-solid fa-power-off text-xs"></i>
                     </button>
                 </form>
@@ -371,31 +495,34 @@
         <!-- ============================================ -->
         <!-- لیستی کاڵاکان -->
         <!-- ============================================ -->
-        <div class="lg:col-span-9 glass-panel rounded-2xl p-2.5 flex flex-col h-[55vh] lg:h-full overflow-hidden relative">
+        <div class="lg:col-span-9 glass-panel rounded-3xl p-3 flex flex-col h-[55vh] lg:h-full overflow-hidden relative">
             
             <!-- گەڕان و کاتیگۆری -->
-            <div class="shrink-0 space-y-2 pb-2.5 border-b border-slate-200/60 dark:border-slate-700/40">
-                <div class="flex justify-between items-center gap-2">
+            <div class="shrink-0 space-y-2.5 pb-2.5 border-b border-slate-200/60 dark:border-purple-500/10">
+                <div class="flex justify-between items-center gap-2.5">
                     
                     <!-- گەڕان -->
-                    <div class="w-full md:w-80 relative group">
-                        <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بۆ کاڵا..." 
-                               class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/70 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-800 dark:text-white text-[11px] transition-all shadow-sm font-bold">
-                        <div class="absolute left-3 top-2.5 w-5 h-5 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                            <i class="fa-solid fa-magnifying-glass text-white text-[9px]"></i>
+                    <div class="w-full md:w-96 relative group">
+                        <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl blur opacity-30 group-focus-within:opacity-70 transition duration-300"></div>
+                        <div class="relative">
+                            <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بۆ کاڵا..." 
+                                   class="w-full pl-11 pr-16 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-purple-500 text-slate-800 dark:text-white text-xs transition-all shadow-sm font-bold">
+                            <div class="absolute left-2 top-2 w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
+                                <i class="fa-solid fa-magnifying-glass text-white text-xs"></i>
+                            </div>
+                            <kbd class="absolute right-3 top-3 text-[9px] font-black text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hidden md:block">Ctrl+K</kbd>
                         </div>
-                        <kbd class="absolute right-3 top-3 text-[9px] font-bold text-slate-400 hidden md:block">Ctrl+K</kbd>
                     </div>
                     
-                    <!-- کاتیگۆرییەکان -->
+                    <!-- کاتیگۆری -->
                     <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full md:w-auto">
                         <button type="button" onclick="filterCategory('all')" id="cat-btn-all" 
-                                class="cat-filter-btn btn-press bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2 rounded-xl text-[10px] font-black whitespace-nowrap shadow-lg shadow-indigo-500/30">
+                                class="cat-filter-btn cat-pill btn-press bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 text-white px-4 py-2.5 rounded-2xl text-[10px] font-black whitespace-nowrap shadow-lg shadow-purple-500/40">
                             <i class="fa-solid fa-star text-[9px]"></i> هەمووی
                         </button>
                         <?php foreach($categories as $cat): ?>
                         <button type="button" onclick="filterCategory('<?php echo $cat->id; ?>')" id="cat-btn-<?php echo $cat->id; ?>" 
-                                class="cat-filter-btn btn-press bg-white/70 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-xl text-[10px] font-bold whitespace-nowrap border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all">
+                                class="cat-filter-btn cat-pill btn-press bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 px-4 py-2.5 rounded-2xl text-[10px] font-black whitespace-nowrap border border-slate-200 dark:border-slate-700">
                             <?php echo $cat->name; ?>
                         </button>
                         <?php endforeach; ?>
@@ -404,7 +531,7 @@
             </div>
 
             <!-- گرێدی کاڵاکان -->
-            <div class="grow overflow-y-auto pt-2.5 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 content-start" id="productsGrid">
+            <div class="grow overflow-y-auto pt-3 pr-0.5 custom-scrollbar grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2.5 content-start" id="productsGrid">
                 <?php foreach($products as $p): ?>
                 <?php
                     $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
@@ -412,55 +539,58 @@
                     $isOut = $stockVal <= 0;
                     $isLow = !$isOut && $stockVal <= $alertVal;
                 ?>
-                <div class="product-card group relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800/90 dark:to-slate-900/90 border <?php echo $isOut ? 'border-rose-300/60 dark:border-rose-500/40' : ($isLow ? 'border-amber-300/60 dark:border-amber-500/40' : 'border-slate-200/80 dark:border-slate-700/60'); ?> rounded-2xl p-2 flex flex-col justify-between shadow-md hover:shadow-2xl transition-all duration-300 <?php echo $isOut ? 'opacity-60' : ''; ?>"
+                <div class="product-card group relative bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border <?php echo $isOut ? 'border-rose-300/60 dark:border-rose-500/40' : ($isLow ? 'border-amber-300/60 dark:border-amber-500/40' : 'border-slate-200/80 dark:border-purple-500/20'); ?> rounded-2xl p-2.5 flex flex-col justify-between shadow-lg hover:shadow-2xl transition-all duration-300 <?php echo $isOut ? 'opacity-60' : ''; ?>"
                      data-category="<?php echo $p->category_id; ?>" 
                      data-name="<?php echo htmlspecialchars($p->name, ENT_QUOTES, 'UTF-8'); ?>" 
                      data-code="<?php echo htmlspecialchars($p->code, ENT_QUOTES, 'UTF-8'); ?>"
                      data-price-usd="<?php echo $p->base_sale_price; ?>">
                     
                     <!-- باجی بڕ -->
-                    <div id="qty-badge-<?php echo $p->id; ?>" class="qty-badge hidden absolute -top-1.5 -left-1.5 bg-gradient-to-br from-emerald-400 to-emerald-600 text-white font-num font-black text-[10px] px-2 py-1 rounded-full shadow-lg shadow-emerald-500/50 border-2 border-white dark:border-slate-900 z-20 transition-all duration-300 transform scale-0 flex items-center gap-0.5 pointer-events-none">
-                        <i class="fa-solid fa-check text-[7px]"></i> <span class="badge-val">0</span>
+                    <div id="qty-badge-<?php echo $p->id; ?>" class="qty-badge hidden absolute -top-2 -left-2 bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600 text-white font-num font-black text-[11px] px-2.5 py-1 rounded-full shadow-xl shadow-emerald-500/60 border-2 border-white dark:border-slate-900 z-20 transition-all duration-300 transform scale-0 flex items-center gap-1 pointer-events-none">
+                        <i class="fa-solid fa-check text-[8px]"></i> <span class="badge-val">0</span>
                     </div>
 
                     <div class="cursor-pointer" onclick="addToCart(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>)">
                         
                         <!-- باجی کۆد و دۆخ -->
-                        <div class="flex justify-between items-start mb-1.5 relative z-10">
-                            <span class="text-[8px] font-num font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-lg border border-indigo-200/50 dark:border-indigo-700/50"><?php echo $p->code; ?></span>
+                        <div class="flex justify-between items-start mb-2 relative z-10">
+                            <span class="text-[8px] font-num font-black text-purple-600 dark:text-purple-300 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 px-2 py-1 rounded-lg border border-purple-200/50 dark:border-purple-700/50 shadow-sm"><?php echo $p->code; ?></span>
                             <?php if($isOut): ?>
-                                <span class="text-[8px] font-black text-white bg-gradient-to-r from-rose-500 to-red-600 px-1.5 py-0.5 rounded-lg shadow-sm">نەماوە</span>
+                                <span class="text-[8px] font-black text-white bg-gradient-to-r from-rose-500 to-red-600 px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
+                                    <i class="fa-solid fa-xmark text-[7px]"></i> نەماوە
+                                </span>
                             <?php elseif($isLow): ?>
-                                <span class="text-[8px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 px-1.5 py-0.5 rounded-lg shadow-sm">کەمە</span>
+                                <span class="text-[8px] font-black text-white bg-gradient-to-r from-amber-500 to-orange-600 px-2 py-1 rounded-lg shadow-md flex items-center gap-1">
+                                    <i class="fa-solid fa-triangle-exclamation text-[7px]"></i> کەمە
+                                </span>
                             <?php endif; ?>
                         </div>
 
                         <!-- ناو و بڕ -->
-                        <div class="text-center my-1.5 relative z-10">
-                            <h3 class="font-black text-slate-800 dark:text-white text-[10px] md:text-[11px] line-clamp-2 leading-tight"><?php echo $p->name; ?></h3>
-                            <div class="flex items-center justify-center gap-1 mt-1">
+                        <div class="text-center my-2 relative z-10">
+                            <h3 class="font-black text-slate-800 dark:text-white text-[11px] leading-tight mb-1.5 line-clamp-2"><?php echo $p->name; ?></h3>
+                            <div class="inline-flex items-center justify-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100/70 dark:bg-slate-800/70 border border-slate-200/50 dark:border-slate-700/50">
                                 <i class="fa-solid fa-cube text-[8px] <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-500'); ?>"></i>
-                                <p class="text-[9px] text-slate-500 dark:text-slate-400 font-bold">
-                                    <span class="font-num <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-500'); ?>"><?php echo $stockVal; ?></span> کگ
-                                </p>
+                                <span class="text-[9px] font-num font-black <?php echo $isOut ? 'text-rose-500' : ($isLow ? 'text-amber-500' : 'text-emerald-600 dark:text-emerald-400'); ?>"><?php echo $stockVal; ?></span>
+                                <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold">کگ</span>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- دوگمەکانی + و - -->
-                    <div class="mt-1.5 pt-1.5 border-t border-slate-200/70 dark:border-slate-700/50 flex items-center justify-between gap-1 relative z-10">
+                    <!-- دوگمەکان -->
+                    <div class="mt-2 pt-2 border-t border-slate-200/70 dark:border-slate-700/40 flex items-center justify-between gap-1.5 relative z-10">
                         <button type="button" onclick="quickIncrease(<?php echo htmlspecialchars(json_encode($p), ENT_QUOTES, 'UTF-8'); ?>, event)" 
-                                class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl text-sm font-black flex items-center justify-center shadow-md shadow-indigo-500/30 hover:shadow-lg transition-all active:scale-95">
-                            <i class="fa-solid fa-plus text-[10px]"></i>
+                                class="w-9 h-9 bg-gradient-to-br from-purple-500 via-purple-600 to-pink-600 hover:from-purple-600 hover:via-purple-700 hover:to-pink-700 text-white rounded-xl text-sm font-black flex items-center justify-center shadow-lg shadow-purple-500/40 hover:shadow-xl hover:shadow-purple-500/60 transition-all active:scale-90">
+                            <i class="fa-solid fa-plus text-[11px]"></i>
                         </button>
                         
                         <div class="flex flex-col items-center">
-                            <span id="price-anim-<?php echo $p->id; ?>" class="text-[11px] font-black font-num text-emerald-600 dark:text-emerald-400 transition-all duration-200 inline-block" dir="ltr">$<?php echo number_format($p->base_sale_price, 2); ?></span>
+                            <span id="price-anim-<?php echo $p->id; ?>" class="text-[12px] font-black font-num bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent transition-all duration-200 inline-block" dir="ltr">$<?php echo number_format($p->base_sale_price, 2); ?></span>
                         </div>
                         
                         <button type="button" onclick="quickDecrease(<?php echo $p->id; ?>, event)" 
-                                class="w-8 h-8 bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 dark:hover:bg-rose-900/30 text-slate-600 dark:text-slate-300 hover:text-rose-600 rounded-xl text-sm font-black flex items-center justify-center transition-all active:scale-95 border border-slate-200 dark:border-slate-700">
-                            <i class="fa-solid fa-minus text-[10px]"></i>
+                                class="w-9 h-9 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 hover:from-rose-100 hover:to-rose-200 dark:hover:from-rose-900/40 dark:hover:to-rose-900/40 text-slate-600 dark:text-slate-300 hover:text-rose-600 rounded-xl text-sm font-black flex items-center justify-center transition-all active:scale-90 border border-slate-200 dark:border-slate-700">
+                            <i class="fa-solid fa-minus text-[11px]"></i>
                         </button>
                     </div>
                 </div>
@@ -471,57 +601,60 @@
         <!-- ============================================ -->
         <!-- سەبەتە -->
         <!-- ============================================ -->
-        <div class="lg:col-span-3 glass-panel rounded-2xl p-2.5 flex flex-col h-[40vh] lg:h-full overflow-hidden relative shadow-xl">
+        <div class="lg:col-span-3 glass-panel rounded-3xl p-3 flex flex-col h-[40vh] lg:h-full overflow-hidden relative shadow-2xl">
             
-            <!-- سەرەتای سەبەتە -->
-            <div class="shrink-0 pb-2.5 border-b border-slate-200/60 dark:border-slate-700/40">
-                <div class="flex justify-between items-center mb-2">
+            <div class="shrink-0 pb-3 border-b border-slate-200/60 dark:border-purple-500/10">
+                <div class="flex justify-between items-center mb-2.5">
                     <h2 class="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
                         <div class="relative">
-                            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                                <i id="cartIconAnim" class="fa-solid fa-cart-shopping text-white text-xs"></i>
+                            <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur opacity-60"></div>
+                            <div class="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/40">
+                                <i id="cartIconAnim" class="fa-solid fa-cart-shopping text-white text-sm"></i>
                             </div>
-                            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping opacity-75 hidden" id="cartPing"></span>
+                            <span class="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full animate-ping opacity-75 hidden" id="cartPing"></span>
                         </div>
-                        سەبەتە
+                        <div class="flex flex-col">
+                            <span>سەبەتە</span>
+                            <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold">کاڵاکانی هەڵبژێردراو</span>
+                        </div>
                     </h2>
                     <button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" 
-                            class="btn-press bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 px-2.5 py-1.5 rounded-xl text-[9px] font-bold border border-rose-200 dark:border-rose-800/50 hover:bg-rose-100 transition-colors">
+                            class="btn-press bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-900/20 dark:to-red-900/20 text-rose-600 dark:text-rose-400 px-3 py-2 rounded-xl text-[9px] font-black border border-rose-200 dark:border-rose-800/50 hover:from-rose-100 hover:to-red-100 transition-all">
                         <i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span>
                     </button>
                 </div>
 
-                <div class="bg-white/60 dark:bg-slate-900/60 p-2 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 space-y-2 backdrop-blur">
+                <div class="bg-white/70 dark:bg-slate-900/60 p-2.5 rounded-2xl border border-slate-200/80 dark:border-purple-500/20 space-y-2 backdrop-blur">
                     
-                    <!-- دراو و ئاڵوگۆڕ -->
-                    <div class="flex items-center justify-between gap-1 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800/60 dark:to-slate-900/60 p-1.5 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
+                    <!-- دراو -->
+                    <div class="flex items-center justify-between gap-1.5 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-800/60 dark:to-slate-900/60 p-2 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
                         <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 flex items-center gap-1">
                             <i class="fa-solid fa-coins text-amber-500"></i> دراو:
                         </span>
                         <div class="flex items-center gap-1">
-                            <button type="button" onclick="setCurrency('USD')" id="btn-cur-usd" class="px-2.5 py-1 rounded-lg text-[10px] font-black bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/30 transition-all">
-                                <i class="fa-solid fa-dollar-sign text-[9px]"></i>
+                            <button type="button" onclick="setCurrency('USD')" id="btn-cur-usd" class="px-3 py-1.5 rounded-lg text-[10px] font-black bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/40 transition-all">
+                                <i class="fa-solid fa-dollar-sign text-[10px]"></i>
                             </button>
-                            <button type="button" onclick="setCurrency('IQD')" id="btn-cur-iqd" class="px-2.5 py-1 rounded-lg text-[10px] font-black bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all">
+                            <button type="button" onclick="setCurrency('IQD')" id="btn-cur-iqd" class="px-3 py-1.5 rounded-lg text-[10px] font-black bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all">
                                 د.ع
                             </button>
                         </div>
                         <div class="flex items-center gap-1">
                             <input type="number" id="exchangeRate" value="<?php echo $setting->exchange_rate ?? 1500; ?>" onchange="renderCart(false)" 
-                                   class="w-14 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg px-1.5 py-1 text-[10px] font-num font-black text-center focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20">
+                                   class="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-[10px] font-num font-black text-center focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30">
                         </div>
                     </div>
 
                     <!-- بەروار و کڕیار -->
                     <div class="flex gap-1.5">
                         <div class="relative flex-1">
-                            <i class="fa-regular fa-calendar absolute left-2.5 top-2 text-indigo-500 text-[10px]"></i>
+                            <i class="fa-regular fa-calendar absolute left-3 top-2.5 text-purple-500 text-[10px]"></i>
                             <input type="datetime-local" id="saleCreatedAt" value="<?php echo date('Y-m-d\TH:i'); ?>" 
-                                   class="w-full pl-7 pr-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-num font-bold focus:outline-none focus:border-indigo-500">
+                                   class="w-full pl-8 pr-2 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-num font-bold focus:outline-none focus:border-purple-500">
                         </div>
                         <div class="relative flex-1">
-                            <i class="fa-solid fa-user absolute left-2.5 top-2 text-emerald-500 text-[10px]"></i>
-                            <select id="customerId" class="w-full pl-7 pr-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold focus:outline-none focus:border-indigo-500">
+                            <i class="fa-solid fa-user absolute left-3 top-2.5 text-emerald-500 text-[10px]"></i>
+                            <select id="customerId" class="w-full pl-8 pr-2 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-bold focus:outline-none focus:border-purple-500">
                                 <option value="">کڕیاری نەقد</option>
                                 <?php foreach($customers as $c): ?>
                                     <option value="<?php echo $c->id; ?>"><?php echo $c->name; ?></option>
@@ -531,53 +664,54 @@
                     </div>
 
                     <!-- جۆری پارەدان -->
-                    <div class="flex p-0.5 bg-slate-200/70 dark:bg-slate-800/80 rounded-xl relative">
-                        <label class="flex-1 text-center py-1.5 rounded-lg cursor-pointer font-black text-[10px] z-10 has-[:checked]:text-white transition-colors">
+                    <div class="flex p-1 bg-slate-200/70 dark:bg-slate-800/80 rounded-xl relative">
+                        <label class="flex-1 text-center py-2 rounded-lg cursor-pointer font-black text-[10px] z-10 has-[:checked]:text-white transition-colors">
                             <input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()" class="hidden peer">
-                            <span><i class="fa-solid fa-money-bill-wave text-[9px]"></i> نەقد</span>
+                            <span><i class="fa-solid fa-money-bill-wave text-[10px]"></i> نەقد</span>
                         </label>
-                        <label class="flex-1 text-center py-1.5 rounded-lg cursor-pointer font-black text-[10px] z-10 has-[:checked]:text-white text-slate-600 dark:text-slate-400 transition-colors">
+                        <label class="flex-1 text-center py-2 rounded-lg cursor-pointer font-black text-[10px] z-10 has-[:checked]:text-white text-slate-600 dark:text-slate-400 transition-colors">
                             <input type="radio" name="paymentType" value="debt" onchange="togglePaymentType()" class="hidden peer">
-                            <span><i class="fa-solid fa-clock text-[9px]"></i> قەرز</span>
+                            <span><i class="fa-solid fa-clock text-[10px]"></i> قەرز</span>
                         </label>
-                        <div class="absolute top-0.5 bottom-0.5 w-[calc(50%-2px)] bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg shadow-md transition-all duration-300" id="paymentSelector"></div>
+                        <div class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg shadow-lg transition-all duration-300" id="paymentSelector"></div>
                     </div>
 
                     <!-- بڕی پارەی دراو -->
                     <div id="paidAmountBox" class="hidden">
                         <input type="number" id="paidAmount" placeholder="بڕی پارەی دراو" value="0" min="0" 
-                               class="w-full p-2 rounded-xl bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-[11px] font-num font-bold focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20">
+                               class="w-full p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 text-[11px] font-num font-black focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20">
                     </div>
                 </div>
             </div>
 
             <!-- کاڵاکانی سەبەتە -->
-            <div id="cartItemsContainer" class="grow overflow-y-auto py-2 pr-0.5 space-y-2 custom-scrollbar"></div>
+            <div id="cartItemsContainer" class="grow overflow-y-auto py-2.5 pr-0.5 space-y-2 custom-scrollbar"></div>
 
             <!-- کۆی گشتی -->
-            <div class="shrink-0 pt-2 mt-1 border-t border-slate-200/60 dark:border-slate-700/40">
-                <div class="space-y-1.5 mb-2 px-1 text-[10px]">
+            <div class="shrink-0 pt-2.5 mt-1 border-t border-slate-200/60 dark:border-purple-500/10">
+                <div class="space-y-1.5 mb-2.5 px-1 text-[10px]">
                     <div class="flex justify-between items-center">
-                        <span class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1">
-                            <i class="fa-solid fa-calculator text-indigo-500 text-[9px]"></i> کۆی کاڵا:
+                        <span class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-calculator text-purple-500 text-[10px]"></i> کۆی کاڵا:
                         </span>
                         <span id="subTotalText" class="font-num font-black text-slate-700 dark:text-slate-200" dir="ltr">0</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1">
-                            <i class="fa-solid fa-percent text-amber-500 text-[9px]"></i> داشکاندن:
+                        <span class="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-percent text-amber-500 text-[10px]"></i> داشکاندن:
                         </span>
                         <input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart(false)" 
-                               class="w-16 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg text-amber-600 dark:text-amber-400 font-num font-black text-left text-[10px] focus:outline-none border border-slate-200 dark:border-slate-700">
+                               class="w-20 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg text-amber-600 dark:text-amber-400 font-num font-black text-left text-[10px] focus:outline-none border border-slate-200 dark:border-slate-700 focus:border-purple-500">
                     </div>
-                    <div class="flex justify-between items-end pt-1 pb-1">
+                    <div class="flex justify-between items-end pt-1.5 pb-1 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 px-2.5 py-2 rounded-xl border border-emerald-200/50 dark:border-emerald-800/30">
                         <span class="font-black text-[12px] text-slate-800 dark:text-white">کۆی گشتی:</span>
-                        <span id="grandTotalText" class="text-emerald-500 dark:text-emerald-400 font-num font-black text-xl" dir="ltr">0</span>
+                        <span id="grandTotalText" class="bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent font-num font-black text-xl" dir="ltr">0</span>
                     </div>
                 </div>
                 
                 <button type="button" onclick="submitSale()" id="btnSubmitSale" 
-                        class="btn-press w-full gradient-btn-emerald text-white font-black py-3 rounded-2xl text-[12px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-95">
+                        class="btn-press w-full gradient-btn-emerald text-white font-black py-3.5 rounded-2xl text-[13px] flex items-center justify-center gap-2 transition-all duration-300 active:scale-95 relative overflow-hidden group">
+                    <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
                     <i class="fa-solid fa-paper-plane"></i> پسوولەکردن
                 </button>
             </div>
@@ -587,38 +721,46 @@
     <!-- ============================================ -->
     <!-- مۆداڵی سەرکەوتن -->
     <!-- ============================================ -->
-    <div id="successModal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[999]">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-5 text-right shadow-2xl flex flex-col max-h-[90vh] animate-scale-in border border-slate-200 dark:border-slate-700">
+    <div id="successModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-xl flex items-center justify-center p-2 md:p-4 z-[999]">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-6 text-right shadow-2xl flex flex-col max-h-[90vh] animate-scale-in border-2 border-purple-500/30 dark:border-purple-500/40 relative overflow-hidden">
             
-            <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 shrink-0">
+            <!-- Sparkles decoration -->
+            <div class="absolute top-4 left-4 w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+            <div class="absolute top-8 left-12 w-1.5 h-1.5 bg-pink-500 rounded-full animate-pulse" style="animation-delay:0.3s"></div>
+            <div class="absolute top-12 left-6 w-1 h-1 bg-cyan-500 rounded-full animate-pulse" style="animation-delay:0.6s"></div>
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center text-xl shadow-lg shadow-emerald-500/30">
-                        <i class="fa-solid fa-check text-white"></i>
+                    <div class="relative">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur opacity-60 animate-pulse"></div>
+                        <div class="relative w-14 h-14 bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg">
+                            <i class="fa-solid fa-check text-white"></i>
+                        </div>
                     </div>
                     <div>
-                        <h3 class="text-base font-black dark:text-white">وەسڵ بە سەرکەوتوویی تۆمارکرا!</h3>
-                        <p class="text-[10px] text-slate-400 mt-0.5">دەتوانیت کاڵاکان دەستکاری بکەیت پێش چاپکردن</p>
+                        <h3 class="text-lg font-black dark:text-white bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">وەسڵ تۆمارکرا!</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5 font-bold">دەتوانیت کاڵاکان دەستکاری بکەیت پێش چاپکردن</p>
                     </div>
                 </div>
-                <button type="button" onclick="returnToSameSale()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-rose-100 hover:text-rose-500 transition-colors">
+                <button type="button" onclick="returnToSameSale()" class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-rose-100 hover:text-rose-500 hover:rotate-90 transition-all duration-300">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
-            <div class="grow overflow-y-auto py-3 custom-scrollbar space-y-2" id="modalItemsList"></div>
+            <div class="grow overflow-y-auto py-4 custom-scrollbar space-y-2" id="modalItemsList"></div>
             
-            <div class="shrink-0 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
-                <div class="flex justify-between items-center px-3 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
-                    <span class="text-xs font-black text-slate-700 dark:text-slate-200">کۆی گشتی پارە:</span>
-                    <span id="modalGrandTotal" class="text-emerald-500 text-lg font-num font-black" dir="ltr">0 IQD</span>
+            <div class="shrink-0 pt-4 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                <div class="flex justify-between items-center px-4 py-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-900/20 dark:via-teal-900/20 dark:to-cyan-900/20 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800/50">
+                    <span class="text-sm font-black text-slate-700 dark:text-slate-200">کۆی گشتی پارە:</span>
+                    <span id="modalGrandTotal" class="text-emerald-500 text-xl font-num font-black" dir="ltr">0 IQD</span>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-2.5">
                     <a href="#" id="printInvoiceBtn" target="_blank" 
-                       class="btn-press py-3 gradient-btn-emerald text-white rounded-xl text-xs font-black flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-print"></i> پرینت
+                       class="btn-press py-3.5 gradient-btn-emerald text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 shadow-lg">
+                        <i class="fa-solid fa-print"></i> پرینتکردن
                     </a>
                     <button type="button" onclick="returnToSameSale()" 
-                            class="btn-press py-3 gradient-btn-brand text-white rounded-xl text-xs font-black active:scale-95">
+                            class="btn-press py-3.5 gradient-btn-brand text-white rounded-2xl text-xs font-black active:scale-95 shadow-lg flex items-center justify-center gap-2">
                         <i class="fa-solid fa-rotate-right"></i> گەڕانەوە
                     </button>
                 </div>
@@ -630,20 +772,20 @@
     <div id="toastContainer" class="fixed top-3 left-1/2 transform -translate-x-1/2 z-[999] space-y-2 pointer-events-none flex flex-col items-center"></div>
 
     <!-- ============================================ -->
-    <!-- ویجێتی نرخی ئاڵوگۆڕ -->
+    <!-- ویجێتی ئاڵوگۆڕ -->
     <!-- ============================================ -->
     <div id="exchangeRateWidget" class="fixed top-3 right-32 z-[9000]">
-        <div class="rounded-2xl shadow-2xl p-2.5 min-w-[200px] border-2 border-white/30 backdrop-blur-sm transition-all duration-300">
+        <div class="rounded-2xl shadow-2xl p-3 min-w-[210px] border-2 border-white/30 backdrop-blur-sm transition-all duration-300">
             <div id="rateDisplay" onclick="toggleRateEdit()" class="flex items-center justify-between gap-2 cursor-pointer">
-                <div class="flex items-center gap-2">
-                    <div id="rateIcon" class="w-9 h-9 bg-white/25 rounded-xl flex items-center justify-center border border-white/30 shadow-inner">
-                        <i class="fa-solid fa-dollar-sign text-white text-sm"></i>
+                <div class="flex items-center gap-2.5">
+                    <div id="rateIcon" class="w-10 h-10 bg-white/25 rounded-xl flex items-center justify-center border border-white/30 shadow-inner backdrop-blur">
+                        <i class="fa-solid fa-dollar-sign text-white text-base"></i>
                     </div>
                     <div class="text-white">
                         <div class="text-[9px] font-black opacity-90 flex items-center gap-1">
-                            <i class="fa-solid fa-arrow-right-arrow-left text-[7px]"></i> نرخی ئاڵوگۆڕ
+                            <i class="fa-solid fa-arrow-right-arrow-left text-[8px]"></i> نرخی ئاڵوگۆڕ
                         </div>
-                        <div class="text-sm font-black font-mono" dir="ltr" id="currentRateDisplay">
+                        <div class="text-base font-black font-mono" dir="ltr" id="currentRateDisplay">
                             1$ = {{ number_format($setting->exchange_rate ?? 1500) }}
                         </div>
                     </div>
@@ -657,7 +799,7 @@
                 </label>
                 <div class="flex items-center gap-1">
                     <input type="number" id="newExchangeRate" value="{{ $setting->exchange_rate ?? 1500 }}" min="1" step="any"
-                           class="w-full text-amber-900 font-black font-mono text-sm p-1.5 rounded-xl text-center focus:outline-none">
+                           class="w-full text-amber-900 font-black font-mono text-sm p-2 rounded-xl text-center focus:outline-none">
                     <button type="button" onclick="saveExchangeRate()" class="bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded-xl transition-colors shadow-md">
                         <i class="fa-solid fa-check text-xs"></i>
                     </button>
@@ -692,7 +834,6 @@
             if (dropdown && !dropdown.contains(event.target) && !moreBtn.contains(event.target)) dropdown.classList.add('hidden');
         });
 
-        // کیبۆرد شۆرتکەت: Ctrl+K بۆ گەڕان
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
@@ -718,8 +859,8 @@
         function showToast(message, type = 'warning') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            let bgClass = 'bg-gradient-to-r from-slate-800 to-slate-900 text-white';
-            let icon = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
+            let bgClass = 'bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 text-white';
+            let icon = '<i class="fa-solid fa-circle-info"></i>';
             
             if (type === 'error') {
                 bgClass = 'bg-gradient-to-r from-rose-500 to-red-600 text-white';
@@ -729,13 +870,13 @@
                 icon = '<i class="fa-solid fa-circle-check"></i>';
             }
             
-            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-2xl ${bgClass} text-[11px] font-black shadow-2xl transition-all duration-300 transform -translate-y-10 opacity-0`;
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-5 py-3 rounded-2xl ${bgClass} text-[11px] font-black shadow-2xl transition-all duration-500 transform -translate-y-10 opacity-0 backdrop-blur`;
             toast.innerHTML = `${icon}<span>${message}</span>`;
             container.appendChild(toast);
             setTimeout(() => toast.classList.remove('-translate-y-10', 'opacity-0'), 10);
             setTimeout(() => { 
                 toast.classList.add('opacity-0', '-translate-y-10'); 
-                setTimeout(() => toast.remove(), 300); 
+                setTimeout(() => toast.remove(), 500); 
             }, 3000);
         }
 
@@ -745,11 +886,11 @@
             const btnUsd = document.getElementById('btn-cur-usd');
             
             if (currency === 'USD') {
-                btnUsd.className = 'px-2.5 py-1 rounded-lg text-[10px] font-black bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/30 transition-all';
-                btnIqd.className = 'px-2.5 py-1 rounded-lg text-[10px] font-black bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all';
+                btnUsd.className = 'px-3 py-1.5 rounded-lg text-[10px] font-black bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/40 transition-all';
+                btnIqd.className = 'px-3 py-1.5 rounded-lg text-[10px] font-black bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all';
             } else {
-                btnIqd.className = 'px-2.5 py-1 rounded-lg text-[10px] font-black bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/30 transition-all';
-                btnUsd.className = 'px-2.5 py-1 rounded-lg text-[10px] font-black bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all';
+                btnIqd.className = 'px-3 py-1.5 rounded-lg text-[10px] font-black bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/40 transition-all';
+                btnUsd.className = 'px-3 py-1.5 rounded-lg text-[10px] font-black bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all';
             }
             renderCart(false);
         }
@@ -759,7 +900,7 @@
             const btn = document.getElementById('btnClearCart');
             if (!isConfirmingClear) {
                 isConfirmingClear = true;
-                btn.classList.add('bg-rose-500', 'text-white');
+                btn.classList.add('bg-rose-500', 'text-white', 'animate-wiggle');
                 document.getElementById('clearCartLabel').innerText = 'دڵنیایت؟';
                 clearCartTimer = setTimeout(resetClearCartButton, 3000);
             } else {
@@ -774,19 +915,19 @@
         function resetClearCartButton() {
             isConfirmingClear = false;
             const btn = document.getElementById('btnClearCart');
-            btn.classList.remove('bg-rose-500', 'text-white');
+            btn.classList.remove('bg-rose-500', 'text-white', 'animate-wiggle');
             document.getElementById('clearCartLabel').innerText = 'سڕینەوە';
         }
 
         function filterCategory(catId) {
             document.querySelectorAll('.cat-filter-btn').forEach(btn => { 
-                btn.classList.remove('bg-gradient-to-r', 'from-indigo-500', 'to-purple-500', 'text-white', 'shadow-lg', 'shadow-indigo-500/30'); 
-                btn.classList.add('bg-white/70', 'dark:bg-slate-800/70', 'text-slate-600', 'dark:text-slate-300'); 
+                btn.classList.remove('bg-gradient-to-r', 'from-purple-500', 'via-pink-500', 'to-purple-500', 'text-white', 'shadow-lg', 'shadow-purple-500/40'); 
+                btn.classList.add('bg-white/80', 'dark:bg-slate-900/80', 'text-slate-600', 'dark:text-slate-300'); 
             });
             const activeBtn = document.getElementById('cat-btn-' + catId);
             if (activeBtn) { 
-                activeBtn.classList.add('bg-gradient-to-r', 'from-indigo-500', 'to-purple-500', 'text-white', 'shadow-lg', 'shadow-indigo-500/30'); 
-                activeBtn.classList.remove('bg-white/70', 'dark:bg-slate-800/70', 'text-slate-600', 'dark:text-slate-300'); 
+                activeBtn.classList.add('bg-gradient-to-r', 'from-purple-500', 'via-pink-500', 'to-purple-500', 'text-white', 'shadow-lg', 'shadow-purple-500/40'); 
+                activeBtn.classList.remove('bg-white/80', 'dark:bg-slate-900/80', 'text-slate-600', 'dark:text-slate-300'); 
             }
             document.querySelectorAll('.product-card').forEach(card => { 
                 card.style.display = (catId === 'all' || card.getAttribute('data-category') == catId) ? 'flex' : 'none'; 
@@ -815,7 +956,7 @@
 
         function animateFly(startX, startY, endX, endY, text, colorClass) {
             const flyEl = document.createElement('div');
-            flyEl.className = `fixed z-[9999] flex items-center justify-center w-7 h-7 rounded-full text-white text-[11px] font-black shadow-xl transition-all ease-in-out ${colorClass}`;
+            flyEl.className = `fixed z-[9999] flex items-center justify-center w-8 h-8 rounded-full text-white text-[12px] font-black shadow-2xl transition-all ease-in-out ${colorClass}`;
             flyEl.style.transitionDuration = '0.6s'; 
             flyEl.innerText = text;
             flyEl.style.left = startX + 'px'; 
@@ -827,8 +968,8 @@
             void flyEl.offsetWidth;
             flyEl.style.left = endX + 'px'; 
             flyEl.style.top = endY + 'px';
-            flyEl.style.opacity = '0.5'; 
-            flyEl.style.transform = 'scale(0.5)';
+            flyEl.style.opacity = '0.3'; 
+            flyEl.style.transform = 'scale(0.4)';
             setTimeout(() => { flyEl.remove(); }, 600);
         }
 
@@ -860,12 +1001,12 @@
             const cartIcon = document.getElementById('cartIconAnim');
             if(cartIcon) {
                 const cartRect = cartIcon.getBoundingClientRect();
-                animateFly(btnRect.left + (btnRect.width / 2), btnRect.top + (btnRect.height / 2), cartRect.left + (cartRect.width / 2), cartRect.top + (cartRect.height / 2), '+1', 'bg-gradient-to-br from-indigo-500 to-purple-600');
+                animateFly(btnRect.left + (btnRect.width / 2), btnRect.top + (btnRect.height / 2), cartRect.left + (cartRect.width / 2), cartRect.top + (cartRect.height / 2), '+1', 'bg-gradient-to-br from-purple-500 to-pink-600');
             }
             let el = document.getElementById('price-anim-' + p.id);
             if(el) { 
-                el.classList.add('scale-125', 'text-indigo-500'); 
-                setTimeout(() => el.classList.remove('scale-125', 'text-indigo-500'), 200); 
+                el.classList.add('scale-125'); 
+                setTimeout(() => el.classList.remove('scale-125'), 200); 
             }
         }
 
@@ -883,8 +1024,8 @@
                 }
                 let el = document.getElementById('price-anim-' + productId);
                 if(el) { 
-                    el.classList.add('scale-75', 'text-rose-500'); 
-                    setTimeout(() => el.classList.remove('scale-75', 'text-rose-500'), 200); 
+                    el.classList.add('scale-75'); 
+                    setTimeout(() => el.classList.remove('scale-75'), 200); 
                 }
             }
         }
@@ -944,12 +1085,15 @@
             
             if (cart.length === 0) {
                 container.innerHTML = `
-                    <div class="h-32 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 text-[10px] font-bold">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center mb-2">
-                            <i class="fa-solid fa-cart-arrow-down text-2xl text-slate-400 dark:text-slate-600"></i>
+                    <div class="h-40 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 text-[10px] font-bold">
+                        <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-100 via-pink-100 to-cyan-100 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-cyan-900/20 flex items-center justify-center mb-3 border border-purple-200/50 dark:border-purple-700/30">
+                            <i class="fa-solid fa-cart-arrow-down text-3xl text-purple-400 dark:text-purple-600"></i>
                         </div>
                         سەبەتە بەتاڵە
-                        <span class="text-[9px] mt-1 text-slate-400">کلیک لە کاڵا بکە بۆ زیادکردن</span>
+                        <span class="text-[9px] mt-1.5 text-slate-400 flex items-center gap-1">
+                            <i class="fa-solid fa-hand-pointer text-[8px]"></i>
+                            کلیک لە کاڵا بکە بۆ زیادکردن
+                        </span>
                     </div>`;
                 document.getElementById('subTotalText').innerText = currentCurrency === 'USD' ? '$0.00' : '0';
                 document.getElementById('grandTotalText').innerText = currentCurrency === 'USD' ? '$0.00' : '0';
@@ -966,35 +1110,35 @@
 
                 const div = document.createElement('div'); 
                 div.id = `cart-row-${idx}`;
-                div.className = 'cart-item-enter bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200/80 dark:border-slate-700/60 rounded-2xl p-2 shadow-sm hover:shadow-md transition-all';
+                div.className = 'cart-item-enter bg-gradient-to-br from-white via-purple-50/30 to-pink-50/30 dark:from-slate-900 dark:via-purple-950/20 dark:to-pink-950/20 border border-purple-200/60 dark:border-purple-500/30 rounded-2xl p-2.5 shadow-md hover:shadow-lg transition-all';
                 div.innerHTML = `
-                    <div class="flex justify-between items-start mb-1.5">
-                        <div class="pr-0.5 flex items-center gap-1.5">
-                            <div class="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[9px] font-black">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="pr-0.5 flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 flex items-center justify-center text-white text-[10px] font-black shadow-md">
                                 ${idx + 1}
                             </div>
                             <h4 class="font-black text-[10px] leading-tight text-slate-800 dark:text-white">${item.name}</h4>
                         </div>
-                        <button type="button" onclick="removeItem(${idx})" class="w-6 h-6 rounded-lg bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-colors">
-                            <i class="fa-solid fa-xmark text-[9px]"></i>
+                        <button type="button" onclick="removeItem(${idx})" class="w-7 h-7 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white hover:rotate-90 transition-all duration-300">
+                            <i class="fa-solid fa-xmark text-[10px]"></i>
                         </button>
                     </div>
-                    <div class="grid grid-cols-12 gap-1 bg-slate-50/80 dark:bg-slate-900/60 p-1.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+                    <div class="grid grid-cols-12 gap-1 bg-white/60 dark:bg-slate-900/60 p-1.5 rounded-xl border border-purple-200/40 dark:border-purple-500/20">
                         <div class="col-span-4">
-                            <select onchange="updateItemUnit(${idx}, this.value)" class="w-full bg-transparent text-[9px] font-black focus:outline-none appearance-none cursor-pointer text-indigo-600 dark:text-indigo-400">
+                            <select onchange="updateItemUnit(${idx}, this.value)" class="w-full bg-transparent text-[9px] font-black focus:outline-none appearance-none cursor-pointer text-purple-600 dark:text-purple-400">
                                 ${opts}
                             </select>
                         </div>
-                        <div class="col-span-4 border-r border-slate-200 dark:border-slate-700">
+                        <div class="col-span-4 border-r border-purple-200/40 dark:border-purple-500/20">
                             <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? item.price_usd.toFixed(2) : item.price_usd}" 
                                    onchange="updateItemPrice(${idx}, this.value)" 
                                    class="w-full bg-transparent text-center text-[10px] font-black font-num focus:outline-none text-emerald-600 dark:text-emerald-400">
                         </div>
-                        <div class="col-span-4 flex items-center justify-between px-0.5 border-r border-slate-200 dark:border-slate-700">
-                            <button type="button" onclick="updateQty(${idx}, 1)" class="w-5 h-5 rounded-md bg-indigo-500 text-white font-black text-[10px] flex items-center justify-center active:scale-90 transition-transform">+</button>
+                        <div class="col-span-4 flex items-center justify-between px-0.5 border-r border-purple-200/40 dark:border-purple-500/20">
+                            <button type="button" onclick="updateQty(${idx}, 1)" class="w-5 h-5 rounded-md bg-gradient-to-br from-purple-500 to-pink-600 text-white font-black text-[10px] flex items-center justify-center active:scale-90 transition-transform shadow-sm">+</button>
                             <input type="number" step="any" min="0.01" value="${item.qty}" 
                                    onchange="setQtyDirect(${idx}, this.value)" 
-                                   class="w-7 text-center bg-transparent font-num text-indigo-600 dark:text-indigo-400 text-[11px] font-black focus:outline-none p-0">
+                                   class="w-7 text-center bg-transparent font-num text-purple-600 dark:text-purple-400 text-[11px] font-black focus:outline-none p-0">
                             <button type="button" onclick="updateQty(${idx}, -1)" class="w-5 h-5 rounded-md bg-slate-300 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-black text-[10px] flex items-center justify-center active:scale-90 transition-transform">-</button>
                         </div>
                     </div>`;
@@ -1020,11 +1164,11 @@
             const box = document.getElementById('paidAmountBox');
             if (isDebt) { 
                 selector.style.transform = 'translateX(-100%)'; 
-                selector.className = 'absolute top-0.5 bottom-0.5 w-[calc(50%-2px)] bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg shadow-md transition-all duration-300'; 
+                selector.className = 'absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-amber-500 to-orange-600 rounded-lg shadow-lg transition-all duration-300'; 
                 box.classList.remove('hidden'); 
             } else { 
                 selector.style.transform = 'translateX(0)'; 
-                selector.className = 'absolute top-0.5 bottom-0.5 w-[calc(50%-2px)] bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg shadow-md transition-all duration-300'; 
+                selector.className = 'absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg shadow-lg transition-all duration-300'; 
                 box.classList.add('hidden'); 
             }
         }
@@ -1083,7 +1227,7 @@
                 const u = units.find(x => x.id == item.unit_id);
 
                 const row = document.createElement('div');
-                row.className = 'flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs';
+                row.className = 'flex items-center justify-between gap-2 bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 p-3 rounded-xl border border-purple-200/50 dark:border-purple-500/20 text-xs';
                 row.innerHTML = `
                     <div class="w-1/3 font-black truncate text-slate-800 dark:text-white">${item.name}</div>
                     <div class="w-1/4 flex items-center gap-1">
