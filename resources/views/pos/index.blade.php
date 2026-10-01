@@ -258,7 +258,7 @@
     <!-- ============================================ -->
     <!-- ویجێتی نرخی ئاڵوگۆڕ - سەرەوەی ڕاست -->
     <!-- ============================================ -->
-    <div id="exchangeRateWidget" class="fixed top-3 right-8 z-[9000]">
+    <div id="exchangeRateWidget" class="fixed top-3 right-16 z-[9000]">
         <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-2xl p-2.5 min-w-[190px] border-2 border-amber-300/50 backdrop-blur-sm cursor-pointer transition-all duration-300">
             
             <!-- دۆخی داخراو (تەنها پیشاندان) -->
