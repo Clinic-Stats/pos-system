@@ -19,10 +19,21 @@ class SaleController extends Controller
 {
     public function index()
     {
+        return $this->posView();
+    }
+
+    /**
+     * ڤیوی POS - هەم بۆ فرۆشتنی نوێ هەم بۆ دەستکاری (بە $extraProductIds کاڵای ناچالاکی ناو وەسڵە کۆنەکەش دێت)
+     */
+    private function posView(array $extraProductIds = [])
+    {
         $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
         $alertCol = Schema::hasColumn('products', 'alert_quantity') ? 'alert_quantity' : null;
 
-        $products = Product::with('category')->where('is_active', 1)->get();
+        $products = Product::with('category')
+            ->where('is_active', 1)
+            ->when(!empty($extraProductIds), fn($q) => $q->orWhereIn('id', $extraProductIds))
+            ->get();
 
         $lowStockProducts = collect();
         $outOfStockProducts = $products->where($stockCol, '<=', 0);
@@ -39,8 +50,13 @@ class SaleController extends Controller
         $setting = Setting::first();
 
         return view('pos.index', compact(
-            'products', 'categories', 'units', 'customers', 
-            'lowStockProducts', 'outOfStockProducts', 'setting'
+            'products',
+            'categories',
+            'units',
+            'customers',
+            'lowStockProducts',
+            'outOfStockProducts',
+            'setting'
         ));
     }
 
@@ -51,30 +67,25 @@ class SaleController extends Controller
     {
         $query = Sale::with(['customer', 'user']);
 
-        // فلتەرکردن بەپێی بەرواری دەستپێک
         if ($request->filled('from_date')) {
             $query->whereDate('created_at', '>=', $request->from_date);
         }
 
-        // فلتەرکردن بەپێی بەرواری کۆتایی
         if ($request->filled('to_date')) {
             $query->whereDate('created_at', '<=', $request->to_date);
         }
 
-        // فلتەرکردن بەپێی جۆری پارەدان
         if ($request->filled('payment_type')) {
-            $paymentType = trim($request->payment_type);
-            $query->where('payment_type', $paymentType);
+            $query->where('payment_type', trim($request->payment_type));
         }
 
-        // گەڕان بەپێی ژمارەی وەسڵ یان ناوی کڕیار
         if ($request->filled('search')) {
             $search = trim($request->search);
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('invoice_no', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function($cq) use ($search) {
-                      $cq->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -87,12 +98,12 @@ class SaleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'items'        => 'required|array|min:1',
-            'payment_type' => 'required|in:cash,debt',
-            'paid_amount'  => 'nullable|numeric|min:0',
-            'discount'     => 'nullable|numeric|min:0',
-            'currency'     => 'required|in:USD,IQD',
-            'exchange_rate'=> 'required|numeric|min:1',
+            'items'         => 'required|array|min:1',
+            'payment_type'  => 'required|in:cash,debt',
+            'paid_amount'   => 'nullable|numeric|min:0',
+            'discount'      => 'nullable|numeric|min:0',
+            'currency'      => 'required|in:USD,IQD',
+            'exchange_rate' => 'required|numeric|min:1',
         ]);
 
         try {
@@ -104,8 +115,7 @@ class SaleController extends Controller
                     $unit = Unit::findOrFail($item['unit_id']);
                     $factor = $this->getUnitFactor($product, $unit);
 
-                    $requestedQty = (float) $item['quantity'];
-                    $neededStock = $requestedQty * $factor;
+                    $neededStock = (float) $item['quantity'] * $factor;
                     $availableStock = (float) $product->{$stockCol};
 
                     if ($availableStock <= 0) {
@@ -130,44 +140,19 @@ class SaleController extends Controller
                 $currency = $request->currency;
                 $exchangeRate = (float) $request->exchange_rate;
 
-                $subtotal = 0;
-                $totalCost = 0;
-
-                foreach ($request->items as $item) {
-                    $product = Product::findOrFail($item['product_id']);
-                    $unit = Unit::findOrFail($item['unit_id']);
-
-                    $factor = $this->getUnitFactor($product, $unit);
-                    
-                    $itemPriceUsd = (float) ($item['base_price'] ?? $product->base_sale_price);
-                    $itemCostUsd = (float) $product->base_buy_price;
-
-                    if ($currency === 'IQD') {
-                        $unitPrice = $itemPriceUsd * $exchangeRate;
-                        $unitCost = $itemCostUsd * $exchangeRate;
-                    } else {
-                        $unitPrice = $itemPriceUsd;
-                        $unitCost = $itemCostUsd;
-                    }
-
-                    $lineTotal = $item['quantity'] * ($unitPrice * $factor);
-                    $lineCost  = $item['quantity'] * ($unitCost * $factor);
-
-                    $subtotal += $lineTotal;
-                    $totalCost += $lineCost;
-                }
+                [$lines, $subtotal, $totalCost] = $this->buildLines($request->items, $currency, $exchangeRate);
 
                 $discount = (float) ($request->discount ?? 0);
                 $totalAmount = max(0, $subtotal - $discount);
                 $totalProfit = $totalAmount - $totalCost;
 
-                $paid = ($request->payment_type === 'cash') ? $totalAmount : ($request->paid_amount ?? 0);
+                $paid = ($request->payment_type === 'cash') ? $totalAmount : (float) ($request->paid_amount ?? 0);
                 $remaining = $totalAmount - $paid;
 
                 $saleData = [
                     'invoice_no'       => 'INV-' . strtoupper(uniqid()),
                     'customer_id'      => $request->customer_id ?: null,
-                    'user_id'          => auth()->id() ?? ($user ? $user->id : null),
+                    'user_id'          => auth()->id() ?? $user->id,
                     'total_amount'     => $totalAmount,
                     'total_cost'       => $totalCost,
                     'total_profit'     => $totalProfit,
@@ -184,42 +169,7 @@ class SaleController extends Controller
                 }
 
                 $sale = Sale::create($saleData);
-
-                foreach ($request->items as $item) {
-                    $product = Product::findOrFail($item['product_id']);
-                    $unit = Unit::findOrFail($item['unit_id']);
-
-                    $factor = $this->getUnitFactor($product, $unit);
-                    $itemPriceUsd = (float) ($item['base_price'] ?? $product->base_sale_price);
-                    $itemCostUsd = (float) $product->base_buy_price;
-
-                    if ($currency === 'IQD') {
-                        $unitPrice = $itemPriceUsd * $exchangeRate;
-                        $unitCost = $itemCostUsd * $exchangeRate;
-                    } else {
-                        $unitPrice = $itemPriceUsd;
-                        $unitCost = $itemCostUsd;
-                    }
-
-                    $lineTotal  = $item['quantity'] * $unitPrice * $factor;
-                    $lineCost   = $item['quantity'] * $unitCost * $factor;
-                    $lineProfit = $lineTotal - $lineCost;
-
-                    SaleDetail::create([
-                        'sale_id'     => $sale->id,
-                        'product_id'  => $product->id,
-                        'unit_id'     => $unit->id,
-                        'quantity'    => $item['quantity'],
-                        'unit_price'  => $unitPrice * $factor,
-                        'unit_cost'   => $unitCost * $factor,
-                        'subtotal'    => $lineTotal,
-                        'line_total'  => $lineTotal,
-                        'line_profit' => $lineProfit,
-                    ]);
-
-                    $deductedKg = $item['quantity'] * $factor;
-                    $product->decrement($stockCol, $deductedKg);
-                }
+                $this->saveLines($sale, $lines, $stockCol);
 
                 return $sale;
             });
@@ -227,26 +177,54 @@ class SaleController extends Controller
             return response()->json([
                 'success' => true,
                 'sale_id' => $sale->id,
-                'message' => 'فرۆشتن بە سەرکەوتوویی تەواو بوو'
+                'message' => 'فرۆشتن بە سەرکەوتوویی تەواو بوو',
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error'   => $e->getMessage()
-            ], 422);
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
         }
     }
 
+    /**
+     * دەستکاری: هەمان لاپەڕەی POS دەکرێتەوە و وەسڵەکە دەچێتە ناو سەبەتە
+     */
     public function edit($id)
     {
-        $sale = Sale::with('details.product', 'details.unit', 'customer')->findOrFail($id);
-        $products = Product::with('category')->where('is_active', 1)->get();
-        $categories = Category::all();
-        $units = Unit::all();
-        $customers = Customer::all();
-        $setting = Setting::first();
+        $sale = Sale::with('details')->findOrFail($id);
+        $currency = $sale->currency ?: 'USD';
+        $rate = (float) ($sale->exchange_rate ?: 1500);
 
-        return view('pos.edit', compact('sale', 'products', 'categories', 'units', 'customers', 'setting'));
+        $items = $sale->details->map(function ($d) use ($currency, $rate) {
+            $product = Product::find($d->product_id);
+            $unit = Unit::find($d->unit_id);
+            $factor = ($product && $unit) ? $this->getUnitFactor($product, $unit) : 1;
+
+            // unit_price = نرخی یەکە بە دراوی وەسڵ؛ دەیگەڕێنینەوە بۆ نرخی ١ کیلۆ بە دۆلار
+            $perBase = $factor > 0 ? ((float) $d->unit_price / $factor) : (float) $d->unit_price;
+            $priceUsd = $currency === 'IQD' ? $perBase / $rate : $perBase;
+
+            return [
+                'product_id' => $d->product_id,
+                'unit_id'    => $d->unit_id,
+                'quantity'   => (float) $d->quantity,
+                'price_usd'  => round($priceUsd, 6),
+            ];
+        })->values();
+
+        $editSale = [
+            'id'            => $sale->id,
+            'invoice_no'    => $sale->invoice_no,
+            'customer_id'   => $sale->customer_id,
+            'payment_type'  => $sale->payment_type,
+            'paid_amount'   => (float) $sale->paid_amount,
+            'discount'      => (float) ($sale->discount ?? 0),
+            'created_at'    => $sale->created_at->format('Y-m-d\TH:i'),
+            'currency'      => $currency,
+            'exchange_rate' => $rate,
+            'items'         => $items,
+        ];
+
+        return $this->posView($sale->details->pluck('product_id')->all())
+            ->with('editSale', $editSale);
     }
 
     public function update(Request $request, $id)
@@ -261,6 +239,7 @@ class SaleController extends Controller
                 $sale = Sale::with('details')->findOrFail($id);
                 $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
+                // 1) گەڕاندنەوەی کۆگای فرۆشتنە کۆنەکە
                 foreach ($sale->details as $oldDetail) {
                     $product = Product::find($oldDetail->product_id);
                     $unit = Unit::find($oldDetail->unit_id);
@@ -270,13 +249,13 @@ class SaleController extends Controller
                     }
                 }
 
+                // 2) پشکنینی کۆگا
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
                     $unit = Unit::findOrFail($item['unit_id']);
                     $factor = $this->getUnitFactor($product, $unit);
 
-                    $requestedQty = (float) $item['quantity'];
-                    $neededStock = $requestedQty * $factor;
+                    $neededStock = (float) $item['quantity'] * $factor;
                     $availableStock = (float) $product->fresh()->{$stockCol};
 
                     if ($availableStock <= 0) {
@@ -293,53 +272,15 @@ class SaleController extends Controller
 
                 $currency = $request->currency ?? ($sale->currency ?? 'USD');
                 $exchangeRate = (float) ($request->exchange_rate ?? $sale->exchange_rate ?? 1500);
-                $subtotal = 0;
-                $totalCost = 0;
 
-                foreach ($request->items as $item) {
-                    $product = Product::findOrFail($item['product_id']);
-                    $unit = Unit::findOrFail($item['unit_id']);
-
-                    $factor = $this->getUnitFactor($product, $unit);
-                    $itemPriceUsd = (float) ($item['base_price'] ?? $product->base_sale_price);
-                    $itemCostUsd = (float) $product->base_buy_price;
-
-                    if ($currency === 'IQD') {
-                        $unitPrice = $itemPriceUsd * $exchangeRate;
-                        $unitCost = $itemCostUsd * $exchangeRate;
-                    } else {
-                        $unitPrice = $itemPriceUsd;
-                        $unitCost = $itemCostUsd;
-                    }
-
-                    $lineTotal = $item['quantity'] * $unitPrice * $factor;
-                    $lineCost  = $item['quantity'] * $unitCost * $factor;
-                    $lineProfit = $lineTotal - $lineCost;
-
-                    $subtotal += $lineTotal;
-                    $totalCost += $lineCost;
-
-                    SaleDetail::create([
-                        'sale_id'     => $sale->id,
-                        'product_id'  => $product->id,
-                        'unit_id'     => $unit->id,
-                        'quantity'    => $item['quantity'],
-                        'unit_price'  => $unitPrice * $factor,
-                        'unit_cost'   => $unitCost * $factor,
-                        'subtotal'    => $lineTotal,
-                        'line_total'  => $lineTotal,
-                        'line_profit' => $lineProfit,
-                    ]);
-
-                    $deductedKg = $item['quantity'] * $factor;
-                    $product->decrement($stockCol, $deductedKg);
-                }
+                [$lines, $subtotal, $totalCost] = $this->buildLines($request->items, $currency, $exchangeRate);
+                $this->saveLines($sale, $lines, $stockCol);
 
                 $discount = (float) ($request->discount ?? 0);
                 $totalAmount = max(0, $subtotal - $discount);
                 $totalProfit = $totalAmount - $totalCost;
 
-                $paid = ($request->payment_type === 'cash') ? $totalAmount : ($request->paid_amount ?? 0);
+                $paid = ($request->payment_type === 'cash') ? $totalAmount : (float) ($request->paid_amount ?? 0);
                 $remaining = $totalAmount - $paid;
 
                 $updateData = [
@@ -365,7 +306,11 @@ class SaleController extends Controller
                 $sale->update($updateData);
             });
 
-            return response()->json(['success' => true, 'message' => 'وەسڵەکە بە سەرکەوتوویی نوێکرایەوە']);
+            return response()->json([
+                'success' => true,
+                'sale_id' => (int) $id,
+                'message' => 'وەسڵەکە بە سەرکەوتوویی نوێکرایەوە',
+            ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
         }
@@ -382,7 +327,7 @@ class SaleController extends Controller
                     $product = Product::find($detail->product_id);
                     $unit = Unit::find($detail->unit_id);
                     $factor = ($product && $unit) ? $this->getUnitFactor($product, $unit) : 1;
-                    
+
                     if ($product) {
                         $product->increment($stockCol, $detail->quantity * $factor);
                     }
@@ -398,16 +343,94 @@ class SaleController extends Controller
         }
     }
 
+    /**
+     * چاپ: ?type=a4 -> A4 | ?type=small -> بچووک | بێ type -> بەپێی ڕێکخستنی وەسڵ
+     */
     public function print(Request $request, $id)
     {
         $sale = Sale::with(['details.product', 'details.unit', 'customer', 'user'])->findOrFail($id);
         $setting = Setting::first();
+        $type = $request->get('type');
 
-        if ($request->get('type') === 'a4' || ($setting && $setting->receipt_width === 'a4')) {
+        if ($type === 'a4') {
+            return view('pos.print_a4', compact('sale'));
+        }
+
+        if ($type === 'small') {
+            return view('pos.print', compact('sale'));
+        }
+
+        if ($setting && $setting->receipt_width === 'a4') {
             return view('pos.print_a4', compact('sale'));
         }
 
         return view('pos.print', compact('sale'));
+    }
+
+    // ---------------------------------------------------------------
+    // یاریدەدەرەکان (کۆدی دووبارەی store و update یەکخراوە)
+    // ---------------------------------------------------------------
+
+    /**
+     * هەژمارکردنی هەموو هێڵەکانی وەسڵ
+     * @return array [lines, subtotal, totalCost]
+     */
+    private function buildLines(array $items, string $currency, float $exchangeRate): array
+    {
+        $lines = [];
+        $subtotal = 0;
+        $totalCost = 0;
+
+        foreach ($items as $item) {
+            $product = Product::findOrFail($item['product_id']);
+            $unit = Unit::findOrFail($item['unit_id']);
+            $factor = $this->getUnitFactor($product, $unit);
+
+            $itemPriceUsd = (float) ($item['base_price'] ?? $product->base_sale_price);
+            $itemCostUsd = (float) $product->base_buy_price;
+
+            $unitPrice = $currency === 'IQD' ? $itemPriceUsd * $exchangeRate : $itemPriceUsd;
+            $unitCost  = $currency === 'IQD' ? $itemCostUsd * $exchangeRate : $itemCostUsd;
+
+            $qty = (float) $item['quantity'];
+            $lineTotal = $qty * $unitPrice * $factor;
+            $lineCost  = $qty * $unitCost * $factor;
+
+            $subtotal += $lineTotal;
+            $totalCost += $lineCost;
+
+            $lines[] = [
+                'product'     => $product,
+                'unit'        => $unit,
+                'factor'      => $factor,
+                'quantity'    => $qty,
+                'unit_price'  => $unitPrice * $factor,
+                'unit_cost'   => $unitCost * $factor,
+                'line_total'  => $lineTotal,
+                'line_profit' => $lineTotal - $lineCost,
+            ];
+        }
+
+        return [$lines, $subtotal, $totalCost];
+    }
+
+    private function saveLines(Sale $sale, array $lines, string $stockCol): void
+    {
+        foreach ($lines as $l) {
+            SaleDetail::create([
+                'sale_id'     => $sale->id,
+                'product_id'  => $l['product']->id,
+                'unit_id'     => $l['unit']->id,
+                'quantity'    => $l['quantity'],
+                'unit_price'  => $l['unit_price'],
+                'unit_cost'   => $l['unit_cost'],
+                'subtotal'    => $l['line_total'],
+                'line_total'  => $l['line_total'],
+                'line_profit' => $l['line_profit'],
+            ]);
+
+            $l['product']->decrement($stockCol, $l['quantity'] * $l['factor']);
+        }
     }
 
     private function getUnitFactor($product, $unit)

@@ -704,7 +704,10 @@
                     </div>
                 </div>
             </div>
-
+            <div id="editBanner" class="hidden shrink-0 mt-2 px-3 py-2 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-600 dark:text-amber-300 text-[10px] font-black flex items-center justify-between">
+                <span><i class="fa-solid fa-pen-to-square"></i> دەستکاریکردنی وەسڵ <span id="editInvoiceNo" dir="ltr"></span></span>
+                <a href="{{ route('pos.index') }}" class="underline">پسوولەی نوێ</a>
+            </div>
             <div id="cartItemsContainer" class="grow overflow-y-auto py-2.5 pr-0.5 space-y-2 custom-scrollbar"></div>
 
             <div class="shrink-0 pt-2.5 mt-1 border-t border-slate-200/60 dark:border-purple-500/10">
@@ -766,10 +769,14 @@
                     <span class="text-sm font-black text-slate-700 dark:text-slate-200">کۆی گشتی پارە:</span>
                     <span id="modalGrandTotal" class="text-emerald-500 text-xl font-num font-black" dir="ltr">0 IQD</span>
                 </div>
-                <div class="grid grid-cols-2 gap-2.5">
-                    <a href="#" id="printInvoiceBtn" target="_blank"
+                <div class="grid grid-cols-3 gap-2.5">
+                    <a href="#" id="printA4Btn" target="_blank"
                         class="btn-press py-3.5 gradient-btn-emerald text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 shadow-lg">
-                        <i class="fa-solid fa-print"></i> پرینتکردن
+                        <i class="fa-solid fa-file-lines"></i> چاپی A4
+                    </a>
+                    <a href="#" id="printSmallBtn" target="_blank"
+                        class="btn-press py-3.5 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 shadow-lg">
+                        <i class="fa-solid fa-receipt"></i> چاپی بچووک
                     </a>
                     <button type="button" onclick="returnToSameSale()"
                         class="btn-press py-3.5 gradient-btn-brand text-white rounded-2xl text-xs font-black active:scale-95 shadow-lg flex items-center justify-center gap-2">
@@ -836,7 +843,8 @@
         let activeSaleId = null;
         let currentCurrency = 'USD';
         let currentExchangeRate = <?php echo $setting->exchange_rate ?? 1500; ?>;
-
+        const allProducts = <?php echo json_encode($products); ?>;
+        const editSale = <?php echo isset($editSale) ? json_encode($editSale) : 'null'; ?>;
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('moreDropdown');
             const moreBtn = dropdown?.previousElementSibling;
@@ -1004,8 +1012,9 @@
 
         function addToCart(p) {
             const stock = parseFloat(p.stock_kg !== undefined ? p.stock_kg : (p.stock || 0));
+            const alreadyInCart = cart.some(i => i.id === p.id);
 
-            if (stock <= 0) {
+            if (stock <= 0 && !alreadyInCart) {
                 showToast('نەماوە!', 'error');
                 return false;
             }
@@ -1023,7 +1032,8 @@
             if (idx !== -1) {
                 const u = units.find(u => u.id == cart[idx].unit_id) || initialUnit;
                 const cFactor = getUnitFactor(p, u);
-                const max = cFactor > 0 ? (stock / cFactor) : stock;
+                const availKg = cart[idx].stock_kg; // کۆگا + ئەوەی لەم وەسڵەدا فرۆشراوە
+                const max = cFactor > 0 ? (availKg / cFactor) : availKg;
 
                 if (cart[idx].qty >= max) {
                     showToast('تەواو بوو!');
@@ -1281,13 +1291,18 @@
                 return;
             }
 
+            const isEdit = !!editSale;
+            const idleLabel = isEdit ?
+                '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە' :
+                '<i class="fa-solid fa-paper-plane"></i> پسوولەکردن';
+
             const btn = document.getElementById('btnSubmitSale');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> چاوەڕوان بە...';
             lastSaleItems = JSON.parse(JSON.stringify(cart));
 
-            fetch('/sales', {
-                method: 'POST',
+            fetch(isEdit ? '/sales/' + editSale.id : '/sales', {
+                method: isEdit ? 'PUT' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '<?php echo csrf_token(); ?>',
@@ -1310,21 +1325,27 @@
                 })
             }).then(res => res.json()).then(data => {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> پسوولەکردن';
+                btn.innerHTML = idleLabel;
                 if (data.success) {
-                    activeSaleId = data.sale_id;
-                    document.getElementById('printInvoiceBtn').href = '/sales/print/'.concat(data.sale_id);
+                    const saleId = data.sale_id || (editSale ? editSale.id : null);
+                    activeSaleId = saleId;
+                    document.getElementById('printA4Btn').href = '/sales/print/' + saleId + '?type=a4';
+                    document.getElementById('printSmallBtn').href = '/sales/print/' + saleId + '?type=small';
                     renderModalItems();
                     document.getElementById('successModal').classList.remove('hidden');
-                    cart = [];
-                    document.getElementById('cartDiscount').value = 0;
-                    renderCart(false);
+
+                    // لە دۆخی دەستکاری، لەسەر هەمان وەسڵ دەمێنینەوە (سەبەتە نابێتە بەتاڵ)
+                    if (!isEdit) {
+                        cart = [];
+                        document.getElementById('cartDiscount').value = 0;
+                        renderCart(false);
+                    }
                 } else {
-                    showToast(data.error || 'هەڵە', 'error');
+                    showToast(data.error || data.message || 'هەڵە', 'error');
                 }
             }).catch(err => {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> پسوولەکردن';
+                btn.innerHTML = idleLabel;
                 showToast('کێشەیەک ڕوویدا', 'error');
             });
         }
@@ -1379,7 +1400,8 @@
         }
 
         function returnToSameSale() {
-            if (lastSaleItems && lastSaleItems.length > 0) {
+            // لە دۆخی دەستکاری سەبەتە هەر ماوە؛ لە فرۆشتنی نوێ دەگەڕێتەوە
+            if (!editSale && lastSaleItems && lastSaleItems.length > 0) {
                 cart = JSON.parse(JSON.stringify(lastSaleItems));
                 renderCart(false);
                 lastSaleItems = [];
@@ -1458,6 +1480,53 @@
                 toggleRateEdit();
             }
         });
+
+        function loadEditSale() {
+            if (!editSale) return;
+
+            // پێشتر نرخی ئاڵوگۆڕ و دراو، چونکە renderCart ئەوانە دەخوێنێتەوە
+            document.getElementById('exchangeRate').value = editSale.exchange_rate;
+            currentExchangeRate = editSale.exchange_rate;
+            currentCurrency = editSale.currency || 'USD';
+
+            document.getElementById('customerId').value = editSale.customer_id || '';
+            document.getElementById('saleCreatedAt').value = editSale.created_at;
+            document.getElementById('cartDiscount').value = editSale.discount || 0;
+
+            const radio = document.querySelector('input[name="paymentType"][value="' + editSale.payment_type + '"]');
+            if (radio) radio.checked = true;
+            document.getElementById('paidAmount').value = editSale.paid_amount || 0;
+            togglePaymentType();
+
+            cart = editSale.items.map(it => {
+                const p = allProducts.find(x => x.id == it.product_id);
+                if (!p) return null;
+                const unit = units.find(u => u.id == it.unit_id) || units[0];
+                const factor = getUnitFactor(p, unit);
+                const stockNow = parseFloat(p.stock_kg !== undefined ? p.stock_kg : (p.stock || 0));
+                return {
+                    id: p.id,
+                    name: p.name,
+                    code: p.code,
+                    price_usd: parseFloat(it.price_usd) || 0,
+                    stock_kg: stockNow + it.quantity * factor, // کۆگای ئێستا + بڕی ئەم وەسڵە (دەگەڕێتەوە)
+                    kg_per_carton: parseFloat(p.kg_per_carton) || 1,
+                    qty: parseFloat(it.quantity),
+                    unit_id: unit.id,
+                    factor: factor
+                };
+            }).filter(Boolean);
+
+            // دوگمەکانی دراو
+            setCurrency(currentCurrency);
+
+            document.getElementById('editBanner').classList.remove('hidden');
+            document.getElementById('editInvoiceNo').innerText = editSale.invoice_no;
+            document.getElementById('btnSubmitSale').innerHTML =
+                '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە';
+            renderCart(false);
+        }
+        loadEditSale();
     </script>
 </body>
 

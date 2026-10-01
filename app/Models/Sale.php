@@ -17,8 +17,9 @@ class Sale extends Model
         'paid_amount',
         'remaining_amount',
         'payment_type',
-        'currency', 
+        'currency',
         'exchange_rate',
+        'discount',      // پێشتر نەبوو، بۆیە داشکاندن پاشەکەوت نەدەکرا
         'created_at',
     ];
 

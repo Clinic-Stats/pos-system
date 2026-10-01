@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ckb" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style> 
-        body { font-family: 'Almarai', sans-serif; } 
-        .font-num { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+    <style>
+        body {
+            font-family: 'Almarai', sans-serif;
+        }
+
+        .font-num {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
     </style>
 </head>
+
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden p-3 gap-3">
 
     <!-- سەرپەڕە -->
@@ -33,9 +48,14 @@
     </div>
 
     @if(session('success'))
-        <div class="shrink-0 bg-emerald-600/20 border border-emerald-500 text-emerald-400 p-2 rounded-lg text-xs font-bold flex items-center gap-2">
-            <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
-        </div>
+    <div class="shrink-0 bg-emerald-600/20 border border-emerald-500 text-emerald-400 p-2 rounded-lg text-xs font-bold flex items-center gap-2">
+        <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+    </div>
+    @endif
+    @if(session('error'))
+    <div class="shrink-0 bg-rose-600/20 border border-rose-500 text-rose-400 p-2 rounded-lg text-xs font-bold flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation"></i> {{ session('error') }}
+    </div>
     @endif
 
     <!-- فلتەرەکان -->
@@ -74,7 +94,7 @@
 
     <!-- خشتەی فرۆشتنەکان -->
     <div class="flex-1 bg-slate-800 p-3 rounded-xl border border-slate-700 flex flex-col overflow-hidden">
-        
+
         <div class="shrink-0 flex justify-between items-center border-b border-slate-700 pb-2 mb-2">
             <span class="text-xs font-bold text-slate-300">
                 کۆی گشتی: <span class="font-num text-emerald-400">{{ $sales->total() }}</span> وەسڵ
@@ -104,16 +124,16 @@
                         <td class="p-2.5 text-[11px]">{{ $sale->customer->name ?? 'کڕیاری نەقد' }}</td>
                         <td class="p-2.5 font-mono font-bold text-emerald-400 text-[11px]" dir="ltr">
                             @if($sale->currency == 'USD')
-                                ${{ number_format($sale->total_amount, 2) }}
+                            ${{ number_format($sale->total_amount, 2) }}
                             @else
-                                {{ number_format($sale->total_amount) }} IQD
+                            {{ number_format($sale->total_amount) }} IQD
                             @endif
                         </td>
                         <td class="p-2.5 font-mono font-bold text-blue-400 text-[11px]" dir="ltr">
                             @if($sale->currency == 'USD')
-                                ${{ number_format($sale->total_profit, 2) }}
+                            ${{ number_format($sale->total_profit, 2) }}
                             @else
-                                {{ number_format($sale->total_profit) }} IQD
+                            {{ number_format($sale->total_profit) }} IQD
                             @endif
                         </td>
                         <td class="p-2.5 text-[10px] font-bold text-slate-400">
@@ -121,26 +141,32 @@
                         </td>
                         <td class="p-2.5">
                             @if($sale->payment_type == 'cash')
-                                <span class="bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[10px] font-bold">نەقد</span>
+                            <span class="bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[10px] font-bold">نەقد</span>
                             @else
-                                <span class="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[10px] font-bold">قەرز</span>
-                                @if($sale->remaining_amount > 0)
-                                    <span class="block text-[9px] text-rose-400 mt-0.5 font-num" dir="ltr">ماوە: {{ number_format($sale->remaining_amount) }}</span>
-                                @endif
+                            <span class="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[10px] font-bold">قەرز</span>
+                            @if($sale->remaining_amount > 0)
+                            <span class="block text-[9px] text-rose-400 mt-0.5 font-num" dir="ltr">ماوە: {{ number_format($sale->remaining_amount) }}</span>
+                            @endif
                             @endif
                         </td>
                         <td class="p-2.5 text-[10px] text-slate-400 font-mono">{{ $sale->created_at->format('Y-m-d H:i') }}</td>
                         <td class="p-2.5">
                             <div class="flex items-center justify-center gap-1">
-                                <!-- چاپکردن -->
-                                <a href="{{ route('sales.print', $sale->id) }}" target="_blank" title="چاپکردن"
-                                   class="bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
-                                    <i class="fa-solid fa-print"></i>
+                                <!-- چاپی A4 -->
+                                <a href="{{ route('sales.print', $sale->id) }}?type=a4" target="_blank" title="چاپی A4"
+                                    class="bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
+                                    <i class="fa-solid fa-file-lines"></i> A4
                                 </a>
 
-                                <!-- دەستکاری -->
+                                <!-- چاپی بچووک -->
+                                <a href="{{ route('sales.print', $sale->id) }}?type=small" target="_blank" title="چاپی بچووک"
+                                    class="bg-blue-500/20 hover:bg-blue-500 text-blue-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
+                                    <i class="fa-solid fa-receipt"></i> بچووک
+                                </a>
+
+                                <!-- دەستکاری (لەناو POS) -->
                                 <a href="{{ route('sales.edit', $sale->id) }}" title="دەستکاریکردن"
-                                   class="bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
+                                    class="bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
@@ -149,7 +175,7 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" title="سڕینەوە"
-                                            class="bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
+                                        class="bg-rose-500/20 hover:bg-rose-500 text-rose-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -176,4 +202,5 @@
     </div>
 
 </body>
+
 </html>

@@ -9,6 +9,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&family=Libre+Barcode+39&display=swap" rel="stylesheet">
     @php
     $setting = \App\Models\Setting::first();
+
+    // نیشاندانی بڕ بەپێی دراوی وەسڵ (USD یان IQD)
+    $isUsd = ($sale->currency ?? 'IQD') === 'USD';
+    $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';
+
+    // کێشی گشتی
+    $totalWeightKg = 0;
+    foreach ($sale->details as $item) {
+    $unitName = strtolower(trim($item->unit->name ?? ''));
+    if (str_contains($unitName, 'کارتۆن') || str_contains($unitName, 'carton')) {
+    $totalWeightKg += $item->quantity * ($item->product->kg_per_carton ?? 1 ?: 1);
+    } elseif (str_contains($unitName, 'تەن') || str_contains($unitName, 'ton')) {
+    $totalWeightKg += $item->quantity * 1000;
+    } else {
+    $totalWeightKg += $item->quantity * ($item->unit->factor_to_base ?? 1 ?: 1);
+    }
+    }
     @endphp
     <style>
         body {
@@ -29,9 +46,16 @@
 
             body {
                 margin: 0;
+                padding: 0 !important;
                 background: white !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
+            }
+
+            .sheet {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
             }
 
             .no-print {
@@ -41,20 +65,21 @@
     </style>
 </head>
 
-<body class="bg-slate-100 text-slate-900 min-h-screen p-6" onload="window.print()">
+<body class="bg-slate-100 text-slate-900 min-h-screen p-6">
 
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-xs">
+    <div class="sheet max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-xs">
 
-        <!-- دوگمەی چاپ و داخستن -->
+        <!-- دوگمەکانی چاپ و داخستن -->
         <div class="no-print flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
-            <a href="{{ route('reports.index') }}" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold transition">گەڕانەوە بۆ ڕاپۆرتەکان</a>
+            <a href="{{ route('sales.list') }}" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold transition">گەڕانەوە بۆ لیستی فرۆشتنەکان</a>
             <div class="flex gap-2">
-                <button onclick="window.print()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition">دووبارە چاپکردن</button>
+                <a href="{{ route('sales.print', $sale->id) }}?type=small" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-bold transition">وەسڵی بچووک</a>
+                <button onclick="window.print()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition">چاپکردن</button>
                 <button onclick="window.close()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold transition">داخستن</button>
             </div>
         </div>
 
-        <!-- هێدەری فەرمی A4 -->
+        <!-- هێدەر -->
         <div class="flex justify-between items-center pb-6 border-b-2 border-slate-800 gap-4">
             <div class="space-y-1.5 flex-1">
                 <h1 class="text-2xl font-black text-slate-900">{{ $setting->shop_name ?? 'کۆمپانیای بازرگانی' }}</h1>
@@ -79,7 +104,7 @@
             </div>
         </div>
 
-        <!-- زانیاری کڕیار و فرۆشتن -->
+        <!-- زانیاری کڕیار -->
         <div class="grid grid-cols-2 gap-4 my-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
             <div class="space-y-1">
                 <span class="block text-slate-500 text-[11px] font-bold">زانیاری کڕیار:</span>
@@ -93,7 +118,7 @@
                 <span class="inline-block px-2.5 py-0.5 rounded-md font-bold {{ $sale->payment_type === 'cash' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
                     {{ $sale->payment_type === 'cash' ? 'نەقد' : 'قەرز' }}
                 </span>
-                <span class="block text-[11px] text-slate-600">کاسیە / مەندووب: <b>{{ $sale->user->name ?? 'ئەدمین' }}</b></span>
+                <span class="block text-[11px] text-slate-600">کاشیر / مەندووب: <b>{{ $sale->user->name ?? 'ئەدمین' }}</b></span>
             </div>
         </div>
 
@@ -111,33 +136,19 @@
             </thead>
             <tbody class="divide-y divide-slate-200">
                 @foreach($sale->details as $index => $item)
-                <tr class="hover:bg-slate-50">
+                <tr>
                     <td class="p-2.5 text-center font-mono text-slate-500">{{ $index + 1 }}</td>
                     <td class="p-2.5 font-bold text-slate-900">{{ $item->product->name ?? '-' }}</td>
                     <td class="p-2.5 text-center text-slate-600">{{ $item->unit->name ?? 'دانە' }}</td>
                     <td class="p-2.5 text-center font-mono font-bold">{{ (float) $item->quantity }}</td>
-                    <td class="p-2.5 text-center font-mono" dir="ltr">{{ number_format($item->unit_price ?? ($item->line_total / ($item->quantity ?: 1))) }}</td>
-                    <td class="p-2.5 text-left font-mono font-bold text-slate-900" dir="ltr">{{ number_format($item->line_total) }} د.ع</td>
+                    <td class="p-2.5 text-center font-mono" dir="ltr">{{ $fmt($item->unit_price ?? ($item->line_total / ($item->quantity ?: 1))) }}</td>
+                    <td class="p-2.5 text-left font-mono font-bold text-slate-900" dir="ltr">{{ $fmt($item->line_total) }}</td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
 
-        <!-- کێشی گشتی و کۆی پارەکان -->
-        @php
-        $totalWeightKg = 0;
-        foreach($sale->details as $item) {
-        $unitName = strtolower(trim($item->unit->name ?? ''));
-        if (str_contains($unitName, 'کارتۆن') || str_contains($unitName, 'carton')) {
-        $totalWeightKg += $item->quantity * ($item->product->kg_per_carton ?: 1);
-        } elseif (str_contains($unitName, 'تەن') || str_contains($unitName, 'ton')) {
-        $totalWeightKg += $item->quantity * 1000;
-        } else {
-        $totalWeightKg += $item->quantity * ($item->unit->factor_to_base ?: 1);
-        }
-        }
-        @endphp
-
+        <!-- کێش و کۆی پارەکان -->
         <div class="grid grid-cols-2 gap-6 items-start mb-6">
             <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
                 <div class="font-bold text-slate-700">کۆی کێشی بار:</div>
@@ -150,36 +161,36 @@
             </div>
 
             <div class="space-y-1.5 p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold">
-                @if(isset($sale->discount) && $sale->discount > 0)
+                @if(($sale->discount ?? 0) > 0)
                 <div class="flex justify-between text-slate-600">
                     <span>کۆی کاڵاکان:</span>
-                    <span class="font-mono" dir="ltr">{{ number_format($sale->total_amount + $sale->discount) }} د.ع</span>
+                    <span class="font-mono" dir="ltr">{{ $fmt($sale->total_amount + $sale->discount) }}</span>
                 </div>
                 <div class="flex justify-between text-amber-600">
                     <span>داشکاندن:</span>
-                    <span class="font-mono" dir="ltr">- {{ number_format($sale->discount) }} د.ع</span>
+                    <span class="font-mono" dir="ltr">- {{ $fmt($sale->discount) }}</span>
                 </div>
                 @endif
 
                 <div class="flex justify-between text-base font-black text-slate-900 pt-1 border-t border-slate-300">
-                    <span>کۆی گشتی ماوە:</span>
-                    <span class="font-mono text-emerald-700" dir="ltr">{{ number_format($sale->total_amount) }} د.ع</span>
+                    <span>کۆی گشتی:</span>
+                    <span class="font-mono text-emerald-700" dir="ltr">{{ $fmt($sale->total_amount) }}</span>
                 </div>
 
                 @if($sale->payment_type === 'debt')
                 <div class="flex justify-between text-slate-600 pt-1 border-t border-slate-200 text-[11px]">
                     <span>بڕی پارەی دراو:</span>
-                    <span class="font-mono" dir="ltr">{{ number_format($sale->paid_amount) }} د.ع</span>
+                    <span class="font-mono" dir="ltr">{{ $fmt($sale->paid_amount) }}</span>
                 </div>
                 <div class="flex justify-between text-rose-700 font-black text-[11px]">
                     <span>ماوە (قەرز):</span>
-                    <span class="font-mono" dir="ltr">{{ number_format($sale->remaining_amount) }} د.ع</span>
+                    <span class="font-mono" dir="ltr">{{ $fmt($sale->remaining_amount) }}</span>
                 </div>
                 @endif
             </div>
         </div>
 
-        <!-- واژوو و تێبینی خوارەوە -->
+        <!-- واژوو -->
         <div class="pt-6 border-t border-slate-200 grid grid-cols-3 gap-4 text-center text-slate-600">
             <div>
                 <span class="block mb-8 font-bold">واژووی کڕیار</span>
@@ -192,13 +203,18 @@
                 <p class="text-[10px] mt-1">{{ $setting->invoice_footer ?? 'سوپاس بۆ سەردانەکەتان' }}</p>
             </div>
             <div>
-                <span class="block mb-8 font-bold">واژووی ژمێریاری / کۆگا</span>
+                <span class="block mb-8 font-bold">واژووی ژمێریار / کۆگا</span>
                 <span>......................</span>
             </div>
         </div>
 
     </div>
 
+    <script>
+        window.addEventListener('load', function() {
+            window.print();
+        });
+    </script>
 </body>
 
 </html>

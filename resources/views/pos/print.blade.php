@@ -7,8 +7,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
     @php
     $setting = \App\Models\Setting::first();
-    $paperWidth = $setting ? $setting->receipt_width : '80mm';
-    $bodyWidth = ($paperWidth === '58mm') ? '56mm' : '78mm';
+    $paperWidth = ($setting && in_array($setting->receipt_width, ['58mm', '80mm'])) ? $setting->receipt_width : '80mm';
+    $is58 = $paperWidth === '58mm';
+    $bodyWidth = $is58 ? '56mm' : '78mm';
+    $fs = $is58 ? '10px' : '12px';
+    $fsTd = $is58 ? '10px' : '11px';
+    $pad = $is58 ? '4px' : '10px';
+
+    // نیشاندانی بڕ بەپێی دراوی وەسڵ
+    $isUsd = ($sale->currency ?? 'IQD') === 'USD';
+    $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';
+    $fmtShort = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v);
+
+    // کێشی گشتی
+    $totalWeightKg = 0;
+    foreach ($sale->details as $item) {
+    $unitName = strtolower(trim($item->unit->name ?? ''));
+    if (str_contains($unitName, 'کارتۆن') || str_contains($unitName, 'carton')) {
+    $totalWeightKg += $item->quantity * ($item->product->kg_per_carton ?? 1 ?: 1);
+    } elseif (str_contains($unitName, 'تەن') || str_contains($unitName, 'ton')) {
+    $totalWeightKg += $item->quantity * 1000;
+    } else {
+    $totalWeightKg += $item->quantity * ($item->unit->factor_to_base ?? 1 ?: 1);
+    }
+    }
     @endphp
     <style>
         @page {
@@ -36,7 +58,7 @@
 
             padding: {
                     {
-                    ($paperWidth ==='58mm') ? '4px': '10px'
+                    $pad
                 }
             }
 
@@ -44,7 +66,7 @@
 
             font-size: {
                     {
-                    ($paperWidth ==='58mm') ? '10px': '12px'
+                    $fs
                 }
             }
 
@@ -84,7 +106,7 @@
 
             font-size: {
                     {
-                    ($paperWidth ==='58mm') ? '10px': '11px'
+                    $fsTd
                 }
             }
 
@@ -97,21 +119,36 @@
             line-height: 1;
         }
 
-        .btn-print {
+        .toolbar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            flex: 1;
             display: block;
-            width: 100%;
+            text-align: center;
             padding: 8px;
-            background: #2563eb;
-            color: white;
             border: none;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 10px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .btn-print {
+            background: #2563eb;
+        }
+
+        .btn-a4 {
+            background: #0891b2;
         }
 
         @media print {
-            .btn-print {
+            .toolbar {
                 display: none;
             }
         }
@@ -120,13 +157,15 @@
 
 <body>
 
-    <button onclick="window.print()" class="btn-print">چاپکردنی پسوولە</button>
+    <div class="toolbar">
+        <button onclick="window.print()" class="btn btn-print">چاپکردن</button>
+        <a href="{{ route('sales.print', $sale->id) }}?type=a4" class="btn btn-a4">A4</a>
+    </div>
 
-    <!-- بەشی سەردێڕ و لۆگۆ بە شێوەی داینامیک لە Settings -->
-    <!-- بەشی سەردێڕ و لۆگۆ -->
+    <!-- سەردێڕ و لۆگۆ -->
     <div class="text-center">
         @if(!empty($setting->shop_logo) && file_exists(public_path($setting->shop_logo)))
-        <img src="{{ asset($setting->shop_logo) }}" style="max-height: 65px; max-width: 80%; margin: 0 auto 6px auto; display: block; object-contain: contain;">
+        <img src="{{ asset($setting->shop_logo) }}" style="max-height: 65px; max-width: 80%; margin: 0 auto 6px auto; display: block; object-fit: contain;">
         @endif
         <h2 style="margin: 0; font-size: 15px; font-weight: bold;">{{ $setting->shop_name ?? 'کۆمپانیای ساموا' }}</h2>
         @if(!empty($setting->shop_phone))
@@ -145,7 +184,7 @@
         <div><strong>بەروار:</strong> {{ $sale->created_at->format('Y-m-d H:i') }}</div>
         <div><strong>کڕیار:</strong> {{ $sale->customer->name ?? 'کڕیاری گشتی' }}</div>
         <div><strong>جۆری پارەدان:</strong> {{ $sale->payment_type == 'cash' ? 'نەقد' : 'قەرز' }}</div>
-        <div><b>نوێنەری فرۆشتن / کاشیر:</b> <span style="font-weight: bold;">{{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</span></div>
+        <div><b>کاشیر:</b> {{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</div>
     </div>
 
     <div class="border-b my-2"></div>
@@ -163,7 +202,7 @@
             <tr>
                 <td>{{ $item->product->name ?? '-' }}</td>
                 <td class="text-center">{{ (float) $item->quantity }} {{ $item->unit->name ?? '' }}</td>
-                <td class="text-left font-bold" dir="ltr">{{ number_format($item->line_total) }}</td>
+                <td class="text-left font-bold" dir="ltr">{{ $fmtShort($item->line_total) }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -172,45 +211,31 @@
     <div class="border-b my-2"></div>
 
     <table style="font-size: 12px;">
-        @if(isset($sale->discount) && $sale->discount > 0)
+        @if(($sale->discount ?? 0) > 0)
         <tr>
             <td>کۆی کاڵاکان:</td>
-            <td class="text-left" dir="ltr">{{ number_format($sale->total_amount + $sale->discount) }} د.ع</td>
+            <td class="text-left" dir="ltr">{{ $fmt($sale->total_amount + $sale->discount) }}</td>
         </tr>
         <tr>
             <td>داشکاندن:</td>
-            <td class="text-left" dir="ltr">{{ number_format($sale->discount) }} د.ع</td>
+            <td class="text-left" dir="ltr">{{ $fmt($sale->discount) }}</td>
         </tr>
         @endif
         <tr class="font-bold">
             <td>کۆی گشتی:</td>
-            <td class="text-left" dir="ltr">{{ number_format($sale->total_amount) }} د.ع</td>
+            <td class="text-left" dir="ltr">{{ $fmt($sale->total_amount) }}</td>
         </tr>
         @if($sale->payment_type === 'debt')
         <tr>
             <td>بڕی دراو:</td>
-            <td class="text-left" dir="ltr">{{ number_format($sale->paid_amount) }} د.ع</td>
+            <td class="text-left" dir="ltr">{{ $fmt($sale->paid_amount) }}</td>
         </tr>
         <tr class="font-bold">
             <td>ماوە (قەرز):</td>
-            <td class="text-left" dir="ltr">{{ number_format($sale->remaining_amount) }} د.ع</td>
+            <td class="text-left" dir="ltr">{{ $fmt($sale->remaining_amount) }}</td>
         </tr>
         @endif
     </table>
-
-    @php
-    $totalWeightKg = 0;
-    foreach($sale->details as $item) {
-    $unitName = strtolower(trim($item->unit->name ?? ''));
-    if (str_contains($unitName, 'کارتۆن') || str_contains($unitName, 'carton')) {
-    $totalWeightKg += $item->quantity * ($item->product->kg_per_carton ?: 1);
-    } elseif (str_contains($unitName, 'تەن') || str_contains($unitName, 'ton')) {
-    $totalWeightKg += $item->quantity * 1000;
-    } else {
-    $totalWeightKg += $item->quantity * ($item->unit->factor_to_base ?: 1);
-    }
-    }
-    @endphp
 
     <div style="margin-top: 10px; padding: 6px; border: 1.5px dashed #000; text-align: center; font-weight: bold; font-size: 12px;">
         کۆی کێشی گشتیی بار:
@@ -222,7 +247,6 @@
 
     <div class="border-b my-2"></div>
 
-    <!-- فووتەر و ڕێنمایی دیاریکراو لە Settings -->
     <div class="text-center" style="font-size: 10px; margin-top: 6px;">
         <p style="margin: 0 0 4px 0;">{{ $setting->invoice_footer ?? 'سوپاس بۆ مامەڵەکەتان' }}</p>
 
@@ -234,9 +258,9 @@
     </div>
 
     <script>
-        window.onload = function() {
+        window.addEventListener('load', function() {
             window.print();
-        };
+        });
     </script>
 </body>
 
