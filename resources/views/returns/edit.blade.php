@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style> body { font-family: 'Noto Sans Arabic', sans-serif; } </style>
+    @php $retCur = ($return->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD'; @endphp
 </head>
 <body class="bg-[#0f172a] text-slate-100 min-h-screen p-6">
 
@@ -24,7 +25,9 @@
             </a>
         </div>
 
-        <div class="bg-[#1e293b]/90 p-5 rounded-2xl border border-slate-700/70 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <input type="hidden" id="initial-currency" value="{{ $retCur }}">
+
+        <div class="bg-[#1e293b]/90 p-5 rounded-2xl border border-slate-700/70 grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
             <div>
                 <label class="block font-bold text-slate-300 mb-1">کڕیار:</label>
                 <select id="customer-select" class="w-full p-2.5 bg-[#0f172a] border border-slate-700 rounded-xl text-white">
@@ -47,6 +50,20 @@
                     <option value="cash" {{ $return->refund_type == 'cash' ? 'selected' : '' }}>دانەوەی پارەی نەقد بە کڕیار</option>
                 </select>
             </div>
+
+            <div>
+                <label class="block font-bold text-slate-300 mb-1">دراوی وەسڵ:</label>
+                <div class="flex items-center gap-1.5 bg-[#0f172a] p-1 rounded-xl border border-slate-700">
+                    <button type="button" onclick="setCurrency('USD')" id="btn-cur-usd" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors">دۆلار</button>
+                    <button type="button" onclick="setCurrency('IQD')" id="btn-cur-iqd" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors">دینار</button>
+                </div>
+            </div>
+
+            <div id="rate-box" class="md:col-span-4 hidden">
+                <label class="block font-bold text-slate-300 mb-1">نرخی ئاڵوگۆڕی دۆلار (١ دۆلار = چ دینار):</label>
+                <input type="number" step="any" min="1" id="exchange-rate" value="{{ $setting->exchange_rate ?? 1500 }}" class="w-full p-2.5 bg-[#0f172a] border border-amber-600 rounded-xl text-white font-mono">
+                <p class="text-[10px] text-amber-400 mt-1">ئەم نرخە تەنها بۆ گۆڕینی نرخی دراوی نرخەکان کاتێک دراو دەگۆڕیت بەکار دێت.</p>
+            </div>
         </div>
 
         <div class="bg-[#1e293b]/90 p-5 rounded-2xl border border-slate-700/70 space-y-4">
@@ -64,7 +81,7 @@
                             <th class="p-3 text-right">کاڵا</th>
                             <th class="p-3">یەکە</th>
                             <th class="p-3">بڕ</th>
-                            <th class="p-3">نرخ</th>
+                            <th class="p-3">نرخی ١ کیلۆ (<span id="price-label">{{ $retCur === 'USD' ? '$' : 'IQD' }}</span>)</th>
                             <th class="p-3">بارودۆخی کاڵا (جۆری گەڕانەوە)</th>
                             <th class="p-3">کۆی نرخ</th>
                             <th class="p-3">سڕینەوە</th>
@@ -76,7 +93,7 @@
                             $factor = $detail->unit->factor_to_base ?: 1;
                             $uName = mb_strtolower(trim($detail->unit->name ?? ''));
                             if (str_contains($uName, 'کارتۆن') || str_contains($uName, 'carton')) {
-                                $factor = $detail->product->kg_per_carton ?: 1;
+                                $factor = ($detail->product->kg_per_carton ?? 1) ?: 1;
                             } elseif (str_contains($uName, 'تەن') || str_contains($uName, 'ton')) {
                                 $factor = 1000;
                             }
@@ -102,10 +119,10 @@
                                 </select>
                             </td>
                             <td class="p-2">
-                                <input type="number" step="any" min="0.01" value="{{ $detail->quantity }}" class="qty-input p-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono w-24 text-center" oninput="calculate()">
+                                <input type="number" step="any" min="0.01" value="{{ (float) $detail->quantity }}" class="qty-input p-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono w-24 text-center" oninput="calculate()">
                             </td>
                             <td class="p-2">
-                                <input type="number" step="any" value="{{ $basePrice }}" class="price-input p-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono w-32 text-center" oninput="calculate()">
+                                <input type="number" step="any" value="{{ round($basePrice, 4) }}" class="price-input p-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono w-32 text-center" oninput="calculate()">
                             </td>
                             <td class="p-2">
                                 <select class="condition-select p-2 bg-slate-800 border border-slate-700 rounded-lg text-xs">
@@ -114,7 +131,7 @@
                                     <option value="damaged" {{ $detail->condition_type == 'damaged' ? 'selected' : '' }} class="text-amber-400 font-bold">تێکچوو / شکاو (ناگەڕێتەوە)</option>
                                 </select>
                             </td>
-                            <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr">{{ number_format($detail->subtotal) }} IQD</td>
+                            <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr"></td>
                             <td class="p-2">
                                 <button type="button" onclick="removeRow(this)" class="text-rose-400 hover:text-rose-300">
                                     <i class="fa-solid fa-trash"></i>
@@ -133,7 +150,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-slate-300 text-sm">کۆی گشتی وەسڵ:</span>
-                    <span id="grand-total" class="text-emerald-400 font-mono text-lg" dir="ltr">0 IQD</span>
+                    <span id="grand-total" class="text-emerald-400 font-mono text-lg" dir="ltr"></span>
                 </div>
             </div>
         </div>
@@ -147,6 +164,45 @@
     <script>
         const products = @json($products);
         const units = @json($units);
+        let currentCurrency = document.getElementById('initial-currency').value || 'IQD';
+
+        function getRate() {
+            return parseFloat(document.getElementById('exchange-rate').value) || 1500;
+        }
+
+        function fmt(v) {
+            if (currentCurrency === 'USD') {
+                return '$' + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+            return Math.round(v).toLocaleString() + ' IQD';
+        }
+
+        function suggestedPrice(usd) {
+            const v = currentCurrency === 'USD' ? usd : usd * getRate();
+            return parseFloat(v.toFixed(currentCurrency === 'USD' ? 4 : 2));
+        }
+
+        function paintCurrencyButtons() {
+            const on = 'flex-1 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white transition-colors';
+            const off = 'flex-1 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 transition-colors';
+            document.getElementById('btn-cur-usd').className = currentCurrency === 'USD' ? on : off;
+            document.getElementById('btn-cur-iqd').className = currentCurrency === 'IQD' ? on : off;
+            document.getElementById('rate-box').classList.toggle('hidden', currentCurrency === 'USD');
+            document.getElementById('price-label').innerText = currentCurrency === 'USD' ? '$' : 'IQD';
+        }
+
+        function setCurrency(cur) {
+            if (cur === currentCurrency) return;
+            const rate = getRate();
+            document.querySelectorAll('.item-row .price-input').forEach(inp => {
+                const val = parseFloat(inp.value) || 0;
+                const converted = cur === 'IQD' ? val * rate : val / rate;
+                inp.value = parseFloat(converted.toFixed(cur === 'USD' ? 4 : 2));
+            });
+            currentCurrency = cur;
+            paintCurrencyButtons();
+            calculate();
+        }
 
         function addRow() {
             const table = document.getElementById('items-table');
@@ -180,7 +236,7 @@
                         <option value="damaged" class="text-amber-400 font-bold">تێکچوو / شکاو (ناگەڕێتەوە)</option>
                     </select>
                 </td>
-                <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr">0 IQD</td>
+                <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr"></td>
                 <td class="p-2">
                     <button type="button" onclick="removeRow(this)" class="text-rose-400 hover:text-rose-300">
                         <i class="fa-solid fa-trash"></i>
@@ -192,8 +248,7 @@
         }
 
         function removeRow(btn) {
-            const rows = document.querySelectorAll('.item-row');
-            if (rows.length > 1) {
+            if (document.querySelectorAll('.item-row').length > 1) {
                 btn.closest('tr').remove();
                 calculate();
             } else {
@@ -204,8 +259,8 @@
         function onProductChange(select) {
             const row = select.closest('tr');
             const selected = select.options[select.selectedIndex];
-            const price = parseFloat(selected.getAttribute('data-price')) || 0;
-            row.querySelector('.price-input').value = price;
+            const usd = parseFloat(selected.getAttribute('data-price')) || 0;
+            row.querySelector('.price-input').value = suggestedPrice(usd);
             calculate();
         }
 
@@ -236,10 +291,10 @@
                 grandTotal += lineTotal;
                 totalKg += (qty * factor);
 
-                row.querySelector('.row-total').innerText = lineTotal.toLocaleString() + ' IQD';
+                row.querySelector('.row-total').innerText = fmt(lineTotal);
             });
 
-            document.getElementById('grand-total').innerText = grandTotal.toLocaleString() + ' IQD';
+            document.getElementById('grand-total').innerText = fmt(grandTotal);
             document.getElementById('total-weight').innerText = totalKg.toLocaleString() + ' کگ';
         }
 
@@ -261,7 +316,7 @@
                 });
             });
 
-            fetch("{{ route('returns.update', $return->id) }}", {
+            fetch(@json(route('returns.update', $return->id)), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -272,6 +327,7 @@
                     customer_id: document.getElementById('customer-select').value || null,
                     refund_type: document.getElementById('refund-type').value,
                     created_at: document.getElementById('return-date').value,
+                    currency: currentCurrency,
                     items: items
                 })
             })
@@ -279,7 +335,7 @@
             .then(data => {
                 if (data.success) {
                     alert(data.message);
-                    window.location.href = "{{ route('returns.index') }}";
+                    window.location.href = @json(route('returns.index'));
                 } else {
                     alert('هەڵە: ' + (data.error || ''));
                 }
@@ -287,6 +343,7 @@
             .catch(err => alert('کێشەیەک لە سێرڤەر ڕوویدا'));
         }
 
+        paintCurrencyButtons();
         calculate();
     </script>
 

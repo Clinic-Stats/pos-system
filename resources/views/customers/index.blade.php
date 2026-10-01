@@ -8,6 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style> body { font-family: 'Noto Sans Arabic', sans-serif; } </style>
+    @php
+        $fmt = fn($v, $c) => $c === 'USD'
+            ? '$' . number_format((float) $v, 2)
+            : number_format((float) $v) . ' IQD';
+    @endphp
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-6">
 
@@ -33,6 +38,12 @@
         @if(session('error'))
             <div class="bg-rose-600/20 border border-rose-500 text-rose-300 p-3.5 rounded-xl text-sm font-bold flex items-center gap-2">
                 <i class="fa-solid fa-circle-exclamation"></i> {{ session('error') }}
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="bg-rose-600/20 border border-rose-500 text-rose-300 p-3.5 rounded-xl text-xs font-bold space-y-1">
+                @foreach($errors->all() as $err) <div>• {{ $err }}</div> @endforeach
             </div>
         @endif
 
@@ -78,43 +89,54 @@
                     <tbody class="divide-y divide-slate-700">
                         @forelse($customers as $cust)
                         @php
-                            $totalBuy = $cust->sales->sum('total_amount');
-                            $totalPaid = $cust->sales->sum('paid_amount') + ($cust->payments ? $cust->payments->sum('amount') : 0);
-                            $debt = $totalBuy - $totalPaid;
+                            $sum = $cust->currencySummary();
+                            // دراوی بنەڕەتی فۆڕمی پارەدان: ئەو دراوەی قەرزی هەیە
+                            $defaultCur = ($sum['USD']['debt'] > 0 && $sum['IQD']['debt'] <= 0) ? 'USD' : 'IQD';
                         @endphp
                         <tr class="hover:bg-slate-700/30 transition">
                             <td class="p-3 font-bold text-white">{{ $cust->name }}</td>
                             <td class="p-3 font-mono text-cyan-400 text-xs">{{ $cust->phone ?? '-' }}</td>
-                            <td class="p-3 font-mono font-bold" dir="ltr">{{ number_format($totalBuy) }} د.ع</td>
-                            <td class="p-3 font-mono font-black {{ $debt > 0 ? 'text-amber-400' : 'text-emerald-400' }}" dir="ltr">
-                                {{ number_format($debt) }} د.ع
+
+                            <td class="p-3 font-mono font-bold text-xs space-y-1" dir="ltr">
+                                <div class="{{ $sum['USD']['purchases'] > 0 ? 'text-slate-100' : 'text-slate-600' }}">{{ $fmt($sum['USD']['purchases'], 'USD') }}</div>
+                                <div class="{{ $sum['IQD']['purchases'] > 0 ? 'text-slate-100' : 'text-slate-600' }}">{{ $fmt($sum['IQD']['purchases'], 'IQD') }}</div>
                             </td>
+
+                            <td class="p-3 font-mono font-black text-xs space-y-1" dir="ltr">
+                                @foreach(['USD', 'IQD'] as $cur)
+                                    <div class="{{ $sum[$cur]['debt'] > 0 ? 'text-amber-400' : ($sum[$cur]['debt'] < 0 ? 'text-sky-400' : 'text-emerald-400') }}">
+                                        {{ $fmt($sum[$cur]['debt'], $cur) }}
+                                    </div>
+                                @endforeach
+                            </td>
+
                             <td class="p-3">
-                                <!-- فۆڕمی وەرگرتنەوەی قەرز -->
-                                <form action="{{ route('customers.payment', $cust->id) }}" method="POST" class="flex items-center gap-1.5">
+                                <form action="{{ route('customers.payment', $cust->id) }}" method="POST" class="flex flex-wrap items-center gap-1.5">
                                     @csrf
-                                    <input type="number" step="any" min="1" name="amount" placeholder="بڕی پارە" required class="w-24 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs font-mono text-white">
+                                    <input type="number" step="any" min="0.01" name="amount" placeholder="بڕی پارە" required class="w-24 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs font-mono text-white">
+                                    <select name="currency" class="p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs font-bold text-white">
+                                        <option value="USD" {{ $defaultCur === 'USD' ? 'selected' : '' }}>$ دۆلار</option>
+                                        <option value="IQD" {{ $defaultCur === 'IQD' ? 'selected' : '' }}>د.ع دینار</option>
+                                    </select>
                                     <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required class="p-1 bg-slate-700 border border-slate-600 rounded-lg text-xs text-slate-300 font-mono">
                                     <button type="submit" title="وەرگرتنی پارە" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg text-xs transition">
                                         <i class="fa-solid fa-hand-holding-dollar"></i>
                                     </button>
                                 </form>
                             </td>
+
                             <td class="p-3 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <!-- دوگمەی کەشف -->
                                     <a href="{{ route('customers.statement', $cust->id) }}" target="_blank" class="bg-blue-600/20 text-blue-400 border border-blue-500/40 hover:bg-blue-600 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
                                         <i class="fa-solid fa-file-lines"></i> کەشف
                                     </a>
 
-                                    <!-- دوگمەی دەستکاری -->
-                                    <button type="button" 
-                                            onclick="openEditCustomerModal({{ $cust->id }}, '{{ addslashes($cust->name) }}', '{{ $cust->phone ?? '' }}', '{{ addslashes($cust->address ?? '') }}')" 
+                                    <button type="button"
+                                            onclick="openEditCustomerModal({{ $cust->id }}, '{{ addslashes($cust->name) }}', '{{ $cust->phone ?? '' }}', '{{ addslashes($cust->address ?? '') }}')"
                                             class="bg-amber-600/20 text-amber-400 border border-amber-500/40 hover:bg-amber-600 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
                                         <i class="fa-solid fa-pen-to-square"></i> دەستکاری
                                     </button>
 
-                                    <!-- دوگمەی سڕینەوە -->
                                     <form action="{{ route('customers.destroy', $cust->id) }}" method="POST" onsubmit="return confirm('ئایا دڵنیایت لە سڕینەوە؟')">
                                         @csrf
                                         @method('DELETE')
@@ -136,7 +158,7 @@
 
     </div>
 
-    <!-- مۆداڵی دەستکاریکردنی کڕیار (Popup Modal) -->
+    <!-- مۆداڵی دەستکاریکردنی کڕیار -->
     <div id="editCustomerModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl text-right">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">

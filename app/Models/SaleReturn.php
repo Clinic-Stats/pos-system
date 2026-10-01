@@ -11,6 +11,7 @@ class SaleReturn extends Model
         'customer_id',
         'user_id',
         'total_amount',
+        'currency',
         'refund_type',
         'notes',
         'created_at',
@@ -25,8 +26,9 @@ class SaleReturn extends Model
     {
         return $this->hasMany(SaleReturnDetail::class);
     }
+
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    {
+        return $this->belongsTo(User::class);
+    }
 }

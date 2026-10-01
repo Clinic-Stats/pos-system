@@ -8,12 +8,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style> body { font-family: 'Noto Sans Arabic', sans-serif; } </style>
+    @php
+        $fmt = fn($v, $cur) => ($cur ?? 'IQD') === 'USD'
+            ? '$' . number_format((float) $v, 2)
+            : number_format((float) $v) . ' IQD';
+    @endphp
 </head>
 <body class="bg-[#0f172a] text-slate-100 min-h-screen p-6">
 
     <div class="max-w-7xl mx-auto space-y-5">
 
-        <!-- سەرپەڕە -->
         <div class="flex flex-wrap justify-between items-center bg-[#1e293b]/90 p-4 rounded-2xl border border-slate-700/70 gap-4">
             <h1 class="text-base font-bold flex items-center gap-2 text-white">
                 <i class="fa-solid fa-rotate-left text-amber-400 text-lg"></i>
@@ -36,7 +40,13 @@
             </div>
         @endif
 
-        <!-- فلتەرکردن -->
+        @if(session('error'))
+            <div class="bg-rose-950/40 border border-rose-500/50 text-rose-400 p-3.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {{ session('error') }}
+            </div>
+        @endif
+
         <form action="{{ route('returns.index') }}" method="GET" class="bg-[#1e293b]/80 p-3.5 rounded-2xl border border-slate-700/60 flex flex-wrap items-center gap-3">
             <div class="flex-1 min-w-[220px]">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="گەڕان بە ژمارەی وەسڵی گەڕانەوە..." class="w-full p-2.5 bg-[#0f172a] border border-slate-700 rounded-xl text-white text-xs placeholder-slate-500 font-mono">
@@ -63,7 +73,6 @@
             </button>
         </form>
 
-        <!-- خشتە -->
         <div class="bg-[#1e293b]/90 rounded-2xl border border-slate-700/70 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-center text-slate-300">
@@ -82,16 +91,12 @@
                     <tbody class="divide-y divide-slate-700/50">
                         @forelse($returns as $ret)
                         <tr class="hover:bg-slate-800/40 transition">
-                            <!-- ١. ژمارەی وەسڵ -->
                             <td class="p-3.5 font-mono font-bold text-amber-400">{{ $ret->return_no }}</td>
 
-                            <!-- ٢. بەروار -->
                             <td class="p-3.5 font-mono text-slate-300">{{ $ret->created_at ? $ret->created_at->format('Y-m-d H:i') : '---' }}</td>
 
-                            <!-- ٣. ناوی کڕیار -->
                             <td class="p-3.5 font-bold text-white">{{ $ret->customer->name ?? 'کڕیاری گشتی' }}</td>
 
-                            <!-- ٤. شێوازی حیسابکردن -->
                             <td class="p-3.5">
                                 @if($ret->refund_type == 'deduct_debt')
                                     <span class="bg-blue-950/60 text-blue-400 border border-blue-800 px-2.5 py-1 rounded-md font-bold text-[11px]">داشکاندن لە قەرز</span>
@@ -100,19 +105,16 @@
                                 @endif
                             </td>
 
-                            <!-- ٥. وردەکاری کاڵاکان -->
                             <td class="p-3.5">
                                 <span class="bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-md text-slate-300">
                                     {{ $ret->details->count() }} کاڵا
                                 </span>
                             </td>
 
-                            <!-- ٦. کۆی پارە -->
                             <td class="p-3.5 font-mono font-bold text-rose-400 text-sm" dir="ltr">
-                                -{{ number_format($ret->total_amount) }} IQD
+                                -{{ $fmt($ret->total_amount, $ret->currency) }}
                             </td>
 
-                            <!-- ٧. تۆمارکار -->
                             <td class="p-3.5 font-bold text-slate-300">
                                 <span class="inline-flex items-center gap-1.5 bg-slate-800/70 px-2.5 py-1 rounded-lg border border-slate-700/60">
                                     <i class="fa-solid fa-user text-[11px] text-amber-400"></i>
@@ -120,18 +122,14 @@
                                 </span>
                             </td>
 
-                            <!-- ٨. کردارەکان -->
                             <td class="p-3.5">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <!-- پرینت -->
                                     <a href="{{ route('returns.print', $ret->id) }}" target="_blank" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1">
                                         <i class="fa-solid fa-print"></i> پرینت
                                     </a>
-                                    <!-- دەستکاری -->
                                     <a href="{{ route('returns.edit', $ret->id) }}" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition flex items-center gap-1">
                                         <i class="fa-solid fa-pen-to-square"></i> دەستکاری
                                     </a>
-                                    <!-- سڕینەوە -->
                                     <form action="{{ route('returns.destroy', $ret->id) }}" method="POST" onsubmit="return confirm('ئایا دڵنیایت لە سڕینەوەی ئەم وەسڵە؟ کاڵاکان و باڵانس دەگەڕێنەوە باری پێشوو.')">
                                         @csrf
                                         @method('DELETE')

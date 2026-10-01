@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\CustomerPayment;
-use App\Models\SaleReturn;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -45,15 +44,19 @@ class CustomerController extends Controller
     public function addPayment(Request $request, $id)
     {
         $request->validate([
-            'amount'       => 'required|numeric|min:1',
+            'amount'       => 'required|numeric|min:0.01',
+            'currency'     => 'required|in:USD,IQD',
             'payment_date' => 'required|date',
             'note'         => 'nullable|string|max:255',
         ]);
+
+        Customer::findOrFail($id);
 
         CustomerPayment::create([
             'customer_id'  => $id,
             'user_id'      => auth()->id(),
             'amount'       => $request->amount,
+            'currency'     => $request->currency,
             'payment_date' => $request->payment_date,
             'note'         => $request->note,
         ]);
@@ -64,7 +67,8 @@ class CustomerController extends Controller
     public function updatePayment(Request $request, $id)
     {
         $request->validate([
-            'amount'       => 'required|numeric|min:1',
+            'amount'       => 'required|numeric|min:0.01',
+            'currency'     => 'required|in:USD,IQD',
             'payment_date' => 'required|date',
             'note'         => 'nullable|string|max:255',
         ]);
@@ -72,6 +76,7 @@ class CustomerController extends Controller
         $payment = CustomerPayment::findOrFail($id);
         $payment->update([
             'amount'       => $request->amount,
+            'currency'     => $request->currency,
             'payment_date' => $request->payment_date,
             'note'         => $request->note,
         ]);
@@ -90,17 +95,20 @@ class CustomerController extends Controller
         $customer = Customer::with([
             'sales.details.product',
             'sales.details.unit',
-            'payments',
+            'sales.user',
+            'payments.user',
             'returns.details.product',
-            'returns.details.unit'
+            'returns.details.unit',
+            'returns.user',
         ])->findOrFail($id);
 
         $ledger = collect();
 
-        // ١. زیادکردنی وەسڵەکانی فرۆشتن
+        // ١. وەسڵەکانی فرۆشتن
         foreach ($customer->sales as $sale) {
             $ledger->push([
                 'type'        => 'invoice',
+                'currency'    => Customer::normalizeCurrency($sale->currency),
                 'date'        => $sale->created_at->format('Y-m-d H:i'),
                 'raw_date'    => $sale->created_at,
                 'reference'   => $sale->invoice_no,
@@ -108,14 +116,16 @@ class CustomerController extends Controller
                 'debit'       => (float) $sale->total_amount,
                 'credit'      => (float) $sale->paid_amount,
                 'details'     => $sale->details,
+                'user_name'   => $sale->user->name ?? 'سیستەم',
             ]);
         }
 
-        // ٢. زیادکردنی وەرگرتنەوەی قەرزەکان
+        // ٢. وەرگرتنەوەی قەرزەکان
         foreach ($customer->payments as $pay) {
             $rawDate = $pay->payment_date ? Carbon::parse($pay->payment_date) : $pay->created_at;
             $ledger->push([
                 'type'        => 'payment',
+                'currency'    => Customer::normalizeCurrency($pay->currency),
                 'date'        => $rawDate->format('Y-m-d'),
                 'raw_date'    => $rawDate,
                 'reference'   => 'PAY-' . str_pad($pay->id, 5, '0', STR_PAD_LEFT),
@@ -123,49 +133,44 @@ class CustomerController extends Controller
                 'debit'       => 0,
                 'credit'      => (float) $pay->amount,
                 'details'     => null,
+                'user_name'   => $pay->user->name ?? 'سیستەم',
             ]);
         }
 
-        // ٣. زیادکردنی وەسڵەکانی گەڕانەوەی فرۆشتن (Sale Returns)
-        if ($customer->relationLoaded('returns') || method_exists($customer, 'returns')) {
-            foreach ($customer->returns as $return) {
-                $rawDate = $return->created_at ?? now();
-                $creditAmount = ($return->refund_type === 'deduct_debt') ? (float) $return->total_amount : 0;
+        // ٣. گەڕانەوەی کاڵا
+        foreach ($customer->returns as $return) {
+            $rawDate = $return->created_at ?? now();
+            $creditAmount = ($return->refund_type === 'deduct_debt') ? (float) $return->total_amount : 0;
 
-                $ledger->push([
-                    'type'        => 'return',
-                    'date'        => $rawDate->format('Y-m-d H:i'),
-                    'raw_date'    => $rawDate,
-                    'reference'   => $return->return_no,
-                    'description' => 'گەڕانەوەی کاڵا (' . ($return->refund_type === 'deduct_debt' ? 'داشکاندن لە قەرز' : 'دانەوە بە نەقد') . ')',
-                    'debit'       => 0,
-                    'credit'      => $creditAmount,
-                    'details'     => $return->details,
-                ]);
-            }
+            $ledger->push([
+                'type'        => 'return',
+                'currency'    => Customer::normalizeCurrency($return->currency),
+                'date'        => $rawDate->format('Y-m-d H:i'),
+                'raw_date'    => $rawDate,
+                'reference'   => $return->return_no,
+                'description' => 'گەڕانەوەی کاڵا (' . ($return->refund_type === 'deduct_debt' ? 'داشکاندن لە قەرز' : 'دانەوە بە نەقد') . ')',
+                'debit'       => 0,
+                'credit'      => $creditAmount,
+                'details'     => $return->details,
+                'user_name'   => $return->user->name ?? 'سیستەم',
+            ]);
         }
 
-        // ڕیزبەندی بەپێی بەروار لە کۆنەوە بۆ نوێ (Oldest to Newest)
-        $ledger = $ledger->sortBy(function ($row) {
-            return Carbon::parse($row['raw_date'])->timestamp;
-        })->values();
+        // ڕیزبەندی لە کۆنەوە بۆ نوێ
+        $ledger = $ledger->sortBy(fn($row) => Carbon::parse($row['raw_date'])->timestamp)->values();
 
-        // هەژمارکردنی باڵانسی ماوە هەنگاو بە هەنگاو
-        $balance = 0;
-        $ledger = $ledger->map(function ($row) use (&$balance) {
-            $balance += ($row['debit'] - $row['credit']);
-            $row['balance'] = $balance;
+        // ڕەسیدی ماوە بە جیا بۆ هەر دراوێک
+        $running = ['USD' => 0.0, 'IQD' => 0.0];
+        $ledger = $ledger->map(function ($row) use (&$running) {
+            $c = $row['currency'];
+            $running[$c] += ($row['debit'] - $row['credit']);
+            $row['balance'] = $running[$c];
             return $row;
         });
 
-        $totalPurchases = (float) $customer->sales->sum('total_amount');
-        
-        // کۆی پارەی دراو لەگەڵ بڕی کاڵا گەڕاوەکان کە لە قەرز داشکێنراون
-        $totalReturnsDeducted = (float) $customer->returns->where('refund_type', 'deduct_debt')->sum('total_amount');
-        $totalPaid = (float) $customer->sales->sum('paid_amount') + (float) $customer->payments->sum('amount') + $totalReturnsDeducted;
-        $remainingDebt = $totalPurchases - $totalPaid;
+        $summary = $customer->currencySummary();
 
-        return view('customers.statement', compact('customer', 'ledger', 'totalPurchases', 'totalPaid', 'remainingDebt'));
+        return view('customers.statement', compact('customer', 'ledger', 'summary'));
     }
 
     public function destroy($id)

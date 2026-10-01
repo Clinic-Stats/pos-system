@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>وەسڵی گەڕانەوە - {{ $return->return_no }}</title>
+    @php
+        $isUsd = ($return->currency ?? 'IQD') === 'USD';
+        $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' IQD';
+    @endphp
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Tahoma', 'Arial', sans-serif; font-size: 13px; color: #111; margin: 0; padding: 20px; background: #fff; }
@@ -46,12 +50,12 @@
         </div>
 
         <div class="meta-grid">
-      
-     <div class="meta-grid">
-       <div><b>کڕیار:</b> {{ $return->customer->name ?? 'کڕیاری گشتی (نەقد)' }}</div>
-       <div><b>شێوازی چارەسەری پارە:</b> {{ $return->refund_type == 'deduct_debt' ? 'داشکاندن لە قەرز' : 'دانەوە بە نەقد' }}</div>
-       <div><b>تۆمارکراوە لەلایەن:</b> <span style="font-weight: bold; color: #1d4ed8;">{{ $return->user->name ?? (auth()->user()->name ?? 'نادیار') }}</span></div>
-      </div>
+            <div><b>کڕیار:</b> {{ $return->customer->name ?? 'کڕیاری گشتی (نەقد)' }}</div>
+            <div><b>شێوازی چارەسەری پارە:</b> {{ $return->refund_type == 'deduct_debt' ? 'داشکاندن لە قەرز' : 'دانەوە بە نەقد' }}</div>
+            <div><b>تۆمارکراوە لەلایەن:</b> <span style="font-weight: bold; color: #1d4ed8;">{{ $return->user->name ?? (auth()->user()->name ?? 'نادیار') }}</span></div>
+            <div><b>دراو:</b> {{ $isUsd ? 'USD ($)' : 'IQD (دینار)' }}</div>
+        </div>
+
         <table class="table">
             <thead>
                 <tr>
@@ -70,8 +74,8 @@
                     <td>{{ $index + 1 }}</td>
                     <td style="text-align: right; font-weight: bold;">{{ $item->product->name ?? 'کاڵا' }}</td>
                     <td>{{ $item->unit->name ?? 'کگ' }}</td>
-                    <td>{{ $item->quantity }}</td>
-                    <td dir="ltr">{{ number_format($item->unit_price) }} IQD</td>
+                    <td>{{ (float) $item->quantity }}</td>
+                    <td dir="ltr">{{ $fmt($item->unit_price) }}</td>
                     <td>
                         @if($item->condition_type == 'normal')
                             <span class="badge badge-normal">ئاسایی (گەڕاوە بۆ کۆگا)</span>
@@ -81,7 +85,7 @@
                             <span class="badge badge-damaged">تێکچوو / زیانلێکەوتوو</span>
                         @endif
                     </td>
-                    <td dir="ltr" style="font-weight: bold;">{{ number_format($item->subtotal) }} IQD</td>
+                    <td dir="ltr" style="font-weight: bold;">{{ $fmt($item->subtotal) }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -91,7 +95,7 @@
             <tr>
                 <td><b>کۆی گشتی پارەی گەڕاوە:</b></td>
                 <td dir="ltr" style="text-align: left; font-size: 15px; font-weight: bold; color: #b91c1c;">
-                    {{ number_format($return->total_amount) }} IQD
+                    {{ $fmt($return->total_amount) }}
                 </td>
             </tr>
         </table>

@@ -67,6 +67,7 @@ class SaleReturnController extends Controller
         $request->validate([
             'items'       => 'required|array|min:1',
             'refund_type' => 'required|in:cash,deduct_debt',
+            'currency'    => 'nullable|in:USD,IQD',
         ]);
 
         try {
@@ -89,6 +90,7 @@ class SaleReturnController extends Controller
                     'customer_id'  => $request->customer_id ?: null,
                     'user_id'      => $user ? $user->id : null,
                     'total_amount' => $totalAmount,
+                    'currency'     => $request->currency === 'USD' ? 'USD' : 'IQD',
                     'refund_type'  => $request->refund_type,
                     'notes'        => $request->notes,
                     'created_at'   => $request->filled('created_at') ? Carbon::parse($request->created_at)->setTime(date('H'), date('i'), date('s')) : now(),
@@ -123,7 +125,7 @@ class SaleReturnController extends Controller
                     }
                 }
 
-                // ئەگەر کڕیار دیاریکرابوو و شێوازەکە داشکاندن لە قەرز بوو، لە قەرزەکەی کەم دەکاتەوە
+                // ئەگەر کڕیار دیاریکرابوو و شێوازەکە داشکاندن لە قەرز بوو
                 if ($request->customer_id && $request->refund_type === 'deduct_debt') {
                     Customer::where('id', $request->customer_id)->decrement('balance', $totalAmount);
                 }
@@ -156,6 +158,7 @@ class SaleReturnController extends Controller
         $request->validate([
             'items'       => 'required|array|min:1',
             'refund_type' => 'required|in:cash,deduct_debt',
+            'currency'    => 'nullable|in:USD,IQD',
         ]);
 
         try {
@@ -218,6 +221,13 @@ class SaleReturnController extends Controller
                 $saleReturn->total_amount = $totalAmount;
                 $saleReturn->notes        = $request->notes;
 
+                // ئەگەر فۆرمەکە دراوی نەنارد، دراوی پێشووی وەسڵەکە دەمێنێتەوە
+                if ($request->filled('currency')) {
+                    $saleReturn->currency = $request->currency;
+                } else {
+                    $saleReturn->currency = $saleReturn->currency ?: 'IQD';
+                }
+
                 if ($request->filled('created_at')) {
                     $saleReturn->created_at = Carbon::parse($request->created_at)->setTime(date('H'), date('i'), date('s'));
                 }
@@ -254,12 +264,10 @@ class SaleReturnController extends Controller
             DB::transaction(function () use ($id) {
                 $saleReturn = SaleReturn::with('details.product', 'details.unit')->findOrFail($id);
 
-                // ئەگەر لە قەرز کەم کرابووەوە، قەرزەکەی دەچێتەوە سەر
                 if ($saleReturn->customer_id && $saleReturn->refund_type === 'deduct_debt') {
                     Customer::where('id', $saleReturn->customer_id)->increment('balance', $saleReturn->total_amount);
                 }
 
-                // دەرهێنانەوەی کاڵا لە عەمبار
                 foreach ($saleReturn->details as $detail) {
                     if ($detail->condition_type === 'normal') {
                         $factor = $this->getFactorAndWeight($detail->product, $detail->unit);
