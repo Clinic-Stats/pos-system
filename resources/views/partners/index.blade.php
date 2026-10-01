@@ -34,6 +34,12 @@
             </div>
         @endif
 
+        @if($errors->any())
+            <div class="bg-rose-600/20 border border-rose-500 text-rose-400 p-3.5 rounded-xl text-xs font-bold space-y-1">
+                @foreach($errors->all() as $err) <div>• {{ $err }}</div> @endforeach
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             <!-- فۆڕمی زیادکردنی هاوبەشی نوێ -->
@@ -57,6 +63,18 @@
                             <input type="number" step="any" min="0" name="capital" placeholder="0" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white font-mono focus:outline-none focus:border-blue-500">
                         </div>
                     </div>
+
+                    <!-- هەڵبژاردنی دراو بۆ سەرمایە -->
+                    <div class="flex items-center justify-between gap-1 bg-slate-700/40 p-1.5 rounded-lg border border-slate-600">
+                        <span class="text-[10px] font-bold text-slate-300">دراوی سەرمایە:</span>
+                        <div class="flex items-center gap-1">
+                            <button type="button" onclick="setStoreCurrency('USD')" id="store-cur-usd" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors">دۆلار</button>
+                            <button type="button" onclick="setStoreCurrency('IQD')" id="store-cur-iqd" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors">دینار</button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="currency" id="store_currency" value="USD">
+                    <input type="hidden" name="exchange_rate" id="store_exchange_rate" value="{{ $exchangeRate }}">
+
                     <div>
                         <label class="block text-slate-300 font-bold mb-1">ژمارەی مۆبایل:</label>
                         <input type="text" name="phone" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white font-mono focus:outline-none focus:border-blue-500">
@@ -89,11 +107,12 @@
                     <tbody class="divide-y divide-slate-700">
                         @forelse($partners as $partner)
                         @php
-                            $initialCap = $partner->initial_capital ?? ($partner->capital_amount ?? ($partner->capital ?? 0));
+                            $initialCap = $partner->initial_capital;
                             $deposits = $partner->transactions ? $partner->transactions->where('type', 'deposit')->sum('amount') : 0;
                             $withdraws = $partner->transactions ? $partner->transactions->where('type', 'withdraw')->sum('amount') : 0;
-                            $currentBalance = $initialCap + $deposits - $withdraws;
-                            $shareVal = $partner->share ?? ($partner->share_percentage ?? ($partner->share_percent ?? 0));
+                            $currentBalanceUsd = $initialCap + $deposits - $withdraws;
+                            $currentBalanceIqd = $currentBalanceUsd * $exchangeRate;
+                            $shareVal = $partner->share;
                         @endphp
                         <tr class="hover:bg-slate-700/30 transition">
                             <td class="p-3">
@@ -104,8 +123,13 @@
                                 <div class="text-[10px] text-slate-400 font-mono">{{ $partner->phone ?? '-' }}</div>
                             </td>
                             <td class="p-3 text-center font-mono font-bold text-cyan-400">{{ (float) $shareVal }}%</td>
-                            <td class="p-3 font-mono font-bold text-emerald-400" dir="ltr">
-                                {{ number_format($currentBalance) }} IQD
+                            <td class="p-3">
+                                <div class="font-mono font-bold text-emerald-400 text-[11px]" dir="ltr">
+                                    ${{ number_format($currentBalanceUsd, 2) }}
+                                </div>
+                                <div class="font-mono text-[9px] text-slate-500" dir="ltr">
+                                    ≈ {{ number_format($currentBalanceIqd) }} IQD
+                                </div>
                             </td>
                             <td class="p-3">
                                 <form action="{{ route('partners.transaction', $partner->id) }}" method="POST" class="flex flex-wrap items-center gap-1">
@@ -115,6 +139,14 @@
                                         <option value="withdraw">- ڕاکێشان</option>
                                     </select>
                                     <input type="number" step="any" min="1" name="amount" placeholder="بڕ" required class="w-20 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-[11px]">
+                                    
+                                    <!-- هەڵبژاردنی دراوی مامەڵە -->
+                                    <select name="currency" class="p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white text-[11px]">
+                                        <option value="USD">$</option>
+                                        <option value="IQD">IQD</option>
+                                    </select>
+                                    <input type="hidden" name="exchange_rate" value="{{ $exchangeRate }}">
+                                    
                                     <input type="date" name="date" value="{{ date('Y-m-d') }}" required class="p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-[11px]">
                                     <input type="text" name="note" placeholder="تێبینی" class="w-20 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white text-[11px]">
                                     <button type="submit" title="تۆمارکردنی مامەڵە" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1.5 rounded-lg text-[11px] transition">
@@ -124,20 +156,17 @@
                             </td>
                             <td class="p-3 text-center">
                                 <div class="flex items-center justify-center gap-1.5">
-                                    <!-- کەشفی حیساب و چاپی A4 -->
                                     <a href="{{ route('partners.show', $partner->id) }}" title="کەشفی حیساب و چاپی A4" class="bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600 hover:text-white px-2 py-1.5 rounded-lg text-xs transition font-bold flex items-center gap-1">
                                         <i class="fa-solid fa-file-invoice"></i> کەشف
                                     </a>
 
-                                    <!-- دوگمەی دەستکاری -->
                                     <button type="button" 
-                                            onclick="openEditModal({{ json_encode($partner) }})" 
+                                            onclick="openEditModal({{ json_encode($partner) }}, {{ $exchangeRate }})" 
                                             title="دەستکاریکردن" 
                                             class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-xs transition">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
 
-                                    <!-- دوگمەی سڕینەوە -->
                                     <form action="{{ route('partners.destroy', $partner->id) }}" method="POST" onsubmit="return confirm('ئایا دڵنیایت لە سڕینەوەی ئەم هاوبەشە؟')">
                                         @csrf
                                         @method('DELETE')
@@ -191,6 +220,17 @@
                     </div>
                 </div>
 
+                <!-- هەڵبژاردنی دراو بۆ سەرمایەی دەستکاری -->
+                <div class="flex items-center justify-between gap-1 bg-slate-700/40 p-1.5 rounded-lg border border-slate-600">
+                    <span class="text-[10px] font-bold text-slate-300">دراوی سەرمایە:</span>
+                    <div class="flex items-center gap-1">
+                        <button type="button" onclick="setEditCurrency('USD')" id="edit-cur-usd" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors">دۆلار</button>
+                        <button type="button" onclick="setEditCurrency('IQD')" id="edit-cur-iqd" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors">دینار</button>
+                    </div>
+                </div>
+                <input type="hidden" name="currency" id="edit_currency" value="USD">
+                <input type="hidden" name="exchange_rate" id="edit_exchange_rate" value="{{ $exchangeRate }}">
+
                 <div>
                     <label class="block text-slate-300 font-bold mb-1">ژمارەی مۆبایل:</label>
                     <input type="text" name="phone" id="edit_phone" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white font-mono focus:outline-none focus:border-blue-500">
@@ -214,7 +254,54 @@
     </div>
 
     <script>
-        function openEditModal(partner) {
+        const exchangeRate = {{ $exchangeRate }};
+
+        // ============================================
+        // دراوی فۆرمی زیادکردنی هاوبەش
+        // ============================================
+        let storeCurrency = 'USD';
+
+        function setStoreCurrency(currency) {
+            storeCurrency = currency;
+            document.getElementById('store_currency').value = currency;
+            
+            const btnUsd = document.getElementById('store-cur-usd');
+            const btnIqd = document.getElementById('store-cur-iqd');
+
+            if (currency === 'USD') {
+                btnUsd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors';
+                btnIqd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors';
+            } else {
+                btnIqd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors';
+                btnUsd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors';
+            }
+        }
+
+        // ============================================
+        // دراوی مۆداڵی دەستکاری
+        // ============================================
+        let editCurrency = 'USD';
+
+        function setEditCurrency(currency) {
+            editCurrency = currency;
+            document.getElementById('edit_currency').value = currency;
+            
+            const btnUsd = document.getElementById('edit-cur-usd');
+            const btnIqd = document.getElementById('edit-cur-iqd');
+
+            if (currency === 'USD') {
+                btnUsd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors';
+                btnIqd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors';
+            } else {
+                btnIqd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-white transition-colors';
+                btnUsd.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300 transition-colors';
+            }
+        }
+
+        // ============================================
+        // مۆداڵی دەستکاری
+        // ============================================
+        function openEditModal(partner, rate) {
             document.getElementById('editForm').action = '/partners/' + partner.id;
             document.getElementById('edit_name').value = partner.name || '';
             
@@ -222,17 +309,19 @@
             const cap = partner.capital_amount !== undefined ? partner.capital_amount : (partner.capital || 0);
 
             document.getElementById('edit_share_percent').value = parseFloat(share) || 0;
-            document.getElementById('edit_capital').value = parseFloat(cap) || 0;
+            // نرخی سەرمایە بە دۆلار پیشان دەدرێت
+            document.getElementById('edit_capital').value = parseFloat(cap).toFixed(2) || 0;
             document.getElementById('edit_phone').value = partner.phone || '';
             document.getElementById('edit_note').value = partner.note || '';
 
-            const modal = document.getElementById('editModal');
-            modal.classList.remove('hidden');
+            // ڕێکخستنی دراو بۆ دۆلار
+            setEditCurrency('USD');
+
+            document.getElementById('editModal').classList.remove('hidden');
         }
 
         function closeEditModal() {
-            const modal = document.getElementById('editModal');
-            modal.classList.add('hidden');
+            document.getElementById('editModal').classList.add('hidden');
         }
     </script>
 </body>

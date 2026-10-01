@@ -17,7 +17,10 @@ class PartnerController extends Controller
             $q->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }])->latest()->get();
 
-        return view('partners.index', compact('partners'));
+        $setting = Setting::first();
+        $exchangeRate = $setting->exchange_rate ?? 1500;
+
+        return view('partners.index', compact('partners', 'setting', 'exchangeRate'));
     }
 
     public function store(Request $request)
@@ -28,10 +31,19 @@ class PartnerController extends Controller
             'capital'       => 'nullable|numeric|min:0',
             'phone'         => 'nullable|string|max:50',
             'note'          => 'nullable|string|max:255',
+            'currency'      => 'nullable|in:USD,IQD',
+            'exchange_rate' => 'nullable|numeric|min:1',
         ]);
 
         $shareVal = (float) ($request->share_percent ?? 0);
         $capitalVal = (float) ($request->capital ?? 0);
+        $currency = $request->input('currency', 'USD');
+        $exchangeRate = (float) $request->input('exchange_rate', 1500);
+
+        // گۆڕینی سەرمایە بۆ دۆلار ئەگەر بە دینار بوو
+        if ($currency === 'IQD' && $exchangeRate > 0) {
+            $capitalVal = $capitalVal / $exchangeRate;
+        }
 
         $partnerData = [
             'name'  => $request->name,
@@ -49,9 +61,13 @@ class PartnerController extends Controller
         }
 
         if (Schema::hasColumn('partners', 'capital_amount')) {
-            $partnerData['capital_amount'] = $capitalVal;
+            $partnerData['capital_amount'] = round($capitalVal, 2);
         } elseif (Schema::hasColumn('partners', 'capital')) {
-            $partnerData['capital'] = $capitalVal;
+            $partnerData['capital'] = round($capitalVal, 2);
+        }
+
+        if (Schema::hasColumn('partners', 'currency')) {
+            $partnerData['currency'] = $currency;
         }
 
         Partner::create($partnerData);
@@ -69,10 +85,18 @@ class PartnerController extends Controller
             'capital'       => 'nullable|numeric|min:0',
             'phone'         => 'nullable|string|max:50',
             'note'          => 'nullable|string|max:255',
+            'currency'      => 'nullable|in:USD,IQD',
+            'exchange_rate' => 'nullable|numeric|min:1',
         ]);
 
         $shareVal = (float) ($request->share_percent ?? 0);
         $capitalVal = (float) ($request->capital ?? 0);
+        $currency = $request->input('currency', 'USD');
+        $exchangeRate = (float) $request->input('exchange_rate', 1500);
+
+        if ($currency === 'IQD' && $exchangeRate > 0) {
+            $capitalVal = $capitalVal / $exchangeRate;
+        }
 
         $updateData = [
             'name'  => $request->name,
@@ -90,9 +114,13 @@ class PartnerController extends Controller
         }
 
         if (Schema::hasColumn('partners', 'capital_amount')) {
-            $updateData['capital_amount'] = $capitalVal;
+            $updateData['capital_amount'] = round($capitalVal, 2);
         } elseif (Schema::hasColumn('partners', 'capital')) {
-            $updateData['capital'] = $capitalVal;
+            $updateData['capital'] = round($capitalVal, 2);
+        }
+
+        if (Schema::hasColumn('partners', 'currency')) {
+            $updateData['currency'] = $currency;
         }
 
         $partner->update($updateData);
@@ -103,22 +131,41 @@ class PartnerController extends Controller
     public function addTransaction(Request $request, $id)
     {
         $request->validate([
-            'type'   => 'required|in:deposit,withdraw',
-            'amount' => 'required|numeric|min:1',
-            'date'   => 'nullable|date',
-            'note'   => 'nullable|string|max:255',
+            'type'          => 'required|in:deposit,withdraw',
+            'amount'        => 'required|numeric|min:1',
+            'date'          => 'nullable|date',
+            'note'          => 'nullable|string|max:255',
+            'currency'      => 'nullable|in:USD,IQD',
+            'exchange_rate' => 'nullable|numeric|min:1',
         ]);
+
+        $amountVal = (float) $request->amount;
+        $currency = $request->input('currency', 'USD');
+        $exchangeRate = (float) $request->input('exchange_rate', 1500);
+
+        // گۆڕینی بڕ بۆ دۆلار ئەگەر بە دینار بوو
+        if ($currency === 'IQD' && $exchangeRate > 0) {
+            $amountVal = $amountVal / $exchangeRate;
+        }
 
         $trxData = [
             'partner_id' => $id,
             'type'       => $request->type,
-            'amount'     => $request->amount,
+            'amount'     => round($amountVal, 2),
             'note'       => $request->note,
             'created_at' => $request->filled('date') ? Carbon::parse($request->date) : now(),
         ];
 
         if (Schema::hasColumn('partner_transactions', 'date')) {
             $trxData['date'] = $request->date ?? date('Y-m-d');
+        }
+
+        if (Schema::hasColumn('partner_transactions', 'currency')) {
+            $trxData['currency'] = $currency;
+        }
+
+        if (Schema::hasColumn('partner_transactions', 'exchange_rate')) {
+            $trxData['exchange_rate'] = $exchangeRate;
         }
 
         PartnerTransaction::create($trxData);
@@ -139,16 +186,18 @@ class PartnerController extends Controller
         }])->findOrFail($id);
 
         $setting = Setting::first();
+        $exchangeRate = $setting->exchange_rate ?? 1500;
 
-        return view('partners.show', compact('partner', 'setting'));
+        return view('partners.show', compact('partner', 'setting', 'exchangeRate'));
     }
 
     public function allReport()
     {
         $partners = Partner::with(['transactions'])->get();
         $setting = Setting::first();
+        $exchangeRate = $setting->exchange_rate ?? 1500;
 
-        return view('partners.all_report', compact('partners', 'setting'));
+        return view('partners.all_report', compact('partners', 'setting', 'exchangeRate'));
     }
 
     public function destroy($id)
