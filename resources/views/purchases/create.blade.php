@@ -40,16 +40,20 @@
             @csrf
 
             {{-- بەشی سەرەوەی وەسڵ: شوێن و بەروار و دراو --}}
-            <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">شوێنی کڕین (کۆمپانیا/دابینکەر):</label>
-                    <select name="supplier_id" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
-                        @foreach($suppliers as $sup)
-                            <option value="{{ $sup->id }}">{{ $sup->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
+          <div>
+    <div class="flex justify-between items-center mb-1">
+        <label class="block text-xs font-bold text-slate-300">شوێنی کڕین (کۆمپانیا/دابینکەر):</label>
+        <a href="{{ route('suppliers.index') }}" target="_blank" 
+           class="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold transition-colors">
+            <i class="fa-solid fa-plus-circle"></i> بەڕێوەبردنی دابینکەران
+        </a>
+    </div>
+    <select name="supplier_id" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
+        @foreach($suppliers as $sup)
+            <option value="{{ $sup->id }}">{{ $sup->name }}</option>
+        @endforeach
+    </select>
+</div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">بەرواری وەسڵ:</label>
                     <input type="date" name="created_at" value="{{ date('Y-m-d') }}" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-sm font-mono focus:outline-none focus:border-blue-500">
                 </div>
