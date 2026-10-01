@@ -29,10 +29,25 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // هەموو بەشەکانی ناوەوەی سیستەم
 Route::middleware(['auth'])->group(function () {
 
-// نوێکردنەوەی نرخی ئاڵوگۆڕ لە شاشەی POS
-Route::post('/update-exchange-rate', [SettingController::class, 'updateExchangeRate'])->name('settings.updateExchangeRate');
-        // لیستی هەموو فرۆشتنەکان
+    // ============================================
+    // ڕاوتێکی کاتی بۆ پاککردنەوەی کاش
+    // تەنها ئەو کەسانەی لۆگینیان کردووە دەتوانن بەکاری بهێنن
+    // ============================================
+    Route::get('/karwan-cache', function() {
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        return '<div style="font-family:sans-serif;text-align:center;margin-top:100px;color:green;font-size:24px">✅ کاشەکە بە سەرکەوتوویی پاککرایەوە!</div>';
+    });
+
+    // نوێکردنەوەی نرخی ئاڵوگۆڕ لە شاشەی POS
+    Route::post('/update-exchange-rate', [SettingController::class, 'updateExchangeRate'])->name('settings.updateExchangeRate');
+
+    // لیستی هەموو فرۆشتنەکان
     Route::get('/sales-list', [SaleController::class, 'listSales'])->name('sales.list')->middleware('permission:pos');
+    
     // ڕادەستکردنی پارە (Handover)
     Route::post('/handovers', [CashHandoverController::class, 'store'])->name('handovers.store');
     Route::get('/handovers/{id}/print', [CashHandoverController::class, 'printReceipt'])->name('handovers.print');
@@ -148,7 +163,7 @@ Route::post('/update-exchange-rate', [SettingController::class, 'updateExchangeR
     Route::resource('users', UserController::class);
 
     // API بۆ وەرگرتنی لیستی دابینکەران
-Route::get('/api/suppliers-list', function() {
-    return response()->json(\App\Models\Supplier::orderBy('name')->get(['id', 'name']));
-})->middleware('auth');
+    Route::get('/api/suppliers-list', function() {
+        return response()->json(\App\Models\Supplier::orderBy('name')->get(['id', 'name']));
+    });
 });
