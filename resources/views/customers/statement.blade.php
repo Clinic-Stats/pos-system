@@ -10,37 +10,89 @@
     <style>
         body { font-family: 'Noto Sans Arabic', sans-serif; }
         @media print {
+            @page { size: A4 portrait; margin: 10mm 12mm; }
             .no-print { display: none !important; }
-            body { background: white !important; color: black !important; padding: 0 !important; }
-            .print-card { border: 1px solid #ddd !important; box-shadow: none !important; }
+            body {
+                background: white !important;
+                color: black !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .print-card { border: none !important; box-shadow: none !important; padding: 0 !important; max-width: none !important; border-radius: 0 !important; }
+            tr { page-break-inside: avoid; }
+            thead { display: table-header-group; }
         }
     </style>
     @php
         $fmt = fn($v, $c) => $c === 'USD'
             ? '$' . number_format((float) $v, 2)
             : number_format((float) $v) . ' IQD';
+
+        $setting = \App\Models\Setting::first();
+        $hasDebt = ($summary['USD']['debt'] ?? 0) > 0 || ($summary['IQD']['debt'] ?? 0) > 0;
     @endphp
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-slate-200 print-card space-y-6">
 
-        {{-- دوگمەی چاپ --}}
-        <div class="flex justify-between items-center pb-4 border-b border-slate-200 no-print">
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-blue-500/30">
-                <i class="fa-solid fa-print"></i> چاپکردن / دابەزاندن بە PDF
-            </button>
-            <span class="text-xs text-slate-500">بەرواری دەرچوون: {{ now()->setTimezone('Asia/Baghdad')->format('Y-m-d h:i A') }}</span>
+        {{-- دوگمەکانی سەرەوە --}}
+        <div class="flex flex-wrap justify-between items-center gap-2 pb-4 border-b border-slate-200 no-print">
+            <div class="flex flex-wrap items-center gap-2">
+                <a href="{{ route('customers.index') }}" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
+                    <i class="fa-solid fa-arrow-right"></i> گەڕانەوە بۆ کڕیاران
+                </a>
+                <button type="button" onclick="closeStatement()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
+                    <i class="fa-solid fa-xmark"></i> داخستن
+                </button>
+                <button type="button" onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-blue-500/30 transition">
+                    <i class="fa-solid fa-print"></i> چاپکردن (A4) / PDF
+                </button>
+            </div>
+            <span class="text-xs text-slate-500">
+                بەرواری دەرچوون:
+                <span dir="ltr" class="font-mono inline-block">{{ now()->setTimezone('Asia/Baghdad')->format('Y-m-d h:i A') }}</span>
+            </span>
         </div>
 
-        {{-- سەردێڕ و زانیاری کڕیار --}}
+        {{-- سەرپەڕەی کۆمپانیا --}}
+        <div class="flex justify-between items-center gap-4 pb-4 border-b-2 border-slate-800">
+            <div class="space-y-1 flex-1">
+                <div class="text-xl font-black text-slate-900">{{ $setting->shop_name ?? 'کۆمپانیای بازرگانی' }}</div>
+                @if(!empty($setting->shop_address))
+                    <div class="text-xs text-slate-600">{{ $setting->shop_address }}</div>
+                @endif
+                @if(!empty($setting->shop_phone))
+                    <div class="text-xs text-slate-700 font-mono font-bold" dir="ltr" style="text-align:right;">{{ $setting->shop_phone }}</div>
+                @endif
+            </div>
+
+            @if(!empty($setting->shop_logo) && file_exists(public_path($setting->shop_logo)))
+                <div class="w-28 h-16 flex items-center justify-center">
+                    <img src="{{ asset($setting->shop_logo) }}" class="max-h-16 max-w-full object-contain">
+                </div>
+            @endif
+
+            <div class="text-left flex-1">
+                <div class="inline-block bg-slate-900 text-white px-3 py-1 rounded-lg font-bold text-sm">کەشفی حیساب</div>
+            </div>
+        </div>
+
+        {{-- زانیاری کڕیار و کۆی قەرز --}}
         <div class="flex justify-between items-start gap-4">
             <div>
-                <h1 class="text-2xl font-black text-slate-800">کەشفی حیسابی کڕیار</h1>
-                <p class="text-sm font-bold text-slate-600 mt-1">{{ $customer->name }}</p>
+                <h1 class="text-2xl font-black text-slate-800">{{ $customer->name }}</h1>
                 <div class="text-xs text-slate-500 space-y-0.5 mt-2">
                     <div>مۆبایل: <span class="font-mono text-slate-700" dir="ltr">{{ $customer->phone ?? 'نادیار' }}</span></div>
                     <div>ناونیشان: <span class="text-slate-700">{{ $customer->address ?? 'نادیار' }}</span></div>
+                </div>
+                <div class="mt-3">
+                    @if($hasDebt)
+                        <span class="inline-block px-3 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-black">قەرزی ماوە</span>
+                    @else
+                        <span class="inline-block px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-black">حیساب پاکە، قەرزی نییە</span>
+                    @endif
                 </div>
             </div>
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 min-w-[220px] space-y-2">
@@ -136,6 +188,7 @@
         {{-- مێژووی وەرگرتنەوەی قەرزەکان و دەستکاریکردنیان --}}
         <div class="mt-8 pt-6 border-t border-slate-200 no-print space-y-3">
             <h3 class="text-sm font-bold text-slate-800">مێژووی پارەدانەوەکان و دەستکاریکردن</h3>
+            <div class="overflow-x-auto">
             <table class="w-full text-xs text-right border border-slate-200 rounded-xl overflow-hidden">
                 <thead class="bg-slate-100 text-slate-600">
                     <tr>
@@ -192,14 +245,32 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
 
-        <div class="pt-6 border-t border-slate-200 flex justify-between items-center text-xs text-slate-400">
-            <div>ئەم پسوولەیە بە سیستەمی ئەلیکترۆنی دەرچووە</div>
-            <div class="font-bold text-slate-700">واژووی کڕیار: .......................</div>
+        {{-- واژوو --}}
+        <div class="pt-6 border-t border-slate-200 grid grid-cols-2 gap-4 text-center text-xs text-slate-600">
+            <div>
+                <div class="font-bold text-slate-700 mb-8">واژووی کڕیار</div>
+                <div>.......................</div>
+            </div>
+            <div>
+                <div class="font-bold text-slate-700 mb-8">واژووی ژمێریار</div>
+                <div>.......................</div>
+            </div>
         </div>
+        <div class="text-center text-[10px] text-slate-400">ئەم کەشفە بە سیستەمی ئەلیکترۆنی دەرچووە</div>
 
     </div>
 
+    <script>
+        // ئەگەر لە تابێکی نوێ کراوەتەوە دادەخرێت؛ ئەگەر نا دەگەڕێتەوە بۆ لیستی کڕیاران
+        function closeStatement() {
+            window.close();
+            setTimeout(function () {
+                window.location.href = "{{ route('customers.index') }}";
+            }, 250);
+        }
+    </script>
 </body>
 </html>
