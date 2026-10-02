@@ -11,6 +11,7 @@ class CashHandover extends Model
         'mandub_id',
         'received_by',
         'amount',
+        'currency',
         'note',
         'handover_date',
     ];

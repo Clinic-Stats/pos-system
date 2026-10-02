@@ -8,6 +8,7 @@ use App\Models\CustomerPayment;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Expense;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
@@ -15,152 +16,144 @@ use Carbon\Carbon;
 
 class ReportController extends Controller
 {
+    private function empty(): array { return ['USD' => 0.0, 'IQD' => 0.0]; }
+
+    /** کۆکردنەوەی کۆڵێکشن بە دراو */
+    private function byCur($collection, string $col): array
+    {
+        $out = $this->empty();
+        foreach ($collection as $row) {
+            $cur = strtoupper($row->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
+            $out[$cur] += (float) $row->{$col};
+        }
+        return $out;
+    }
+
+    /** کۆکردنەوەی کوێری بە دراو (ئەگەر ستوونی currency نەبوو = IQD) */
+    private function queryByCur($query, string $col = 'amount'): array
+    {
+        $out = $this->empty();
+        $table = $query->getModel()->getTable();
+        if (!Schema::hasColumn($table, 'currency')) {
+            $out['IQD'] = (float) (clone $query)->sum($col);
+            return $out;
+        }
+        $rows = (clone $query)
+            ->selectRaw("UPPER(COALESCE(currency,'IQD')) as cur, SUM($col) as total")
+            ->groupBy('cur')->pluck('total', 'cur');
+        foreach ($rows as $cur => $t) {
+            $out[$cur === 'USD' ? 'USD' : 'IQD'] += (float) $t;
+        }
+        return $out;
+    }
+
+    private function add(array $a, array $b): array { return ['USD' => $a['USD'] + $b['USD'], 'IQD' => $a['IQD'] + $b['IQD']]; }
+    private function sub(array $a, array $b): array { return ['USD' => $a['USD'] - $b['USD'], 'IQD' => $a['IQD'] - $b['IQD']]; }
+
     public function index(Request $request)
     {
+        $rate = (float) (Setting::first()->exchange_rate ?? 1500);
+        if ($rate <= 0) $rate = 1500;
+        $toUsd = fn(array $a) => $a['USD'] + ($a['IQD'] / $rate);
+
         // فلتەری کات
         $fromDate = $request->filled('from_date') ? Carbon::parse($request->from_date)->startOfDay() : null;
         $toDate   = $request->filled('to_date') ? Carbon::parse($request->to_date)->endOfDay() : null;
 
-        if ($request->filled('period')) {
-            if ($request->period === 'today') {
-                $fromDate = Carbon::today()->startOfDay();
-                $toDate   = Carbon::today()->endOfDay();
-            } elseif ($request->period === 'yesterday') {
-                $fromDate = Carbon::yesterday()->startOfDay();
-                $toDate   = Carbon::yesterday()->endOfDay();
-            } elseif ($request->period === 'week') {
-                $fromDate = Carbon::now()->startOfWeek();
-                $toDate   = Carbon::now()->endOfWeek();
-            } elseif ($request->period === 'month') {
-                $fromDate = Carbon::now()->startOfMonth();
-                $toDate   = Carbon::now()->endOfMonth();
-            }
+        switch ($request->period) {
+            case 'today':     $fromDate = Carbon::today()->startOfDay(); $toDate = Carbon::today()->endOfDay(); break;
+            case 'yesterday': $fromDate = Carbon::yesterday()->startOfDay(); $toDate = Carbon::yesterday()->endOfDay(); break;
+            case 'week':      $fromDate = Carbon::now()->startOfWeek(); $toDate = Carbon::now()->endOfWeek(); break;
+            case 'month':     $fromDate = Carbon::now()->startOfMonth(); $toDate = Carbon::now()->endOfMonth(); break;
         }
+        $hasRange = $fromDate && $toDate;
 
-        // ١. فلتەرکردنی فرۆشتنەکان
+        // فرۆشتن
         $salesQuery = Sale::with(['customer', 'user', 'details.product', 'details.unit']);
-        if ($fromDate && $toDate) {
-            $salesQuery->whereBetween('created_at', [$fromDate, $toDate]);
-        }
-        $sales = $salesQuery->latest('created_at')->get();
+        if ($hasRange) $salesQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        $sales = (clone $salesQuery)->latest('created_at')->get();
 
-        // فرۆشتنی نەقد و قەرز
-        $totalSalesCash = $sales->where('payment_type', 'cash')->sum('total_amount');
-        $totalSalesDebt = $sales->where('payment_type', 'debt')->sum('total_amount');
-        $totalSalesAll  = $totalSalesCash + $totalSalesDebt;
+        $cashSales = $sales->where('payment_type', 'cash');
+        $debtSales = $sales->where('payment_type', 'debt');
 
-        // کۆی تێچوو و قازانجی کاڵا فرۆشراوەکان
-        $totalCostAll   = $sales->sum('total_cost');
-        $totalGrossProfit = $sales->sum('total_profit');
+        $totalSalesCash = $this->byCur($cashSales, 'total_amount');
+        $totalSalesDebt = $this->byCur($debtSales, 'total_amount');
+        $totalSalesAll  = $this->add($totalSalesCash, $totalSalesDebt);
+        $totalCostAll   = $this->byCur($sales, 'total_cost');
+        $totalGrossProfit = $this->byCur($sales, 'total_profit');
 
-        // ٢. وەرگرتنەوەی قەرز لە کڕیاران لەم ماوەیەدا (Cash Inflow)
+        // وەرگرتنەوەی قەرز
         $paymentsQuery = CustomerPayment::query();
-        if ($fromDate && $toDate) {
-            $paymentsQuery->whereBetween('payment_date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')]);
-        }
-        $totalDebtCollected = $paymentsQuery->sum('amount');
+        if ($hasRange) $paymentsQuery->whereBetween('payment_date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')]);
+        $totalDebtCollected = $this->queryByCur($paymentsQuery, 'amount');
 
-        // ٣. گەڕاوەی فرۆشتن بە نەقد (Cash Outflow)
+        // گەڕاوەکان
         $returnsQuery = SaleReturn::query();
-        if ($fromDate && $toDate) {
-            $returnsQuery->whereBetween('created_at', [$fromDate, $toDate]);
-        }
-        $totalCashReturns = $returnsQuery->where('refund_type', 'cash')->sum('total_amount');
-        $totalAllReturns  = $returnsQuery->sum('total_amount');
+        if ($hasRange) $returnsQuery->whereBetween('created_at', [$fromDate, $toDate]);
+        $totalCashReturns = $this->queryByCur((clone $returnsQuery)->where('refund_type', 'cash'), 'total_amount');
 
-        // ٤. کۆی خەرجییەکان لەم ماوەیەدا
-        $totalExpenses = 0;
-        if (class_exists(Expense::class) && Schema::hasTable('expenses')) {
+        // خەرجی
+        $totalExpenses = $this->empty();
+        if (Schema::hasTable('expenses')) {
             $expenseQuery = Expense::query();
-            if ($fromDate && $toDate) {
-                $expenseQuery->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')]);
+            if ($hasRange) $expenseQuery->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')]);
+            $totalExpenses = $this->queryByCur($expenseQuery, 'amount');
+        }
+
+        // کاشی بەردەست و قازانجی سافی (هەر دراوێک بە جیا)
+        $cashInHand    = $this->sub($this->add($totalSalesCash, $totalDebtCollected), $totalCashReturns);
+        $realNetProfit = $this->sub($totalGrossProfit, $totalExpenses);
+
+        // قەرزی کڕیاران بە هەر دراوێک
+        $totalCustomerDebts = $this->empty();
+        foreach (Customer::with(['sales', 'payments', 'returns'])->get() as $c) {
+            foreach (['USD', 'IQD'] as $cur) {
+                $inCur = fn($col) => $col->filter(fn($r) => (strtoupper($r->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD') === $cur);
+                $buy  = $inCur($c->sales)->sum('total_amount');
+                $paid = $inCur($c->sales)->sum('paid_amount')
+                      + $inCur($c->payments)->sum('amount')
+                      + $inCur($c->returns->where('refund_type', 'deduct_debt'))->sum('total_amount');
+                $totalCustomerDebts[$cur] += max(0, $buy - $paid);
             }
-            $totalExpenses = $expenseQuery->sum('amount');
         }
 
-        // ٥. حسابی کۆتایی ڕۆژ: کاشی بەردەست (مەسروفاتی لێ دەرناکرێت)
-        $cashInHand = ($totalSalesCash + $totalDebtCollected) - $totalCashReturns;
-
-        // قازانجی پوختەی کارگێڕی (قازانجی فرۆشتن - خەرجییەکان)
-        $realNetProfit = $totalGrossProfit - $totalExpenses;
-
-        // ٦. کۆی گشتی قەرزی ماوە لای هەموو کڕیاران
-        $customers = Customer::with(['sales', 'payments', 'returns'])->get();
-        $totalCustomerDebts = 0;
-        foreach ($customers as $c) {
-            $cBuy = $c->sales->sum('total_amount');
-            $cReturnsDeducted = $c->returns->where('refund_type', 'deduct_debt')->sum('total_amount');
-            $cPaid = $c->sales->sum('paid_amount') + $c->payments->sum('amount') + $cReturnsDeducted;
-            $totalCustomerDebts += max(0, $cBuy - $cPaid);
-        }
-
-        // ٧. هەژمارکردنی کاڵای ماوە لە مەخزەن (بە قازانج و بێ قازانج)
-        $products = Product::all();
-        $stockCostWithoutProfit = 0; // کۆی سەرمایەی مەخزەن بە تێچووی کڕین
-        $stockValueWithProfit = 0;    // کۆی بەهای مەخزەن بە نرخی فرۆشتن
-        $totalStockKg = 0;
-
-        foreach ($products as $prod) {
-            $qty = (float)($prod->stock_kg ?? $prod->stock ?? 0);
+        // مەخزەن: نرخی کاڵا لە داتابەیس بە دۆلارە
+        $stockCostUsd = 0; $stockValueUsd = 0; $totalStockKg = 0;
+        foreach (Product::all() as $p) {
+            $qty = (float) ($p->stock_kg ?? $p->stock ?? 0);
             if ($qty > 0) {
                 $totalStockKg += $qty;
-                $stockCostWithoutProfit += ($qty * (float)$prod->base_buy_price);
-                $stockValueWithProfit += ($qty * (float)$prod->base_sale_price);
+                $stockCostUsd  += $qty * (float) $p->base_buy_price;
+                $stockValueUsd += $qty * (float) $p->base_sale_price;
             }
         }
-        $expectedStockProfit = max(0, $stockValueWithProfit - $stockCostWithoutProfit);
+        $stockCost   = ['USD' => $stockCostUsd,  'IQD' => $stockCostUsd * $rate];
+        $stockValue  = ['USD' => $stockValueUsd, 'IQD' => $stockValueUsd * $rate];
+        $stockProfit = ['USD' => max(0, $stockValueUsd - $stockCostUsd), 'IQD' => max(0, $stockValueUsd - $stockCostUsd) * $rate];
 
-        // ٨. پێنج پڕفرۆشترین کاڵا
+        // پڕفرۆشترین کاڵاکان
         $topProductsQuery = DB::table('sale_details')
             ->join('products', 'sale_details.product_id', '=', 'products.id')
             ->join('sales', 'sale_details.sale_id', '=', 'sales.id')
             ->select('products.name', DB::raw('SUM(sale_details.quantity) as total_qty'));
+        if ($hasRange) $topProductsQuery->whereBetween('sales.created_at', [$fromDate, $toDate]);
+        $topProducts = $topProductsQuery->groupBy('products.id', 'products.name')->orderByDesc('total_qty')->limit(5)->get();
 
-        if ($fromDate && $toDate) {
-            $topProductsQuery->whereBetween('sales.created_at', [$fromDate, $toDate]);
-        }
-
-        $topProducts = $topProductsQuery->groupBy('products.id', 'products.name')
-            ->orderByDesc('total_qty')
-            ->limit(5)
-            ->get();
-
-        // ٩. پێنج زۆرترین کڕیار
+        // زۆرترین کڕیاران: هەموو دەگۆڕدرێت بۆ دۆلار
         $topCustomersQuery = DB::table('sales')
             ->join('customers', 'sales.customer_id', '=', 'customers.id')
-            ->select('customers.name', DB::raw('SUM(sales.total_amount) as total_spent'));
+            ->selectRaw("customers.name, SUM(CASE WHEN UPPER(COALESCE(sales.currency,'IQD')) = 'USD' THEN sales.total_amount ELSE sales.total_amount / ? END) as total_spent", [$rate]);
+        if ($hasRange) $topCustomersQuery->whereBetween('sales.created_at', [$fromDate, $toDate]);
+        $topCustomers = $topCustomersQuery->groupBy('customers.id', 'customers.name')->orderByDesc('total_spent')->limit(5)->get();
 
-        if ($fromDate && $toDate) {
-            $topCustomersQuery->whereBetween('sales.created_at', [$fromDate, $toDate]);
-        }
-
-        $topCustomers = $topCustomersQuery->groupBy('customers.id', 'customers.name')
-            ->orderByDesc('total_spent')
-            ->limit(5)
-            ->get();
-
-        // پەیجینەیشن بۆ خشتەی وەسڵەکان
-        $paginatedSales = $salesQuery->paginate(15)->withQueryString();
+        $paginatedSales = $salesQuery->latest('created_at')->paginate(15)->withQueryString();
 
         return view('reports.index', compact(
-            'paginatedSales',
-            'totalSalesAll',
-            'totalSalesCash',
-            'totalSalesDebt',
-            'totalCostAll',
-            'totalGrossProfit',
-            'realNetProfit',
-            'totalDebtCollected',
-            'totalCashReturns',
-            'totalExpenses',
-            'cashInHand',
-            'totalCustomerDebts',
-            'stockCostWithoutProfit',
-            'stockValueWithProfit',
-            'expectedStockProfit',
-            'totalStockKg',
-            'topProducts',
-            'topCustomers'
+            'rate', 'toUsd', 'paginatedSales',
+            'totalSalesAll', 'totalSalesCash', 'totalSalesDebt', 'totalCostAll', 'totalGrossProfit',
+            'realNetProfit', 'totalDebtCollected', 'totalCashReturns', 'totalExpenses', 'cashInHand',
+            'totalCustomerDebts', 'stockCost', 'stockValue', 'stockProfit', 'totalStockKg',
+            'topProducts', 'topCustomers'
         ));
     }
 }

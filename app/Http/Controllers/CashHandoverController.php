@@ -8,22 +8,24 @@ use Carbon\Carbon;
 
 class CashHandoverController extends Controller
 {
-    // تۆمارکردنی تەسلیماتی پارەکە
     public function store(Request $request)
     {
         $request->validate([
             'mandub_id' => 'required|exists:users,id',
-            'amount'    => 'required|numeric|min:1',
+            'amount'    => 'required|numeric|min:0.01',
+            'currency'  => 'required|in:USD,IQD',
             'note'      => 'nullable|string|max:255',
         ]);
 
         $receiptNo = 'REC-' . strtoupper(substr(uniqid(), -8));
+        $isUsd = $request->currency === 'USD';
 
         CashHandover::create([
             'receipt_no'    => $receiptNo,
             'mandub_id'     => $request->mandub_id,
-            'received_by'   => auth()->id(), // ئەدمینی وەرگر
-            'amount' => round($request->amount),
+            'received_by'   => auth()->id(),
+            'amount'        => $isUsd ? round($request->amount, 2) : round($request->amount),
+            'currency'      => $request->currency,
             'note'          => $request->note,
             'handover_date' => $request->filled('handover_date') ? Carbon::parse($request->handover_date) : now(),
         ]);
@@ -31,7 +33,6 @@ class CashHandoverController extends Controller
         return redirect()->back()->with('success', "پارەکە بە سەرکەوتوویی وەرگیرا. ژمارەی پسوولە: {$receiptNo}");
     }
 
-    // لاپەڕەی چاپی پسوولەی تەسلیمات
     public function printReceipt($id)
     {
         $handover = CashHandover::with(['mandub', 'receiver'])->findOrFail($id);
