@@ -17,6 +17,20 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'categories', 'setting'));
     }
 
+    /** نرخەکان دەگۆڕێت بۆ دۆلار ئەگەر بە دینار نووسرابوون */
+    private function prices(Request $request): array
+    {
+        $rate = (float) $request->input('exchange_rate', 1500);
+        $buy  = (float) $request->base_buy_price;
+        $sale = (float) $request->base_sale_price;
+
+        if ($request->input('currency', 'USD') === 'IQD' && $rate > 0) {
+            $buy /= $rate;
+            $sale /= $rate;
+        }
+        return [round($buy, 4), round($sale, 4)];
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -25,27 +39,19 @@ class ProductController extends Controller
             'category_id'     => 'required|exists:categories,id',
             'base_buy_price'  => 'required|numeric|min:0',
             'base_sale_price' => 'required|numeric|min:0',
+            'kg_per_carton'   => 'required|numeric|min:0.01',
             'stock_kg'        => 'nullable|numeric|min:0',
         ]);
 
-        // گۆڕینی نرخەکان بۆ دۆلار ئەگەر بە دینار بوون
-        $currency = $request->input('currency', 'USD');
-        $exchangeRate = (float) $request->input('exchange_rate', 1500);
-        
-        $buyPrice = (float) $request->base_buy_price;
-        $salePrice = (float) $request->base_sale_price;
-        
-        if ($currency === 'IQD' && $exchangeRate > 0) {
-            $buyPrice = $buyPrice / $exchangeRate;
-            $salePrice = $salePrice / $exchangeRate;
-        }
+        [$buy, $sale] = $this->prices($request);
 
         Product::create([
             'name'            => $request->name,
             'code'            => $request->code,
             'category_id'     => $request->category_id,
-            'base_buy_price'  => round($buyPrice, 4),
-            'base_sale_price' => round($salePrice, 4),
+            'base_buy_price'  => $buy,
+            'base_sale_price' => $sale,
+            'kg_per_carton'   => $request->kg_per_carton,
             'stock_kg'        => $request->stock_kg ?? 0,
             'is_active'       => $request->has('is_active') ? 1 : 0,
         ]);
@@ -63,26 +69,18 @@ class ProductController extends Controller
             'category_id'     => 'required|exists:categories,id',
             'base_buy_price'  => 'required|numeric|min:0',
             'base_sale_price' => 'required|numeric|min:0',
+            'kg_per_carton'   => 'required|numeric|min:0.01',
         ]);
 
-        // گۆڕینی نرخەکان بۆ دۆلار ئەگەر بە دینار بوون
-        $currency = $request->input('currency', 'USD');
-        $exchangeRate = (float) $request->input('exchange_rate', 1500);
-        
-        $buyPrice = (float) $request->base_buy_price;
-        $salePrice = (float) $request->base_sale_price;
-        
-        if ($currency === 'IQD' && $exchangeRate > 0) {
-            $buyPrice = $buyPrice / $exchangeRate;
-            $salePrice = $salePrice / $exchangeRate;
-        }
+        [$buy, $sale] = $this->prices($request);
 
         $product->update([
             'name'            => $request->name,
             'code'            => $request->code,
             'category_id'     => $request->category_id,
-            'base_buy_price'  => round($buyPrice, 4),
-            'base_sale_price' => round($salePrice, 4),
+            'base_buy_price'  => $buy,
+            'base_sale_price' => $sale,
+            'kg_per_carton'   => $request->kg_per_carton,
             'is_active'       => $request->has('is_active') ? 1 : 0,
         ]);
 
@@ -101,12 +99,9 @@ class ProductController extends Controller
 
     public function addStock(Request $request, $id)
     {
-        $request->validate([
-            'added_stock' => 'required|numeric|min:0.1',
-        ]);
+        $request->validate(['added_stock' => 'required|numeric|min:0.1']);
 
-        $product = Product::findOrFail($id);
-        $product->increment('stock_kg', $request->added_stock);
+        Product::findOrFail($id)->increment('stock_kg', $request->added_stock);
 
         return redirect()->back()->with('success', "بڕی {$request->added_stock} کیلۆ بۆ مەخزەن زیادکرا");
     }
@@ -114,44 +109,43 @@ class ProductController extends Controller
     public function destroy($id)
     {
         try {
-            $product = \App\Models\Product::findOrFail($id);
-            $product->delete();
-            
-            return redirect()->route('products.index')
-                ->with('success', 'کاڵاکە بە سەرکەوتوویی سڕایەوە.');
-                
+            Product::findOrFail($id)->delete();
+            return redirect()->route('products.index')->with('success', 'کاڵاکە بە سەرکەوتوویی سڕایەوە.');
         } catch (\Illuminate\Database\QueryException $e) {
-            if ($e->getCode() == "23000") {
-                return redirect()->back()
-                    ->with('error', 'نەتوانرا کاڵاکە بسڕدرێتەوە! ئەم کاڵایە پێشتر لە پسوولەی فرۆشتن یان کڕیندا بەکارهاتووە و پاراستنی بۆ کراوە.');
+            if ($e->getCode() == '23000') {
+                return redirect()->back()->with('error', 'نەتوانرا کاڵاکە بسڕدرێتەوە! ئەم کاڵایە پێشتر لە پسوولەی فرۆشتن یان کڕیندا بەکارهاتووە.');
             }
-            
-            return redirect()->back()
-                ->with('error', 'هەڵەیەک ڕوویدا لە کاتی سڕینەوەی کاڵاکەدا.');
+            return redirect()->back()->with('error', 'هەڵەیەک ڕوویدا لە کاتی سڕینەوەی کاڵاکەدا.');
         }
     }
 
+    /**
+     * CSV: code, name, base_buy_price, base_sale_price, stock_kg, kg_per_carton
+     * ستوونی ٥ و ٦ ئارەزوومەندانەن. نرخەکان دەبێت بە دۆلار بن.
+     */
     public function importCsv(Request $request)
     {
         $request->validate([
-            'csv_file' => 'required|mimes:csv,txt'
+            'csv_file'    => 'required|mimes:csv,txt',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $file = fopen($request->file('csv_file'), 'r');
-        $header = fgetcsv($file);
+        fgetcsv($file); // دێڕی ناونیشان
 
         while (($row = fgetcsv($file)) !== false) {
             if (count($row) >= 4) {
-                \App\Models\Product::updateOrCreate(
-                    ['code' => $row[0]],
-                    [
-                        'name'            => $row[1],
-                        'base_buy_price'  => (float) $row[2],
-                        'base_sale_price' => (float) $row[3],
-                        'stock_kg'        => isset($row[4]) ? (float) $row[4] : 0,
-                        'category_id'     => 1,
-                    ]
-                );
+                $data = [
+                    'name'            => $row[1],
+                    'base_buy_price'  => (float) $row[2],
+                    'base_sale_price' => (float) $row[3],
+                    'stock_kg'        => isset($row[4]) ? (float) $row[4] : 0,
+                    'category_id'     => $request->category_id,
+                ];
+                if (isset($row[5]) && (float) $row[5] > 0) {
+                    $data['kg_per_carton'] = (float) $row[5];
+                }
+                Product::updateOrCreate(['code' => $row[0]], $data);
             }
         }
         fclose($file);

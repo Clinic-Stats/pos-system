@@ -124,7 +124,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
               @elseif($isLow)<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md" style="background:var(--was);color:var(--wa)">کەمە</span>@endif
             </div>
             <h3 class="font-extrabold text-[12px] leading-snug line-clamp-2 min-h-[2.4em]">{{ $p->name }}</h3>
-            <p class="text-[10px] font-bold flex items-center gap-1" style="color:{{ $isOut ? 'var(--ro)' : ($isLow ? 'var(--wa)' : 'var(--mu)') }}"><i class="fa-solid fa-cube text-[9px]"></i><span class="num">{{ $stockVal }}</span> کگ</p>
+            <p class="text-[10px] font-bold flex items-center gap-1" style="color:{{ $isOut ? 'var(--ro)' : ($isLow ? 'var(--wa)' : 'var(--mu)') }}"><i class="fa-solid fa-cube text-[9px]"></i>@if((float) ($p->kg_per_carton ?? 1) > 1)<span class="num">{{ rtrim(rtrim(number_format($stockVal / (float) $p->kg_per_carton, 2), '0'), '.') }}</span> کارتۆن@else<span class="num">{{ rtrim(rtrim(number_format($stockVal, 2), '0'), '.') }}</span> کگ@endif</p>
           </div>
           <div class="flex items-center justify-between gap-1 pt-2 border-t" style="border-color:var(--bd)">
             <button type="button" class="sq add" onclick="quickIncrease({{ $p->id }}, event)"><i class="fa-solid fa-plus"></i></button>
