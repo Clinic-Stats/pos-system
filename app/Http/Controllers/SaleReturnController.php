@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Unit;
 use App\Models\Customer;
 use App\Models\User;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -43,8 +44,9 @@ class SaleReturnController extends Controller
         $customers = Customer::all();
         $products = Product::where('is_active', 1)->get();
         $units = Unit::all();
+        $setting = Setting::first();
 
-        return view('returns.create', compact('customers', 'products', 'units'));
+        return view('returns.create', compact('customers', 'products', 'units', 'setting'));
     }
 
     private function getFactorAndWeight($product, $unit)
@@ -149,8 +151,9 @@ class SaleReturnController extends Controller
         $customers = Customer::all();
         $products = Product::where('is_active', 1)->get();
         $units = Unit::all();
+        $setting = Setting::first();
 
-        return view('returns.edit', compact('return', 'customers', 'products', 'units'));
+        return view('returns.edit', compact('return', 'customers', 'products', 'units', 'setting'));
     }
 
     public function update(Request $request, $id)
