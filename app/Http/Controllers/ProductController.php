@@ -17,13 +17,26 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'categories', 'setting'));
     }
 
-    /** نرخەکان دەگۆڕێت بۆ دۆلار ئەگەر بە دینار نووسرابوون */
+    private function rules(?int $id = null): array
+    {
+        return [
+            'name'            => 'required|string|max:255',
+            'code'            => 'required|string|unique:products,code' . ($id ? ',' . $id : ''),
+            'category_id'     => 'required|exists:categories,id',
+            'sell_type'       => 'required|in:weight,carton',
+            'kg_per_carton'   => 'required_if:sell_type,carton|nullable|numeric|min:0.01',
+            'base_buy_price'  => 'required|numeric|min:0',
+            'base_sale_price' => 'required|numeric|min:0',
+            'stock_kg'        => 'nullable|numeric|min:0',
+        ];
+    }
+
+    /** نرخەکان بۆ دۆلار دەگۆڕدرێن ئەگەر بە دینار نووسرابن */
     private function prices(Request $request): array
     {
         $rate = (float) $request->input('exchange_rate', 1500);
         $buy  = (float) $request->base_buy_price;
         $sale = (float) $request->base_sale_price;
-
         if ($request->input('currency', 'USD') === 'IQD' && $rate > 0) {
             $buy /= $rate;
             $sale /= $rate;
@@ -33,26 +46,19 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name'            => 'required|string|max:255',
-            'code'            => 'required|string|unique:products,code',
-            'category_id'     => 'required|exists:categories,id',
-            'base_buy_price'  => 'required|numeric|min:0',
-            'base_sale_price' => 'required|numeric|min:0',
-            'kg_per_carton'   => 'required|numeric|min:0.01',
-            'stock_kg'        => 'nullable|numeric|min:0',
-        ]);
-
+        $request->validate($this->rules());
         [$buy, $sale] = $this->prices($request);
+        $isCarton = $request->sell_type === 'carton';
 
         Product::create([
             'name'            => $request->name,
             'code'            => $request->code,
             'category_id'     => $request->category_id,
+            'sell_type'       => $request->sell_type,
+            'kg_per_carton'   => $isCarton ? $request->kg_per_carton : 1,
             'base_buy_price'  => $buy,
             'base_sale_price' => $sale,
-            'kg_per_carton'   => $request->kg_per_carton,
-            'stock_kg'        => $request->stock_kg ?? 0,
+            'stock_kg'        => $request->stock_kg ?? 0,   // بۆ کاڵای کارتۆنی = ژمارەی کارتۆن
             'is_active'       => $request->has('is_active') ? 1 : 0,
         ]);
 
@@ -62,25 +68,20 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $product = Product::findOrFail($id);
-
-        $request->validate([
-            'name'            => 'required|string|max:255',
-            'code'            => 'required|string|unique:products,code,' . $product->id,
-            'category_id'     => 'required|exists:categories,id',
-            'base_buy_price'  => 'required|numeric|min:0',
-            'base_sale_price' => 'required|numeric|min:0',
-            'kg_per_carton'   => 'required|numeric|min:0.01',
-        ]);
-
+        $request->validate($this->rules($product->id));
         [$buy, $sale] = $this->prices($request);
+
+        // جۆری فرۆشتن تەنها کاتێک دەگۆڕدرێت کە کۆگا سفر بێت، بۆ ئەوەی ژمارەی کۆگا تێک نەچێت
+        $type = ((float) $product->stock_kg > 0) ? ($product->sell_type ?? 'weight') : $request->sell_type;
 
         $product->update([
             'name'            => $request->name,
             'code'            => $request->code,
             'category_id'     => $request->category_id,
+            'sell_type'       => $type,
+            'kg_per_carton'   => $type === 'carton' ? $request->kg_per_carton : 1,
             'base_buy_price'  => $buy,
             'base_sale_price' => $sale,
-            'kg_per_carton'   => $request->kg_per_carton,
             'is_active'       => $request->has('is_active') ? 1 : 0,
         ]);
 
@@ -100,10 +101,11 @@ class ProductController extends Controller
     public function addStock(Request $request, $id)
     {
         $request->validate(['added_stock' => 'required|numeric|min:0.1']);
+        $product = Product::findOrFail($id);
+        $product->increment('stock_kg', $request->added_stock);
+        $unit = ($product->sell_type ?? 'weight') === 'carton' ? 'کارتۆن' : 'کیلۆ';
 
-        Product::findOrFail($id)->increment('stock_kg', $request->added_stock);
-
-        return redirect()->back()->with('success', "بڕی {$request->added_stock} کیلۆ بۆ مەخزەن زیادکرا");
+        return redirect()->back()->with('success', "بڕی {$request->added_stock} {$unit} بۆ مەخزەن زیادکرا");
     }
 
     public function destroy($id)
@@ -112,40 +114,32 @@ class ProductController extends Controller
             Product::findOrFail($id)->delete();
             return redirect()->route('products.index')->with('success', 'کاڵاکە بە سەرکەوتوویی سڕایەوە.');
         } catch (\Illuminate\Database\QueryException $e) {
-            if ($e->getCode() == '23000') {
-                return redirect()->back()->with('error', 'نەتوانرا کاڵاکە بسڕدرێتەوە! ئەم کاڵایە پێشتر لە پسوولەی فرۆشتن یان کڕیندا بەکارهاتووە.');
+            if ($e->getCode() == "23000") {
+                return redirect()->back()->with('error', 'نەتوانرا کاڵاکە بسڕدرێتەوە! ئەم کاڵایە پێشتر لە پسوولەی فرۆشتن یان کڕیندا بەکارهاتووە و پاراستنی بۆ کراوە.');
             }
             return redirect()->back()->with('error', 'هەڵەیەک ڕوویدا لە کاتی سڕینەوەی کاڵاکەدا.');
         }
     }
 
-    /**
-     * CSV: code, name, base_buy_price, base_sale_price, stock_kg, kg_per_carton
-     * ستوونی ٥ و ٦ ئارەزوومەندانەن. نرخەکان دەبێت بە دۆلار بن.
-     */
     public function importCsv(Request $request)
     {
-        $request->validate([
-            'csv_file'    => 'required|mimes:csv,txt',
-            'category_id' => 'required|exists:categories,id',
-        ]);
+        $request->validate(['csv_file' => 'required|mimes:csv,txt']);
 
         $file = fopen($request->file('csv_file'), 'r');
-        fgetcsv($file); // دێڕی ناونیشان
+        fgetcsv($file);
 
         while (($row = fgetcsv($file)) !== false) {
             if (count($row) >= 4) {
-                $data = [
-                    'name'            => $row[1],
-                    'base_buy_price'  => (float) $row[2],
-                    'base_sale_price' => (float) $row[3],
-                    'stock_kg'        => isset($row[4]) ? (float) $row[4] : 0,
-                    'category_id'     => $request->category_id,
-                ];
-                if (isset($row[5]) && (float) $row[5] > 0) {
-                    $data['kg_per_carton'] = (float) $row[5];
-                }
-                Product::updateOrCreate(['code' => $row[0]], $data);
+                Product::updateOrCreate(
+                    ['code' => $row[0]],
+                    [
+                        'name'            => $row[1],
+                        'base_buy_price'  => (float) $row[2],
+                        'base_sale_price' => (float) $row[3],
+                        'stock_kg'        => isset($row[4]) ? (float) $row[4] : 0,
+                        'category_id'     => $request->category_id ?? 1,
+                    ]
+                );
             }
         }
         fclose($file);

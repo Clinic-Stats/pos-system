@@ -114,6 +114,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
           $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
           $alertVal = (float) ($p->alert_quantity ?? 5);
           $isOut = $stockVal <= 0; $isLow = !$isOut && $stockVal <= $alertVal;
+          $isCarton = ($p->sell_type ?? 'weight') === 'carton';
         @endphp
         <div class="pc {{ $isOut ? 'out' : ($isLow ? 'low' : '') }}" data-category="{{ $p->category_id }}" data-name="{{ $p->name }}" data-code="{{ $p->code }}" data-price-usd="{{ $p->base_sale_price }}">
           <div id="qty-badge-{{ $p->id }}" class="badge num"><i class="fa-solid fa-check text-[10px]"></i> <span class="badge-val">0</span></div>
@@ -124,13 +125,14 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
               @elseif($isLow)<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md" style="background:var(--was);color:var(--wa)">کەمە</span>@endif
             </div>
             <h3 class="font-extrabold text-[12px] leading-snug line-clamp-2 min-h-[2.4em]">{{ $p->name }}</h3>
-            <p class="text-[10px] font-bold flex items-center gap-1" style="color:{{ $isOut ? 'var(--ro)' : ($isLow ? 'var(--wa)' : 'var(--mu)') }}"><i class="fa-solid fa-cube text-[9px]"></i>@if((float) ($p->kg_per_carton ?? 1) > 1)<span class="num">{{ rtrim(rtrim(number_format($stockVal / (float) $p->kg_per_carton, 2), '0'), '.') }}</span> کارتۆن@else<span class="num">{{ rtrim(rtrim(number_format($stockVal, 2), '0'), '.') }}</span> کگ@endif</p>
+            <p class="text-[10px] font-bold flex items-center gap-1" style="color:{{ $isOut ? 'var(--ro)' : ($isLow ? 'var(--wa)' : 'var(--mu)') }}"><i class="fa-solid fa-cube text-[9px]"></i><span class="num">{{ rtrim(rtrim(number_format($stockVal, 2), '0'), '.') }}</span> {{ $isCarton ? 'کارتۆن' : 'کگ' }}</p>
           </div>
           <div class="flex items-center justify-between gap-1 pt-2 border-t" style="border-color:var(--bd)">
             <button type="button" class="sq add" onclick="quickIncrease({{ $p->id }}, event)"><i class="fa-solid fa-plus"></i></button>
             <div class="text-center leading-tight">
               <div class="num font-extrabold text-[13px]" style="color:var(--ac)">${{ number_format($p->base_sale_price, 2) }}</div>
               <div class="num text-[9px] font-bold p-iqd" style="color:var(--mu)"></div>
+              @if($isCarton)<div class="text-[9px] font-extrabold" style="color:var(--wa)">هەر کارتۆنێک</div>@endif
             </div>
             <button type="button" class="sq sub" onclick="quickDecrease({{ $p->id }}, event)"><i class="fa-solid fa-minus"></i></button>
           </div>
@@ -179,6 +181,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 
     <div class="shrink-0 pt-3 border-t space-y-2" style="border-color:var(--bd)">
       <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">کۆی کاڵا</span><span id="subTotalText" class="num">$0.00</span></div>
+      <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">کێشی گشتی</span><span id="cartWeight" class="num">0 کگ</span></div>
       <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">داشکاندن</span><input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart()" class="inp num !w-24 !py-1 text-left"></div>
       <div class="rounded-2xl px-3.5 py-3 flex justify-between items-end" style="background:var(--acs)">
         <span class="font-extrabold text-sm" style="color:var(--ac)">کۆی گشتی</span>
@@ -283,10 +286,14 @@ function searchProducts() {
 }
 
 /* یەکە و سەبەتە */
+function cartonUnit() {
+  return units.find(u => /کارتۆن|carton/i.test(u.name || '')) || defaultUnit();
+}
 function defaultUnit() {
   return units.find(u => /کیلۆ|kg/i.test(u.name || '')) || units[0] || { id: 1, name: 'کیلۆ', factor_to_base: 1 };
 }
 function unitFactor(p, u) {
+  if (p.sell_type === 'carton') return 1;   // کارتۆنی: نرخ و کۆگا هەموو بە کارتۆن
   const n = (u?.name || '').toLowerCase();
   if (n.includes('کارتۆن') || n.includes('carton')) return parseFloat(p.kg_per_carton) || 1;
   if (n.includes('تەن') || n.includes('ton')) return 1000;
@@ -301,8 +308,9 @@ function addToCart(id) {
     if (cart[idx].qty + 1 > maxQty(cart[idx])) { showToast('بڕی کۆگا تەواو بوو'); return false; }
     cart[idx].qty++;
   } else {
-    const u = defaultUnit();
-    cart.push({ id: p.id, name: p.name, code: p.code, price_usd: parseFloat(p.base_sale_price) || 0, stock_kg: stock,
+    const isC = p.sell_type === 'carton';
+    const u = isC ? cartonUnit() : defaultUnit();
+    cart.push({ carton: isC, id: p.id, name: p.name, code: p.code, price_usd: parseFloat(p.base_sale_price) || 0, stock_kg: stock,
       kg_per_carton: parseFloat(p.kg_per_carton) || 1, qty: 1, unit_id: u.id, factor: unitFactor(p, u) });
   }
   renderCart(); return true;
@@ -341,7 +349,7 @@ function updateBadges() {
 function renderCart() {
   rate = getRate();
   const box = $('cartItemsContainer'); box.innerHTML = '';
-  let subtotal = 0;
+  let subtotal = 0, weight = 0;
   $('cartCount').innerText = cart.length;
   if (!cart.length) {
     box.innerHTML = `<div class="h-full min-h-[8rem] flex flex-col items-center justify-center text-[11px] font-bold gap-2" style="color:var(--mu)"><i class="fa-solid fa-cart-arrow-down text-3xl opacity-50"></i>سەبەتە بەتاڵە<span class="text-[10px] font-normal">کلیک لە کاڵا بکە بۆ زیادکردن</span></div>`;
@@ -349,6 +357,7 @@ function renderCart() {
   cart.forEach((it, idx) => {
     const price = toDisp(it.price_usd), line = it.qty * price * it.factor;
     subtotal += line;
+    weight += it.carton ? it.qty * (it.kg_per_carton || 1) : it.qty * it.factor;
     const opts = units.map(u => `<option value="${u.id}" ${it.unit_id == u.id ? 'selected' : ''}>${u.name}</option>`).join('');
     const d = document.createElement('div');
     d.className = 'rowin rounded-xl p-2.5 border'; d.style.cssText = 'background:var(--sf2);border-color:var(--bd)';
@@ -358,7 +367,7 @@ function renderCart() {
         <button type="button" onclick="removeItem(${idx})" class="text-[11px]" style="color:var(--ro)"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="grid grid-cols-12 gap-1.5 items-center">
-        <select onchange="updateItemUnit(${idx}, this.value)" class="inp col-span-4 !px-1.5">${opts}</select>
+        ${it.carton ? `<div class="inp col-span-4 !px-1.5 text-center">کارتۆن</div>` : `<select onchange="updateItemUnit(${idx}, this.value)" class="inp col-span-4 !px-1.5">${opts}</select>`}
         <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}" onchange="updateItemPrice(${idx}, this.value)" class="inp num col-span-4 text-center" style="color:var(--ac)">
         <div class="col-span-4 flex items-center justify-between">
           <button type="button" class="sq add !w-6 !h-6 !rounded-md" onclick="updateQty(${idx}, 1)">+</button>
@@ -374,6 +383,7 @@ function renderCart() {
   const other = currentCurrency === 'USD' ? 'IQD' : 'USD';
   const alt = currentCurrency === 'USD' ? total * rate : total / rate;
   $('subTotalText').innerText = money(subtotal);
+  $('cartWeight').innerText = (+weight.toFixed(2)).toLocaleString() + ' کگ';
   $('grandTotalText').innerText = money(total);
   $('grandAltText').innerText = total > 0 ? '≈ ' + money(alt, other) : '';
   if (!cart.length) resetClear();
@@ -428,7 +438,7 @@ function renderModalItems() {
     row.innerHTML = `
       <div class="flex-1 font-extrabold truncate">${it.name}</div>
       <input type="number" step="any" min="0.01" value="${it.qty}" onchange="updateModalQty(${i}, this.value)" class="inp num !w-14 text-center">
-      <span class="text-[10px]" style="color:var(--mu)">${u ? u.name : ''}</span>
+      <span class="text-[10px]" style="color:var(--mu)">${it.carton ? 'کارتۆن' : (u ? u.name : '')}</span>
       <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}" onchange="updateModalPrice(${i}, this.value)" class="inp num !w-20 text-center" style="color:var(--ac)">
       <div class="num font-extrabold w-20 text-left" style="color:var(--ac)">${money(line)}</div>`;
     list.appendChild(row);
@@ -482,7 +492,7 @@ function loadEditSale() {
     const p = allProducts.find(x => x.id == it.product_id); if (!p) return null;
     const unit = units.find(u => u.id == it.unit_id) || units[0], factor = unitFactor(p, unit);
     const now = parseFloat(p.stock_kg ?? p.stock ?? 0);
-    return { id: p.id, name: p.name, code: p.code, price_usd: parseFloat(it.price_usd) || 0, stock_kg: now + it.quantity * factor,
+    return { carton: p.sell_type === 'carton', id: p.id, name: p.name, code: p.code, price_usd: parseFloat(it.price_usd) || 0, stock_kg: now + it.quantity * factor,
       kg_per_carton: parseFloat(p.kg_per_carton) || 1, qty: parseFloat(it.quantity), unit_id: unit.id, factor };
   }).filter(Boolean);
   paintCurrency();

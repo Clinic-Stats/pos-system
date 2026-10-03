@@ -435,15 +435,15 @@ class SaleController extends Controller
 
     private function getUnitFactor($product, $unit)
     {
-        // کاڵای کارتۆنی: نرخ و کۆگا بە کارتۆنە، بۆیە فاکتەر هەمیشە ١ە
+        $unitName = mb_strtolower(trim($unit->name));
+
+        // کاڵای کارتۆنی: بە کارتۆن دەفرۆشرێت و کۆگا بە کارتۆن دەژمێردرێت
         if (($product->sell_type ?? 'weight') === 'carton') {
             return 1.0;
         }
 
-        $unitName = mb_strtolower(trim($unit->name));
-
         if (str_contains($unitName, 'کارتۆن') || str_contains($unitName, 'carton')) {
-            return (float) ($unit->factor_to_base ?: 1);
+            return (float) ($product->kg_per_carton ?: 1);
         }
 
         if (str_contains($unitName, 'تەن') || str_contains($unitName, 'ton')) {

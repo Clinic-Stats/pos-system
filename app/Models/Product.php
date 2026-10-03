@@ -13,6 +13,8 @@ class Product extends Model
         'base_buy_price',
         'base_sale_price',
         'kg_per_carton',
+        'sell_type'
+        'kg_per_carton'
         'stock_kg',
         'is_active',
     ];
