@@ -89,6 +89,9 @@
             <div class="mt-3 pt-2 border-t border-white/10 space-y-1 text-[10px] text-slate-300">
                 <div class="flex justify-between"><span class="font-num text-emerald-400 font-bold">+{{ $u($toUsd($totalSalesCash)) }}</span><span>فرۆشتنی نەقد</span></div>
                 <div class="flex justify-between"><span class="font-num text-cyan-400 font-bold">+{{ $u($toUsd($totalDebtCollected)) }}</span><span>وەرگرتنەوەی قەرز</span></div>
+                @if($toUsd($debtPaidAtSale) > 0)
+                <div class="flex justify-between"><span class="font-num text-teal-300 font-bold">+{{ $u($toUsd($debtPaidAtSale)) }}</span><span>دراوی وەسڵی قەرز</span></div>
+                @endif
                 @if($toUsd($totalCashReturns) > 0)
                 <div class="flex justify-between"><span class="font-num text-rose-400 font-bold">-{{ $u($toUsd($totalCashReturns)) }}</span><span>گەڕاوەی نەقد</span></div>
                 @endif

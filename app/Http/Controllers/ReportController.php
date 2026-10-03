@@ -81,6 +81,7 @@ class ReportController extends Controller
         $totalSalesAll  = $this->add($totalSalesCash, $totalSalesDebt);
         $totalCostAll   = $this->byCur($sales, 'total_cost');
         $totalGrossProfit = $this->byCur($sales, 'total_profit');
+        $debtPaidAtSale = $this->byCur($debtSales, 'paid_amount');   // بەشی دراو لە کاتی فرۆشتنی قەرز
 
         // وەرگرتنەوەی قەرز
         $paymentsQuery = CustomerPayment::query();
@@ -101,7 +102,7 @@ class ReportController extends Controller
         }
 
         // کاشی بەردەست و قازانجی سافی (هەر دراوێک بە جیا)
-        $cashInHand    = $this->sub($this->add($totalSalesCash, $totalDebtCollected), $totalCashReturns);
+        $cashInHand    = $this->sub($this->add($this->add($totalSalesCash, $debtPaidAtSale), $totalDebtCollected), $totalCashReturns);
         $realNetProfit = $this->sub($totalGrossProfit, $totalExpenses);
 
         // قەرزی کڕیاران بە هەر دراوێک
@@ -151,7 +152,7 @@ class ReportController extends Controller
         return view('reports.index', compact(
             'rate', 'toUsd', 'paginatedSales',
             'totalSalesAll', 'totalSalesCash', 'totalSalesDebt', 'totalCostAll', 'totalGrossProfit',
-            'realNetProfit', 'totalDebtCollected', 'totalCashReturns', 'totalExpenses', 'cashInHand',
+            'realNetProfit', 'debtPaidAtSale', 'totalDebtCollected', 'totalCashReturns', 'totalExpenses', 'cashInHand',
             'totalCustomerDebts', 'stockCost', 'stockValue', 'stockProfit', 'totalStockKg',
             'topProducts', 'topCustomers'
         ));

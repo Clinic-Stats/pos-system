@@ -10,6 +10,9 @@ class CashHandoverController extends Controller
 {
     public function store(Request $request)
     {
+        // تەنها ئەدمین، کاشیر، یان کەسێکی خاوەن دەسەڵات دەتوانێت پارە وەربگرێت
+        abort_unless(auth()->user() && auth()->user()->canReceiveCash(), 403, 'ئەم کارە بۆ تۆ ڕێگەپێدراو نییە');
+
         $request->validate([
             'mandub_id' => 'required|exists:users,id',
             'amount'    => 'required|numeric|min:0.01',

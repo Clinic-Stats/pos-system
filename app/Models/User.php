@@ -35,6 +35,14 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+    // ئایا دەتوانێت پارە لە کارمەندان وەربگرێت (تەسلیمات)؟ ئەدمین، کاشیر، یان کەسێک کە دەسەڵاتی receive_cash ی هەبێت
+    public function canReceiveCash(): bool
+    {
+        return $this->isAdmin()
+            || $this->role === 'cashier'
+            || in_array('receive_cash', $this->permissions ?? []);
+    }
+
     // پشکنینی دەسەڵاتێکی دیاریکراو
     public function hasPermission(string $permission): bool
     {
