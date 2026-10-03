@@ -55,8 +55,33 @@ class PurchaseController extends Controller
         return view('purchases.index', compact('purchases', 'products', 'categories', 'units', 'suppliers', 'customers', 'setting'));
     }
 
+    /** کاڵای کارتۆنی: نرخ و کۆگا بە کارتۆنە، بۆیە فۆڕمەکان کێشی کارتۆن وەک فاکتەر نابینن */
+    private function cartonSafe($products)
+    {
+        return $products->map(function ($p) {
+            if (($p->sell_type ?? 'weight') === 'carton') {
+                $p->kg_per_carton = 1;
+            }
+            return $p;
+        });
+    }
+
+    /** کاڵای کارتۆنی هەمیشە بە یەکەی «کارتۆن» تۆمار دەکرێت (بۆ پسوولە و کێش) */
+    private function resolveUnit($product, $unit)
+    {
+        if (($product->sell_type ?? 'weight') !== 'carton') {
+            return $unit;
+        }
+        return Unit::where('name', 'like', '%کارتۆن%')->orWhere('name', 'like', '%carton%')->first() ?: $unit;
+    }
+
     private function getFactorAndWeight($product, $unit)
     {
+        // کاڵای کارتۆنی: نرخ و کۆگا بە کارتۆن، فاکتەر هەمیشە ١
+        if (($product->sell_type ?? 'weight') === 'carton') {
+            return 1.0;
+        }
+
         $unitName = mb_strtolower(trim($unit->name));
 
         if (str_contains($unitName, 'کارتۆن') || str_contains($unitName, 'carton')) {
@@ -105,7 +130,7 @@ class PurchaseController extends Controller
 
     public function create()
     {
-        $products = Product::where('is_active', 1)->get();
+        $products = $this->cartonSafe(Product::where('is_active', 1)->get());
         $categories = Category::all();
         $units = Unit::all();
         $suppliers = Supplier::all();
@@ -148,7 +173,7 @@ class PurchaseController extends Controller
                 // ١. ژماردنی کۆی گشتی بەپێی دراوی هەڵبژێردراو
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
-                    $unit = Unit::findOrFail($item['unit_id']);
+                    $unit = $this->resolveUnit($product, Unit::findOrFail($item['unit_id']));
                     $factor = $this->getFactorAndWeight($product, $unit);
 
                     $totalAmount += (float) $item['quantity'] * ((float) $item['buy_price'] * $factor);
@@ -193,7 +218,7 @@ class PurchaseController extends Controller
                 // ٢. تۆمارکردنی کاڵاکان + کۆگا + تێکڕای تێچوو
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
-                    $unit = Unit::findOrFail($item['unit_id']);
+                    $unit = $this->resolveUnit($product, Unit::findOrFail($item['unit_id']));
                     $factor = $this->getFactorAndWeight($product, $unit);
 
                     $priceInCurrency = (float) $item['buy_price'];
@@ -231,6 +256,13 @@ class PurchaseController extends Controller
         $units = Unit::all();
         $suppliers = Supplier::all();
         $setting = Setting::first();
+
+        $products = $this->cartonSafe($products);
+        foreach ($purchase->details as $d) {
+            if ($d->product && ($d->product->sell_type ?? 'weight') === 'carton') {
+                $d->product->kg_per_carton = 1;
+            }
+        }
 
         return view('purchases.edit', compact('purchase', 'products', 'categories', 'units', 'suppliers', 'setting'));
     }
@@ -275,7 +307,7 @@ class PurchaseController extends Controller
                 $totalAmount = 0;
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
-                    $unit = Unit::findOrFail($item['unit_id']);
+                    $unit = $this->resolveUnit($product, Unit::findOrFail($item['unit_id']));
                     $factor = $this->getFactorAndWeight($product, $unit);
 
                     $totalAmount += (float) $item['quantity'] * ((float) $item['buy_price'] * $factor);
@@ -322,7 +354,7 @@ class PurchaseController extends Controller
 
                 foreach ($request->items as $item) {
                     $product = Product::findOrFail($item['product_id']);
-                    $unit = Unit::findOrFail($item['unit_id']);
+                    $unit = $this->resolveUnit($product, Unit::findOrFail($item['unit_id']));
                     $factor = $this->getFactorAndWeight($product, $unit);
 
                     $priceInCurrency = (float) $item['buy_price'];

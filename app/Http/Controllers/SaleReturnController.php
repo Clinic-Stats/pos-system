@@ -42,11 +42,22 @@ class SaleReturnController extends Controller
     public function create()
     {
         $customers = Customer::all();
-        $products = Product::where('is_active', 1)->get();
+        $products = $this->cartonSafe(Product::where('is_active', 1)->get());
         $units = Unit::all();
         $setting = Setting::first();
 
         return view('returns.create', compact('customers', 'products', 'units', 'setting'));
+    }
+
+    /** کاڵای کارتۆنی: نرخ و کۆگا بە کارتۆنە، بۆیە فۆڕمەکان کێشی کارتۆن وەک فاکتەر نابینن */
+    private function cartonSafe($products)
+    {
+        return $products->map(function ($p) {
+            if (($p->sell_type ?? 'weight') === 'carton') {
+                $p->kg_per_carton = 1;
+            }
+            return $p;
+        });
     }
 
     private function getFactorAndWeight($product, $unit)
@@ -153,8 +164,13 @@ class SaleReturnController extends Controller
     public function edit($id)
     {
         $return = SaleReturn::with(['details.product', 'details.unit', 'customer'])->findOrFail($id);
+        foreach ($return->details as $d) {
+            if ($d->product && ($d->product->sell_type ?? 'weight') === 'carton') {
+                $d->product->kg_per_carton = 1;
+            }
+        }
         $customers = Customer::all();
-        $products = Product::where('is_active', 1)->get();
+        $products = $this->cartonSafe(Product::where('is_active', 1)->get());
         $units = Unit::all();
         $setting = Setting::first();
 
