@@ -45,7 +45,7 @@
 @endphp
 <body>
 <div class="bar">
-    <a href="{{ url()->previous() }}" class="btn back">گەڕانەوە</a>
+    <button type="button" class="btn back" onclick="closeTab()">داخستن</button>
     <button class="btn" onclick="window.print()">چاپکردن / PDF</button>
 </div>
 
@@ -141,5 +141,12 @@
         <div><b>واژووی وەرگر / ئەدمین</b>......................</div>
     </div>
 </div>
+<script>
+    // تابە نوێیەکە دادەخات؛ ئەگەر براوزەر ڕێگە نەدا، دەگەڕێتەوە بۆ داشبۆرد
+    function closeTab() {
+        window.close();
+        setTimeout(function () { location.href = @json(route('mandub.dashboard')); }, 300);
+    }
+</script>
 </body>
 </html>
