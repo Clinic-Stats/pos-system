@@ -84,7 +84,14 @@
                             <th class="p-3">سڕینەوە</th>
                         </tr>
                     </thead>
-                    <tbody id="items-table" class="divide-y divide-slate-700/50"></tbody>
+                    <tbody id="items-table" class="divide-y divide-slate-700/50">
+                        <tr id="empty-row">
+                            <td colspan="7" class="p-8 text-slate-500">
+                                <i class="fa-solid fa-box-open text-2xl block mb-2"></i>
+                                هیچ کاڵایەک زیاد نەکراوە. دوگمەی «زیادکردنی دێڕ» بکە.
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
 
@@ -132,7 +139,6 @@
             if (cur === currentCurrency) return;
             const rate = getRate();
 
-            // نرخی ئێستای هەر دێڕێک دەگۆڕین بۆ دراوە نوێیەکە (دەستکارییەکانی بەکارهێنەر ناسڕدرێنەوە)
             document.querySelectorAll('.item-row .price-input').forEach(inp => {
                 const val = parseFloat(inp.value) || 0;
                 const converted = cur === 'IQD' ? val * rate : val / rate;
@@ -154,7 +160,8 @@
             const row = document.createElement('tr');
             row.className = 'item-row hover:bg-slate-800/40 transition';
 
-            let prodOpts = products.map(p => `<option value="${p.id}" data-price="${p.base_sale_price}" data-carton="${p.kg_per_carton}">${p.name}</option>`).join('');
+            // بە ڕیزی بەتاڵ دەست پێدەکات، بۆ ئەوەی هیچ کاڵایەک خۆکارانە هەڵنەبژێردرێت
+            let prodOpts = '<option value="">— کاڵا هەڵبژێرە —</option>' + products.map(p => `<option value="${p.id}" data-price="${p.base_sale_price}" data-carton="${p.kg_per_carton}">${p.name}</option>`).join('');
             let unitOpts = units.map(u => `<option value="${u.id}" data-name="${u.name}" data-factor="${u.factor_to_base}">${u.name}</option>`).join('');
 
             row.innerHTML = `
@@ -189,22 +196,24 @@
                 </td>
             `;
             table.appendChild(row);
-            onProductChange(row.querySelector('.prod-select'));
+            calculate();
         }
 
         function onProductChange(select) {
             const row = select.closest('tr');
             const selected = select.options[select.selectedIndex];
             const usd = parseFloat(selected.getAttribute('data-price')) || 0;
-            row.querySelector('.price-input').value = suggestedPrice(usd);
+            row.querySelector('.price-input').value = select.value ? suggestedPrice(usd) : 0;
             calculate();
         }
 
         function calculate() {
             let grandTotal = 0;
             let totalKg = 0;
+            const rows = document.querySelectorAll('.item-row');
+            document.getElementById('empty-row').classList.toggle('hidden', rows.length > 0);
 
-            document.querySelectorAll('.item-row').forEach(row => {
+            rows.forEach(row => {
                 const prodSelect = row.querySelector('.prod-select');
                 const selectedProd = prodSelect.options[prodSelect.selectedIndex];
                 const kgPerCarton = parseFloat(selectedProd.getAttribute('data-carton')) || 1;
@@ -242,15 +251,23 @@
             }
 
             let items = [];
+            let missing = false;
             rows.forEach(row => {
+                const pid = row.querySelector('.prod-select').value;
+                if (!pid) missing = true;
                 items.push({
-                    product_id: row.querySelector('.prod-select').value,
+                    product_id: pid,
                     unit_id: row.querySelector('.unit-select').value,
                     quantity: row.querySelector('.qty-input').value,
                     unit_price: row.querySelector('.price-input').value,
                     condition_type: row.querySelector('.condition-select').value
                 });
             });
+
+            if (missing) {
+                alert('تکایە بۆ هەموو دێڕەکان کاڵا هەڵبژێرە');
+                return;
+            }
 
             fetch(@json(route('returns.store')), {
                 method: 'POST',
@@ -279,7 +296,7 @@
             .catch(err => alert('کێشەیەک لە سێرڤەر ڕوویدا'));
         }
 
-        addRow();
+        calculate();
     </script>
 
 </body>
