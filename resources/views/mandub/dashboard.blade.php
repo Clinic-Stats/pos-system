@@ -75,6 +75,7 @@
             <input type="date" name="end_date" value="{{ $endDate }}" class="w-full p-2.5 bg-slate-900/70 border border-white/10 rounded-xl">
         </div>
         <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold px-6 py-2.5 rounded-xl transition">فلتەرکردن</button>
+        <a href="{{ route('mandub.dashboard', ['user_id' => $targetUser->id, 'start_date' => $startDate, 'end_date' => $endDate, 'print' => 1]) }}" target="_blank" class="glass hover:bg-white/10 font-bold px-5 py-2.5 rounded-xl transition flex items-center gap-1.5"><i class="fa-solid fa-print"></i> کەشفی حساب (A4)</a>
     </form>
 
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

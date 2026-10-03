@@ -60,14 +60,15 @@ class MandubDashboardController extends Controller
         $canReceive = $currentUser->canReceiveCash();   // ئەدمین / کاشیر / خاوەن دەسەڵاتی receive_cash
 
         if ($canReceive) {
-            // ئەو کارمەندانەی وەسڵیان کردووە، پارەیان وەرگرتووە، یان تەسلیمیان کردووە
+            // هەموو کارمەندان لە لیستەکەدا دەردەکەون (ئەوانەی چالاکییان هەیە لە پێشەوە)
             $activeIds = Sale::query()->distinct()->pluck('user_id')
                 ->merge(CustomerPayment::query()->distinct()->pluck('user_id'))
                 ->merge(CashHandover::query()->distinct()->pluck('mandub_id'))
                 ->filter()->unique()->values();
 
-            $mandubs = User::whereIn('id', $activeIds)->orWhere('id', $currentUser->id)->orderBy('name')->get();
-            $selectedUserId = (int) $request->get('user_id', $mandubs->first()->id ?? $currentUser->id);
+            $mandubs = User::orderBy('name')->get()
+                ->sortByDesc(fn($u) => $activeIds->contains($u->id))->values();
+            $selectedUserId = (int) $request->get('user_id', $currentUser->id);
             $targetUser = User::find($selectedUserId) ?? $currentUser;
             $selectedUserId = $targetUser->id;
         } else {
@@ -102,6 +103,12 @@ class MandubDashboardController extends Controller
 
         $collectedPeriod = $this->add($this->collectedFromSales($salesQuery), $collectedDebt);
 
+        $collectedSalesPeriod = $this->collectedFromSales($salesQuery);
+        $refundsPeriod = $this->sumByCurrency((clone $returnsQuery)->where('refund_type', 'cash'), 'total_amount');
+        $paymentsList  = (clone $paymentsQuery)->with('customer')->latest('payment_date')->get();
+        $handoversPeriod = CashHandover::with('receiver')->where('mandub_id', $selectedUserId)
+            ->whereBetween('handover_date', [$startDateTime, $endDateTime])->latest('handover_date')->get();
+
         $handedPeriod = $this->sumByCurrency(
             CashHandover::where('mandub_id', $selectedUserId)->whereBetween('handover_date', [$startDateTime, $endDateTime]), 'amount');
 
@@ -117,6 +124,15 @@ class MandubDashboardController extends Controller
 
         $handovers = CashHandover::with(['receiver', 'mandub'])
             ->where('mandub_id', $selectedUserId)->latest('handover_date')->get();
+
+        // کەشفی حسابی چاپکراو (A4): هەمان ئادرێس بە ?print=1
+        if ($request->boolean('print')) {
+            $setting = Setting::first();
+            return view('mandub.statement', compact(
+                'targetUser', 'startDate', 'endDate', 'setting', 'salesList', 'paymentsList', 'handoversPeriod',
+                'collectedSalesPeriod', 'collectedDebt', 'refundsPeriod', 'handedPeriod', 'netCashInHand'
+            ));
+        }
 
         return view('mandub.dashboard', compact(
             'mandubs', 'targetUser', 'canReceive', 'startDate', 'endDate', 'rate', 'toUsd',
