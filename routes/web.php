@@ -33,7 +33,7 @@ Route::middleware(['auth'])->group(function () {
     // ڕاوتێکی کاتی بۆ پاککردنەوەی کاش
     // تەنها ئەو کەسانەی لۆگینیان کردووە دەتوانن بەکاری بهێنن
     // ============================================
-    Route::get('/karwan-cache', function() {
+    Route::middleware('permission:backup')->get('/karwan-cache', function() {
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
         \Illuminate\Support\Facades\Artisan::call('route:clear');
         \Illuminate\Support\Facades\Artisan::call('view:clear');
@@ -152,21 +152,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/expenses/report', [ExpenseController::class, 'report'])->name('expenses.report');
 
     // ڕێکخستنی وەسڵ
-    Route::get('/settings/receipt', [SettingController::class, 'index'])->name('settings.receipt');
-    Route::put('/settings/receipt', [SettingController::class, 'update'])->name('settings.receipt.update');
+    Route::get('/settings/receipt', [SettingController::class, 'index'])->name('settings.receipt')->middleware('permission:settings');
+    Route::put('/settings/receipt', [SettingController::class, 'update'])->name('settings.receipt.update')->middleware('permission:settings');
 
     // ڕاپۆرتەکان
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index')->middleware('permission:reports');
 
     // هەناردەکردن بۆ ئیکسڵ و باکئەپ
-    Route::get('/export/products', [BackupAndExportController::class, 'exportProducts'])->name('export.products');
-    Route::get('/export/customers', [BackupAndExportController::class, 'exportCustomers'])->name('export.customers');
-    Route::get('/backup/database', [BackupAndExportController::class, 'backupDatabase'])->name('backup.database');
+    Route::get('/export/products', [BackupAndExportController::class, 'exportProducts'])->name('export.products')->middleware('permission:products');
+    Route::get('/export/customers', [BackupAndExportController::class, 'exportCustomers'])->name('export.customers')->middleware('permission:customers');
+    Route::get('/backup/database', [BackupAndExportController::class, 'backupDatabase'])->name('backup.database')->middleware('permission:backup');
 
     Route::post('/products/import-csv', [App\Http\Controllers\ProductController::class, 'importCsv'])->name('products.importCsv');
 
     // بەڕێوەبردنی کارمەندان (Users)
-    Route::resource('users', UserController::class);
+    Route::resource('users', UserController::class)->middleware('permission:users');
 
     // API بۆ وەرگرتنی لیستی دابینکەران
     Route::get('/api/suppliers-list', function() {
