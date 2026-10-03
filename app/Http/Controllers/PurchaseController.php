@@ -183,7 +183,7 @@ class PurchaseController extends Controller
                     throw new \Exception('وەسڵ ناتوانرێت خەزن بکرێت بە بەتاڵی یان بە نرخی 0!');
                 }
 
-                $paid = ($request->payment_type === 'debt') ? (float) ($request->paid_amount ?? 0) : $totalAmount;
+                $paid = ($request->payment_type === 'debt') ? min((float) ($request->paid_amount ?? 0), $totalAmount) : $totalAmount;
                 $remaining = $totalAmount - $paid;
                 $invCode = trim($request->purchase_no);
 
@@ -317,7 +317,7 @@ class PurchaseController extends Controller
                     throw new \Exception('وەسڵ ناتوانرێت خەزن بکرێت بە بەتاڵی!');
                 }
 
-                $paid = ($request->payment_type === 'debt') ? (float) ($request->paid_amount ?? 0) : $totalAmount;
+                $paid = ($request->payment_type === 'debt') ? min((float) ($request->paid_amount ?? 0), $totalAmount) : $totalAmount;
                 $remaining = $totalAmount - $paid;
 
                 $pDate = $request->filled('created_at')

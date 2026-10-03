@@ -121,7 +121,13 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
         Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+        Route::put('/suppliers/{id}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+
+        // کەشفی حسابی دابینکەر و پارەدان پێیان
+        Route::get('/suppliers/{id}/statement', [SupplierController::class, 'statement'])->name('suppliers.statement');
+        Route::post('/suppliers/{id}/payments', [SupplierController::class, 'storePayment'])->name('suppliers.payments.store');
+        Route::delete('/supplier-payments/{id}', [SupplierController::class, 'destroyPayment'])->name('suppliers.payments.destroy');
     });
 
     // هاوبەشەکان
