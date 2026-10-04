@@ -43,20 +43,6 @@ Route::middleware(['auth'])->group(function () {
         return '<div style="font-family:sans-serif;text-align:center;margin-top:100px;color:green;font-size:24px">✅ کاشەکە بە سەرکەوتوویی پاککرایەوە!</div>';
     });
 
-
-    // ============================================
-    // ڕاوتێکی کاتی بۆ جێبەجێکردنی مایگرەیشنەکان
-    // ============================================
-    Route::middleware('permission:backup')->get('/karwan-migrate', function() {
-        try {
-            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-            return '<div style="font-family:sans-serif;text-align:center;margin-top:100px;color:green;font-size:24px">✅ مایگرەیشن بە سەرکەوتوویی جێبەجێ کرا!</div>';
-        } catch (\Exception $e) {
-            return '<div style="font-family:sans-serif;text-align:center;margin-top:100px;color:red;font-size:24px">❌ هەڵە: ' . $e->getMessage() . '</div>';
-        }
-    });
-
-
     // نوێکردنەوەی نرخی ئاڵوگۆڕ لە شاشەی POS
     Route::post('/update-exchange-rate', [SettingController::class, 'updateExchangeRate'])->name('settings.updateExchangeRate');
 
