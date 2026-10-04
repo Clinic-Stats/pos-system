@@ -16,7 +16,7 @@ class StockLoss extends Model
     public const REASONS = [
         'expired' => 'بەسەرچوو',
         'damaged' => 'تێکچوو / شکاو',
-        'lost'    => 'ونبوو / دزرا',
+        'lost'    => 'ونبوو',
         'other'   => 'هۆکاری تر',
     ];
 
