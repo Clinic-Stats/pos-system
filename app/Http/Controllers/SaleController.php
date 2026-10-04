@@ -237,6 +237,7 @@ class SaleController extends Controller
         try {
             DB::transaction(function () use ($request, $id) {
                 $sale = Sale::with('details')->findOrFail($id);
+                \App\Models\ActivityLog::stash($sale);
                 $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
                 // 1) گەڕاندنەوەی کۆگای فرۆشتنە کۆنەکە
@@ -321,6 +322,7 @@ class SaleController extends Controller
         try {
             DB::transaction(function () use ($id) {
                 $sale = Sale::with('details')->findOrFail($id);
+                \App\Models\ActivityLog::stash($sale);
                 $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
                 foreach ($sale->details as $detail) {

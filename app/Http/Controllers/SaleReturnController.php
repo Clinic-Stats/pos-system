@@ -217,6 +217,7 @@ class SaleReturnController extends Controller
         try {
             DB::transaction(function () use ($request, $id) {
                 $saleReturn = SaleReturn::with('details.product', 'details.unit')->findOrFail($id);
+                \App\Models\ActivityLog::stash($saleReturn);
 
                 // گەڕاندنەوەی قەرزی پێشووی کڕیار ئەگەر قەرز بووبێت
                 if ($saleReturn->customer_id && $saleReturn->refund_type === 'deduct_debt') {
@@ -319,6 +320,7 @@ class SaleReturnController extends Controller
         try {
             DB::transaction(function () use ($id) {
                 $saleReturn = SaleReturn::with('details.product', 'details.unit')->findOrFail($id);
+                \App\Models\ActivityLog::stash($saleReturn);
 
                 if ($saleReturn->customer_id && $saleReturn->refund_type === 'deduct_debt') {
                     Customer::where('id', $saleReturn->customer_id)->increment('balance', $saleReturn->total_amount);

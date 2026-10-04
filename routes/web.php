@@ -19,6 +19,7 @@ use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\StockLossController;
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BackupAndExportController;
 
 
@@ -149,6 +150,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/partners/all-report', [PartnerController::class, 'allReport'])->name('partners.allReport');
         Route::get('/partners/{id}/statement', [PartnerController::class, 'show'])->name('partners.show');
     });
+
+    // تۆماری چالاکییەکان (تەنها ئەدمین)
+    Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('audit.index')->middleware('permission:audit');
 
     // خەرجییەکان
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');

@@ -289,6 +289,7 @@ class PurchaseController extends Controller
         try {
             DB::transaction(function () use ($request, $id) {
                 $purchase = Purchase::with('details.product', 'details.unit')->findOrFail($id);
+                \App\Models\ActivityLog::stash($purchase);
                 $currency = $request->currency;
                 $exchangeRate = (float) $request->exchange_rate;
                 $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
@@ -388,6 +389,7 @@ class PurchaseController extends Controller
         try {
             DB::transaction(function () use ($id) {
                 $purchase = Purchase::with('details.product', 'details.unit')->findOrFail($id);
+                \App\Models\ActivityLog::stash($purchase);
                 $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
                 foreach ($purchase->details as $detail) {
