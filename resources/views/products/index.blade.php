@@ -30,6 +30,7 @@ body{font-family:'Almarai',sans-serif;background:radial-gradient(900px 400px at 
   <h1 class="text-sm font-extrabold flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-teal-400"></i> بەڕێوەبردنی کاڵاکان و کۆگا</h1>
   <div class="flex flex-wrap items-center gap-1.5 font-bold">
     <a href="{{ route('categories.index') }}" class="glass hover:bg-white/10 px-3 py-1.5 rounded-lg">کاتیگۆری</a>
+    <a href="{{ route('losses.index') }}" class="bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 px-3 py-1.5 rounded-lg"><i class="fa-solid fa-triangle-exclamation"></i> زیانی کاڵا</a>
     <a href="{{ route('units.index') }}" class="glass hover:bg-white/10 px-3 py-1.5 rounded-lg">یەکەکان</a>
     <a href="{{ route('reports.index') }}" class="glass hover:bg-white/10 px-3 py-1.5 rounded-lg">ڕاپۆرتەکان</a>
     <a href="{{ route('export.products') }}" class="bg-emerald-600/80 hover:bg-emerald-600 px-3 py-1.5 rounded-lg"><i class="fa-solid fa-file-excel"></i> هەناردە</a>

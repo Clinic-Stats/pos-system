@@ -30,13 +30,14 @@
         ['کۆی تێچووی فرۆشراو', $totalCostAll, 'fa-boxes-stacked', 'text-slate-600', 'تێچووی کڕینی کاڵاکان'],
         ['قازانجی کاڵا', $totalGrossProfit, 'fa-chart-line', 'text-emerald-600', 'فرۆشراو کەمکردنەوەی تێچوو'],
         ['کۆی مەسروفات', $totalExpenses, 'fa-wallet', 'text-rose-600', 'خەرجیی ئەم ماوەیە'],
-        ['پوختەی قازانج (صافی)', $realNetProfit, 'fa-scale-balanced', $toUsd($realNetProfit) >= 0 ? 'text-emerald-600' : 'text-rose-600', 'قازانج - مەسروفات'],
+        ['پوختەی قازانج (صافی)', $realNetProfit, 'fa-scale-balanced', $toUsd($realNetProfit) >= 0 ? 'text-emerald-600' : 'text-rose-600', 'قازانج - مەسروفات - تەلەف'],
     ];
     $row2 = [
         ['کاڵای ماوە (بێ قازانج)', $stockCost, 'fa-warehouse', 'text-slate-700', 'سەرمایەی ناو کۆگا بە نرخی کڕین'],
         ['کاڵای ماوە (بە قازانج)', $stockValue, 'fa-tags', 'text-indigo-600', 'بەهای فرۆشتنی مەخزەن'],
         ['قازانجی چاوەڕوانکراو', $stockProfit, 'fa-sack-dollar', 'text-emerald-600', 'ئەگەر هەموو مەخزەن بفرۆشرێت'],
         ['قەرزی سەر کڕیاران', $totalCustomerDebts, 'fa-hand-holding-dollar', 'text-amber-600', 'باڵانسی ماوە لای کڕیاران'],
+        ['زیانی بەسەرچوو / تەلەف', $totalLosses, 'fa-triangle-exclamation', 'text-rose-600', 'بەهای کڕینی کاڵا لەناوچووەکان'],
     ];
 @endphp
 <body class="text-slate-800 min-h-screen p-3 md:p-6">
@@ -112,7 +113,7 @@
     </section>
 
     <!-- ڕیزی دووەم -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         @foreach($row2 as [$t, $v, $ic, $col, $sub])
         <div class="card p-4 flex items-center justify-between">
             <div>

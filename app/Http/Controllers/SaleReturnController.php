@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SaleReturn;
+use App\Models\StockLoss;
 use App\Models\SaleReturnDetail;
 use App\Models\Product;
 use App\Models\Unit;
@@ -58,6 +59,32 @@ class SaleReturnController extends Controller
             }
             return $p;
         });
+    }
+
+    /** کاڵای بەسەرچوو یان تێکچووی گەڕاو وەک زیان تۆمار دەکرێت (ناگەڕێتەوە کۆگا) */
+    private function recordLoss($saleReturn, $product, $item, $factor, $customerId, $date): void
+    {
+        $cond = $item['condition_type'] ?? 'normal';
+        if (!in_array($cond, ['expired', 'damaged'], true)) {
+            return;
+        }
+
+        $qty = (float) $item['quantity'] * (float) $factor;
+        $unitCost = (float) ($product->base_buy_price ?? 0);
+
+        StockLoss::create([
+            'product_id'     => $product->id,
+            'quantity'       => $qty,
+            'unit_cost_usd'  => $unitCost,
+            'total_cost_usd' => round($qty * $unitCost, 4),
+            'reason'         => $cond,
+            'note'           => $saleReturn->notes,
+            'source'         => 'sale_return',
+            'sale_return_id' => $saleReturn->id,
+            'customer_id'    => $customerId,
+            'user_id'        => auth()->id(),
+            'loss_date'      => $date,
+        ]);
     }
 
     private function getFactorAndWeight($product, $unit)
@@ -133,6 +160,8 @@ class SaleReturnController extends Controller
                     ]);
 
                     // ئەگەر کاڵاکە ساغ بوو، بگەڕێتەوە سەر کۆگا
+                    $this->recordLoss($saleReturn, $product, $item, $factor, $request->customer_id ?: null, $request->filled('created_at') ? Carbon::parse($request->created_at) : ($saleReturn->created_at ?? now()));
+
                     if (($item['condition_type'] ?? 'normal') === 'normal') {
                         $addedKg = $item['quantity'] * $factor;
                         if (Schema::hasColumn('products', 'stock_kg')) {
@@ -207,6 +236,7 @@ class SaleReturnController extends Controller
                     }
                 }
 
+                StockLoss::where('sale_return_id', $saleReturn->id)->delete();
                 $saleReturn->details()->delete();
 
                 $totalAmount = 0;
@@ -229,6 +259,8 @@ class SaleReturnController extends Controller
                         'subtotal'       => $lineTotal,
                         'condition_type' => $item['condition_type'] ?? 'normal',
                     ]);
+
+                    $this->recordLoss($saleReturn, $product, $item, $factor, $request->customer_id ?: null, $request->filled('created_at') ? Carbon::parse($request->created_at) : ($saleReturn->created_at ?? now()));
 
                     if (($item['condition_type'] ?? 'normal') === 'normal') {
                         $addedKg = $item['quantity'] * $factor;
@@ -304,6 +336,7 @@ class SaleReturnController extends Controller
                     }
                 }
 
+                StockLoss::where('sale_return_id', $saleReturn->id)->delete();
                 $saleReturn->details()->delete();
                 $saleReturn->delete();
             });

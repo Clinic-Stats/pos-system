@@ -18,6 +18,7 @@ use App\Http\Controllers\CashHandoverController;
 use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\StockLossController;
 use App\Http\Controllers\BackupAndExportController;
 
 
@@ -102,6 +103,11 @@ Route::middleware(['auth'])->group(function () {
         
 
         Route::get('/global-search', [GlobalSearchController::class, 'search'])->name('global.search');
+
+        // زیانی کاڵا (بەسەرچوو / تەلەف)
+        Route::get('/stock-losses', [StockLossController::class, 'index'])->name('losses.index');
+        Route::post('/stock-losses', [StockLossController::class, 'store'])->name('losses.store');
+        Route::delete('/stock-losses/{id}', [StockLossController::class, 'destroy'])->name('losses.destroy');
 
         Route::get('/units', [UnitController::class, 'index'])->name('units.index');
         Route::post('/units', [UnitController::class, 'store'])->name('units.store');

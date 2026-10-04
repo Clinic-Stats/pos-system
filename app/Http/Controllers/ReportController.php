@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Expense;
 use App\Models\Setting;
+use App\Models\StockLoss;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
@@ -101,9 +102,18 @@ class ReportController extends Controller
             $totalExpenses = $this->queryByCur($expenseQuery, 'amount');
         }
 
+        // زیانی کاڵای بەسەرچوو / تەلەف (بەهای کڕین، بە دۆلار)
+        $lossUsd = 0.0;
+        if (Schema::hasTable('stock_losses')) {
+            $lossQuery = StockLoss::query();
+            if ($hasRange) $lossQuery->whereBetween('loss_date', [$fromDate, $toDate]);
+            $lossUsd = (float) $lossQuery->sum('total_cost_usd');
+        }
+        $totalLosses = ['USD' => $lossUsd, 'IQD' => $lossUsd * $rate];
+
         // کاشی بەردەست و قازانجی سافی (هەر دراوێک بە جیا)
         $cashInHand    = $this->sub($this->add($this->add($totalSalesCash, $debtPaidAtSale), $totalDebtCollected), $totalCashReturns);
-        $realNetProfit = $this->sub($totalGrossProfit, $totalExpenses);
+        $realNetProfit = $this->sub($this->sub($totalGrossProfit, $totalExpenses), ['USD' => $lossUsd, 'IQD' => 0.0]);
 
         // قەرزی کڕیاران بە هەر دراوێک
         $totalCustomerDebts = $this->empty();
@@ -153,7 +163,7 @@ class ReportController extends Controller
             'rate', 'toUsd', 'paginatedSales',
             'totalSalesAll', 'totalSalesCash', 'totalSalesDebt', 'totalCostAll', 'totalGrossProfit',
             'realNetProfit', 'debtPaidAtSale', 'totalDebtCollected', 'totalCashReturns', 'totalExpenses', 'cashInHand',
-            'totalCustomerDebts', 'stockCost', 'stockValue', 'stockProfit', 'totalStockKg',
+            'totalCustomerDebts', 'totalLosses', 'stockCost', 'stockValue', 'stockProfit', 'totalStockKg',
             'topProducts', 'topCustomers'
         ));
     }
