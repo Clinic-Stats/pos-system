@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Database\Eloquent\Model;
 
-class StockLoss extends Model
+class StockLossController extends Controller
 {
     protected $fillable = [
         'product_id', 'quantity', 'unit_cost_usd', 'total_cost_usd', 'reason', 'note',
