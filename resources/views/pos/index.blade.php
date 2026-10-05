@@ -9,120 +9,130 @@
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-/* ==================== ڕووناک (Light Mode) - دیزاینی نوێ ==================== */
+/* ==================== MODERN POS DESIGN — DESIGN/CSS ONLY ==================== */
 :root{
-  --bg:#f3f5fa;
-  --bg-grad-1:#eef2fb;
-  --bg-grad-2:#f7f4ff;
-  --sf:rgba(255,255,255,0.85);
+  --bg:#f7f9fc;
+  --bg-grad-1:#e8f8f5;
+  --bg-grad-2:#eef2ff;
+  --sf:rgba(255,255,255,.94);
   --sf-solid:#ffffff;
-  --sf2:#f6f8fd;
-  --bd:rgba(226,232,240,0.8);
-  --bd-solid:#e5e9f2;
-  --tx:#0d1424;
-  --mu:#6b7a99;
-  --ac:#0d9488;
+  --sf2:#f8fafc;
+  --bd:rgba(203,213,225,.72);
+  --bd-solid:#e2e8f0;
+  --tx:#111827;
+  --mu:#64748b;
+  --ac:#0f766e;
   --ac-2:#14b8a6;
-  --ac-grad:linear-gradient(135deg,#0d9488 0%,#14b8a6 100%);
-  --acs:#d5f5ef;
-  --acs-2:#e6fbf7;
+  --ac-grad:linear-gradient(135deg,#0f766e 0%,#14b8a6 100%);
+  --acs:#ccfbf1;
+  --acs-2:#ecfdf5;
   --wa:#d97706;
-  --was:#fef3c7;
+  --was:#fffbeb;
   --ro:#e11d48;
-  --ros:#ffe4e6;
-  --sh-sm:0 1px 2px rgba(13,20,36,.04), 0 1px 3px rgba(13,20,36,.05);
-  --sh-md:0 4px 16px -4px rgba(13,20,36,.08), 0 2px 6px -2px rgba(13,20,36,.05);
-  --sh-lg:0 12px 32px -8px rgba(13,20,36,.12), 0 4px 12px -4px rgba(13,20,36,.06);
-  --sh-glow:0 8px 24px -8px rgba(13,148,136,.35);
-  --ring:rgba(13,148,136,.15);
+  --ros:#fff1f2;
+  --sh-sm:0 2px 8px rgba(15,23,42,.045);
+  --sh-md:0 8px 24px rgba(15,23,42,.07);
+  --sh-lg:0 18px 45px rgba(15,23,42,.11);
+  --sh-glow:0 10px 28px -8px rgba(13,148,136,.38);
+  --ring:rgba(20,184,166,.16);
 }
 
-/* ==================== تاریک (Dark Mode) ==================== */
 .dark{
-  --bg:#080e1a;
-  --bg-grad-1:#080e1a;
-  --bg-grad-2:#0a1424;
-  --sf:rgba(16,24,40,0.85);
-  --sf-solid:#101828;
-  --sf2:#16213a;
-  --bd:rgba(32,46,74,0.9);
-  --bd-solid:#202e4a;
-  --tx:#e6edf7;
-  --mu:#8da0bd;
+  --bg:#070d18;
+  --bg-grad-1:#0a1d24;
+  --bg-grad-2:#10182b;
+  --sf:rgba(15,23,42,.94);
+  --sf-solid:#111b2e;
+  --sf2:#172237;
+  --bd:rgba(51,65,85,.72);
+  --bd-solid:#293852;
+  --tx:#f1f5f9;
+  --mu:#94a3b8;
   --ac:#2dd4bf;
   --ac-2:#5eead4;
-  --ac-grad:linear-gradient(135deg,#14b8a6 0%,#2dd4bf 100%);
-  --acs:#0c3a3a;
-  --acs-2:#0f4444;
+  --ac-grad:linear-gradient(135deg,#0f766e 0%,#2dd4bf 100%);
+  --acs:#0b3b39;
+  --acs-2:#103b3a;
   --wa:#fbbf24;
-  --was:#3a2a08;
+  --was:#3b2d0b;
   --ro:#fb7185;
-  --ros:#3d1420;
-  --sh-sm:0 1px 2px rgba(0,0,0,.3);
-  --sh-md:0 4px 16px -4px rgba(0,0,0,.5);
-  --sh-lg:0 12px 32px -8px rgba(0,0,0,.6);
-  --sh-glow:0 8px 24px -8px rgba(45,212,191,.35);
-  --ring:rgba(45,212,191,.2);
+  --ros:#3c1722;
+  --sh-sm:0 2px 8px rgba(0,0,0,.25);
+  --sh-md:0 10px 28px rgba(0,0,0,.34);
+  --sh-lg:0 20px 50px rgba(0,0,0,.46);
+  --sh-glow:0 10px 30px -8px rgba(45,212,191,.32);
+  --ring:rgba(45,212,191,.18);
 }
 
-*{transition:background-color .2s ease, border-color .2s ease, color .15s ease, box-shadow .2s ease}
+*{
+  transition:background-color .2s ease,border-color .2s ease,color .15s ease,box-shadow .2s ease,transform .18s ease;
+}
+
+html{scroll-behavior:smooth}
 
 body{
   font-family:'Almarai',sans-serif;
-  background:var(--bg);
-  background-image:
-    radial-gradient(at 0% 0%, var(--bg-grad-1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, var(--bg-grad-2) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, var(--bg-grad-1) 0px, transparent 50%);
+  background:
+    radial-gradient(circle at 5% 0%,var(--bg-grad-1) 0,transparent 34%),
+    radial-gradient(circle at 95% 0%,var(--bg-grad-2) 0,transparent 36%),
+    linear-gradient(180deg,var(--bg) 0%,var(--bg) 100%);
   background-attachment:fixed;
   color:var(--tx);
   min-height:100vh;
 }
 
-.num{font-family:'Plus Jakarta Sans',sans-serif;direction:ltr;unicode-bidi:isolate}
+.num{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  direction:ltr;
+  unicode-bidi:isolate;
+}
 
-/* کارتەکان - Glassmorphism */
+/* Glass panels */
 .sf{
   background:var(--sf);
-  backdrop-filter:blur(20px) saturate(180%);
-  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  backdrop-filter:blur(24px) saturate(150%);
+  -webkit-backdrop-filter:blur(24px) saturate(150%);
   border:1px solid var(--bd);
-  border-radius:1.25rem;
+  border-radius:1.35rem;
   box-shadow:var(--sh-md);
 }
 
+/* Inputs */
 .inp{
   background:var(--sf2);
-  border:1.5px solid var(--bd-solid);
-  border-radius:.75rem;
-  padding:.55rem .8rem;
+  border:1px solid var(--bd-solid);
+  border-radius:.85rem;
+  padding:.62rem .85rem;
   font-size:11px;
   font-weight:700;
   color:var(--tx);
   width:100%;
-  transition:all .2s ease;
+  box-shadow:inset 0 1px 1px rgba(15,23,42,.025);
 }
 .inp:hover{border-color:var(--ac-2)}
 .inp:focus{
   outline:none;
   border-color:var(--ac);
-  box-shadow:0 0 0 4px var(--ring);
+  box-shadow:0 0 0 4px var(--ring),0 4px 12px rgba(15,23,42,.04);
   background:var(--sf-solid);
 }
 
-button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:.5rem}
+button:focus-visible,a:focus-visible{
+  outline:2px solid var(--ac);
+  outline-offset:3px;
+  border-radius:.6rem;
+}
 
-/* چیپ */
+/* Chips */
 .chip{
-  background:var(--sf2);
-  border:1.5px solid var(--bd-solid);
+  background:var(--sf-solid);
+  border:1px solid var(--bd-solid);
   color:var(--mu);
   border-radius:999px;
-  padding:.45rem 1rem;
+  padding:.48rem 1rem;
   font-size:11px;
   font-weight:800;
   white-space:nowrap;
-  transition:all .18s ease;
   cursor:pointer;
 }
 .chip:hover{
@@ -138,17 +148,16 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
   box-shadow:var(--sh-glow);
 }
 
-/* ناڤ */
+/* Navigation */
 .nav{
   display:flex;
   align-items:center;
-  gap:.45rem;
-  padding:.5rem .85rem;
-  border-radius:.75rem;
+  gap:.5rem;
+  padding:.55rem .85rem;
+  border-radius:.8rem;
   font-size:11px;
   font-weight:800;
   color:var(--mu);
-  transition:all .15s ease;
   white-space:nowrap;
   cursor:pointer;
   text-decoration:none;
@@ -159,16 +168,16 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
   transform:translateX(-2px);
 }
 
-/* کارتی کاڵا */
+/* Product cards */
 .pc{
   background:var(--sf-solid);
-  border:1.5px solid var(--bd-solid);
-  border-radius:1.1rem;
-  padding:.75rem;
+  border:1px solid var(--bd-solid);
+  border-radius:1.15rem;
+  padding:.85rem;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  gap:.55rem;
+  gap:.6rem;
   position:relative;
   transition:all .22s cubic-bezier(.2,.8,.2,1);
   box-shadow:var(--sh-sm);
@@ -179,9 +188,9 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
   position:absolute;
   inset:0;
   border-radius:inherit;
-  padding:1.5px;
+  padding:1px;
   background:var(--ac-grad);
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;
   mask-composite:exclude;
   opacity:0;
@@ -189,28 +198,30 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
   pointer-events:none;
 }
 .pc:hover{
-  transform:translateY(-3px);
+  transform:translateY(-4px);
   box-shadow:var(--sh-lg);
   border-color:transparent;
 }
 .pc:hover::before{opacity:1}
-.pc.out{opacity:.55;filter:grayscale(.3)}
-.pc.low{border-color:var(--wa);background:linear-gradient(180deg,var(--sf-solid) 70%,var(--was) 200%)}
+.pc.out{opacity:.52;filter:grayscale(.25)}
+.pc.low{
+  border-color:rgba(245,158,11,.55);
+  background:linear-gradient(180deg,var(--sf-solid) 70%,var(--was) 180%);
+}
 
-/* دوگمەی چوارگۆشە */
+/* Square buttons */
 .sq{
-  width:2.1rem;
-  height:2.1rem;
-  border-radius:.7rem;
+  width:2.2rem;
+  height:2.2rem;
+  border-radius:.72rem;
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:11px;
-  transition:all .15s ease;
   cursor:pointer;
   border:none;
 }
-.sq:active{transform:scale(.9)}
+.sq:active{transform:scale(.92)}
 .sq.add{
   background:var(--ac-grad);
   color:#fff;
@@ -220,7 +231,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
 .sq.sub{
   background:var(--sf2);
   color:var(--mu);
-  border:1.5px solid var(--bd-solid);
+  border:1px solid var(--bd-solid);
 }
 .sq.sub:hover{
   color:var(--ro);
@@ -228,25 +239,24 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
   background:var(--ros);
 }
 
-/* سێگمێنت */
+/* Segmented controls */
 .seg{
   display:flex;
   background:var(--sf2);
-  border:1.5px solid var(--bd-solid);
-  border-radius:.85rem;
+  border:1px solid var(--bd-solid);
+  border-radius:.95rem;
   padding:.25rem;
   gap:.25rem;
 }
 .seg>*{
   flex:1;
   text-align:center;
-  padding:.5rem .6rem;
-  border-radius:.65rem;
+  padding:.55rem .65rem;
+  border-radius:.7rem;
   font-size:11px;
   font-weight:800;
   color:var(--mu);
   cursor:pointer;
-  transition:all .18s ease;
 }
 .seg>*:hover{color:var(--tx)}
 .seg>.on,.seg>label:has(input:checked){
@@ -261,15 +271,15 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
 }
 .seg input{display:none}
 
-/* باج */
+/* Quantity badge */
 .badge{
   position:absolute;
-  top:-.5rem;
-  left:-.5rem;
+  top:-.45rem;
+  left:-.45rem;
   background:var(--ac-grad);
   color:#fff;
   border-radius:999px;
-  padding:.15rem .6rem;
+  padding:.18rem .62rem;
   font-size:12px;
   font-weight:800;
   border:2px solid var(--sf-solid);
@@ -278,18 +288,19 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
   z-index:10;
 }
 
-/* سکرۆڵبار */
-.scroll::-webkit-scrollbar{width:8px;height:8px}
+/* Scrollbars */
+.scroll::-webkit-scrollbar{width:7px;height:7px}
 .scroll::-webkit-scrollbar-track{background:transparent}
 .scroll::-webkit-scrollbar-thumb{
-  background:var(--bd-solid);
-  border-radius:9px;
+  background:#cbd5e1;
+  border-radius:999px;
   border:2px solid transparent;
   background-clip:content-box;
 }
+.dark .scroll::-webkit-scrollbar-thumb{background:#334155;background-clip:content-box}
 .scroll::-webkit-scrollbar-thumb:hover{background:var(--ac);background-clip:content-box}
 
-/* ئەنیمەیشن */
+/* Animation */
 .rowin{animation:rin .3s cubic-bezier(.2,.8,.2,1)}
 @keyframes rin{from{opacity:0;transform:translateY(8px)}}
 
@@ -298,6 +309,31 @@ input[type=number]{-moz-appearance:textfield}
 
 @media (prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important}
+}
+
+/* Extra polish for the main POS layout */
+header.sf{
+  box-shadow:0 10px 30px rgba(15,23,42,.065);
+}
+header.sf .w-10{
+  border:1px solid rgba(255,255,255,.2);
+}
+#productsGrid{
+  scrollbar-gutter:stable;
+}
+#cartItemsContainer{
+  scrollbar-gutter:stable;
+}
+#btnSubmitSale{
+  min-height:3.2rem;
+  letter-spacing:.01em;
+}
+#btnSubmitSale:hover{
+  filter:brightness(1.06);
+  transform:translateY(-1px);
+}
+#grandTotalText{
+  text-shadow:0 2px 10px rgba(0,0,0,.12);
 }
 </style>
 </head>
