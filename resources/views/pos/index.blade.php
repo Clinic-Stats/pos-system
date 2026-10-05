@@ -9,409 +9,367 @@
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-/* ==================== MODERN POS DESIGN — DESIGN/CSS ONLY ==================== */
-:root{
-  --bg:#f7f9fc;
-  --bg-grad-1:#e8f8f5;
-  --bg-grad-2:#eef2ff;
-  --sf:rgba(255,255,255,.94);
-  --sf-solid:#ffffff;
-  --sf2:#f8fafc;
-  --bd:rgba(203,213,225,.72);
-  --bd-solid:#e2e8f0;
-  --tx:#111827;
-  --mu:#64748b;
-  --ac:#0f766e;
-  --ac-2:#14b8a6;
-  --ac-grad:linear-gradient(135deg,#0f766e 0%,#14b8a6 100%);
-  --acs:#ccfbf1;
-  --acs-2:#ecfdf5;
-  --wa:#d97706;
-  --was:#fffbeb;
-  --ro:#e11d48;
-  --ros:#fff1f2;
-  --sh-sm:0 2px 8px rgba(15,23,42,.045);
-  --sh-md:0 8px 24px rgba(15,23,42,.07);
-  --sh-lg:0 18px 45px rgba(15,23,42,.11);
-  --sh-glow:0 10px 28px -8px rgba(13,148,136,.38);
-  --ring:rgba(20,184,166,.16);
+:root {
+  /* ڕووکاری ڕووناک - مۆدێرن و پرێمیۆم */
+  --bg: #f4f7fb;       /* باکگراوندی سەرەکی - شینێکی زۆر کاڵی ئارام */
+  --sf: #ffffff;       /* ڕووکەشی کاردەکان - سپی ساف */
+  --sf2: #f8fafc;      /* ڕووکەشی دووەم بۆ ئینپوتەکان */
+  --bd: #e2e8f0;       /* بۆردەری نەرم */
+  --tx: #0f172a;       /* تێکستی سەرەکی - تۆخ */
+  --mu: #64748b;       /* تێکستی کاڵ - ڕەساسی */
+  --ac: #2563eb;       /* ڕەنگی سەرەکی - شینێکی مۆدێرن و پرۆفیشناڵ */
+  --acs: #eff6ff;      /* باکگراوندی ڕەنگی سەرەکی بۆ شوێنە کاڵەکان */
+  --wa: #f59e0b;       /* ڕەنگی ئاگادارکردنەوە - پرتەقاڵی */
+  --was: #fffbeb;
+  --ro: #ef4444;       /* ڕەنگی سوور بۆ مەترسی */
+  --ros: #fef2f2;
+  
+  /* سێبەرە مۆدێرنەکان */
+  --sh-card: 0 4px 20px -4px rgba(15, 23, 42, 0.05);
+  --sh-hover: 0 12px 28px -6px rgba(37, 99, 235, 0.15);
+  --sh-btn: 0 8px 16px -4px rgba(37, 99, 235, 0.3);
 }
 
-.dark{
-  --bg:#070d18;
-  --bg-grad-1:#0a1d24;
-  --bg-grad-2:#10182b;
-  --sf:rgba(15,23,42,.94);
-  --sf-solid:#111b2e;
-  --sf2:#172237;
-  --bd:rgba(51,65,85,.72);
-  --bd-solid:#293852;
-  --tx:#f1f5f9;
-  --mu:#94a3b8;
-  --ac:#2dd4bf;
-  --ac-2:#5eead4;
-  --ac-grad:linear-gradient(135deg,#0f766e 0%,#2dd4bf 100%);
-  --acs:#0b3b39;
-  --acs-2:#103b3a;
-  --wa:#fbbf24;
-  --was:#3b2d0b;
-  --ro:#fb7185;
-  --ros:#3c1722;
-  --sh-sm:0 2px 8px rgba(0,0,0,.25);
-  --sh-md:0 10px 28px rgba(0,0,0,.34);
-  --sh-lg:0 20px 50px rgba(0,0,0,.46);
-  --sh-glow:0 10px 30px -8px rgba(45,212,191,.32);
-  --ring:rgba(45,212,191,.18);
+.dark {
+  /* ڕووکاری تاریک - قووڵ و چاونه‌ئێشێن */
+  --bg: #09090b;       /* ڕەشێکی قووڵ */
+  --sf: #18181b;       /* کاردی تاریک */
+  --sf2: #27272a;      /* ئینپوتی تاریک */
+  --bd: #3f3f46;       /* بۆردەری تاریک */
+  --tx: #f8fafc;
+  --mu: #a1a1aa;
+  --ac: #3b82f6;       /* شینی درەوشاوە بۆ تاریکی */
+  --acs: #1e3a8a;
+  --wa: #fbbf24;
+  --was: #45290b;
+  --ro: #f87171;
+  --ros: #451a1a;
+  
+  --sh-card: 0 4px 20px -4px rgba(0, 0, 0, 0.5);
+  --sh-hover: 0 12px 28px -6px rgba(59, 130, 246, 0.2);
+  --sh-btn: 0 8px 16px -4px rgba(59, 130, 246, 0.4);
 }
 
-*{
-  transition:background-color .2s ease,border-color .2s ease,color .15s ease,box-shadow .2s ease,transform .18s ease;
+body {
+  font-family: 'Almarai', sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-html{scroll-behavior:smooth}
-
-body{
-  font-family:'Almarai',sans-serif;
-  background:
-    radial-gradient(circle at 5% 0%,var(--bg-grad-1) 0,transparent 34%),
-    radial-gradient(circle at 95% 0%,var(--bg-grad-2) 0,transparent 36%),
-    linear-gradient(180deg,var(--bg) 0%,var(--bg) 100%);
-  background-attachment:fixed;
-  color:var(--tx);
-  min-height:100vh;
+.num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  direction: ltr;
+  unicode-bidi: isolate;
 }
 
-.num{
-  font-family:'Plus Jakarta Sans',sans-serif;
-  direction:ltr;
-  unicode-bidi:isolate;
+.sf {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 1.25rem; /* چەمانەوەی زیاتر بۆ جوانی */
+  box-shadow: var(--sh-card);
 }
 
-/* Glass panels */
-.sf{
-  background:var(--sf);
-  backdrop-filter:blur(24px) saturate(150%);
-  -webkit-backdrop-filter:blur(24px) saturate(150%);
-  border:1px solid var(--bd);
-  border-radius:1.35rem;
-  box-shadow:var(--sh-md);
+.inp {
+  background: var(--sf2);
+  border: 1px solid var(--bd);
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tx);
+  width: 100%;
+  transition: all 0.2s ease;
 }
 
-/* Inputs */
-.inp{
-  background:var(--sf2);
-  border:1px solid var(--bd-solid);
-  border-radius:.85rem;
-  padding:.62rem .85rem;
-  font-size:11px;
-  font-weight:700;
-  color:var(--tx);
-  width:100%;
-  box-shadow:inset 0 1px 1px rgba(15,23,42,.025);
-}
-.inp:hover{border-color:var(--ac-2)}
-.inp:focus{
-  outline:none;
-  border-color:var(--ac);
-  box-shadow:0 0 0 4px var(--ring),0 4px 12px rgba(15,23,42,.04);
-  background:var(--sf-solid);
+.inp:focus, button:focus-visible, a:focus-visible {
+  outline: none;
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3.5px var(--acs);
+  background: var(--sf);
 }
 
-button:focus-visible,a:focus-visible{
-  outline:2px solid var(--ac);
-  outline-offset:3px;
-  border-radius:.6rem;
+.chip {
+  background: var(--sf2);
+  border: 1px solid var(--bd);
+  color: var(--mu);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-/* Chips */
-.chip{
-  background:var(--sf-solid);
-  border:1px solid var(--bd-solid);
-  color:var(--mu);
-  border-radius:999px;
-  padding:.48rem 1rem;
-  font-size:11px;
-  font-weight:800;
-  white-space:nowrap;
-  cursor:pointer;
-}
-.chip:hover{
-  color:var(--tx);
-  border-color:var(--ac-2);
-  transform:translateY(-1px);
-  box-shadow:var(--sh-sm);
-}
-.chip.on{
-  background:var(--ac-grad);
-  border-color:transparent;
-  color:#fff;
-  box-shadow:var(--sh-glow);
+.chip:hover {
+  color: var(--tx);
+  transform: translateY(-1px);
 }
 
-/* Navigation */
-.nav{
-  display:flex;
-  align-items:center;
-  gap:.5rem;
-  padding:.55rem .85rem;
-  border-radius:.8rem;
-  font-size:11px;
-  font-weight:800;
-  color:var(--mu);
-  white-space:nowrap;
-  cursor:pointer;
-  text-decoration:none;
-}
-.nav:hover{
-  background:var(--acs-2);
-  color:var(--ac);
-  transform:translateX(-2px);
+.chip.on {
+  background: var(--ac);
+  border-color: var(--ac);
+  color: #ffffff;
+  box-shadow: var(--sh-btn);
 }
 
-/* Product cards */
-.pc{
-  background:var(--sf-solid);
-  border:1px solid var(--bd-solid);
-  border-radius:1.15rem;
-  padding:.85rem;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  gap:.6rem;
-  position:relative;
-  transition:all .22s cubic-bezier(.2,.8,.2,1);
-  box-shadow:var(--sh-sm);
-  overflow:hidden;
-}
-.pc::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  padding:1px;
-  background:var(--ac-grad);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  opacity:0;
-  transition:opacity .22s ease;
-  pointer-events:none;
-}
-.pc:hover{
-  transform:translateY(-4px);
-  box-shadow:var(--sh-lg);
-  border-color:transparent;
-}
-.pc:hover::before{opacity:1}
-.pc.out{opacity:.52;filter:grayscale(.25)}
-.pc.low{
-  border-color:rgba(245,158,11,.55);
-  background:linear-gradient(180deg,var(--sf-solid) 70%,var(--was) 180%);
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.8rem;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--mu);
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-/* Square buttons */
-.sq{
-  width:2.2rem;
-  height:2.2rem;
-  border-radius:.72rem;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:11px;
-  cursor:pointer;
-  border:none;
-}
-.sq:active{transform:scale(.92)}
-.sq.add{
-  background:var(--ac-grad);
-  color:#fff;
-  box-shadow:var(--sh-glow);
-}
-.sq.add:hover{filter:brightness(1.08);transform:translateY(-1px)}
-.sq.sub{
-  background:var(--sf2);
-  color:var(--mu);
-  border:1px solid var(--bd-solid);
-}
-.sq.sub:hover{
-  color:var(--ro);
-  border-color:var(--ro);
-  background:var(--ros);
+.nav:hover {
+  background: var(--sf2);
+  color: var(--ac);
 }
 
-/* Segmented controls */
-.seg{
-  display:flex;
-  background:var(--sf2);
-  border:1px solid var(--bd-solid);
-  border-radius:.95rem;
-  padding:.25rem;
-  gap:.25rem;
-}
-.seg>*{
-  flex:1;
-  text-align:center;
-  padding:.55rem .65rem;
-  border-radius:.7rem;
-  font-size:11px;
-  font-weight:800;
-  color:var(--mu);
-  cursor:pointer;
-}
-.seg>*:hover{color:var(--tx)}
-.seg>.on,.seg>label:has(input:checked){
-  background:var(--ac-grad);
-  color:#fff;
-  box-shadow:var(--sh-glow);
-}
-.seg>label.debt:has(input:checked){
-  background:linear-gradient(135deg,#d97706,#f59e0b);
-  color:#fff;
-  box-shadow:0 8px 24px -8px rgba(217,119,6,.35);
-}
-.seg input{display:none}
-
-/* Quantity badge */
-.badge{
-  position:absolute;
-  top:-.45rem;
-  left:-.45rem;
-  background:var(--ac-grad);
-  color:#fff;
-  border-radius:999px;
-  padding:.18rem .62rem;
-  font-size:12px;
-  font-weight:800;
-  border:2px solid var(--sf-solid);
-  display:none;
-  box-shadow:var(--sh-glow);
-  z-index:10;
+/* دیزاینی کاردی کاڵاکان */
+.pc {
+  background: var(--sf);
+  border: 1px solid var(--bd);
+  border-radius: 1.25rem;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Scrollbars */
-.scroll::-webkit-scrollbar{width:7px;height:7px}
-.scroll::-webkit-scrollbar-track{background:transparent}
-.scroll::-webkit-scrollbar-thumb{
-  background:#cbd5e1;
-  border-radius:999px;
-  border:2px solid transparent;
-  background-clip:content-box;
-}
-.dark .scroll::-webkit-scrollbar-thumb{background:#334155;background-clip:content-box}
-.scroll::-webkit-scrollbar-thumb:hover{background:var(--ac);background-clip:content-box}
-
-/* Animation */
-.rowin{animation:rin .3s cubic-bezier(.2,.8,.2,1)}
-@keyframes rin{from{opacity:0;transform:translateY(8px)}}
-
-input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
-input[type=number]{-moz-appearance:textfield}
-
-@media (prefers-reduced-motion:reduce){
-  *{transition:none!important;animation:none!important}
+.pc:hover {
+  border-color: var(--ac);
+  transform: translateY(-4px);
+  box-shadow: var(--sh-hover);
 }
 
-/* Extra polish for the main POS layout */
-header.sf{
-  box-shadow:0 10px 30px rgba(15,23,42,.065);
+.pc.out { opacity: 0.55; filter: grayscale(0.5); }
+.pc.low { border-color: var(--wa); }
+
+/* دوگمە بچووکەکان (زاید و ناقص) */
+.sq {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.15s ease;
+  cursor: pointer;
 }
-header.sf .w-10{
-  border:1px solid rgba(255,255,255,.2);
+
+.sq:active { transform: scale(0.92); }
+
+.sq.add {
+  background: var(--ac);
+  color: #ffffff;
+  box-shadow: 0 4px 10px -2px rgba(37, 99, 235, 0.25);
 }
-#productsGrid{
-  scrollbar-gutter:stable;
+.sq.add:hover { filter: brightness(1.1); }
+
+.sq.sub {
+  background: var(--sf2);
+  color: var(--mu);
+  border: 1px solid var(--bd);
 }
-#cartItemsContainer{
-  scrollbar-gutter:stable;
+.sq.sub:hover { color: var(--tx); background: var(--bd); }
+
+.seg {
+  display: flex;
+  background: var(--sf2);
+  border: 1px solid var(--bd);
+  border-radius: 0.9rem;
+  padding: 0.25rem;
+  gap: 0.25rem;
 }
-#btnSubmitSale{
-  min-height:3.2rem;
-  letter-spacing:.01em;
+
+.seg > * {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 0.7rem;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--mu);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-#btnSubmitSale:hover{
-  filter:brightness(1.06);
-  transform:translateY(-1px);
+
+.seg > .on, .seg > label:has(input:checked) {
+  background: var(--sf);
+  color: var(--ac);
+  box-shadow: 0 2px 6px -1px rgba(0,0,0,0.08);
+  border: 1px solid var(--bd);
 }
-#grandTotalText{
-  text-shadow:0 2px 10px rgba(0,0,0,.12);
+
+.seg > label.debt:has(input:checked) {
+  background: var(--sf);
+  color: var(--wa);
+  border-color: var(--wa);
+}
+
+.seg input { display: none; }
+
+.badge {
+  position: absolute;
+  top: -0.6rem;
+  left: -0.6rem;
+  background: var(--ac);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 11px;
+  font-weight: 800;
+  border: 3px solid var(--sf);
+  display: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+/* سکڕۆڵباری مۆدێرن */
+.scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+.scroll::-webkit-scrollbar-track { background: transparent; }
+.scroll::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 10px; }
+.scroll:hover::-webkit-scrollbar-thumb { background: var(--mu); }
+
+.rowin { animation: rin 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes rin { from { opacity: 0; transform: translateY(8px); } }
+
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+input[type=number] { -moz-appearance: textfield; }
+
+/* دوگمەی سەرەکی پسوولەکردن */
+#btnSubmitSale {
+  box-shadow: var(--sh-btn);
+}
+#btnSubmitSale:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+/* دیزاینی کاڵاکان ناو سەبەتە */
+.cart-item {
+  background: var(--sf2);
+  border: 1px solid var(--bd);
+  transition: all 0.2s ease;
+}
+.cart-item:hover {
+  border-color: var(--bd);
+  background: var(--sf);
+  box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rowin { animation: none; }
+  .pc, .btn, .chip, .sq { transition: none !important; transform: none !important; }
 }
 </style>
 </head>
-<body class="min-h-screen lg:h-screen p-2 flex flex-col gap-2 lg:overflow-hidden select-none">
+<body class="min-h-screen lg:h-screen p-3 flex flex-col gap-3 lg:overflow-hidden select-none">
 
 <!-- هێدەر -->
-<header class="sf px-3 py-2.5 flex flex-wrap items-center justify-between gap-2 shrink-0 relative z-40">
-  <div class="flex items-center gap-2.5">
-    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background:var(--ac-grad);color:#fff;box-shadow:var(--sh-glow)"><i class="fa-solid fa-cash-register"></i></div>
-    <div><h1 class="font-extrabold text-sm leading-none">POS</h1><p class="text-[10px] mt-1 flex items-center gap-1" style="color:var(--mu)"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>فرۆشتن</p></div>
+<header class="sf px-4 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0 relative z-40">
+  <div class="flex items-center gap-3">
+    <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-xl shadow-inner" style="background:var(--ac);color:#ffffff">
+      <i class="fa-solid fa-cash-register"></i>
+    </div>
+    <div>
+      <h1 class="font-extrabold text-[15px] leading-none mb-1.5 text-gray-800 dark:text-gray-100">سیستەمی POS</h1>
+      <p class="text-[10px] flex items-center gap-1.5 font-bold" style="color:var(--mu)">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse"></span>
+        پەنێڵی فرۆشتن
+      </p>
+    </div>
   </div>
 
-  <nav class="flex flex-wrap items-center justify-center gap-1">
+  <nav class="flex flex-wrap items-center justify-center gap-1.5">
     <a href="{{ route('purchases.create') }}" class="nav"><i class="fa-solid fa-box-open"></i> کڕین</a>
     <a href="{{ route('products.index') }}" class="nav"><i class="fa-solid fa-boxes-stacked"></i> کۆگا</a>
     <a href="{{ route('customers.index') }}" class="nav"><i class="fa-solid fa-users"></i> کڕیار</a>
     <a href="{{ route('reports.index') }}" class="nav"><i class="fa-solid fa-chart-pie"></i> ڕاپۆرت</a>
-    <div class="relative">
-      <button type="button" class="nav" onclick="event.stopPropagation();document.getElementById('moreDropdown').classList.toggle('hidden')"><i class="fa-solid fa-ellipsis"></i> زیاتر <i class="fa-solid fa-chevron-down text-[8px]"></i></button>
-      <div id="moreDropdown" class="hidden sf absolute right-0 top-full mt-2 w-56 p-1.5 text-xs shadow-2xl scroll max-h-96 overflow-y-auto z-50">
-        <a href="{{ route('sales.list') }}" class="nav"><i class="fa-solid fa-receipt w-4"></i> فرۆشتنەکان</a>
-        <a href="{{ route('returns.index') }}" class="nav"><i class="fa-solid fa-rotate-left w-4"></i> گەڕاوەکان</a>
-        <a href="{{ route('losses.index') }}" class="nav"><i class="fa-solid fa-triangle-exclamation w-4"></i> زیانی کاڵا</a>
+    <div class="relative group">
+      <button type="button" class="nav" onclick="event.stopPropagation();document.getElementById('moreDropdown').classList.toggle('hidden')">
+        <i class="fa-solid fa-ellipsis"></i> زیاتر <i class="fa-solid fa-chevron-down text-[9px] ml-1"></i>
+      </button>
+      <div id="moreDropdown" class="hidden sf absolute right-0 top-full mt-3 w-60 p-2 text-xs shadow-2xl scroll max-h-96 overflow-y-auto z-50 rounded-2xl border border-gray-100 dark:border-gray-800">
+        <a href="{{ route('sales.list') }}" class="nav !p-2.5"><i class="fa-solid fa-receipt w-5 text-center"></i> فرۆشتنەکان</a>
+        <a href="{{ route('returns.index') }}" class="nav !p-2.5"><i class="fa-solid fa-rotate-left w-5 text-center"></i> گەڕاوەکان</a>
+        <a href="{{ route('losses.index') }}" class="nav !p-2.5"><i class="fa-solid fa-triangle-exclamation w-5 text-center"></i> زیانی کاڵا</a>
         @if(auth()->user()->isAdmin())
-        <a href="{{ route('audit.index') }}" class="nav"><i class="fa-solid fa-user-shield w-4"></i> تۆماری چالاکییەکان</a>
+        <div class="h-px w-full my-1" style="background:var(--bd)"></div>
+        <a href="{{ route('audit.index') }}" class="nav !p-2.5"><i class="fa-solid fa-user-shield w-5 text-center"></i> تۆماری چالاکییەکان</a>
         @endif
-        <a href="{{ route('expenses.index') }}" class="nav"><i class="fa-solid fa-money-bill-trend-up w-4"></i> خەرجییەکان</a>
-        <a href="{{ route('mandub.dashboard') }}" class="nav"><i class="fa-solid fa-motorcycle w-4"></i> مەندووب</a>
-        <a href="{{ route('categories.index') }}" class="nav"><i class="fa-solid fa-tags w-4"></i> کاتیگۆری</a>
-        <a href="{{ route('units.index') }}" class="nav"><i class="fa-solid fa-scale-balanced w-4"></i> یەکەکان</a>
-        <a href="{{ route('suppliers.index') }}" class="nav"><i class="fa-solid fa-truck-field w-4"></i> دابینکەران</a>
-        <a href="{{ route('partners.index') }}" class="nav"><i class="fa-solid fa-handshake w-4"></i> هاوبەشەکان</a>
-        <a href="{{ route('settings.receipt') }}" class="nav"><i class="fa-solid fa-gear w-4"></i> ڕێکخستنی وەسڵ</a>
-        <a href="{{ route('users.index') }}" class="nav"><i class="fa-solid fa-user-shield w-4"></i> کارمەندان</a>
+        <a href="{{ route('expenses.index') }}" class="nav !p-2.5"><i class="fa-solid fa-money-bill-trend-up w-5 text-center"></i> خەرجییەکان</a>
+        <a href="{{ route('mandub.dashboard') }}" class="nav !p-2.5"><i class="fa-solid fa-motorcycle w-5 text-center"></i> مەندووب</a>
+        <div class="h-px w-full my-1" style="background:var(--bd)"></div>
+        <a href="{{ route('categories.index') }}" class="nav !p-2.5"><i class="fa-solid fa-tags w-5 text-center"></i> کاتیگۆری</a>
+        <a href="{{ route('units.index') }}" class="nav !p-2.5"><i class="fa-solid fa-scale-balanced w-5 text-center"></i> یەکەکان</a>
+        <a href="{{ route('suppliers.index') }}" class="nav !p-2.5"><i class="fa-solid fa-truck-field w-5 text-center"></i> دابینکەران</a>
+        <a href="{{ route('partners.index') }}" class="nav !p-2.5"><i class="fa-solid fa-handshake w-5 text-center"></i> هاوبەشەکان</a>
+        <a href="{{ route('settings.receipt') }}" class="nav !p-2.5"><i class="fa-solid fa-gear w-5 text-center"></i> ڕێکخستنی وەسڵ</a>
+        <a href="{{ route('users.index') }}" class="nav !p-2.5"><i class="fa-solid fa-user-shield w-5 text-center"></i> کارمەندان</a>
       </div>
     </div>
   </nav>
 
-  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-3">
     <!-- نرخی ئاڵوگۆڕ -->
     <div class="relative">
-      <button type="button" id="rateDisplay" onclick="toggleRateEdit()" class="chip flex items-center gap-1.5" title="گۆڕینی نرخی ئاڵوگۆڕ">
-        <i class="fa-solid fa-arrow-right-arrow-left"></i><span id="currentRateDisplay" class="num">1$ = {{ number_format($setting->exchange_rate ?? 1500) }}</span>
+      <button type="button" id="rateDisplay" onclick="toggleRateEdit()" class="chip flex items-center gap-2 shadow-sm" title="گۆڕینی نرخی ئاڵوگۆڕ">
+        <i class="fa-solid fa-arrow-right-arrow-left text-[10px]"></i>
+        <span id="currentRateDisplay" class="num tracking-wide">1$ = {{ number_format($setting->exchange_rate ?? 1500) }}</span>
       </button>
-      <div id="rateEdit" class="hidden sf absolute left-0 top-full mt-2 p-3 w-56 shadow-2xl z-50 space-y-2">
-        <label class="text-[10px] font-bold block" style="color:var(--mu)">نرخی نوێ (١$ = چەند دینار)</label>
-        <div class="flex gap-1.5">
-          <input type="number" id="newExchangeRate" min="1" step="any" value="{{ $setting->exchange_rate ?? 1500 }}" class="inp num">
-          <button type="button" id="rateSaveBtn" onclick="saveExchangeRate()" class="sq add"><i class="fa-solid fa-check"></i></button>
+      <div id="rateEdit" class="hidden sf absolute left-0 top-full mt-3 p-3 w-56 shadow-2xl z-50 space-y-3 rounded-2xl">
+        <label class="text-[11px] font-bold block" style="color:var(--mu)">نرخی نوێ (١$ = چەند دینار)</label>
+        <div class="flex gap-2">
+          <input type="number" id="newExchangeRate" min="1" step="any" value="{{ $setting->exchange_rate ?? 1500 }}" class="inp num text-center">
+          <button type="button" id="rateSaveBtn" onclick="saveExchangeRate()" class="sq add !w-10 !h-auto"><i class="fa-solid fa-check"></i></button>
         </div>
       </div>
     </div>
-    <button type="button" onclick="toggleTheme()" class="sq sub" title="تەم"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
-    <div class="flex items-center gap-2 pr-2 border-r" style="border-color:var(--bd)">
-      <span class="text-[11px] font-extrabold">{{ auth()->user()->name ?? 'کاشیر' }}</span>
-      <form action="{{ route('logout') }}" method="POST" class="m-0">@csrf<button type="submit" class="sq" style="background:var(--ros);color:var(--ro)" title="دەرچوون"><i class="fa-solid fa-power-off"></i></button></form>
+    <button type="button" onclick="toggleTheme()" class="sq sub hover:rotate-12" title="گۆڕینی ڕووکار"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
+    <div class="flex items-center gap-3 pr-3 border-r" style="border-color:var(--bd)">
+      <div class="flex flex-col text-left">
+        <span class="text-[12px] font-extrabold leading-tight">{{ auth()->user()->name ?? 'کاشیر' }}</span>
+        <span class="text-[9px] font-bold" style="color:var(--mu)">بەکارهێنەر</span>
+      </div>
+      <form action="{{ route('logout') }}" method="POST" class="m-0">
+        @csrf
+        <button type="submit" class="sq" style="background:var(--ros);color:var(--ro)" title="دەرچوون">
+          <i class="fa-solid fa-power-off"></i>
+        </button>
+      </form>
     </div>
   </div>
 </header>
 
-<main class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[1fr_390px] gap-2">
+<main class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-3">
 
   <!-- کاڵاکان -->
-  <section class="sf p-3 flex flex-col min-h-0 h-[70vh] lg:h-auto">
-    <div class="shrink-0 space-y-2.5 pb-3 border-b" style="border-color:var(--bd)">
+  <section class="sf p-4 flex flex-col min-h-0 h-[70vh] lg:h-auto">
+    <div class="shrink-0 space-y-3.5 pb-4 border-b" style="border-color:var(--bd)">
       <div class="relative">
-        <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-xs" style="color:var(--mu)"></i>
-        <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بە ناو یان کۆد...  (Ctrl+K)" autocomplete="off" spellcheck="false" class="inp !py-2.5 !pr-9 !text-xs">
+        <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-[13px]" style="color:var(--mu)"></i>
+        <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بە ناو یان کۆد... (Ctrl+K)" autocomplete="off" spellcheck="false" class="inp !py-3.5 !pr-10 !text-xs shadow-sm">
       </div>
-      <div class="flex gap-1.5 overflow-x-auto scroll pb-1">
-        <button type="button" onclick="filterCategory('all')" id="cat-btn-all" class="chip cat-filter-btn on">هەمووی</button>
+      <div class="flex gap-2 overflow-x-auto scroll pb-1.5 px-1">
+        <button type="button" onclick="filterCategory('all')" id="cat-btn-all" class="chip cat-filter-btn on px-4 py-2">هەمووی</button>
         @foreach($categories as $cat)
-          <button type="button" onclick="filterCategory('{{ $cat->id }}')" id="cat-btn-{{ $cat->id }}" class="chip cat-filter-btn">{{ $cat->name }}</button>
+          <button type="button" onclick="filterCategory('{{ $cat->id }}')" id="cat-btn-{{ $cat->id }}" class="chip cat-filter-btn px-4 py-2">{{ $cat->name }}</button>
         @endforeach
       </div>
     </div>
 
-    <div id="productsGrid" class="grow overflow-y-auto scroll pt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2.5 content-start">
+    <div id="productsGrid" class="grow overflow-y-auto scroll pt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3.5 content-start pr-1">
       @foreach($products as $p)
         @php
           $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
@@ -419,25 +377,28 @@ header.sf .w-10{
           $isOut = $stockVal <= 0; $isLow = !$isOut && $stockVal <= $alertVal;
           $isCarton = ($p->sell_type ?? 'weight') === 'carton';
         @endphp
-        <div class="pc {{ $isOut ? 'out' : ($isLow ? 'low' : '') }}" data-category="{{ $p->category_id }}" data-name="{{ $p->name }}" data-code="{{ $p->code }}" data-price-usd="{{ $p->base_sale_price }}">
-          <div id="qty-badge-{{ $p->id }}" class="badge num"><i class="fa-solid fa-check text-[10px]"></i> <span class="badge-val">0</span></div>
-          <div class="cursor-pointer space-y-2" onclick="addToCart({{ $p->id }})">
+        <div class="pc group {{ $isOut ? 'out' : ($isLow ? 'low' : '') }}" data-category="{{ $p->category_id }}" data-name="{{ $p->name }}" data-code="{{ $p->code }}" data-price-usd="{{ $p->base_sale_price }}">
+          <div id="qty-badge-{{ $p->id }}" class="badge num"><i class="fa-solid fa-check text-[10px] mr-0.5"></i> <span class="badge-val">0</span></div>
+          <div class="cursor-pointer space-y-2.5" onclick="addToCart({{ $p->id }})">
             <div class="flex items-center justify-between gap-1">
-              <span class="num text-[9px] font-extrabold px-1.5 py-0.5 rounded-md" style="background:var(--sf2);color:var(--mu)">{{ $p->code }}</span>
-              @if($isOut)<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md" style="background:var(--ros);color:var(--ro)">نەماوە</span>
-              @elseif($isLow)<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md" style="background:var(--was);color:var(--wa)">کەمە</span>@endif
+              <span class="num text-[10px] font-extrabold px-2 py-0.5 rounded-lg border shadow-sm" style="background:var(--sf2);color:var(--mu);border-color:var(--bd)">{{ $p->code }}</span>
+              @if($isOut)<span class="text-[9px] font-extrabold px-2 py-0.5 rounded-lg shadow-sm" style="background:var(--ros);color:var(--ro)">نەماوە</span>
+              @elseif($isLow)<span class="text-[9px] font-extrabold px-2 py-0.5 rounded-lg shadow-sm" style="background:var(--was);color:var(--wa)">کەمە</span>@endif
             </div>
-            <h3 class="font-extrabold text-[12px] leading-snug line-clamp-2 min-h-[2.4em]">{{ $p->name }}</h3>
-            <p class="text-[10px] font-bold flex items-center gap-1" style="color:{{ $isOut ? 'var(--ro)' : ($isLow ? 'var(--wa)' : 'var(--mu)') }}"><i class="fa-solid fa-cube text-[9px]"></i><span class="num" id="stock-{{ $p->id }}">{{ rtrim(rtrim(number_format($stockVal, 2), '0'), '.') }}</span> {{ $isCarton ? 'کارتۆن' : 'کگ' }}</p>
+            <h3 class="font-extrabold text-[13px] leading-snug line-clamp-2 min-h-[2.5em] text-gray-800 dark:text-gray-100">{{ $p->name }}</h3>
+            <p class="text-[11px] font-bold flex items-center gap-1.5" style="color:{{ $isOut ? 'var(--ro)' : ($isLow ? 'var(--wa)' : 'var(--mu)') }}">
+              <i class="fa-solid fa-cube text-[10px] opacity-70"></i>
+              <span class="num" id="stock-{{ $p->id }}">{{ rtrim(rtrim(number_format($stockVal, 2), '0'), '.') }}</span> {{ $isCarton ? 'کارتۆن' : 'کگ' }}
+            </p>
           </div>
-          <div class="flex items-center justify-between gap-1 pt-2 border-t" style="border-color:var(--bd)">
+          <div class="flex items-center justify-between gap-1 pt-3 border-t mt-auto" style="border-color:var(--bd)">
             <button type="button" class="sq add" onclick="quickIncrease({{ $p->id }}, event)"><i class="fa-solid fa-plus"></i></button>
-            <div class="text-center leading-tight">
-              <div class="num font-extrabold text-[13px]" style="color:var(--ac)">${{ number_format($p->base_sale_price, 2) }}</div>
-              <div class="num text-[9px] font-bold p-iqd" style="color:var(--mu)"></div>
-              @if($isCarton)<div class="text-[9px] font-extrabold" style="color:var(--wa)">هەر کارتۆنێک</div>@endif
+            <div class="text-center leading-tight flex flex-col justify-center items-center">
+              <div class="num font-extrabold text-[14px]" style="color:var(--ac)">${{ number_format($p->base_sale_price, 2) }}</div>
+              <div class="num text-[10px] font-bold p-iqd mt-0.5" style="color:var(--mu)"></div>
+              @if($isCarton)<div class="text-[9px] font-extrabold mt-0.5 px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/30" style="color:var(--wa)">بۆ کارتۆن</div>@endif
             </div>
-            <button type="button" class="sq sub" onclick="quickDecrease({{ $p->id }}, event)"><i class="fa-solid fa-minus"></i></button>
+            <button type="button" class="sq sub" onclick="quickDecrease({{ $p->id }}, event)"><i class="fa-solid fa-minus text-[10px]"></i></button>
           </div>
         </div>
       @endforeach
@@ -445,81 +406,104 @@ header.sf .w-10{
   </section>
 
   <!-- سەبەتە -->
-  <aside class="sf p-3 flex flex-col min-h-0 h-[85vh] lg:h-auto">
-    <div class="shrink-0 space-y-2.5 pb-3 border-b" style="border-color:var(--bd)">
+  <aside class="sf p-4 flex flex-col min-h-0 h-[85vh] lg:h-auto">
+    <div class="shrink-0 space-y-3.5 pb-4 border-b" style="border-color:var(--bd)">
       <div class="flex items-center justify-between">
-        <h2 class="font-extrabold text-sm flex items-center gap-2"><i class="fa-solid fa-cart-shopping" style="color:var(--ac)"></i> سەبەتە <span id="cartCount" class="num text-[10px] px-2 py-0.5 rounded-md" style="background:var(--acs);color:var(--ac)">0</span></h2>
-        <button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" class="chip !py-1.5 flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span></button>
+        <h2 class="font-extrabold text-[15px] flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm" style="background:var(--acs);color:var(--ac)">
+            <i class="fa-solid fa-cart-shopping"></i>
+          </div>
+          سەبەتە 
+          <span id="cartCount" class="num text-[11px] px-2 py-0.5 rounded-full shadow-sm ml-1" style="background:var(--ac);color:#fff">0</span>
+        </h2>
+        <button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" class="chip !py-1.5 !px-3 flex items-center gap-1.5 hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/30 dark:hover:border-red-800 transition-colors">
+          <i class="fa-solid fa-trash-can text-[10px]"></i> <span id="clearCartLabel">سڕینەوە</span>
+        </button>
       </div>
 
-      <div id="editBanner" class="hidden rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center justify-between" style="background:var(--was);color:var(--wa)">
-        <span><i class="fa-solid fa-pen-to-square"></i> دەستکاریکردنی وەسڵ <span id="editInvoiceNo" class="num"></span></span>
-        <a href="{{ route('pos.index') }}" class="underline">پسوولەی نوێ</a>
+      <div id="editBanner" class="hidden rounded-xl px-3 py-2.5 text-[11px] font-extrabold flex items-center justify-between shadow-sm border" style="background:var(--was);color:var(--wa);border-color:var(--wa)">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> دەستکاری وەسڵی <span id="editInvoiceNo" class="num px-1 rounded bg-white/50 dark:bg-black/20"></span></span>
+        <a href="{{ route('pos.index') }}" class="underline hover:no-underline opacity-80">پسوولەی نوێ</a>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2.5">
         <div class="seg flex-1">
-          <button type="button" id="btn-cur-usd" onclick="setCurrency('USD')" class="on">$ دۆلار</button>
-          <button type="button" id="btn-cur-iqd" onclick="setCurrency('IQD')">دینار</button>
+          <button type="button" id="btn-cur-usd" onclick="setCurrency('USD')" class="on font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-dollar-sign text-[10px] opacity-70"></i> دۆلار</button>
+          <button type="button" id="btn-cur-iqd" onclick="setCurrency('IQD')" class="font-bold flex items-center justify-center gap-1"><i class="fa-solid fa-money-bill text-[10px] opacity-70"></i> دینار</button>
         </div>
-        <input type="number" id="exchangeRate" value="{{ $setting->exchange_rate ?? 1500 }}" onchange="renderCart()" class="inp num !w-20 text-center" title="نرخی ئاڵوگۆڕی ئەم وەسڵە">
+        <input type="number" id="exchangeRate" value="{{ $setting->exchange_rate ?? 1500 }}" onchange="renderCart()" class="inp num !w-24 text-center shadow-sm" title="نرخی ئاڵوگۆڕی ئەم وەسڵە">
       </div>
 
-      <div class="grid grid-cols-2 gap-2">
-        <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="inp num">
-        <select id="customerId" class="inp">
-          <option value="">کڕیاری نەقد</option>
+      <div class="grid grid-cols-2 gap-2.5">
+        <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="inp num shadow-sm">
+        <select id="customerId" class="inp shadow-sm">
+          <option value="">کڕیاری نەقد (گشتی)</option>
           @foreach($customers as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach
         </select>
       </div>
 
       <div class="seg">
-        <label><input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()"><i class="fa-solid fa-money-bill-wave"></i> نەقد</label>
-        <label class="debt"><input type="radio" name="paymentType" value="debt" onchange="togglePaymentType()"><i class="fa-solid fa-clock"></i> قەرز</label>
+        <label class="flex items-center justify-center gap-1.5"><input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()"><i class="fa-solid fa-money-bill-wave opacity-70"></i> نەقد</label>
+        <label class="debt flex items-center justify-center gap-1.5"><input type="radio" name="paymentType" value="debt" onchange="togglePaymentType()"><i class="fa-solid fa-clock opacity-70"></i> قەرز</label>
       </div>
-      <div id="paidAmountBox" class="hidden"><input type="number" id="paidAmount" placeholder="بڕی پارەی دراو" value="0" min="0" class="inp num"></div>
+      <div id="paidAmountBox" class="hidden"><input type="number" id="paidAmount" placeholder="بڕی پارەی دراو" value="0" min="0" class="inp num text-center text-[13px] !py-3 shadow-inner bg-white dark:bg-gray-900"></div>
     </div>
 
-    <div id="cartItemsContainer" class="grow overflow-y-auto scroll py-2.5 space-y-2"></div>
+    <div id="cartItemsContainer" class="grow overflow-y-auto scroll py-3 space-y-2.5 pr-1"></div>
 
-    <div class="shrink-0 pt-3 border-t space-y-2" style="border-color:var(--bd)">
-      <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">کۆی کاڵا</span><span id="subTotalText" class="num">$0.00</span></div>
-      <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">کێشی گشتی</span><span id="cartWeight" class="num">0 کگ</span></div>
-      <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">داشکاندن</span><input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart()" class="inp num !w-24 !py-1 text-left"></div>
-      <div class="rounded-2xl px-4 py-3 flex justify-between items-end" style="background:var(--ac-grad);box-shadow:var(--sh-glow)">
-        <span class="font-extrabold text-sm" style="color:#fff">کۆی گشتی</span>
-        <div class="text-left leading-tight"><div id="grandTotalText" class="num font-extrabold text-2xl" style="color:#fff">$0.00</div><div id="grandAltText" class="num text-[10px] font-bold" style="color:rgba(255,255,255,.85)"></div></div>
+    <div class="shrink-0 pt-4 border-t space-y-3" style="border-color:var(--bd)">
+      <div class="flex justify-between items-center text-[12px] font-bold"><span style="color:var(--mu)">کۆی کاڵا</span><span id="subTotalText" class="num text-[13px] text-gray-800 dark:text-gray-200">$0.00</span></div>
+      <div class="flex justify-between items-center text-[12px] font-bold"><span style="color:var(--mu)">کێشی گشتی</span><span id="cartWeight" class="num text-[13px] text-gray-800 dark:text-gray-200">0 کگ</span></div>
+      <div class="flex justify-between items-center text-[12px] font-bold">
+        <span style="color:var(--mu)">داشکاندن</span>
+        <div class="relative w-28">
+          <i class="fa-solid fa-tag absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px]" style="color:var(--mu)"></i>
+          <input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart()" class="inp num !pl-2 !pr-7 !py-1.5 text-left shadow-sm">
+        </div>
       </div>
-      <button type="button" onclick="submitSale()" id="btnSubmitSale" class="w-full py-3.5 rounded-2xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition active:scale-[.98]" style="background:var(--ac-grad);color:#fff;box-shadow:var(--sh-glow)"><i class="fa-solid fa-paper-plane"></i> پسوولەکردن</button>
+      
+      <div class="rounded-2xl px-4 py-3.5 flex justify-between items-center shadow-sm relative overflow-hidden" style="background:var(--acs)">
+        <div class="absolute inset-0 opacity-20 pointer-events-none" style="background: linear-gradient(45deg, transparent, var(--ac), transparent);"></div>
+        <span class="font-extrabold text-[15px] relative z-10" style="color:var(--ac)">کۆی گشتی</span>
+        <div class="text-left leading-tight relative z-10">
+          <div id="grandTotalText" class="num font-extrabold text-2xl tracking-tight" style="color:var(--ac)">$0.00</div>
+          <div id="grandAltText" class="num text-[11px] font-bold opacity-80 mt-0.5" style="color:var(--ac)"></div>
+        </div>
+      </div>
+      
+      <button type="button" onclick="submitSale()" id="btnSubmitSale" class="w-full py-4 rounded-2xl font-extrabold text-[14px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] text-white" style="background:var(--ac)">
+        <i class="fa-solid fa-paper-plane text-lg"></i> چاپکردن و پاشەکەوت
+      </button>
     </div>
   </aside>
 </main>
 
 <!-- مۆداڵی سەرکەوتن -->
-<div id="successModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 z-[999]">
-  <div class="sf w-full max-w-lg p-5 flex flex-col max-h-[90vh] shadow-2xl rowin">
-    <div class="flex items-center justify-between pb-3 border-b" style="border-color:var(--bd)">
-      <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg" style="background:var(--ac-grad);color:#fff;box-shadow:var(--sh-glow)"><i class="fa-solid fa-check"></i></div>
-        <div><h3 class="font-extrabold">وەسڵ تۆمارکرا</h3><p class="text-[10px]" style="color:var(--mu)">چاپ بکە، یان وەسڵی نوێ دەست پێبکە</p></div>
+<div id="successModal" class="hidden fixed inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-[999]">
+  <div class="sf w-full max-w-lg p-6 flex flex-col max-h-[90vh] shadow-2xl rowin border-0 ring-1 ring-white/20">
+    <div class="flex items-center justify-between pb-4 border-b" style="border-color:var(--bd)">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style="background:var(--acs);color:var(--ac)"><i class="fa-solid fa-check-circle"></i></div>
+        <div><h3 class="font-extrabold text-lg text-gray-900 dark:text-white">وەسڵ تۆمارکرا</h3><p class="text-[11px] mt-0.5" style="color:var(--mu)">چاپ بکە، یان وەسڵی نوێ دەست پێبکە</p></div>
       </div>
-      <button type="button" onclick="startNewSale()" class="sq sub" title="داخستن و وەسڵی نوێ"><i class="fa-solid fa-xmark"></i></button>
+      <button type="button" onclick="startNewSale()" class="sq sub rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700" title="داخستن و وەسڵی نوێ"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
-    <div id="modalItemsList" class="grow overflow-y-auto scroll py-3 space-y-2"></div>
-    <div class="pt-3 border-t space-y-3" style="border-color:var(--bd)">
-      <div class="flex justify-between items-center rounded-2xl px-4 py-3" style="background:var(--acs)"><span class="font-extrabold text-sm" style="color:var(--ac)">کۆی گشتی</span><span id="modalGrandTotal" class="num font-extrabold text-xl" style="color:var(--ac)">$0.00</span></div>
-      <div class="grid grid-cols-2 gap-2 text-xs font-extrabold">
-        <a href="#" id="printA4Btn" target="_blank" onclick="afterPrint()" class="py-3 rounded-xl text-center" style="background:var(--ac-grad);color:#fff;box-shadow:var(--sh-glow)"><i class="fa-solid fa-file-lines"></i> چاپی A4</a>
-        <a href="#" id="printSmallBtn" target="_blank" onclick="afterPrint()" class="py-3 rounded-xl text-center" style="background:var(--sf2);border:1.5px solid var(--bd-solid)"><i class="fa-solid fa-receipt"></i> چاپی بچووک</a>
-        <button type="button" onclick="closeKeepEditing()" class="py-3 rounded-xl" style="background:var(--sf2);border:1.5px solid var(--bd-solid)"><i class="fa-solid fa-pen-to-square"></i> دەستکاری ئەم وەسڵە</button>
-        <button type="button" onclick="startNewSale()" class="py-3 rounded-xl" style="background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff"><i class="fa-solid fa-plus"></i> وەسڵی نوێ</button>
+    <div id="modalItemsList" class="grow overflow-y-auto scroll py-4 space-y-2.5"></div>
+    <div class="pt-4 border-t space-y-4" style="border-color:var(--bd)">
+      <div class="flex justify-between items-center rounded-2xl px-5 py-3.5 shadow-inner" style="background:var(--sf2)"><span class="font-extrabold text-sm text-gray-700 dark:text-gray-300">کۆی گشتی بەشداریکراو</span><span id="modalGrandTotal" class="num font-extrabold text-2xl" style="color:var(--ac)">$0.00</span></div>
+      <div class="grid grid-cols-2 gap-3 text-[13px] font-extrabold">
+        <a href="#" id="printA4Btn" target="_blank" onclick="afterPrint()" class="py-3.5 rounded-xl text-center shadow-md transition hover:opacity-90 flex items-center justify-center gap-2" style="background:var(--ac);color:#fff"><i class="fa-solid fa-print"></i> چاپی A4</a>
+        <a href="#" id="printSmallBtn" target="_blank" onclick="afterPrint()" class="py-3.5 rounded-xl text-center shadow-sm transition hover:bg-gray-50 flex items-center justify-center gap-2" style="background:var(--sf);border:2px solid var(--bd)"><i class="fa-solid fa-receipt"></i> چاپی بچووک</a>
+        <button type="button" onclick="closeKeepEditing()" class="py-3.5 rounded-xl shadow-sm transition hover:bg-gray-50 flex items-center justify-center gap-2" style="background:var(--sf);border:1px solid var(--bd);color:var(--mu)"><i class="fa-solid fa-pen-to-square"></i> دەستکاری ئەم وەسڵە</button>
+        <button type="button" onclick="startNewSale()" class="py-3.5 rounded-xl shadow-md transition hover:opacity-90 flex items-center justify-center gap-2" style="background:var(--wa);color:#fff"><i class="fa-solid fa-plus-circle"></i> وەسڵی نوێ</button>
       </div>
     </div>
   </div>
 </div>
 
-<div id="toastContainer" class="fixed top-3 left-1/2 -translate-x-1/2 z-[1000] space-y-2 pointer-events-none flex flex-col items-center"></div>
+<div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[1000] space-y-2 pointer-events-none flex flex-col items-center"></div>
 
+<!-- زانیاریەکانی تر (تەواوی کۆدەکان و سکرێپتەکان وەکو خۆیان) -->
 <script>
 const units = @json($units);
 const allProducts = @json($products);
@@ -534,7 +518,6 @@ const money = (v, cur = currentCurrency) => cur === 'USD' ? '$' + v.toFixed(2) :
 const toDisp = usd => currentCurrency === 'USD' ? usd : usd * rate;
 const maxQty = i => i.factor > 0 ? i.stock_kg / i.factor : i.stock_kg;
 
-/* تەم و مینیوی زیاتر */
 function applyTheme(t) { document.documentElement.classList.toggle('dark', t === 'dark'); $('themeIcon').className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun'; try { localStorage.setItem('pos_theme', t); } catch (e) {} }
 function toggleTheme() { applyTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark'); }
 applyTheme((() => { try { return localStorage.getItem('pos_theme') || 'light'; } catch (e) { return 'light'; } })());
@@ -547,18 +530,16 @@ document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.ke
 function showToast(msg, type = 'warning') {
   const c = { error: ['var(--ros)', 'var(--ro)', 'fa-circle-exclamation'], success: ['var(--acs)', 'var(--ac)', 'fa-circle-check'], warning: ['var(--was)', 'var(--wa)', 'fa-circle-info'] }[type] || [];
   const t = document.createElement('div');
-  t.className = 'pointer-events-auto flex items-center gap-2 px-4 py-2.5 rounded-xl text-[11px] font-extrabold shadow-xl border transition-all duration-300 -translate-y-6 opacity-0';
+  t.className = 'pointer-events-auto flex items-center gap-2.5 px-5 py-3 rounded-xl text-[12px] font-extrabold shadow-lg border transition-all duration-300 -translate-y-8 opacity-0';
   t.style.cssText = `background:${c[0]};color:${c[1]};border-color:${c[1]}`;
-  t.innerHTML = `<i class="fa-solid ${c[2]}"></i><span>${msg}</span>`;
+  t.innerHTML = `<i class="fa-solid ${c[2]} text-sm"></i><span>${msg}</span>`;
   $('toastContainer').appendChild(t);
-  setTimeout(() => t.classList.remove('-translate-y-6', 'opacity-0'), 10);
+  setTimeout(() => t.classList.remove('-translate-y-8', 'opacity-0'), 10);
   setTimeout(() => { t.classList.add('opacity-0'); setTimeout(() => t.remove(), 300); }, 2800);
 }
 
-/* دراو */
 function paintCurrency() {
-  $('btn-cur-usd').classList.toggle('on', currentCurrency === 'USD');
-  $('btn-cur-iqd').classList.toggle('on', currentCurrency === 'IQD');
+  $('btn-cur-usd').classList.toggle('on', currentCurrency === 'USD');$('btn-cur-iqd').classList.toggle('on', currentCurrency === 'IQD');
 }
 function setCurrency(cur) {
   if (cur !== currentCurrency) {
@@ -577,7 +558,6 @@ function updateCardPrices() {
   });
 }
 
-/* گەڕان و فلتەر */
 function filterCategory(id) {
   document.querySelectorAll('.cat-filter-btn').forEach(b => b.classList.remove('on'));
   $('cat-btn-' + id)?.classList.add('on');
@@ -588,13 +568,8 @@ function searchProducts() {
   document.querySelectorAll('.pc').forEach(c => c.style.display = (c.dataset.name.toLowerCase().includes(q) || c.dataset.code.toLowerCase().includes(q)) ? 'flex' : 'none');
 }
 
-/* یەکە و سەبەتە */
-function cartonUnit() {
-  return units.find(u => /کارتۆن|carton/i.test(u.name || '')) || defaultUnit();
-}
-function defaultUnit() {
-  return units.find(u => /کیلۆ|kg/i.test(u.name || '')) || units[0] || { id: 1, name: 'کیلۆ', factor_to_base: 1 };
-}
+function cartonUnit() { return units.find(u => /کارتۆن|carton/i.test(u.name || '')) || defaultUnit(); }
+function defaultUnit() { return units.find(u => /کیلۆ|kg/i.test(u.name || '')) || units[0] || { id: 1, name: 'کیلۆ', factor_to_base: 1 }; }
 function unitFactor(p, u) {
   if (p.sell_type === 'carton') return 1;
   const n = (u?.name || '').toLowerCase();
@@ -655,7 +630,11 @@ function renderCart() {
   let subtotal = 0, weight = 0;
   $('cartCount').innerText = cart.length;
   if (!cart.length) {
-    box.innerHTML = `<div class="h-full min-h-[8rem] flex flex-col items-center justify-center text-[11px] font-bold gap-2" style="color:var(--mu)"><i class="fa-solid fa-cart-arrow-down text-3xl opacity-50"></i>سەبەتە بەتاڵە<span class="text-[10px] font-normal">کلیک لە کاڵا بکە بۆ زیادکردن</span></div>`;
+    box.innerHTML = `<div class="h-full min-h-[12rem] flex flex-col items-center justify-center text-[12px] font-bold gap-3 opacity-60" style="color:var(--mu)">
+      <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center"><i class="fa-solid fa-basket-shopping text-3xl"></i></div>
+      <span>سەبەتە بەتاڵە</span>
+      <span class="text-[10px] font-normal px-3 py-1 rounded bg-gray-100 dark:bg-gray-800">کلیک لە کاڵا بکە بۆ زیادکردن</span>
+    </div>`;
   }
   cart.forEach((it, idx) => {
     const price = toDisp(it.price_usd), line = it.qty * price * it.factor;
@@ -663,33 +642,33 @@ function renderCart() {
     weight += it.carton ? it.qty * (it.kg_per_carton || 1) : it.qty * it.factor;
     const opts = units.map(u => `<option value="${u.id}" ${it.unit_id == u.id ? 'selected' : ''}>${u.name}</option>`).join('');
     const d = document.createElement('div');
-    d.className = 'rowin rounded-xl p-2.5 border';
-    d.style.cssText = 'background:var(--sf2);border-color:var(--bd-solid)';
+    d.className = 'cart-item rowin rounded-xl p-3'; 
     d.innerHTML = `
-      <div class="flex justify-between items-center mb-2">
-        <h4 class="font-extrabold text-[11px] truncate">${it.name}</h4>
-        <button type="button" onclick="removeItem(${idx})" class="text-[11px]" style="color:var(--ro)"><i class="fa-solid fa-xmark"></i></button>
+      <div class="flex justify-between items-start mb-2.5">
+        <h4 class="font-extrabold text-[12px] text-gray-800 dark:text-gray-200 line-clamp-1 pr-2">${it.name}</h4>
+        <button type="button" onclick="removeItem(${idx})" class="w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-50 text-[11px] transition-colors" style="color:var(--ro)"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="grid grid-cols-12 gap-1.5 items-center">
-        ${it.carton ? `<div class="inp col-span-4 !px-1.5 text-center">کارتۆن</div>` : `<select onchange="updateItemUnit(${idx}, this.value)" class="inp col-span-4 !px-1.5">${opts}</select>`}
-        <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}" onchange="updateItemPrice(${idx}, this.value)" class="inp num col-span-4 text-center" style="color:var(--ac)">
-        <div class="col-span-4 flex items-center justify-between">
-          <button type="button" class="sq add !w-6 !h-6 !rounded-md" onclick="updateQty(${idx}, 1)">+</button>
-          <input type="number" step="any" min="0.01" value="${+it.qty.toFixed(3)}" onchange="setQtyDirect(${idx}, this.value)" class="num w-9 text-center bg-transparent font-extrabold text-[11px] focus:outline-none">
-          <button type="button" class="sq sub !w-6 !h-6 !rounded-md" onclick="updateQty(${idx}, -1)">-</button>
+      <div class="grid grid-cols-12 gap-2 items-center">
+        ${it.carton ? `<div class="inp col-span-4 !px-2 text-center shadow-sm">کارتۆن</div>` : `<select onchange="updateItemUnit(${idx}, this.value)" class="inp col-span-4 !px-2 shadow-sm">${opts}</select>`}
+        <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}" onchange="updateItemPrice(${idx}, this.value)" class="inp num col-span-4 text-center font-extrabold shadow-sm" style="color:var(--ac)">
+        <div class="col-span-4 flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-0.5 border shadow-sm" style="border-color:var(--bd)">
+          <button type="button" class="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition" onclick="updateQty(${idx}, 1)"><i class="fa-solid fa-plus text-[10px]"></i></button>
+          <input type="number" step="any" min="0.01" value="${+it.qty.toFixed(3)}" onchange="setQtyDirect(${idx}, this.value)" class="num w-8 text-center bg-transparent font-extrabold text-[12px] focus:outline-none p-0 text-gray-800 dark:text-gray-200">
+          <button type="button" class="w-6 h-6 rounded flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition" onclick="updateQty(${idx}, -1)"><i class="fa-solid fa-minus text-[10px]"></i></button>
         </div>
       </div>
-      <div class="num text-left text-[11px] font-extrabold mt-1.5" style="color:var(--ac)">${money(line)}</div>`;
+      <div class="flex justify-between items-center mt-2.5 pt-2 border-t border-dashed" style="border-color:var(--bd)">
+        <span class="text-[9px] font-bold" style="color:var(--mu)">کۆی دانە</span>
+        <div class="num text-[12px] font-extrabold" style="color:var(--ac)">${money(line)}</div>
+      </div>`;
     box.appendChild(d);
   });
   const discount = parseFloat($('cartDiscount').value) || 0;
   const total = Math.max(0, subtotal - discount);
   const other = currentCurrency === 'USD' ? 'IQD' : 'USD';
   const alt = currentCurrency === 'USD' ? total * rate : total / rate;
-  $('subTotalText').innerText = money(subtotal);
-  $('cartWeight').innerText = (+weight.toFixed(2)).toLocaleString() + ' کگ';
-  $('grandTotalText').innerText = money(total);
-  $('grandAltText').innerText = total > 0 ? '≈ ' + money(alt, other) : '';
+  $('subTotalText').innerText = money(subtotal);$('cartWeight').innerText = (+weight.toFixed(2)).toLocaleString() + ' کگ';
+  $('grandTotalText').innerText = money(total);$('grandAltText').innerText = total > 0 ? '≈ ' + money(alt, other) : '';
   if (!cart.length) resetClear();
   updateBadges(); updateCardPrices();
 }
@@ -699,7 +678,6 @@ function togglePaymentType() {
   $('paidAmountBox').classList.toggle('hidden', !debt);
 }
 
-/* تۆمارکردنی فرۆشتن */
 let isSubmitting = false;
 let savedSaleId = null;
 let lastUse = {};
@@ -717,8 +695,8 @@ function applySaleUse(items) {
   items.forEach(i => { lastUse[i.id] = (lastUse[i.id] || 0) + i.qty * i.factor; });
   Object.keys(lastUse).forEach(pid => adjustStock(pid, -lastUse[pid]));
 }
-const labelNew = '<i class="fa-solid fa-paper-plane"></i> پسوولەکردن';
-const labelUpdate = '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە';
+const labelNew = '<i class="fa-solid fa-paper-plane text-lg"></i> چاپکردن و پاشەکەوت';
+const labelUpdate = '<i class="fa-solid fa-floppy-disk text-lg"></i> نوێکردنەوەی پسوولە';
 
 function submitSale() {
   if (isSubmitting) return;
@@ -730,7 +708,7 @@ function submitSale() {
   const targetId = editSale ? editSale.id : savedSaleId;
   const isEdit = !!targetId;
   const btn = $('btnSubmitSale');
-  isSubmitting = true; btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> چاوەڕوان بە...';
+  isSubmitting = true; btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-lg"></i> چاوەڕوان بە...';
   const sentItems = JSON.parse(JSON.stringify(cart));
   const sentDiscount = parseFloat($('cartDiscount').value) || 0;
 
@@ -752,8 +730,7 @@ function submitSale() {
       lastSaleItems = sentItems; lastDiscount = sentDiscount;
       applySaleUse(sentItems);
       btn.innerHTML = labelUpdate;
-      $('printA4Btn').href = '/sales/print/' + activeSaleId + '?type=a4';
-      $('printSmallBtn').href = '/sales/print/' + activeSaleId + '?type=small';
+      $('printA4Btn').href = '/sales/print/' + activeSaleId + '?type=a4';$('printSmallBtn').href = '/sales/print/' + activeSaleId + '?type=small';
       renderModalItems(); $('successModal').classList.remove('hidden');
     } else { btn.innerHTML = (editSale || savedSaleId) ? labelUpdate : labelNew; showToast(data.error || data.message || 'هەڵە', 'error'); }
   }).catch(() => { isSubmitting = false; btn.disabled = false; btn.innerHTML = (editSale || savedSaleId) ? labelUpdate : labelNew; showToast('کێشەیەک ڕوویدا', 'error'); });
@@ -765,19 +742,19 @@ function renderModalItems() {
     const price = toDisp(it.price_usd), line = it.qty * price * it.factor; total += line;
     const u = units.find(x => x.id == it.unit_id);
     const row = document.createElement('div');
-    row.className = 'flex items-center gap-2 p-2.5 rounded-xl border text-xs';
-    row.style.cssText = 'background:var(--sf2);border-color:var(--bd-solid)';
+    row.className = 'flex items-center gap-3 p-3 rounded-xl border text-[13px] bg-white dark:bg-gray-800/50 shadow-sm'; 
+    row.style.cssText = 'border-color:var(--bd)';
     row.innerHTML = `
-      <div class="flex-1 font-extrabold truncate">${it.name}</div>
-      <div class="num">${+it.qty.toFixed(3)} <span class="text-[10px]" style="color:var(--mu)">${it.carton ? 'کارتۆن' : (u ? u.name : '')}</span></div>
-      <div class="num w-20 text-center" style="color:var(--mu)">${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}</div>
-      <div class="num font-extrabold w-24 text-left" style="color:var(--ac)">${money(line)}</div>`;
+      <div class="flex-1 font-extrabold truncate text-gray-800 dark:text-gray-200">${it.name}</div>
+      <div class="num flex flex-col items-center"><span class="font-bold">${+it.qty.toFixed(3)}</span> <span class="text-[9px] uppercase tracking-wider" style="color:var(--mu)">${it.carton ? 'کارتۆن' : (u ? u.name : '')}</span></div>
+      <div class="num w-20 text-center font-bold" style="color:var(--mu)">${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}</div>
+      <div class="num font-extrabold w-24 text-left text-[14px]" style="color:var(--ac)">${money(line)}</div>`;
     list.appendChild(row);
   });
   if (lastDiscount > 0) {
     const d = document.createElement('div');
-    d.className = 'flex justify-between text-xs px-2.5'; d.style.color = 'var(--mu)';
-    d.innerHTML = `<span>داشکاندن</span><span class="num">-${money(lastDiscount)}</span>`; list.appendChild(d);
+    d.className = 'flex justify-between text-[13px] px-3 py-2 font-bold rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600';
+    d.innerHTML = `<span><i class="fa-solid fa-tag mr-1 text-[10px]"></i> داشکاندن</span><span class="num">-${money(lastDiscount)}</span>`; list.appendChild(d);
   }
   $('modalGrandTotal').innerText = money(Math.max(0, total - lastDiscount));
 }
@@ -789,16 +766,14 @@ function startNewSale() {
   cart = []; savedSaleId = null; lastUse = {}; lastSaleItems = []; lastDiscount = 0;
   $('cartDiscount').value = 0; $('paidAmount').value = 0; $('customerId').value = '';
   document.querySelector('input[name="paymentType"][value="cash"]').checked = true; togglePaymentType();
-  $('saleCreatedAt').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-  $('btnSubmitSale').innerHTML = labelNew;
+  $('saleCreatedAt').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);$('btnSubmitSale').innerHTML = labelNew;
   renderCart();
 }
 function afterPrint() { if (!editSale) setTimeout(startNewSale, 600); }
 
-/* نرخی ئاڵوگۆڕ */
 function toggleRateEdit() {
   const e = $('rateEdit'); e.classList.toggle('hidden');
-  if (!e.classList.contains('hidden')) setTimeout(() => { $('newExchangeRate').focus(); $('newExchangeRate').select(); }, 50);
+  if (!e.classList.contains('hidden')) setTimeout(() => { $('newExchangeRate').focus();$('newExchangeRate').select(); }, 50);
 }
 function saveExchangeRate() {
   const n = parseFloat($('newExchangeRate').value);
@@ -812,20 +787,18 @@ function saveExchangeRate() {
     b.disabled = false;
     if (d.success) {
       $('currentRateDisplay').innerText = '1$ = ' + n.toLocaleString();
-      $('exchangeRate').value = n; renderCart(); $('rateEdit').classList.add('hidden');
+      $('exchangeRate').value = n; renderCart();$('rateEdit').classList.add('hidden');
       showToast('نرخی ئاڵوگۆڕ نوێکرایەوە', 'success');
     } else showToast(d.message || 'هەڵەیەک ڕوویدا', 'error');
   }).catch(() => { b.disabled = false; showToast('کێشەیەک ڕوویدا', 'error'); });
 }
-$('newExchangeRate').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveExchangeRate(); } else if (e.key === 'Escape') $('rateEdit').classList.add('hidden'); });
+$('newExchangeRate').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveExchangeRate(); } else if (e.key === 'Escape')$('rateEdit').classList.add('hidden'); });
 
-/* دەستکاریکردنی وەسڵی پێشوو */
 function loadEditSale() {
   if (!editSale) return;
   $('exchangeRate').value = editSale.exchange_rate; rate = parseFloat(editSale.exchange_rate) || rate;
   currentCurrency = editSale.currency || 'USD';
-  $('customerId').value = editSale.customer_id || '';
-  $('saleCreatedAt').value = editSale.created_at;
+  $('customerId').value = editSale.customer_id \vert{}\vert{} '';$('saleCreatedAt').value = editSale.created_at;
   $('cartDiscount').value = editSale.discount || 0;
   const radio = document.querySelector('input[name="paymentType"][value="' + editSale.payment_type + '"]');
   if (radio) radio.checked = true;
@@ -839,8 +812,8 @@ function loadEditSale() {
   }).filter(Boolean);
   lastUse = {}; cart.forEach(i => { lastUse[i.id] = (lastUse[i.id] || 0) + i.qty * i.factor; });
   paintCurrency();
-  $('editBanner').classList.remove('hidden'); $('editInvoiceNo').innerText = editSale.invoice_no;
-  $('btnSubmitSale').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە';
+  $('editBanner').classList.remove('hidden');$('editInvoiceNo').innerText = editSale.invoice_no;
+  $('btnSubmitSale').innerHTML = '<i class="fa-solid fa-floppy-disk text-lg"></i> نوێکردنەوەی پسوولە';
   renderCart();
 }
 renderCart(); loadEditSale();
