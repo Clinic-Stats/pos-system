@@ -129,7 +129,6 @@
             return Math.round(v).toLocaleString() + ' IQD';
         }
 
-        // نرخی پێشنیارکراوی کاڵا (لە داتابەیس بە دۆلارە) بە دراوی هەڵبژێردراو
         function suggestedPrice(usd) {
             const v = currentCurrency === 'USD' ? usd : usd * getRate();
             return parseFloat(v.toFixed(currentCurrency === 'USD' ? 4 : 2));
@@ -160,7 +159,6 @@
             const row = document.createElement('tr');
             row.className = 'item-row hover:bg-slate-800/40 transition';
 
-            // بە ڕیزی بەتاڵ دەست پێدەکات، بۆ ئەوەی هیچ کاڵایەک خۆکارانە هەڵنەبژێردرێت
             let prodOpts = '<option value="">— کاڵا هەڵبژێرە —</option>' + products.map(p => `<option value="${p.id}" data-price="${p.base_sale_price}" data-carton="${p.kg_per_carton}">${p.name}</option>`).join('');
             let unitOpts = units.map(u => `<option value="${u.id}" data-name="${u.name}" data-factor="${u.factor_to_base}">${u.name}</option>`).join('');
 
@@ -204,6 +202,8 @@
             const selected = select.options[select.selectedIndex];
             const usd = parseFloat(selected.getAttribute('data-price')) || 0;
             row.querySelector('.price-input').value = select.value ? suggestedPrice(usd) : 0;
+            // لابردنی سووری کاتێک کاڵا هەڵبژێردرا
+            if (select.value) select.style.border = '';
             calculate();
         }
 
@@ -215,6 +215,13 @@
 
             rows.forEach(row => {
                 const prodSelect = row.querySelector('.prod-select');
+                
+                // ئەگەر کاڵا هەڵنەبژێردرابێت، هەژماری بۆ ناکەین
+                if (!prodSelect.value) {
+                    row.querySelector('.row-total').innerText = fmt(0);
+                    return; 
+                }
+
                 const selectedProd = prodSelect.options[prodSelect.selectedIndex];
                 const kgPerCarton = parseFloat(selectedProd.getAttribute('data-carton')) || 1;
 
@@ -252,11 +259,22 @@
 
             let items = [];
             let missing = false;
+            let firstErrorElement = null;
+
             rows.forEach(row => {
-                const pid = row.querySelector('.prod-select').value;
-                if (!pid) missing = true;
+                const prodSelect = row.querySelector('.prod-select');
+                
+                // پشکنین بۆ ئەوەی کاڵا هەڵبژێردرابێت
+                if (!prodSelect.value) {
+                    missing = true;
+                    prodSelect.style.border = '2px solid red'; // نیشانکردنی خانەی بەتاڵ بە سووری
+                    if (!firstErrorElement) firstErrorElement = prodSelect;
+                } else {
+                    prodSelect.style.border = ''; // لابردنی سووری ئەگەر هەڵبژێردرا
+                }
+
                 items.push({
-                    product_id: pid,
+                    product_id: prodSelect.value,
                     unit_id: row.querySelector('.unit-select').value,
                     quantity: row.querySelector('.qty-input').value,
                     unit_price: row.querySelector('.price-input').value,
@@ -265,8 +283,9 @@
             });
 
             if (missing) {
-                alert('تکایە بۆ هەموو دێڕەکان کاڵا هەڵبژێرە');
-                return;
+                alert('تکایە بۆ هەموو دێڕەکان کاڵا هەڵبژێرە! (خانە سوورەکان بەتاڵن)');
+                if (firstErrorElement) firstErrorElement.focus();
+                return; // ڕاگرتنی تۆمارکردن
             }
 
             fetch(@json(route('returns.store')), {

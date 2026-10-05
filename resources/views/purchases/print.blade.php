@@ -7,14 +7,11 @@
     @php
     $setting = $setting ?? \App\Models\Setting::first();
 
-    // ژمارەی وەسڵ: purchase_no ی تۆمارکراو، یان invoice_no
     $invoiceNo = $purchase->purchase_no ?? $purchase->invoice_no ?? '-';
 
-    // نیشاندانی بڕ بەپێی دراوی وەسڵی کڕین
     $isUsd = ($purchase->currency ?? 'IQD') === 'USD';
     $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' IQD';
 
-    // کێشی گشتی
     $totalKg = 0;
     foreach ($purchase->details as $item) {
     $uName = mb_strtolower(trim($item->unit->name ?? ''));
@@ -31,223 +28,38 @@
     <title>وەسڵی کڕین A4 - {{ $invoiceNo }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Noto Sans Arabic', 'Tahoma', sans-serif;
-            font-size: 13px;
-            color: #111;
-            margin: 0;
-            padding: 20px;
-            background: #f1f5f9;
-        }
-
-        .invoice-box {
-            max-width: 800px;
-            margin: auto;
-            background: #fff;
-            border: 1px solid #ddd;
-            padding: 28px;
-            border-radius: 8px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            border-bottom: 2px solid #222;
-            padding-bottom: 14px;
-            margin-bottom: 18px;
-        }
-
-        .header h1 {
-            margin: 0 0 4px 0;
-            font-size: 22px;
-            font-weight: 800;
-        }
-
-        .header .sub {
-            margin: 2px 0;
-            color: #555;
-            font-size: 12px;
-        }
-
-        .doc-title {
-            display: inline-block;
-            background: #111;
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-
-        .meta-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 18px;
-            padding: 12px 14px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        .badge-cash {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-debt {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 18px;
-        }
-
-        .table th,
-        .table td {
-            border: 1px solid #ccc;
-            padding: 8px 10px;
-            text-align: center;
-        }
-
-        .table th {
-            background-color: #111;
-            color: #fff;
-            font-weight: bold;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background: #f9fafb;
-        }
-
-        .bottom {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            align-items: start;
-        }
-
-        .weight-box {
-            border: 2px dashed #444;
-            padding: 12px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-            background-color: #f9fafb;
-            border-radius: 8px;
-        }
-
-        .totals {
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            background: #f8fafc;
-            padding: 8px 12px;
-        }
-
-        .totals .row {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-        }
-
-        .totals .grand {
-            border-top: 1px solid #cbd5e1;
-            margin-top: 4px;
-            padding-top: 8px;
-            font-size: 15px;
-            font-weight: 800;
-        }
-
-        .totals .debt {
-            color: #be123c;
-            font-weight: bold;
-        }
-
-        .signs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            text-align: center;
-            color: #475569;
-            margin-top: 38px;
-            padding-top: 16px;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .signs b {
-            display: block;
-            margin-bottom: 30px;
-        }
-
-        .no-print {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .btn {
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            padding: 8px 18px;
-            font-size: 13px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            font-family: inherit;
-        }
-
-        .btn-pdf {
-            background: #059669;
-        }
-
-        .btn-back {
-            background: #475569;
-        }
-
+        * { box-sizing: border-box; }
+        body { font-family: 'Noto Sans Arabic', 'Tahoma', sans-serif; font-size: 13px; color: #111; margin: 0; padding: 20px; background: #f1f5f9; }
+        .invoice-box { max-width: 800px; margin: auto; background: #fff; border: 1px solid #ddd; padding: 28px; border-radius: 8px; }
+        .header { display: flex; justify-content: space-between; align-items: center; gap: 16px; border-bottom: 2px solid #222; padding-bottom: 14px; margin-bottom: 18px; }
+        .header h1 { margin: 0 0 4px 0; font-size: 22px; font-weight: 800; }
+        .header .sub { margin: 2px 0; color: #555; font-size: 12px; }
+        .doc-title { display: inline-block; background: #111; color: #fff; padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-bottom: 6px; }
+        .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; }
+        .badge-cash { background: #d1fae5; color: #065f46; }
+        .badge-debt { background: #fef3c7; color: #92400e; }
+        .table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+        .table th, .table td { border: 1px solid #ccc; padding: 8px 10px; text-align: center; }
+        .table th { background-color: #111; color: #fff; font-weight: bold; }
+        .table tbody tr:nth-child(even) { background: #f9fafb; }
+        .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+        .weight-box { border: 2px dashed #444; padding: 12px; text-align: center; font-weight: bold; font-size: 14px; background-color: #f9fafb; border-radius: 8px; }
+        .totals { border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 8px 12px; }
+        .totals .row { display: flex; justify-content: space-between; padding: 5px 0; }
+        .totals .grand { border-top: 1px solid #cbd5e1; margin-top: 4px; padding-top: 8px; font-size: 15px; font-weight: 800; }
+        .totals .debt { color: #be123c; font-weight: bold; }
+        .signs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: center; color: #475569; margin-top: 38px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+        .signs b { display: block; margin-bottom: 30px; }
+        .no-print { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+        .btn { background: #2563eb; color: #fff; border: none; padding: 8px 18px; font-size: 13px; font-weight: bold; border-radius: 8px; cursor: pointer; text-decoration: none; font-family: inherit; }
+        .btn-pdf { background: #059669; }
+        .btn-back { background: #475569; }
         @media print {
-            @page {
-                size: A4 portrait;
-                margin: 10mm 15mm;
-            }
-
-            body {
-                background: #fff;
-                padding: 0;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            .invoice-box {
-                border: none;
-                padding: 0;
-                max-width: none;
-            }
+            @page { size: A4 portrait; margin: 10mm 15mm; }
+            body { background: #fff; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .invoice-box { border: none; padding: 0; max-width: none; }
         }
     </style>
 </head>
@@ -363,6 +175,13 @@
         </div>
 
     </div>
+
+    <!-- کۆدی جاڤاسکریپت بۆ داخستنی تابەکە دوای چاپکردن -->
+    <script>
+        window.onafterprint = function() {
+            window.close();
+        };
+    </script>
 
 </body>
 

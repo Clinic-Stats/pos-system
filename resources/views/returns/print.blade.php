@@ -24,7 +24,8 @@
         .badge-expired { background: #fee2e2; color: #b91c1c; }
         .badge-damaged { background: #fef3c7; color: #b45309; }
         .no-print { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        .btn { background: #2563eb; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .btn { background: #2563eb; color: #fff; border: none; padding: 8px 16px; font-size: 13px; font-weight: bold; border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-back { background: #475569; }
         @media print {
             .no-print { display: none !important; }
             .invoice-box { border: none; padding: 0; }
@@ -34,6 +35,7 @@
 <body>
 
     <div class="no-print">
+        <a href="{{ route('returns.index') }}" class="btn btn-back">گەڕانەوە بۆ لیستی گەڕاوەکان</a>
         <button class="btn" onclick="window.print()">ڕاستەوخۆ چاپکردن</button>
         <button class="btn" style="background: #059669;" onclick="window.print()">پاشەکەوتکردن وەک PDF</button>
     </div>
@@ -100,6 +102,13 @@
             </tr>
         </table>
     </div>
+
+    <!-- کۆدی جاڤاسکریپت بۆ داخستنی تابەکە دوای چاپکردن -->
+    <script>
+        window.onafterprint = function() {
+            window.close();
+        };
+    </script>
 
 </body>
 </html>
