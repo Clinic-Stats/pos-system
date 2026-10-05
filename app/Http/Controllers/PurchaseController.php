@@ -95,42 +95,68 @@ class PurchaseController extends Controller
         return (float) ($unit->factor_to_base ?: 1);
     }
 
+    /** تێچووی تێکڕای ڕاستەقینە (٦ ژمارە): لە دوایین کڕین، مەگەر نرخەکە بە دەست گۆڕدرابێت */
+    private function exactCost(Product $product): float
+    {
+        $base = (float) ($product->base_buy_price ?? $product->buy_price ?? 0);
+        if (!Schema::hasColumn('purchase_details', 'cost_after')) {
+            return $base;
+        }
+        $last = DB::table('purchase_details')->where('product_id', $product->id)->whereNotNull('cost_after')->orderByDesc('id')->first();
+        if ($last && abs((float) $last->cost_after - $base) < 0.006) {
+            return (float) $last->cost_after;
+        }
+        return $base;
+    }
+
     /**
-     * زیادکردنی کۆگا + نوێکردنەوەی تێکڕای نرخی کڕین (بە دۆلار بۆ ١ کیلۆ)
-     * هەمان لۆژیک بۆ store و update بەکاردێت.
+     * زیادکردنی کاڵا بۆ کۆگا و ژماردنی تێچووی تێکڕا.
+     * وێنەیەک (پێش/دوای) دەگەڕێنێتەوە کە لەگەڵ وردەکاری کڕینەکە دەپارێزرێت.
      */
-    private function addStockAndAverageCost(Product $product, float $addedKg, float $priceUsdPerKg): void
+    private function addStockAndAverageCost(Product $product, float $addedKg, float $priceUsdPerKg): array
     {
         $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
 
         $product->refresh();
-        $currentStock   = max(0, (float) ($product->{$stockCol} ?? 0));
-        $currentCostUsd = (float) ($product->base_buy_price ?? $product->buy_price ?? 0);
-        $totalCombinedKg = $currentStock + $addedKg;
+        $currentStock = max(0, (float) ($product->{$stockCol} ?? 0));
+        $currentCost  = $this->exactCost($product);
+        $total        = $currentStock + $addedKg;
 
-        if ($totalCombinedKg > 0 && $currentStock > 0 && $currentCostUsd > 0) {
-            $averageCostUsd = (($currentStock * $currentCostUsd) + ($addedKg * $priceUsdPerKg)) / $totalCombinedKg;
+        if ($total > 0 && $currentStock > 0 && $currentCost > 0) {
+            $avg = (($currentStock * $currentCost) + ($addedKg * $priceUsdPerKg)) / $total;
         } else {
-            $averageCostUsd = $priceUsdPerKg;
+            $avg = $priceUsdPerKg;
         }
 
         $product->increment($stockCol, $addedKg);
 
-        $updateFields = [];
-        if (Schema::hasColumn('products', 'base_buy_price')) {
-            $updateFields['base_buy_price'] = round($averageCostUsd, 4);
+        $fields = [];
+        if (Schema::hasColumn('products', 'base_buy_price')) $fields['base_buy_price'] = round($avg, 6);
+        if (Schema::hasColumn('products', 'buy_price'))      $fields['buy_price'] = round($avg, 6);
+        if ($fields) {
+            $product->update($fields);
         }
-        if (Schema::hasColumn('products', 'buy_price')) {
-            $updateFields['buy_price'] = round($averageCostUsd, 4);
-        }
-        if (!empty($updateFields)) {
-            $product->update($updateFields);
+
+        return [
+            'stock_before'   => $currentStock,
+            'cost_before'    => $currentCost,
+            'cost_after'     => $avg,
+            'added_units'    => $addedKg,
+            'price_usd_unit' => $priceUsdPerKg,
+        ];
+    }
+
+    private function saveSnapshot($detail, array $snap): void
+    {
+        if (Schema::hasColumn('purchase_details', 'cost_after')) {
+            DB::table('purchase_details')->where('id', $detail->id)->update($snap);
         }
     }
 
     /**
-     * لابردنی کڕینێک (دەستکاری / سڕینەوە): بەهای ئەو کڕینە لە تێچووی تێکڕا دەگەڕێتەوە
-     * نموونە: کۆگا 23 بە 4.65 بوو، سڕینەوەی 15 بە 5 دەبێتە 8 بە 4.00
+     * لابردنی کڕینێک (دەستکاری / سڕینەوە) و گەڕاندنەوەی تێچووی تێکڕا بۆ ئەوەی پێش ئەو کڕینە بوو.
+     * - ئەگەر دوایین کڕین بێت: تێچوو ڕێک دەگەڕێتەوە بۆ وێنەی پێشووی (cost_before)
+     * - ئەگەر کڕینی دواتر هەبێت: ئەوانیش بە ڕیز دووبارە دەژمێردرێنەوە بەبێ ئەم کڕینە
      */
     private function removeStockAndAverageCost($detail, $purchase, string $stockCol): void
     {
@@ -139,22 +165,53 @@ class PurchaseController extends Controller
             return;
         }
 
-        $factor = $this->getFactorAndWeight($product, $detail->unit);
-        $removed = (float) $detail->quantity * $factor;                       // بە یەکەی کۆگا
-        $rate = (float) ($purchase->exchange_rate ?? 0) ?: 1;
+        $factor  = $this->getFactorAndWeight($product, $detail->unit);
+        $removed = (float) $detail->quantity * $factor;                        // بە یەکەی کۆگا
+        $rate    = (float) ($purchase->exchange_rate ?? 0) ?: 1;
         $priceUsd = ((float) $detail->unit_buy_price / ($factor ?: 1)) / (strtoupper($purchase->currency ?? 'USD') === 'IQD' ? $rate : 1);
 
-        $fresh = Product::find($product->id);
-        $stock = (float) $fresh->{$stockCol};
-        $cost = (float) ($fresh->base_buy_price ?? 0);
-        $remaining = $stock - $removed;
+        $hasCols = Schema::hasColumn('purchase_details', 'cost_after');
+        $row = $hasCols ? DB::table('purchase_details')->where('id', $detail->id)->first() : null;
+        $hasSnap = $row && $row->cost_before !== null && $row->stock_before !== null && $row->cost_after !== null;
 
-        if ($remaining > 0 && $cost > 0) {
-            $value = ($stock * $cost) - ($removed * $priceUsd);
-            if ($value > 0 && Schema::hasColumn('products', 'base_buy_price')) {
-                $fresh->base_buy_price = round($value / $remaining, 4);
-                $fresh->save();
+        $fresh = Product::find($product->id);
+        $newCost = null;
+
+        if ($hasSnap) {
+            // ١) تێچووی پێش ئەم کڕینە، ٢) دووبارە ژماردنی کڕینەکانی دواتر بەبێ ئەم کڕینە
+            $A = (float) $row->cost_before;
+            $later = DB::table('purchase_details')->where('product_id', $product->id)->where('id', '>', $detail->id)
+                ->whereNotNull('cost_after')->orderBy('id')->get();
+
+            foreach ($later as $l) {
+                $S = (float) $l->stock_before - $removed;
+                $q = (float) $l->added_units;
+                $p = (float) $l->price_usd_unit;
+                $costBefore = $A;
+                $A = ($S > 0 && $A > 0) ? (($S * $A) + ($q * $p)) / ($S + $q) : $p;
+
+                DB::table('purchase_details')->where('id', $l->id)->update([
+                    'stock_before' => max(0, $S), 'cost_before' => $costBefore, 'cost_after' => $A,
+                ]);
             }
+            $newCost = $A;
+        } else {
+            // وەسڵی کۆن (بێ وێنە): ژماردنی بەهای ماتماتیکی
+            $stock = (float) $fresh->{$stockCol};
+            $cost  = $this->exactCost($fresh);
+            $remaining = $stock - $removed;
+            if ($remaining > 0 && $cost > 0) {
+                $value = ($stock * $cost) - ($removed * $priceUsd);
+                if ($value > 0) {
+                    $newCost = $value / $remaining;
+                }
+            }
+        }
+
+        if ($newCost !== null && $newCost > 0) {
+            if (Schema::hasColumn('products', 'base_buy_price')) $fresh->base_buy_price = round($newCost, 6);
+            if (Schema::hasColumn('products', 'buy_price'))      $fresh->buy_price = round($newCost, 6);
+            $fresh->save();
         }
 
         Product::where('id', $product->id)->decrement($stockCol, $removed);
@@ -259,7 +316,7 @@ class PurchaseController extends Controller
                     $addedKg     = (float) $item['quantity'] * $factor;
                     $priceUsdPerKg = $currency === 'IQD' ? $priceInCurrency / $exchangeRate : $priceInCurrency;
 
-                    PurchaseDetail::create([
+                    $newDetail = PurchaseDetail::create([
                         'purchase_id'    => $purchase->id,
                         'product_id'     => $product->id,
                         'unit_id'        => $unit->id,
@@ -268,7 +325,8 @@ class PurchaseController extends Controller
                         'subtotal'       => $lineTotal,
                     ]);
 
-                    $this->addStockAndAverageCost($product, $addedKg, $priceUsdPerKg);
+                    $snap = $this->addStockAndAverageCost($product, $addedKg, $priceUsdPerKg);
+                    $this->saveSnapshot($newDetail, $snap);
                 }
             });
 
@@ -395,7 +453,7 @@ class PurchaseController extends Controller
                     $addedKg     = (float) $item['quantity'] * $factor;
                     $priceUsdPerKg = $currency === 'IQD' ? $priceInCurrency / $exchangeRate : $priceInCurrency;
 
-                    PurchaseDetail::create([
+                    $newDetail = PurchaseDetail::create([
                         'purchase_id'    => $purchase->id,
                         'product_id'     => $product->id,
                         'unit_id'        => $unit->id,
@@ -405,7 +463,8 @@ class PurchaseController extends Controller
                     ]);
 
                     // هەمان تێکڕای کێشراو وەک store (پێشتر لێرە نرخەکە بە نرخی کۆتایی دەنووسرایەوە)
-                    $this->addStockAndAverageCost($product, $addedKg, $priceUsdPerKg);
+                    $snap = $this->addStockAndAverageCost($product, $addedKg, $priceUsdPerKg);
+                    $this->saveSnapshot($newDetail, $snap);
                 }
             });
 
