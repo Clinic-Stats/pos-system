@@ -128,6 +128,38 @@ class PurchaseController extends Controller
         }
     }
 
+    /**
+     * لابردنی کڕینێک (دەستکاری / سڕینەوە): بەهای ئەو کڕینە لە تێچووی تێکڕا دەگەڕێتەوە
+     * نموونە: کۆگا 23 بە 4.65 بوو، سڕینەوەی 15 بە 5 دەبێتە 8 بە 4.00
+     */
+    private function removeStockAndAverageCost($detail, $purchase, string $stockCol): void
+    {
+        $product = $detail->product;
+        if (!$product || !$detail->unit) {
+            return;
+        }
+
+        $factor = $this->getFactorAndWeight($product, $detail->unit);
+        $removed = (float) $detail->quantity * $factor;                       // بە یەکەی کۆگا
+        $rate = (float) ($purchase->exchange_rate ?? 0) ?: 1;
+        $priceUsd = ((float) $detail->unit_buy_price / ($factor ?: 1)) / (strtoupper($purchase->currency ?? 'USD') === 'IQD' ? $rate : 1);
+
+        $fresh = Product::find($product->id);
+        $stock = (float) $fresh->{$stockCol};
+        $cost = (float) ($fresh->base_buy_price ?? 0);
+        $remaining = $stock - $removed;
+
+        if ($remaining > 0 && $cost > 0) {
+            $value = ($stock * $cost) - ($removed * $priceUsd);
+            if ($value > 0 && Schema::hasColumn('products', 'base_buy_price')) {
+                $fresh->base_buy_price = round($value / $remaining, 4);
+                $fresh->save();
+            }
+        }
+
+        Product::where('id', $product->id)->decrement($stockCol, $removed);
+    }
+
     public function create()
     {
         $products = $this->cartonSafe(Product::where('is_active', 1)->get());
@@ -299,8 +331,7 @@ class PurchaseController extends Controller
                     if (!$oldDetail->product || !$oldDetail->unit) {
                         continue;
                     }
-                    $factor = $this->getFactorAndWeight($oldDetail->product, $oldDetail->unit);
-                    Product::where('id', $oldDetail->product_id)->decrement($stockCol, $oldDetail->quantity * $factor);
+                    $this->removeStockAndAverageCost($oldDetail, $purchase, $stockCol);
                 }
 
                 $purchase->details()->delete();
@@ -396,8 +427,7 @@ class PurchaseController extends Controller
                     if (!$detail->product || !$detail->unit) {
                         continue;
                     }
-                    $factor = $this->getFactorAndWeight($detail->product, $detail->unit);
-                    Product::where('id', $detail->product_id)->decrement($stockCol, $detail->quantity * $factor);
+                    $this->removeStockAndAverageCost($detail, $purchase, $stockCol);
                 }
 
                 $purchase->details()->delete();

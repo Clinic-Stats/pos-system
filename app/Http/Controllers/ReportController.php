@@ -82,6 +82,29 @@ class ReportController extends Controller
         $totalSalesAll  = $this->add($totalSalesCash, $totalSalesDebt);
         $totalCostAll   = $this->byCur($sales, 'total_cost');
         $totalGrossProfit = $this->byCur($sales, 'total_profit');
+
+        // قازانجی گەڕاوەکان کەم دەکرێتەوە: داهاتی گەڕاو − تێچووی کاڵاکان (بە تێچووی تێکڕای ئێستا)
+        if (Schema::hasTable('sale_return_details')) {
+            $retQ = DB::table('sale_return_details as d')
+                ->join('sale_returns as r', 'd.sale_return_id', '=', 'r.id')
+                ->join('products as p', 'd.product_id', '=', 'p.id')
+                ->join('units as u', 'd.unit_id', '=', 'u.id')
+                ->select('d.quantity', 'd.subtotal', 'r.currency', 'p.base_buy_price', 'p.kg_per_carton', 'p.sell_type', 'u.name as unit_name', 'u.factor_to_base');
+            if ($hasRange) $retQ->whereBetween('r.created_at', [$fromDate, $toDate]);
+
+            foreach ($retQ->get() as $row) {
+                $n = mb_strtolower(trim($row->unit_name ?? ''));
+                if (($row->sell_type ?? 'weight') === 'carton') $f = 1.0;
+                elseif (str_contains($n, 'کارتۆن') || str_contains($n, 'carton')) $f = (float) ($row->kg_per_carton ?: 1);
+                elseif (str_contains($n, 'تەن') || str_contains($n, 'ton')) $f = 1000.0;
+                else $f = (float) ($row->factor_to_base ?: 1);
+
+                $isUsd = strtoupper($row->currency ?? 'IQD') === 'USD';
+                $costUsd = (float) $row->quantity * $f * (float) $row->base_buy_price;
+                $cost = $isUsd ? $costUsd : $costUsd * $rate;
+                $totalGrossProfit[$isUsd ? 'USD' : 'IQD'] -= ((float) $row->subtotal - $cost);
+            }
+        }
         $debtPaidAtSale = $this->byCur($debtSales, 'paid_amount');   // بەشی دراو لە کاتی فرۆشتنی قەرز
 
         // وەرگرتنەوەی قەرز

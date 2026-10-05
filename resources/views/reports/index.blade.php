@@ -28,7 +28,7 @@
     $row1 = [
         ['کۆی فرۆشراو', $totalSalesAll, 'fa-bag-shopping', 'text-blue-600', 'نەقد ≈ ' . $u($toUsd($totalSalesCash)) . ' · قەرز ≈ ' . $u($toUsd($totalSalesDebt))],
         ['کۆی تێچووی فرۆشراو', $totalCostAll, 'fa-boxes-stacked', 'text-slate-600', 'تێچووی کڕینی کاڵاکان'],
-        ['قازانجی کاڵا', $totalGrossProfit, 'fa-chart-line', 'text-emerald-600', 'فرۆشراو کەمکردنەوەی تێچوو'],
+        ['قازانجی کاڵا', $totalGrossProfit, 'fa-chart-line', 'text-emerald-600', 'فرۆشراو − تێچوو − قازانجی گەڕاوەکان'],
         ['کۆی مەسروفات', $totalExpenses, 'fa-wallet', 'text-rose-600', 'خەرجیی ئەم ماوەیە'],
         ['پوختەی قازانج (صافی)', $realNetProfit, 'fa-scale-balanced', $toUsd($realNetProfit) >= 0 ? 'text-emerald-600' : 'text-rose-600', 'قازانج - مەسروفات - تەلەف'],
     ];

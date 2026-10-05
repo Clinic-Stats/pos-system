@@ -129,7 +129,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
               @elseif($isLow)<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md" style="background:var(--was);color:var(--wa)">کەمە</span>@endif
             </div>
             <h3 class="font-extrabold text-[12px] leading-snug line-clamp-2 min-h-[2.4em]">{{ $p->name }}</h3>
-            <p class="text-[10px] font-bold flex items-center gap-1" style="color:{{ $isOut ? 'var(--ro)' : ($isLow ? 'var(--wa)' : 'var(--mu)') }}"><i class="fa-solid fa-cube text-[9px]"></i><span class="num">{{ rtrim(rtrim(number_format($stockVal, 2), '0'), '.') }}</span> {{ $isCarton ? 'کارتۆن' : 'کگ' }}</p>
+            <p class="text-[10px] font-bold flex items-center gap-1" style="color:{{ $isOut ? 'var(--ro)' : ($isLow ? 'var(--wa)' : 'var(--mu)') }}"><i class="fa-solid fa-cube text-[9px]"></i><span class="num" id="stock-{{ $p->id }}">{{ rtrim(rtrim(number_format($stockVal, 2), '0'), '.') }}</span> {{ $isCarton ? 'کارتۆن' : 'کگ' }}</p>
           </div>
           <div class="flex items-center justify-between gap-1 pt-2 border-t" style="border-color:var(--bd)">
             <button type="button" class="sq add" onclick="quickIncrease({{ $p->id }}, event)"><i class="fa-solid fa-plus"></i></button>
@@ -202,17 +202,18 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
     <div class="flex items-center justify-between pb-3 border-b" style="border-color:var(--bd)">
       <div class="flex items-center gap-3">
         <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg" style="background:var(--acs);color:var(--ac)"><i class="fa-solid fa-check"></i></div>
-        <div><h3 class="font-extrabold">وەسڵ تۆمارکرا</h3><p class="text-[10px]" style="color:var(--mu)">پێش چاپکردن دەتوانیت کاڵاکان دەستکاری بکەیت</p></div>
+        <div><h3 class="font-extrabold">وەسڵ تۆمارکرا</h3><p class="text-[10px]" style="color:var(--mu)">چاپ بکە، یان وەسڵی نوێ دەست پێبکە</p></div>
       </div>
-      <button type="button" onclick="returnToSameSale()" class="sq sub"><i class="fa-solid fa-xmark"></i></button>
+      <button type="button" onclick="startNewSale()" class="sq sub" title="داخستن و وەسڵی نوێ"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div id="modalItemsList" class="grow overflow-y-auto scroll py-3 space-y-2"></div>
     <div class="pt-3 border-t space-y-3" style="border-color:var(--bd)">
       <div class="flex justify-between items-center rounded-2xl px-4 py-3" style="background:var(--acs)"><span class="font-extrabold text-sm">کۆی گشتی</span><span id="modalGrandTotal" class="num font-extrabold text-xl" style="color:var(--ac)">$0.00</span></div>
-      <div class="grid grid-cols-3 gap-2 text-xs font-extrabold">
-        <a href="#" id="printA4Btn" target="_blank" class="py-3 rounded-xl text-center" style="background:var(--ac);color:var(--bg)"><i class="fa-solid fa-file-lines"></i> A4</a>
-        <a href="#" id="printSmallBtn" target="_blank" class="py-3 rounded-xl text-center" style="background:var(--sf2);border:1px solid var(--bd)"><i class="fa-solid fa-receipt"></i> بچووک</a>
-        <button type="button" onclick="returnToSameSale()" class="py-3 rounded-xl" style="background:var(--sf2);border:1px solid var(--bd)"><i class="fa-solid fa-rotate-right"></i> گەڕانەوە</button>
+      <div class="grid grid-cols-2 gap-2 text-xs font-extrabold">
+        <a href="#" id="printA4Btn" target="_blank" onclick="afterPrint()" class="py-3 rounded-xl text-center" style="background:var(--ac);color:var(--bg)"><i class="fa-solid fa-file-lines"></i> چاپی A4</a>
+        <a href="#" id="printSmallBtn" target="_blank" onclick="afterPrint()" class="py-3 rounded-xl text-center" style="background:var(--sf2);border:1px solid var(--bd)"><i class="fa-solid fa-receipt"></i> چاپی بچووک</a>
+        <button type="button" onclick="closeKeepEditing()" class="py-3 rounded-xl" style="background:var(--sf2);border:1px solid var(--bd)"><i class="fa-solid fa-pen-to-square"></i> دەستکاری ئەم وەسڵە</button>
+        <button type="button" onclick="startNewSale()" class="py-3 rounded-xl" style="background:var(--wa);color:var(--bg)"><i class="fa-solid fa-plus"></i> وەسڵی نوێ</button>
       </div>
     </div>
   </div>
@@ -400,62 +401,100 @@ function togglePaymentType() {
 }
 
 /* تۆمارکردنی فرۆشتن */
+let isSubmitting = false;   // ڕێگری لە دووجار کلیک
+let savedSaleId = null;     // دوای یەکەم تۆمارکردن، پاشەکەوتکردنی دواتر هەمان وەسڵ نوێ دەکاتەوە (دووبارە نابێتەوە)
+let lastUse = {};           // ئەو بڕەی ئەم وەسڵە لە کۆگا بردوویەتی
+let lastDiscount = 0;
+
+function adjustStock(pid, delta) {
+  const p = allProducts.find(x => x.id == pid); if (!p) return;
+  const key = p.stock_kg !== undefined ? 'stock_kg' : 'stock';
+  p[key] = (parseFloat(p[key]) || 0) + delta;
+  const el = $('stock-' + pid); if (el) el.textContent = +(+p[key]).toFixed(2);
+}
+function applySaleUse(items) {
+  Object.keys(lastUse).forEach(pid => adjustStock(pid, lastUse[pid]));   // بڕە کۆنەکە دەگەڕێتەوە
+  lastUse = {};
+  items.forEach(i => { lastUse[i.id] = (lastUse[i.id] || 0) + i.qty * i.factor; });
+  Object.keys(lastUse).forEach(pid => adjustStock(pid, -lastUse[pid]));
+}
+const labelNew = '<i class="fa-solid fa-paper-plane"></i> پسوولەکردن';
+const labelUpdate = '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە';
+
 function submitSale() {
+  if (isSubmitting) return;
   if (!cart.length) { showToast('کاڵا نییە!', 'error'); return; }
   const debt = document.querySelector('input[name="paymentType"]:checked').value === 'debt';
   const customerId = $('customerId').value;
   if (debt && !customerId) { showToast('کڕیار دیاری بکە بۆ قەرز', 'error'); return; }
-  const isEdit = !!editSale;
-  const idle = isEdit ? '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە' : '<i class="fa-solid fa-paper-plane"></i> پسوولەکردن';
-  const btn = $('btnSubmitSale'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> چاوەڕوان بە...';
-  lastSaleItems = JSON.parse(JSON.stringify(cart));
 
-  fetch(isEdit ? '/sales/' + editSale.id : '/sales', {
+  const targetId = editSale ? editSale.id : savedSaleId;   // ئەگەر وەسڵەکە پێشتر تۆمارکراوە، نوێ دەکرێتەوە نەک دووبارە
+  const isEdit = !!targetId;
+  const btn = $('btnSubmitSale');
+  isSubmitting = true; btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> چاوەڕوان بە...';
+  const sentItems = JSON.parse(JSON.stringify(cart));
+  const sentDiscount = parseFloat($('cartDiscount').value) || 0;
+
+  fetch(isEdit ? '/sales/' + targetId : '/sales', {
     method: isEdit ? 'PUT' : 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
     body: JSON.stringify({
       customer_id: customerId, payment_type: debt ? 'debt' : 'cash',
       paid_amount: debt ? parseFloat($('paidAmount').value) || 0 : null,
-      discount: parseFloat($('cartDiscount').value) || 0,
+      discount: sentDiscount,
       created_at: $('saleCreatedAt').value, currency: currentCurrency, exchange_rate: getRate(),
       items: cart.map(i => ({ product_id: i.id, unit_id: i.unit_id, quantity: i.qty, base_price: i.price_usd }))
     })
   }).then(r => r.json()).then(data => {
-    btn.disabled = false; btn.innerHTML = idle;
+    isSubmitting = false; btn.disabled = false;
     if (data.success) {
-      activeSaleId = data.sale_id || (editSale ? editSale.id : null);
+      activeSaleId = data.sale_id || targetId;
+      if (!editSale) savedSaleId = activeSaleId;
+      lastSaleItems = sentItems; lastDiscount = sentDiscount;
+      applySaleUse(sentItems);
+      btn.innerHTML = labelUpdate;
       $('printA4Btn').href = '/sales/print/' + activeSaleId + '?type=a4';
       $('printSmallBtn').href = '/sales/print/' + activeSaleId + '?type=small';
       renderModalItems(); $('successModal').classList.remove('hidden');
-      if (!isEdit) { cart = []; $('cartDiscount').value = 0; renderCart(); }
-    } else showToast(data.error || data.message || 'هەڵە', 'error');
-  }).catch(() => { btn.disabled = false; btn.innerHTML = idle; showToast('کێشەیەک ڕوویدا', 'error'); });
+    } else { btn.innerHTML = (editSale || savedSaleId) ? labelUpdate : labelNew; showToast(data.error || data.message || 'هەڵە', 'error'); }
+  }).catch(() => { isSubmitting = false; btn.disabled = false; btn.innerHTML = (editSale || savedSaleId) ? labelUpdate : labelNew; showToast('کێشەیەک ڕوویدا', 'error'); });
 }
 
 function renderModalItems() {
   const list = $('modalItemsList'); list.innerHTML = ''; let total = 0;
-  lastSaleItems.forEach((it, i) => {
+  lastSaleItems.forEach(it => {
     const price = toDisp(it.price_usd), line = it.qty * price * it.factor; total += line;
     const u = units.find(x => x.id == it.unit_id);
     const row = document.createElement('div');
     row.className = 'flex items-center gap-2 p-2.5 rounded-xl border text-xs'; row.style.cssText = 'background:var(--sf2);border-color:var(--bd)';
     row.innerHTML = `
       <div class="flex-1 font-extrabold truncate">${it.name}</div>
-      <input type="number" step="any" min="0.01" value="${it.qty}" onchange="updateModalQty(${i}, this.value)" class="inp num !w-14 text-center">
-      <span class="text-[10px]" style="color:var(--mu)">${it.carton ? 'کارتۆن' : (u ? u.name : '')}</span>
-      <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}" onchange="updateModalPrice(${i}, this.value)" class="inp num !w-20 text-center" style="color:var(--ac)">
-      <div class="num font-extrabold w-20 text-left" style="color:var(--ac)">${money(line)}</div>`;
+      <div class="num">${+it.qty.toFixed(3)} <span class="text-[10px]" style="color:var(--mu)">${it.carton ? 'کارتۆن' : (u ? u.name : '')}</span></div>
+      <div class="num w-20 text-center" style="color:var(--mu)">${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}</div>
+      <div class="num font-extrabold w-24 text-left" style="color:var(--ac)">${money(line)}</div>`;
     list.appendChild(row);
   });
-  const discount = parseFloat($('cartDiscount').value) || 0;
-  $('modalGrandTotal').innerText = money(Math.max(0, total - (editSale ? discount : 0)));
+  if (lastDiscount > 0) {
+    const d = document.createElement('div');
+    d.className = 'flex justify-between text-xs px-2.5'; d.style.color = 'var(--mu)';
+    d.innerHTML = `<span>داشکاندن</span><span class="num">-${money(lastDiscount)}</span>`; list.appendChild(d);
+  }
+  $('modalGrandTotal').innerText = money(Math.max(0, total - lastDiscount));
 }
-function updateModalQty(i, v) { let q = parseFloat(v); if (isNaN(q) || q <= 0) q = 1; lastSaleItems[i].qty = q; renderModalItems(); }
-function updateModalPrice(i, v) { let p = parseFloat(v); if (isNaN(p) || p < 0) p = 0; lastSaleItems[i].price_usd = currentCurrency === 'USD' ? p : p / rate; renderModalItems(); }
-function returnToSameSale() {
-  if (!editSale && lastSaleItems.length) { cart = JSON.parse(JSON.stringify(lastSaleItems)); renderCart(); lastSaleItems = []; }
+
+/* دوای تۆمارکردن: دوگمەکانی مۆداڵ */
+function closeKeepEditing() { $('successModal').classList.add('hidden'); }   // سەبەتە دەمێنێتەوە، پاشەکەوتی داهاتوو هەمان وەسڵ نوێ دەکاتەوە
+function startNewSale() {
   $('successModal').classList.add('hidden');
+  if (editSale) { window.location.href = '{{ route('pos.index') }}'; return; }
+  cart = []; savedSaleId = null; lastUse = {}; lastSaleItems = []; lastDiscount = 0;
+  $('cartDiscount').value = 0; $('paidAmount').value = 0; $('customerId').value = '';
+  document.querySelector('input[name="paymentType"][value="cash"]').checked = true; togglePaymentType();
+  $('saleCreatedAt').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  $('btnSubmitSale').innerHTML = labelNew;
+  renderCart();
 }
+function afterPrint() { if (!editSale) setTimeout(startNewSale, 600); }   // دوای کردنەوەی چاپ، POS ئامادەی وەسڵی نوێ دەبێت
 
 /* نرخی ئاڵوگۆڕ */
 function toggleRateEdit() {
@@ -499,6 +538,7 @@ function loadEditSale() {
     return { carton: p.sell_type === 'carton', id: p.id, name: p.name, code: p.code, price_usd: parseFloat(it.price_usd) || 0, stock_kg: now + it.quantity * factor,
       kg_per_carton: parseFloat(p.kg_per_carton) || 1, qty: parseFloat(it.quantity), unit_id: unit.id, factor };
   }).filter(Boolean);
+  lastUse = {}; cart.forEach(i => { lastUse[i.id] = (lastUse[i.id] || 0) + i.qty * i.factor; });
   paintCurrency();
   $('editBanner').classList.remove('hidden'); $('editInvoiceNo').innerText = editSale.invoice_no;
   $('btnSubmitSale').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە';
