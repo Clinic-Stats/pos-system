@@ -9,53 +9,114 @@
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-:root{--bg:#eef2f7;--sf:#fff;--sf2:#f5f7fb;--bd:#e2e8f0;--tx:#0f172a;--mu:#64748b;--ac:#0f766e;--acs:#d5f5ef;--wa:#b45309;--was:#fef3c7;--ro:#e11d48;--ros:#ffe4e6}
-.dark{--bg:#080e1a;--sf:#101828;--sf2:#16213a;--bd:#202e4a;--tx:#e6edf7;--mu:#8da0bd;--ac:#2dd4bf;--acs:#0c3a3a;--wa:#fbbf24;--was:#3a2a08;--ro:#fb7185;--ros:#3d1420}
-body{font-family:'Almarai',sans-serif;background:var(--bg);color:var(--tx)}
+/* ===== ڕووناک: بەشەکان بە ڕوونی لێک جیا دەبنەوە ===== */
+:root{
+  --bg:#e6ecf5; --sf:#ffffff; --sf2:#f2f5fa; --bd:#d2dbe8; --tx:#0b1b33; --mu:#586a85;
+  --ac:#0f766e; --ac2:#0e7490; --acs:#d8f3ee; --on:#ffffff;
+  --wa:#b45309; --was:#fff0cc; --ro:#dc2626; --ros:#ffe2e2;
+  --shadow:0 1px 2px rgba(15,35,70,.07),0 10px 28px -14px rgba(15,35,70,.28);
+  --shadow-sm:0 1px 2px rgba(15,35,70,.06),0 4px 10px -6px rgba(15,35,70,.18);
+  --page:radial-gradient(900px 420px at 88% -8%,rgba(14,116,144,.14),transparent 60%),radial-gradient(700px 380px at 5% 105%,rgba(15,118,110,.12),transparent 60%),linear-gradient(180deg,#e9eff7,#dfe7f2);
+}
+/* ===== تاریک ===== */
+.dark{
+  --bg:#060b16; --sf:#0e1729; --sf2:#142039; --bd:#223250; --tx:#e8eefb; --mu:#8fa1c0;
+  --ac:#2dd4bf; --ac2:#38bdf8; --acs:#0d3a3d; --on:#03201d;
+  --wa:#fbbf24; --was:#3a2a0b; --ro:#fb7185; --ros:#3f1523;
+  --shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 14px 34px -14px rgba(0,0,0,.75);
+  --shadow-sm:0 6px 14px -8px rgba(0,0,0,.7);
+  --page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.14),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.12),transparent 60%),#060b16;
+}
+body{font-family:'Almarai',sans-serif;background:var(--page);background-attachment:fixed;color:var(--tx)}
 .num{font-family:'Plus Jakarta Sans',sans-serif;direction:ltr;unicode-bidi:isolate}
-.sf{background:var(--sf);border:1px solid var(--bd);border-radius:1.1rem}
-.inp{background:var(--sf2);border:1px solid var(--bd);border-radius:.7rem;padding:.5rem .7rem;font-size:11px;font-weight:700;color:var(--tx);width:100%}
-.inp:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
-.chip{background:var(--sf2);border:1px solid var(--bd);color:var(--mu);border-radius:999px;padding:.4rem .9rem;font-size:11px;font-weight:800;white-space:nowrap;transition:.15s}
-.chip:hover{color:var(--tx)} .chip.on{background:var(--ac);border-color:var(--ac);color:var(--bg)}
-.nav{display:flex;align-items:center;gap:.4rem;padding:.45rem .8rem;border-radius:.75rem;font-size:11px;font-weight:800;color:var(--mu);transition:.15s;white-space:nowrap}
-.nav:hover{background:var(--sf2);color:var(--tx)}
-.pc{background:var(--sf);border:1px solid var(--bd);border-radius:1rem;padding:.65rem;display:flex;flex-direction:column;justify-content:space-between;gap:.5rem;position:relative;transition:.15s}
-.pc:hover{border-color:var(--ac);transform:translateY(-2px);box-shadow:0 10px 24px -14px rgba(15,118,110,.55)}
-.pc.out{opacity:.55}.pc.low{border-color:var(--wa)}
-.sq{width:2.1rem;height:2.1rem;border-radius:.7rem;display:flex;align-items:center;justify-content:center;font-size:11px;transition:.12s}
+
+/* پانێڵەکان */
+.sf{background:var(--sf);border:1px solid var(--bd);border-radius:1.25rem;box-shadow:var(--shadow)}
+.panel-head{margin:-.75rem -.75rem .75rem;padding:.8rem .75rem;background:var(--sf2);border-bottom:1px solid var(--bd);border-radius:1.25rem 1.25rem 0 0}
+.panel-foot{margin:0 -.75rem -.75rem;padding:.8rem .75rem;background:var(--sf2);border-top:1px solid var(--bd);border-radius:0 0 1.25rem 1.25rem}
+.app-header{padding:.6rem .85rem}
+.brand-tile{background:linear-gradient(135deg,var(--ac),var(--ac2))!important;color:var(--on)!important;box-shadow:0 8px 18px -8px var(--ac)}
+
+/* خانەکان */
+.inp{background:var(--sf);border:1px solid var(--bd);border-radius:.8rem;padding:.5rem .7rem;font-size:11px;font-weight:700;color:var(--tx);width:100%;box-shadow:inset 0 1px 2px rgba(15,35,70,.04);transition:border-color .15s,box-shadow .15s}
+.inp:hover{border-color:color-mix(in srgb,var(--ac) 45%,var(--bd))}
+.inp:focus,button:focus-visible,a:focus-visible{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 22%,transparent)}
+.panel-head .inp,.panel-foot .inp{background:var(--sf)}
+
+/* دوگمە و چیپ */
+.chip{background:var(--sf);border:1px solid var(--bd);color:var(--mu);border-radius:999px;padding:.4rem .95rem;font-size:11px;font-weight:800;white-space:nowrap;transition:.15s;box-shadow:var(--shadow-sm)}
+.chip:hover{color:var(--tx);border-color:var(--ac)}
+.chip.on{background:linear-gradient(135deg,var(--ac),var(--ac2));border-color:transparent;color:var(--on);box-shadow:0 8px 16px -8px var(--ac)}
+.sq{width:2.1rem;height:2.1rem;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-size:11px;transition:.12s}
 .sq:active{transform:scale(.9)}
-.sq.add{background:var(--ac);color:var(--bg)} .sq.sub{background:var(--sf2);color:var(--mu);border:1px solid var(--bd)}
-.seg{display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:.8rem;padding:.2rem;gap:.2rem}
-.seg>*{flex:1;text-align:center;padding:.4rem .5rem;border-radius:.6rem;font-size:11px;font-weight:800;color:var(--mu);cursor:pointer}
-.seg>.on,.seg>label:has(input:checked){background:var(--ac);color:var(--bg)}
-.seg>label.debt:has(input:checked){background:var(--wa);color:var(--bg)}
+.sq.add{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);box-shadow:0 6px 12px -6px var(--ac)}
+.sq.add:hover{filter:brightness(1.08)}
+.sq.sub{background:var(--sf);color:var(--mu);border:1px solid var(--bd)}
+.sq.sub:hover{color:var(--tx);border-color:var(--ac)}
+
+/* مینیو */
+.nav-group{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.2rem;background:var(--sf2);border:1px solid var(--bd);border-radius:1rem;padding:.22rem}
+.nav{display:flex;align-items:center;gap:.4rem;padding:.45rem .8rem;border-radius:.8rem;font-size:11px;font-weight:800;color:var(--mu);transition:.15s;white-space:nowrap}
+.nav:hover{background:var(--sf);color:var(--tx);box-shadow:var(--shadow-sm)}
+.nav i{color:var(--ac)}
+.nav.hl{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);box-shadow:0 6px 14px -8px var(--ac)}
+.nav.hl i{color:var(--on)}
+.nav.hl:hover{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);filter:brightness(1.08)}
+#moreDropdown .nav{width:100%}
+
+/* کاڵاکان */
+.pc{background:var(--sf);border:1px solid var(--bd);border-radius:1.05rem;padding:.7rem;display:flex;flex-direction:column;justify-content:space-between;gap:.55rem;position:relative;overflow:visible;transition:transform .15s,box-shadow .15s,border-color .15s;box-shadow:var(--shadow-sm)}
+.pc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:3px;border-radius:0 0 6px 6px;background:linear-gradient(90deg,var(--ac),var(--ac2));opacity:0;transition:opacity .15s}
+.pc:hover{border-color:var(--ac);transform:translateY(-3px);box-shadow:0 16px 28px -16px var(--ac)}
+.pc:hover::before{opacity:1}
+.pc.low{border-color:color-mix(in srgb,var(--wa) 55%,var(--bd))}
+.pc.low::before{background:var(--wa);opacity:1}
+.pc.out{opacity:.62;background:color-mix(in srgb,var(--ros) 45%,var(--sf))}
+.pc.out::before{background:var(--ro);opacity:1}
+
+/* دوگمەی نەقد/قەرز و دراو */
+.seg{display:flex;background:var(--sf);border:1px solid var(--bd);border-radius:.9rem;padding:.2rem;gap:.2rem;box-shadow:inset 0 1px 2px rgba(15,35,70,.05)}
+.seg>*{flex:1;text-align:center;padding:.42rem .5rem;border-radius:.7rem;font-size:11px;font-weight:800;color:var(--mu);cursor:pointer;transition:.15s}
+.seg>*:hover{color:var(--tx)}
+.seg>.on,.seg>label:has(input:checked){background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);box-shadow:0 6px 12px -7px var(--ac)}
+.seg>label.debt:has(input:checked){background:var(--wa);color:var(--on)}
 .seg input{display:none}
-.badge{position:absolute;top:-.5rem;left:-.5rem;background:var(--ac);color:var(--bg);border-radius:999px;padding:.1rem .55rem;font-size:12px;font-weight:800;border:2px solid var(--bg);display:none}
-.scroll::-webkit-scrollbar{width:6px;height:6px}.scroll::-webkit-scrollbar-thumb{background:var(--bd);border-radius:9px}
-.rowin{animation:rin .25s ease-out}@keyframes rin{from{opacity:0;transform:translateY(6px)}}
+.badge{position:absolute;top:-.55rem;left:-.55rem;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);border-radius:999px;padding:.12rem .6rem;font-size:12px;font-weight:800;border:2px solid var(--sf);display:none;box-shadow:var(--shadow-sm);z-index:2}
+
+/* سەبەتە */
+.rowin{animation:rin .25s ease-out;box-shadow:var(--shadow-sm);background:var(--sf)!important;border-color:var(--bd)!important}
+@keyframes rin{from{opacity:0;transform:translateY(6px)}}
+#cartItemsContainer{background:transparent}
+#grandTotalText{letter-spacing:-.01em}
+.total-card{background:linear-gradient(135deg,var(--acs),color-mix(in srgb,var(--acs) 55%,var(--sf)))!important;border:1px solid color-mix(in srgb,var(--ac) 30%,transparent)}
+#btnSubmitSale{background:linear-gradient(135deg,var(--ac),var(--ac2))!important;color:var(--on)!important;box-shadow:0 14px 24px -12px var(--ac)}
+#btnSubmitSale:hover{filter:brightness(1.07)}
+#btnSubmitSale:disabled{opacity:.7}
+
+.scroll::-webkit-scrollbar{width:7px;height:7px}.scroll::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--mu) 40%,transparent);border-radius:9px}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type=number]{-moz-appearance:textfield}
-@media (prefers-reduced-motion:reduce){.rowin{animation:none}.pc{transition:none}}
+@media (prefers-reduced-motion:reduce){.rowin{animation:none}.pc,.chip,.nav{transition:none}}
 </style>
 </head>
 <body class="min-h-screen lg:h-screen p-2 flex flex-col gap-2 lg:overflow-hidden select-none">
 
 <!-- هێدەر -->
-<header class="sf px-3 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0 relative z-40">
+<header class="sf app-header flex flex-wrap items-center justify-between gap-2 shrink-0 relative z-40">
   <div class="flex items-center gap-2.5">
-    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background:var(--ac);color:var(--bg)"><i class="fa-solid fa-cash-register"></i></div>
+    <div class="brand-tile w-10 h-10 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-cash-register"></i></div>
     <div><h1 class="font-extrabold text-sm leading-none">POS</h1><p class="text-[10px] mt-1 flex items-center gap-1" style="color:var(--mu)"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>فرۆشتن</p></div>
   </div>
 
-  <nav class="flex flex-wrap items-center justify-center gap-1">
-    <a href="{{ route('purchases.create') }}" class="nav"><i class="fa-solid fa-box-open"></i> کڕین</a>
+  <nav class="nav-group">
+    <a href="{{ route('purchases.create') }}" class="nav hl"><i class="fa-solid fa-box-open"></i> کڕین</a>
+    <a href="{{ route('purchases.index') }}" class="nav"><i class="fa-solid fa-file-invoice"></i> وەسڵەکانی کڕین</a>
+    <a href="{{ route('sales.list') }}" class="nav"><i class="fa-solid fa-receipt"></i> فرۆشتنەکان</a>
     <a href="{{ route('products.index') }}" class="nav"><i class="fa-solid fa-boxes-stacked"></i> کۆگا</a>
     <a href="{{ route('customers.index') }}" class="nav"><i class="fa-solid fa-users"></i> کڕیار</a>
     <a href="{{ route('reports.index') }}" class="nav"><i class="fa-solid fa-chart-pie"></i> ڕاپۆرت</a>
     <div class="relative">
       <button type="button" class="nav" onclick="event.stopPropagation();document.getElementById('moreDropdown').classList.toggle('hidden')"><i class="fa-solid fa-ellipsis"></i> زیاتر <i class="fa-solid fa-chevron-down text-[8px]"></i></button>
       <div id="moreDropdown" class="hidden sf absolute right-0 top-full mt-2 w-56 p-1.5 text-xs shadow-2xl scroll max-h-96 overflow-y-auto z-50">
-        <a href="{{ route('sales.list') }}" class="nav"><i class="fa-solid fa-receipt w-4"></i> فرۆشتنەکان</a>
         <a href="{{ route('returns.index') }}" class="nav"><i class="fa-solid fa-rotate-left w-4"></i> گەڕاوەکان</a>
         <a href="{{ route('losses.index') }}" class="nav"><i class="fa-solid fa-triangle-exclamation w-4"></i> زیانی کاڵا</a>
         @if(auth()->user()->isAdmin())
@@ -99,7 +160,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 
   <!-- کاڵاکان -->
   <section class="sf p-3 flex flex-col min-h-0 h-[70vh] lg:h-auto">
-    <div class="shrink-0 space-y-2.5 pb-3 border-b" style="border-color:var(--bd)">
+    <div class="shrink-0 space-y-2.5 panel-head">
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-xs" style="color:var(--mu)"></i>
         <input type="text" id="searchBox" onkeyup="searchProducts()" placeholder="گەڕان بە ناو یان کۆد...  (Ctrl+K)" autocomplete="off" spellcheck="false" class="inp !py-2.5 !pr-9 !text-xs">
@@ -147,7 +208,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 
   <!-- سەبەتە -->
   <aside class="sf p-3 flex flex-col min-h-0 h-[85vh] lg:h-auto">
-    <div class="shrink-0 space-y-2.5 pb-3 border-b" style="border-color:var(--bd)">
+    <div class="shrink-0 space-y-2.5 panel-head">
       <div class="flex items-center justify-between">
         <h2 class="font-extrabold text-sm flex items-center gap-2"><i class="fa-solid fa-cart-shopping" style="color:var(--ac)"></i> سەبەتە <span id="cartCount" class="num text-[10px] px-1.5 rounded-md" style="background:var(--acs);color:var(--ac)">0</span></h2>
         <button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" class="chip !py-1.5 flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span></button>
@@ -183,11 +244,11 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 
     <div id="cartItemsContainer" class="grow overflow-y-auto scroll py-2.5 space-y-2"></div>
 
-    <div class="shrink-0 pt-3 border-t space-y-2" style="border-color:var(--bd)">
+    <div class="shrink-0 space-y-2 panel-foot">
       <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">کۆی کاڵا</span><span id="subTotalText" class="num">$0.00</span></div>
       <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">کێشی گشتی</span><span id="cartWeight" class="num">0 کگ</span></div>
       <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">داشکاندن</span><input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart()" class="inp num !w-24 !py-1 text-left"></div>
-      <div class="rounded-2xl px-3.5 py-3 flex justify-between items-end" style="background:var(--acs)">
+      <div class="total-card rounded-2xl px-3.5 py-3 flex justify-between items-end">
         <span class="font-extrabold text-sm" style="color:var(--ac)">کۆی گشتی</span>
         <div class="text-left leading-tight"><div id="grandTotalText" class="num font-extrabold text-2xl" style="color:var(--ac)">$0.00</div><div id="grandAltText" class="num text-[10px] font-bold" style="color:var(--mu)"></div></div>
       </div>
