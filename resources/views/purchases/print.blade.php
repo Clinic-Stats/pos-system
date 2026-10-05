@@ -66,11 +66,11 @@
 
 <body>
 
-    <div class="no-print">
-        <a href="{{ route('purchases.index') }}" class="btn btn-back">گەڕانەوە بۆ لیستی کڕینەکان</a>
-        <button class="btn" onclick="window.print()">چاپکردن (A4)</button>
-        <button class="btn btn-pdf" onclick="window.print()">پاشەکەوتکردن وەک PDF</button>
-    </div>
+   <div class="no-print">
+    <button onclick="closeOrRedirect('{{ route('purchases.index') }}')" class="btn btn-back">گەڕانەوە بۆ لیستی کڕینەکان</button>
+    <button class="btn" onclick="window.print()">چاپکردن (A4)</button>
+    <button class="btn btn-pdf" onclick="window.print()">پاشەکەوتکردن وەک PDF</button>
+</div>
 
     <div class="invoice-box">
 
@@ -177,11 +177,22 @@
     </div>
 
     <!-- کۆدی جاڤاسکریپت بۆ داخستنی تابەکە دوای چاپکردن -->
-    <script>
-        window.onafterprint = function() {
-            window.close();
-        };
-    </script>
+   <script>
+    function closeOrRedirect(url) {
+        // هەوڵدان بۆ داخستنی تابەکە
+        window.close();
+        
+        // ئەگەر وێبگەڕەکە ڕێگەی نەدا تابەکە دابخرێت، دوای ١٠٠ میلی چرکە دەگەڕێتەوە بۆ لیستەکە
+        setTimeout(function() {
+            window.location.href = url;
+        }, 100);
+    }
+
+    // کاتێک چاپەکە تەواو بوو، تابەکە دەخرێتەوە
+    window.onafterprint = function() {
+        window.close();
+    };
+</script>
 
 </body>
 
