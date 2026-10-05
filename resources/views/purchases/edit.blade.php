@@ -9,9 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
-            font-family: 'Noto Sans Arabic', sans-serif;
-        }
+        body { font-family: 'Noto Sans Arabic', sans-serif; }
     </style>
     @php
     $curCurrency = old('currency', $purchase->currency ?? 'IQD');
@@ -122,7 +120,6 @@
                             } else {
                             $unitFactor = (float) (($detail->unit->factor_to_base ?? 1) ?: 1);
                             }
-                            // نرخی ١ کیلۆ بە دراوی خودی وەسڵەکە
                             $basePrice = $detail->unit_buy_price / ($unitFactor ?: 1);
                             @endphp
                             <tr class="item-row">
@@ -217,10 +214,7 @@
 
         function fmtMoney(v) {
             if (currentCurrency === 'USD') {
-                return '$' + v.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
+                return '$' + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
             return Math.round(v).toLocaleString() + ' IQD';
         }
@@ -229,7 +223,6 @@
             const unit = units.find(u => u.id == unitId);
             const product = products.find(p => p.id == productId);
             if (!unit) return 1;
-
             const uName = (unit.name || '').toLowerCase();
             if (uName.includes('تەن') || uName.includes('ton')) return 1000;
             if ((uName.includes('کارتۆن') || uName.includes('carton')) && product && product.kg_per_carton) {
@@ -243,25 +236,26 @@
             const row = document.createElement('tr');
             row.className = 'item-row';
 
-            let prodOpts = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            // ✅ زیادکردنی هەڵبژاردەی بەتاڵ و لابردنی required بۆ ڕیزە نوێیەکان
+            let prodOpts = '<option value="">— کاڵا هەڵبژێرە —</option>' + products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
             let unitOpts = units.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
 
             row.innerHTML = `
                 <td class="p-2">
-                    <select name="items[${rowIndex}][product_id]" required onchange="calculateTotal()" class="prod-select p-2 bg-slate-700 border border-slate-600 rounded-lg text-white w-full">
+                    <select name="items[${rowIndex}][product_id]" onchange="calculateTotal()" class="prod-select p-2 bg-slate-700 border border-slate-600 rounded-lg text-white w-full">
                         ${prodOpts}
                     </select>
                 </td>
                 <td class="p-2">
-                    <select name="items[${rowIndex}][unit_id]" required onchange="calculateTotal()" class="unit-select p-2 bg-slate-700 border border-slate-600 rounded-lg text-white w-full">
+                    <select name="items[${rowIndex}][unit_id]" onchange="calculateTotal()" class="unit-select p-2 bg-slate-700 border border-slate-600 rounded-lg text-white w-full">
                         ${unitOpts}
                     </select>
                 </td>
                 <td class="p-2">
-                    <input type="number" step="any" min="0.01" name="items[${rowIndex}][quantity]" value="1" required oninput="calculateTotal()" class="qty-input p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono w-24">
+                    <input type="number" step="any" min="0.01" name="items[${rowIndex}][quantity]" value="1" oninput="calculateTotal()" class="qty-input p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono w-24">
                 </td>
                 <td class="p-2">
-                    <input type="number" step="any" min="0" name="items[${rowIndex}][buy_price]" value="0" required oninput="calculateTotal()" class="price-input p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono w-32">
+                    <input type="number" step="any" min="0" name="items[${rowIndex}][buy_price]" value="0" oninput="calculateTotal()" class="price-input p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono w-32">
                 </td>
                 <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr"></td>
                 <td class="p-2 text-center">
@@ -287,7 +281,15 @@
         function calculateTotal() {
             let grandTotal = 0;
             document.querySelectorAll('.item-row').forEach(row => {
-                const prodId = row.querySelector('.prod-select').value;
+                const prodSelect = row.querySelector('.prod-select');
+                
+                // ✅ ئەگەر کاڵا هەڵنەبژێردرابێت، هەژماری بۆ ناکەین
+                if (!prodSelect.value) {
+                    row.querySelector('.row-total').innerText = fmtMoney(0);
+                    return;
+                }
+
+                const prodId = prodSelect.value;
                 const unitId = row.querySelector('.unit-select').value;
                 const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
                 const price = parseFloat(row.querySelector('.price-input').value) || 0;
@@ -298,6 +300,27 @@
             });
             document.getElementById('grand-total').innerText = fmtMoney(grandTotal);
         }
+
+        // ✅ پشکنین پێش ناردنی فۆرمەکە بۆ ڕاگرتنی ڕیزە بەتاڵەکان
+        document.getElementById('purchase-form').addEventListener('submit', function(e) {
+            let validRows = 0;
+            document.querySelectorAll('.item-row').forEach(row => {
+                const prodSelect = row.querySelector('.prod-select');
+                if (!prodSelect.value) {
+                    // ئەگەر کاڵا هەڵنەبژێردرابێت، خانەکانی ئەم ڕیزە ناچالاک بکە بۆ ئەوەی نەنێردرێن
+                    row.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                } else {
+                    // دڵنیابەرەوە کە ڕیزە پڕکراوەکان ناچالاک نەکراون
+                    row.querySelectorAll('input, select').forEach(el => el.disabled = false);
+                    validRows++;
+                }
+            });
+
+            if (validRows === 0) {
+                e.preventDefault();
+                alert('تکایە لانیکەم یەک کاڵا هەڵبژێرە و پڕی بکەرەوە بۆ ئەوەی وەسڵەکە تۆمار بکرێت!');
+            }
+        });
 
         setCurrency(currentCurrency);
         togglePaid();

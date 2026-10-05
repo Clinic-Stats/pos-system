@@ -209,7 +209,8 @@
             const row = document.createElement('tr');
             row.className = 'item-row hover:bg-slate-800/40 transition';
 
-            let prodOpts = products.map(p => `<option value="${p.id}" data-price="${p.base_sale_price}" data-carton="${p.kg_per_carton}">${p.name}</option>`).join('');
+            // ✅ زیادکردنی هەڵبژاردەی بەتاڵ
+            let prodOpts = '<option value="">— کاڵا هەڵبژێرە —</option>' + products.map(p => `<option value="${p.id}" data-price="${p.base_sale_price}" data-carton="${p.kg_per_carton}">${p.name}</option>`).join('');
             let unitOpts = units.map(u => `<option value="${u.id}" data-name="${u.name}" data-factor="${u.factor_to_base}">${u.name}</option>`).join('');
 
             row.innerHTML = `
@@ -236,7 +237,7 @@
                         <option value="damaged" class="text-amber-400 font-bold">تێکچوو / شکاو (ناگەڕێتەوە)</option>
                     </select>
                 </td>
-                <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr"></td>
+                <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr">$0.00</td>
                 <td class="p-2">
                     <button type="button" onclick="removeRow(this)" class="text-rose-400 hover:text-rose-300">
                         <i class="fa-solid fa-trash"></i>
@@ -244,7 +245,7 @@
                 </td>
             `;
             table.appendChild(row);
-            onProductChange(row.querySelector('.prod-select'));
+            calculate();
         }
 
         function removeRow(btn) {
@@ -260,7 +261,12 @@
             const row = select.closest('tr');
             const selected = select.options[select.selectedIndex];
             const usd = parseFloat(selected.getAttribute('data-price')) || 0;
-            row.querySelector('.price-input').value = suggestedPrice(usd);
+            // ✅ تەنها ئەگەر کاڵا هەڵبژێردرابێت نرخەکە دابنێ
+            if (select.value) {
+                row.querySelector('.price-input').value = suggestedPrice(usd);
+            } else {
+                row.querySelector('.price-input').value = 0;
+            }
             calculate();
         }
 
@@ -270,6 +276,13 @@
 
             document.querySelectorAll('.item-row').forEach(row => {
                 const prodSelect = row.querySelector('.prod-select');
+                
+                // ✅ ئەگەر کاڵا هەڵنەبژێردرابێت، هەژماری بۆ ناکەین
+                if (!prodSelect.value) {
+                    row.querySelector('.row-total').innerText = fmt(0);
+                    return; 
+                }
+
                 const selectedProd = prodSelect.options[prodSelect.selectedIndex];
                 const kgPerCarton = parseFloat(selectedProd.getAttribute('data-carton')) || 1;
 
@@ -300,21 +313,27 @@
 
         function updateReturn() {
             const rows = document.querySelectorAll('.item-row');
-            if (rows.length === 0) {
-                alert('تکایە لانیکەم یەک کاڵا زیاد بکە');
+            let items = [];
+
+            // ✅ تەنها ئەو ڕیزانە کۆبکەرەوە کە کاڵایان هەڵبژێردراوە
+            rows.forEach(row => {
+                const prodSelect = row.querySelector('.prod-select');
+                if (prodSelect.value) { 
+                    items.push({
+                        product_id: prodSelect.value,
+                        unit_id: row.querySelector('.unit-select').value,
+                        quantity: row.querySelector('.qty-input').value,
+                        unit_price: row.querySelector('.price-input').value,
+                        condition_type: row.querySelector('.condition-select').value
+                    });
+                }
+            });
+
+            // ✅ ئەگەر هەموو ڕیزەکان بەتاڵ بوون، ئاگاداری بکەرەوە
+            if (items.length === 0) {
+                alert('تکایە لانیکەم یەک کاڵا هەڵبژێرە و پڕی بکەرەوە بۆ ئەوەی وەسڵەکە تۆمار بکرێت!');
                 return;
             }
-
-            let items = [];
-            rows.forEach(row => {
-                items.push({
-                    product_id: row.querySelector('.prod-select').value,
-                    unit_id: row.querySelector('.unit-select').value,
-                    quantity: row.querySelector('.qty-input').value,
-                    unit_price: row.querySelector('.price-input').value,
-                    condition_type: row.querySelector('.condition-select').value
-                });
-            });
 
             fetch(@json(route('returns.update', $return->id)), {
                 method: 'PUT',
