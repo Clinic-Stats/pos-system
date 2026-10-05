@@ -249,28 +249,31 @@
             const tbody = document.getElementById('tableBody');
             const rowId = rowCount++;
 
-            let prodOptions = products.map(p => `<option value="${p.id}">${p.name} (کۆگا: ${p.stock_kg ?? p.stock ?? 0} کگ)</option>`).join('');
+            // ✅ زیادکردنی هەڵبژاردەی بەتاڵ بۆ کاڵا بۆ ئەوەی ڕیزەکە بەتاڵ دەست پێبکات
+            let prodOptions = '<option value="">— کاڵا هەڵبژێرە —</option>' + products.map(p => `<option value="${p.id}">${p.name} (کۆگا: ${p.stock_kg ?? p.stock ?? 0} کگ)</option>`).join('');
             let unitOptions = units.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
 
             const tr = document.createElement('tr');
             tr.id = `row-${rowId}`;
             tr.className = 'purchase-item-row';
+            
+            // ✅ لابردنی required بۆ ئەوەی وێبگەڕەکە ڕێگری نەکات کاتێک ڕیزەکان بەتاڵن
             tr.innerHTML = `
                 <td class="p-2">
-                    <select name="items[${rowId}][product_id]" onchange="calcTotal()" required class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white prod-select">
+                    <select name="items[${rowId}][product_id]" onchange="calcTotal()" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white prod-select">
                         ${prodOptions}
                     </select>
                 </td>
                 <td class="p-2">
-                    <select name="items[${rowId}][unit_id]" onchange="calcTotal()" required class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white unit-select">
+                    <select name="items[${rowId}][unit_id]" onchange="calcTotal()" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white unit-select">
                         ${unitOptions}
                     </select>
                 </td>
                 <td class="p-2">
-                    <input type="number" step="any" min="0.01" name="items[${rowId}][quantity]" value="1" oninput="calcTotal()" required autocomplete="off" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono qty-input">
+                    <input type="number" step="any" min="0.01" name="items[${rowId}][quantity]" value="1" oninput="calcTotal()" autocomplete="off" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono qty-input">
                 </td>
                 <td class="p-2">
-                    <input type="number" step="any" min="0" name="items[${rowId}][buy_price]" value="0" oninput="calcTotal()" required autocomplete="off" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono price-input">
+                    <input type="number" step="any" min="0" name="items[${rowId}][buy_price]" value="0" oninput="calcTotal()" autocomplete="off" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono price-input">
                 </td>
                 <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr">$0.00</td>
                 <td class="p-2 text-center">
@@ -306,6 +309,13 @@
 
             document.querySelectorAll('#tableBody tr').forEach(row => {
                 const prodId = row.querySelector('.prod-select')?.value;
+                
+                // ✅ ئەگەر کاڵا هەڵنەبژێردرابێت، هەژماری بۆ ناکەین و دەینێرینەوە 0
+                if (!prodId) {
+                    row.querySelector('.row-total').innerText = fmtMoney(0);
+                    return;
+                }
+
                 const unitId = row.querySelector('.unit-select')?.value;
                 const qty = parseFloat(row.querySelector('.qty-input')?.value) || 0;
                 const pricePerBase = parseFloat(row.querySelector('.price-input')?.value) || 0;
@@ -340,24 +350,56 @@
                 return false;
             }
 
-            let hasZero = false;
+            let hasError = false;
+            let validRowsCount = 0;
+
             rows.forEach(row => {
-                const price = parseFloat(row.querySelector('.price-input')?.value) || 0;
-                const qty = parseFloat(row.querySelector('.qty-input')?.value) || 0;
-                if (price <= 0 || qty <= 0) hasZero = true;
+                const prodSelect = row.querySelector('.prod-select');
+                const qtyInput = row.querySelector('.qty-input');
+                const priceInput = row.querySelector('.price-input');
+                
+                // ڕێستکردنەوەی ڕەنگی سوور
+                prodSelect.style.border = '';
+                qtyInput.style.border = '';
+                priceInput.style.border = '';
+
+                if (prodSelect.value) { // تەنها ڕیزە پڕکراوەکان پشکنین بکە
+                    const price = parseFloat(priceInput.value) || 0;
+                    const qty = parseFloat(qtyInput.value) || 0;
+                    
+                    if (price <= 0) {
+                        priceInput.style.border = '2px solid red';
+                        hasError = true;
+                    }
+                    if (qty <= 0) {
+                        qtyInput.style.border = '2px solid red';
+                        hasError = true;
+                    }
+                    validRowsCount++;
+                }
             });
 
-            if (hasZero) {
-                alert('تکایە نرخی کڕین و بڕی هەموو کاڵاکان بە دروستی پڕبکەرەوە.');
+            if (hasError) {
+                alert('تکایە نرخی کڕین و بڕی کاڵاکانی دیاریکراو بە دروستی پڕبکەرەوە! (خانە سوورەکان)');
                 e.preventDefault();
                 return false;
             }
 
-            if (calcTotal() <= 0) {
-                alert('کۆی گشتی وەسڵ ناتوانێت 0 بێت.');
+            if (validRowsCount === 0) {
+                alert('تکایە لانیکەم یەک کاڵا هەڵبژێرە و پڕی بکەرەوە بۆ ئەوەی وەسڵەکە تۆمار بکرێت!');
                 e.preventDefault();
                 return false;
             }
+
+            // ✅ لابردنی ڕیزە بەتاڵەکان پێش ناردن بۆ داتابەیس
+            // ئەمە دەبێتە هۆی ئەوەی کە ڕیزە بەتاڵەکان نەنێردرێن بۆ سێرڤەر و کێشە دروست نەکەن
+            rows.forEach(row => {
+                const prodSelect = row.querySelector('.prod-select');
+                if (!prodSelect.value) {
+                    // ئەگەر کاڵا هەڵنەبژێردرابێت، هەموو خانەکانی ئەم ڕیزە ناچالاک بکە بۆ ئەوەی نەنێردرێن
+                    row.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                }
+            });
 
             return true;
         }

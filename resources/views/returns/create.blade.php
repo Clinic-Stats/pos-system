@@ -112,7 +112,6 @@
         </button>
 
     </div>
-
     <script>
         const products = @json($products);
         const units = @json($units);
@@ -159,6 +158,7 @@
             const row = document.createElement('tr');
             row.className = 'item-row hover:bg-slate-800/40 transition';
 
+            // بە ڕیزی بەتاڵ دەست پێدەکات
             let prodOpts = '<option value="">— کاڵا هەڵبژێرە —</option>' + products.map(p => `<option value="${p.id}" data-price="${p.base_sale_price}" data-carton="${p.kg_per_carton}">${p.name}</option>`).join('');
             let unitOpts = units.map(u => `<option value="${u.id}" data-name="${u.name}" data-factor="${u.factor_to_base}">${u.name}</option>`).join('');
 
@@ -202,8 +202,6 @@
             const selected = select.options[select.selectedIndex];
             const usd = parseFloat(selected.getAttribute('data-price')) || 0;
             row.querySelector('.price-input').value = select.value ? suggestedPrice(usd) : 0;
-            // لابردنی سووری کاتێک کاڵا هەڵبژێردرا
-            if (select.value) select.style.border = '';
             calculate();
         }
 
@@ -216,7 +214,7 @@
             rows.forEach(row => {
                 const prodSelect = row.querySelector('.prod-select');
                 
-                // ئەگەر کاڵا هەڵنەبژێردرابێت، هەژماری بۆ ناکەین
+                // ئەگەر کاڵا هەڵنەبژێردرابێت، هەژماری بۆ ناکەین و دەینێرینەوە 0
                 if (!prodSelect.value) {
                     row.querySelector('.row-total').innerText = fmt(0);
                     return; 
@@ -252,40 +250,27 @@
 
         function submitReturn() {
             const rows = document.querySelectorAll('.item-row');
-            if (rows.length === 0) {
-                alert('تکایە لانیکەم یەک کاڵا زیاد بکە');
-                return;
-            }
-
             let items = [];
-            let missing = false;
-            let firstErrorElement = null;
 
+            // تەنها ئەو ڕیزانە کۆبکەرەوە کە کاڵایان هەڵبژێردراوە
             rows.forEach(row => {
                 const prodSelect = row.querySelector('.prod-select');
                 
-                // پشکنین بۆ ئەوەی کاڵا هەڵبژێردرابێت
-                if (!prodSelect.value) {
-                    missing = true;
-                    prodSelect.style.border = '2px solid red'; // نیشانکردنی خانەی بەتاڵ بە سووری
-                    if (!firstErrorElement) firstErrorElement = prodSelect;
-                } else {
-                    prodSelect.style.border = ''; // لابردنی سووری ئەگەر هەڵبژێردرا
+                if (prodSelect.value) { // تەنها ئەگەر کاڵا هەڵبژێردرابێت
+                    items.push({
+                        product_id: prodSelect.value,
+                        unit_id: row.querySelector('.unit-select').value,
+                        quantity: row.querySelector('.qty-input').value,
+                        unit_price: row.querySelector('.price-input').value,
+                        condition_type: row.querySelector('.condition-select').value
+                    });
                 }
-
-                items.push({
-                    product_id: prodSelect.value,
-                    unit_id: row.querySelector('.unit-select').value,
-                    quantity: row.querySelector('.qty-input').value,
-                    unit_price: row.querySelector('.price-input').value,
-                    condition_type: row.querySelector('.condition-select').value
-                });
             });
 
-            if (missing) {
-                alert('تکایە بۆ هەموو دێڕەکان کاڵا هەڵبژێرە! (خانە سوورەکان بەتاڵن)');
-                if (firstErrorElement) firstErrorElement.focus();
-                return; // ڕاگرتنی تۆمارکردن
+            // ئەگەر هەموو ڕیزەکان بەتاڵ بوون، ئاگاداری بکەرەوە
+            if (items.length === 0) {
+                alert('تکایە لانیکەم یەک کاڵا هەڵبژێرە و پڕی بکەرەوە بۆ ئەوەی وەسڵەکە تۆمار بکرێت!');
+                return;
             }
 
             fetch(@json(route('returns.store')), {
@@ -300,7 +285,7 @@
                     refund_type: document.getElementById('refund-type').value,
                     created_at: document.getElementById('return-date').value,
                     currency: currentCurrency,
-                    items: items
+                    items: items // تەنها ئەو ڕیزانەی کە کاڵایان تێدایە دەنێردرێن
                 })
             })
             .then(res => res.json())
