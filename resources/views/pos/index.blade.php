@@ -17,7 +17,7 @@
   --shadow:0 1px 2px rgba(60,45,20,.08),0 10px 28px -14px rgba(60,45,20,.30);
   --shadow-sm:0 1px 2px rgba(60,45,20,.07),0 4px 10px -6px rgba(60,45,20,.20);
 --page:radial-gradient(900px 420px at 88% -8%,rgba(14,116,144,.08),transparent 60%),radial-gradient(700px 380px at 5% 105%,rgba(15,118,110,.07),transparent 60%),linear-gradient(180deg,#e2e2e2,#cfcfcf);
-
+}
 /* ===== تاریک ===== */
 .dark{
 --page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.12),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.10),transparent 60%),#1e2a42;  
