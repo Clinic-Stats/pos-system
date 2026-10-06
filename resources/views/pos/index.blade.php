@@ -9,26 +9,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-/* ===== ڕووناک: بەشەکان بە ڕوونی لێک جیا دەبنەوە ===== */
-/* ===== ڕووناک: ڕەساسی ===== */
+/* ===== ڕووناک (ڕەنگە خۆڵەمێشییەکانی خۆت پارێزراون) ===== */
 :root{
   --bg:#cfcfcf; --sf:#ececec; --sf2:#e3e3e3; --bd:#c0c0c0;
-  --tx:#0b1b33; --mu:#5a5a5a;
+  --tx:#0b1b33; --mu:#5a5a5a; --card:#ffffff;
   --ac:#0f766e; --ac2:#0e7490; --acs:#d8f3ee; --on:#ffffff;
   --wa:#b45309; --was:#fff0cc; --ro:#dc2626; --ros:#ffe2e2;
   --shadow:0 2px 4px rgba(0,0,0,.06),0 10px 28px -14px rgba(0,0,0,.25);
   --shadow-sm:0 1px 3px rgba(0,0,0,.08),0 4px 10px -6px rgba(0,0,0,.15);
   --page:radial-gradient(900px 420px at 88% -8%,rgba(14,116,144,.08),transparent 60%),radial-gradient(700px 380px at 5% 105%,rgba(15,118,110,.07),transparent 60%),linear-gradient(180deg,#d5d5d5,#bfbfbf);
 }
-/* ===== تاریک: کاڵتر ===== */
+/* ===== تاریک (ڕەنگەکانی تاریک گەڕێندرانەوە) ===== */
 .dark{
-  --bg:#1e2a42; --sf:#2a3654; --sf2:#33405f; --bd:#445574;
-  --tx:#eef3fc; --mu:#b0bfda;
-  --ac:#2dd4bf; --ac2:#38bdf8; --acs:#0d3a3d; --on:#03201d;
+  --bg:#131c2e; --sf:#1a2640; --sf2:#213050; --bd:#2f4066; --card:#1f2d4a;
+  --tx:#e8eefb; --mu:#9fb0cc;
+  --ac:#2dd4bf; --ac2:#38bdf8; --acs:#0f3f43; --on:#03201d;
   --wa:#fbbf24; --was:#3a2a0b; --ro:#fb7185; --ros:#3f1523;
   --shadow:0 0 0 1px rgba(255,255,255,.05) inset,0 14px 34px -14px rgba(0,0,0,.6);
   --shadow-sm:0 6px 14px -8px rgba(0,0,0,.55);
-  --page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.12),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.10),transparent 60%),#1e2a42;
+  --page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.12),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.10),transparent 60%),#131c2e;
 }
 body{font-family:'Almarai',sans-serif;background:var(--page);background-attachment:fixed;color:var(--tx)}
 .num{font-family:'Plus Jakarta Sans',sans-serif;direction:ltr;unicode-bidi:isolate}
@@ -41,26 +40,25 @@ body{font-family:'Almarai',sans-serif;background:var(--page);background-attachme
 .brand-tile{background:linear-gradient(135deg,var(--ac),var(--ac2))!important;color:var(--on)!important;box-shadow:0 8px 18px -8px var(--ac)}
 
 /* خانەکان */
-.inp{background:var(--sf);border:1px solid var(--bd);border-radius:.8rem;padding:.5rem .7rem;font-size:11px;font-weight:700;color:var(--tx);width:100%;box-shadow:inset 0 1px 2px rgba(15,35,70,.04);transition:border-color .15s,box-shadow .15s}
+.inp{background:var(--card);border:1px solid var(--bd);border-radius:.8rem;padding:.5rem .7rem;font-size:11px;font-weight:700;color:var(--tx);width:100%;box-shadow:inset 0 1px 2px rgba(15,35,70,.04);transition:border-color .15s,box-shadow .15s}
 .inp:hover{border-color:color-mix(in srgb,var(--ac) 45%,var(--bd))}
 .inp:focus,button:focus-visible,a:focus-visible{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 22%,transparent)}
-.panel-head .inp,.panel-foot .inp{background:var(--sf)}
 
 /* دوگمە و چیپ */
-.chip{background:var(--sf);border:1px solid var(--bd);color:var(--mu);border-radius:999px;padding:.4rem .95rem;font-size:11px;font-weight:800;white-space:nowrap;transition:.15s;box-shadow:var(--shadow-sm)}
+.chip{background:var(--card);border:1px solid var(--bd);color:var(--mu);border-radius:999px;padding:.4rem .95rem;font-size:11px;font-weight:800;white-space:nowrap;transition:.15s;box-shadow:var(--shadow-sm)}
 .chip:hover{color:var(--tx);border-color:var(--ac)}
 .chip.on{background:linear-gradient(135deg,var(--ac),var(--ac2));border-color:transparent;color:var(--on);box-shadow:0 8px 16px -8px var(--ac)}
 .sq{width:2.1rem;height:2.1rem;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-size:11px;transition:.12s}
 .sq:active{transform:scale(.9)}
 .sq.add{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);box-shadow:0 6px 12px -6px var(--ac)}
 .sq.add:hover{filter:brightness(1.08)}
-.sq.sub{background:var(--sf);color:var(--mu);border:1px solid var(--bd)}
-.sq.sub:hover{color:var(--tx);border-color:var(--ac)}
+.sq.sub{background:var(--card);color:var(--mu);border:1px solid var(--bd)}
+.sq.sub:hover{color:var(--ro);border-color:var(--ro)}
 
 /* مینیو */
 .nav-group{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.2rem;background:var(--sf2);border:1px solid var(--bd);border-radius:1rem;padding:.22rem}
 .nav{display:flex;align-items:center;gap:.4rem;padding:.45rem .8rem;border-radius:.8rem;font-size:11px;font-weight:800;color:var(--mu);transition:.15s;white-space:nowrap}
-.nav:hover{background:var(--sf);color:var(--tx);box-shadow:var(--shadow-sm)}
+.nav:hover{background:var(--card);color:var(--tx);box-shadow:var(--shadow-sm)}
 .nav i{color:var(--ac)}
 .nav.hl{background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);box-shadow:0 6px 14px -8px var(--ac)}
 .nav.hl i{color:var(--on)}
@@ -68,74 +66,70 @@ body{font-family:'Almarai',sans-serif;background:var(--page);background-attachme
 #moreDropdown .nav{width:100%}
 
 /* کاڵاکان */
-.pc{background:#ffffff;border:1px solid var(--bd);border-radius:1.05rem;padding:.7rem;display:flex;flex-direction:column;justify-content:space-between;gap:.55rem;position:relative;overflow:visible;transition:transform .15s,box-shadow .15s,border-color .15s;box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px -6px rgba(0,0,0,.12)}
-.pc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:3px;border-radius:0 0 6px 6px;background:linear-gradient(90deg,var(--ac),var(--ac2));opacity:0;transition:opacity .15s}
-.pc:hover{
-  border-color:var(--ac);
-  transform:translateY(-4px) scale(1.02);
-  box-shadow:
-    0 0 0 2px color-mix(in srgb,var(--ac) 35%,transparent),
-    0 12px 28px -8px color-mix(in srgb,var(--ac) 45%,transparent),
-    0 6px 16px -4px rgba(0,0,0,.15);
-}
-.pc:hover::before{opacity:1;left:8px;right:8px}
-.pc:hover::before{opacity:1}
+.pc{background:var(--card);border:1px solid var(--bd);border-radius:1.05rem;padding:.7rem;display:flex;flex-direction:column;justify-content:space-between;gap:.55rem;position:relative;overflow:visible;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px -6px rgba(0,0,0,.12);will-change:transform}
+.pc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:3px;border-radius:0 0 6px 6px;background:linear-gradient(90deg,var(--ac),var(--ac2));opacity:0;transition:opacity .18s}
+.pc h3{transition:color .18s}
 .pc.low{border-color:color-mix(in srgb,var(--wa) 55%,var(--bd))}
 .pc.low::before{background:var(--wa);opacity:1}
-.pc.out{opacity:.62;background:color-mix(in srgb,var(--ros) 45%,var(--sf))}
+.pc.out{opacity:.62;background:color-mix(in srgb,var(--ros) 45%,var(--card))}
 .pc.out::before{background:var(--ro);opacity:1}
+/* هۆڤەر: تەنها لەسەر ئامێرێک کە ماوس هەیە (لە مۆبایل نامێنێتەوە) */
+@media (hover:hover){
+  .pc:hover{
+    border-color:var(--ac);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--ac) 11%,var(--card)),var(--card) 75%);
+    transform:translateY(-5px) scale(1.015);
+    box-shadow:0 0 0 2px color-mix(in srgb,var(--ac) 38%,transparent),0 20px 32px -14px color-mix(in srgb,var(--ac) 60%,transparent),0 8px 16px -8px rgba(0,0,0,.22);
+  }
+  .pc:hover::before{opacity:1}
+  .pc:hover h3{color:var(--ac)}
+  .pc:hover .sq.add{transform:scale(1.1);box-shadow:0 10px 18px -6px var(--ac)}
+  .pc.out:hover{transform:none;box-shadow:var(--shadow-sm);border-color:var(--ro)}
+}
+.pc:active{transform:translateY(-1px) scale(.995)}
 
 /* دوگمەی نەقد/قەرز و دراو */
-.seg{display:flex;background:var(--sf);border:1px solid var(--bd);border-radius:.9rem;padding:.2rem;gap:.2rem;box-shadow:inset 0 1px 2px rgba(15,35,70,.05)}
+.seg{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:.9rem;padding:.2rem;gap:.2rem;box-shadow:inset 0 1px 2px rgba(15,35,70,.05)}
 .seg>*{flex:1;text-align:center;padding:.42rem .5rem;border-radius:.7rem;font-size:11px;font-weight:800;color:var(--mu);cursor:pointer;transition:.15s}
 .seg>*:hover{color:var(--tx)}
 .seg>.on,.seg>label:has(input:checked){background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);box-shadow:0 6px 12px -7px var(--ac)}
 .seg>label.debt:has(input:checked){background:var(--wa);color:var(--on)}
 .seg input{display:none}
-.badge{position:absolute;top:-.55rem;left:-.55rem;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);border-radius:999px;padding:.12rem .6rem;font-size:12px;font-weight:800;border:2px solid var(--sf);display:none;box-shadow:var(--shadow-sm);z-index:2}
+.badge{position:absolute;top:-.55rem;left:-.55rem;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);border-radius:999px;padding:.12rem .6rem;font-size:12px;font-weight:800;border:2px solid var(--card);display:none;box-shadow:var(--shadow-sm);z-index:2}
 
 /* سەبەتە */
-.rowin{animation:rin .25s ease-out;box-shadow:var(--shadow-sm);background:var(--sf)!important;border-color:var(--bd)!important}
+.rowin{animation:rin .25s ease-out;box-shadow:var(--shadow-sm);background:var(--card)!important;border-color:var(--bd)!important}
 @keyframes rin{from{opacity:0;transform:translateY(6px)}}
-#cartItemsContainer{background:transparent}
-#grandTotalText{letter-spacing:-.01em}
+#cartCount{display:inline-block}
 .total-card{background:linear-gradient(135deg,var(--acs),color-mix(in srgb,var(--acs) 55%,var(--sf)))!important;border:1px solid color-mix(in srgb,var(--ac) 30%,transparent)}
 #btnSubmitSale{background:linear-gradient(135deg,var(--ac),var(--ac2))!important;color:var(--on)!important;box-shadow:0 14px 24px -12px var(--ac)}
 #btnSubmitSale:hover{filter:brightness(1.07)}
 #btnSubmitSale:disabled{opacity:.7}
 
+/* جووڵەی فڕین: + بۆ سەبەتە، - لە سەبەتەوە */
+.fly-chip{position:fixed;z-index:2000;pointer-events:none;min-width:30px;height:30px;padding:0 9px;border-radius:999px;display:flex;align-items:center;justify-content:center;font:800 12px 'Plus Jakarta Sans',sans-serif;color:var(--on);background:linear-gradient(135deg,var(--ac),var(--ac2));box-shadow:0 10px 20px -6px var(--ac);will-change:transform,opacity}
+.fly-chip.sub{background:linear-gradient(135deg,#fb7185,#e11d48);color:#fff;box-shadow:0 10px 20px -6px #e11d48}
+.bump{animation:bump .38s ease}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+
 .scroll::-webkit-scrollbar{width:7px;height:7px}.scroll::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--mu) 40%,transparent);border-radius:9px}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type=number]{-moz-appearance:textfield}
-/* ===== جولەی کاڵا بۆ سەبەتە ===== */
-.fly-item{
-  position:fixed;z-index:9999;pointer-events:none;
-  width:42px;height:42px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:13px;color:#fff;
-  box-shadow:0 8px 24px -4px rgba(15,118,110,.6),0 0 0 3px rgba(255,255,255,.9);
-  transition:all .65s cubic-bezier(.5,-0.3,.7,1);
-  will-change:transform,left,top,opacity;
-}
-.fly-item.to-cart{background:linear-gradient(135deg,#0f766e,#0e7490)}
-.fly-item.from-cart{background:linear-gradient(135deg,#dc2626,#b45309)}
-.fly-item.fly-done{opacity:0;transform:scale(.2) rotate(180deg)}
 
-/* بۆچوونی سەبەتە */
-@keyframes cartBump{
-  0%{transform:scale(1)}
-  40%{transform:scale(1.25) rotate(-8deg)}
-  70%{transform:scale(.92) rotate(5deg)}
-  100%{transform:scale(1) rotate(0)}
+/* ===== مۆبایل: سەبەتە دەبێتە پەنجەرەی خوارەوە ===== */
+.cart-fab,.cart-backdrop{display:none}
+@media (max-width:1023px){
+  main{padding-bottom:5.2rem}
+  .pc-section{height:auto!important}
+  .pc-section #productsGrid{overflow:visible;max-height:none}
+  .pc-section .panel-head{position:sticky;top:0;z-index:20;box-shadow:var(--shadow-sm)}
+  .cart-panel{position:fixed;left:0;right:0;bottom:0;z-index:70;height:90vh!important;border-radius:1.4rem 1.4rem 0 0;transform:translateY(110%);transition:transform .28s ease;box-shadow:0 -20px 50px -20px rgba(0,0,0,.5)}
+  .cart-panel.open{transform:translateY(0)}
+  .cart-backdrop{display:block;position:fixed;inset:0;z-index:65;background:rgba(5,10,25,.55);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s}
+  .cart-backdrop.show{opacity:1;pointer-events:auto}
+  .cart-fab{display:flex;position:fixed;left:.75rem;right:.75rem;bottom:.75rem;z-index:60;align-items:center;justify-content:space-between;gap:.75rem;padding:.85rem 1.05rem;border-radius:1.1rem;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);font-weight:800;font-size:13px;box-shadow:0 16px 30px -12px var(--ac)}
+  body.cart-open .cart-fab{display:none}
 }
-.cart-bump{animation:cartBump .55s cubic-bezier(.4,1.6,.5,1)}
-
-/* بازنەی کەوتنە سەر کاڵا */
-@keyframes productPulse{
-  0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ac) 55%,transparent)}
-  100%{box-shadow:0 0 0 18px transparent}
-}
-.product-pulse{animation:productPulse .6s ease-out}
-@media (prefers-reduced-motion:reduce){.rowin{animation:none}.pc,.chip,.nav{transition:none}}
+@media (prefers-reduced-motion:reduce){.rowin,.bump{animation:none}.pc,.chip,.nav,.cart-panel{transition:none}}
 </style>
     @include('partials.system-head')
 </head>
@@ -200,7 +194,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 <main class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[1fr_390px] gap-2">
 
   <!-- کاڵاکان -->
-  <section class="sf p-3 flex flex-col min-h-0 h-[70vh] lg:h-auto">
+  <section class="sf pc-section p-3 flex flex-col min-h-0 h-[70vh] lg:h-auto">
     <div class="shrink-0 space-y-2.5 panel-head">
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-xs" style="color:var(--mu)"></i>
@@ -224,7 +218,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
         @endphp
         <div class="pc {{ $isOut ? 'out' : ($isLow ? 'low' : '') }}" data-category="{{ $p->category_id }}" data-name="{{ $p->name }}" data-code="{{ $p->code }}" data-price-usd="{{ $p->base_sale_price }}">
           <div id="qty-badge-{{ $p->id }}" class="badge num"><i class="fa-solid fa-check text-[10px]"></i> <span class="badge-val">0</span></div>
-          <div class="cursor-pointer space-y-2" onclick="addToCart({{ $p->id }})">
+          <div class="cursor-pointer space-y-2" onclick="addToCart({{ $p->id }}, event)">
             <div class="flex items-center justify-between gap-1">
               <span class="num text-[9px] font-extrabold px-1.5 py-0.5 rounded-md" style="background:var(--sf2);color:var(--mu)">{{ $p->code }}</span>
               @if($isOut)<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-md" style="background:var(--ros);color:var(--ro)">نەماوە</span>
@@ -248,11 +242,11 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
   </section>
 
   <!-- سەبەتە -->
-  <aside class="sf p-3 flex flex-col min-h-0 h-[85vh] lg:h-auto">
+  <aside class="sf cart-panel p-3 flex flex-col min-h-0 h-[85vh] lg:h-auto">
     <div class="shrink-0 space-y-2.5 panel-head">
       <div class="flex items-center justify-between">
         <h2 class="font-extrabold text-sm flex items-center gap-2"><i class="fa-solid fa-cart-shopping" style="color:var(--ac)"></i> سەبەتە <span id="cartCount" class="num text-[10px] px-1.5 rounded-md" style="background:var(--acs);color:var(--ac)">0</span></h2>
-        <button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" class="chip !py-1.5 flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span></button>
+        <div class="flex items-center gap-1.5"><button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" class="chip !py-1.5 flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span></button><button type="button" class="sq sub lg:hidden" onclick="closeCart()" title="داخستن"><i class="fa-solid fa-chevron-down"></i></button></div>
       </div>
 
       <div id="editBanner" class="hidden rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center justify-between" style="background:var(--was);color:var(--wa)">
@@ -297,6 +291,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
     </div>
   </aside>
 </main>
+
+<!-- مۆبایل: دوگمەی سەبەتە و پەردە -->
+<div id="cartBackdrop" class="cart-backdrop" onclick="closeCart()"></div>
+<button type="button" id="cartFab" class="cart-fab" onclick="openCart()"><span><i class="fa-solid fa-cart-shopping"></i> سەبەتە <b id="fabCount" class="num">0</b></span><span id="fabTotal" class="num">$0.00</span></button>
 
 <!-- مۆداڵی سەرکەوتن -->
 <div id="successModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 z-[999]">
@@ -406,7 +404,7 @@ function unitFactor(p, u) {
   if (n.includes('تەن') || n.includes('ton')) return 1000;
   return parseFloat(u?.factor_to_base) || 1;
 }
-function addToCart(id) {
+function addToCart(id, e) {
   const p = allProducts.find(x => x.id == id); if (!p) return false;
   const stock = parseFloat(p.stock_kg ?? p.stock ?? 0);
   const idx = cart.findIndex(i => i.id === p.id);
@@ -420,83 +418,18 @@ function addToCart(id) {
     cart.push({ carton: isC, id: p.id, name: p.name, code: p.code, price_usd: parseFloat(p.base_sale_price) || 0, stock_kg: stock,
       kg_per_carton: parseFloat(p.kg_per_carton) || 1, qty: 1, unit_id: u.id, factor: unitFactor(p, u) });
   }
-  renderCart(); return true;
+  renderCart();
+  if (e && e.currentTarget) fly(e.currentTarget, cartTarget(), '+1', 'add');   // دانە بەرەو سەبەتە دەفڕێت
+  return true;
 }
-function quickIncrease(id, e) {
-  e.stopPropagation();
-  if (addToCart(id)) flyToCart(e.currentTarget, id, 'to');
-}
+function quickIncrease(id, e) { e.stopPropagation(); addToCart(id, e); }
 function quickDecrease(id, e) {
   e.stopPropagation();
   const i = cart.findIndex(x => x.id === id); if (i === -1) return;
-  const removed = cart[i].qty <= 1;
+  const btn = e.currentTarget;
   if (cart[i].qty > 1) cart[i].qty--; else cart.splice(i, 1);
   renderCart();
-  flyToCart(e.currentTarget, id, 'from', removed);
-}
-
-/* ===== ئەنیمەیشنی جولە ===== */
-function flyToCart(sourceEl, productId, direction, removed = false) {
-  const cartEl = document.querySelector('#cartCount');
-  if (!cartEl || !sourceEl) return;
-
-  const src = sourceEl.getBoundingClientRect();
-  const dst = cartEl.getBoundingClientRect();
-  const product = allProducts.find(x => x.id == productId);
-
-  // ئەگەر product نەبوو، بگەڕێوە
-  if (!product) return;
-
-  // دروستکردنی بازنە
-  const fly = document.createElement('div');
-  fly.className = 'fly-item ' + (direction === 'to' ? 'to-cart' : 'from-cart');
-  fly.innerHTML = direction === 'to'
-    ? '<i class="fa-solid fa-plus"></i>'
-    : '<i class="fa-solid fa-minus"></i>';
-
-  // شوێنی دەستپێک
-  const startX = src.left + src.width / 2 - 21;
-  const startY = src.top + src.height / 2 - 21;
-  fly.style.left = startX + 'px';
-  fly.style.top = startY + 'px';
-  document.body.appendChild(fly);
-
-  // شوێنی کۆتایی
-  const endX = dst.left + dst.width / 2 - 21;
-  const endY = dst.top + dst.height / 2 - 21;
-
-  // ئاراستە: بۆ سەبەتە یان لە سەبەتەوە
-  const isToCart = direction === 'to';
-
-  // دەستپێکردنی ئەنیمەیشن بە دواخستنی بچووک
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      fly.style.left = endX + 'px';
-      fly.style.top = endY + 'px';
-      fly.style.transform = isToCart ? 'scale(.4)' : 'scale(1.4)';
-      fly.style.opacity = isToCart ? '.85' : '1';
-    });
-  });
-
-  // کاتێک گەیشتە سەبەتە
-  setTimeout(() => {
-    fly.classList.add('fly-done');
-    if (isToCart) {
-      cartEl.classList.remove('cart-bump');
-      void cartEl.offsetWidth;
-      cartEl.classList.add('cart-bump');
-    } else if (removed) {
-      // ئەگەر کاڵاکە لە سەبەتە دەرکرا، کاڵاکە بلەرزێنینەوە
-      const cardEl = document.querySelector(`.pc[data-name="${product.name}"]`)
-        || document.querySelectorAll('.pc')[0];
-      if (cardEl) {
-        cardEl.classList.remove('product-pulse');
-        void cardEl.offsetWidth;
-        cardEl.classList.add('product-pulse');
-      }
-    }
-    setTimeout(() => fly.remove(), 400);
-  }, 680);
+  fly(cartTarget(), btn, '−1', 'sub');   // دانە لە سەبەتەوە دەگەڕێتەوە بۆ کاڵاکە
 }
 function updateItemPrice(i, v) { const p = parseFloat(v) || 0; cart[i].price_usd = currentCurrency === 'USD' ? p : p / rate; renderCart(); }
 function updateItemUnit(i, uid) {
@@ -563,13 +496,37 @@ function renderCart() {
   $('grandTotalText').innerText = money(total);
   $('grandAltText').innerText = total > 0 ? '≈ ' + money(alt, other) : '';
   if (!cart.length) resetClear();
-  updateBadges(); updateCardPrices();
+  updateBadges(); updateCardPrices(); updateFab(total);
 }
 
 function togglePaymentType() {
   const debt = document.querySelector('input[name="paymentType"]:checked').value === 'debt';
   $('paidAmountBox').classList.toggle('hidden', !debt);
 }
+
+/* ===== جووڵەی فڕین و سەبەتەی مۆبایل ===== */
+function centerOf(el) { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+function cartTarget() { return (window.innerWidth < 1024 && $('cartFab')) ? $('cartFab') : $('cartCount'); }
+function bump(el) { if (!el) return; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+function fly(fromEl, toEl, text, kind) {
+  if (!fromEl || !toEl || !fromEl.isConnected || !toEl.isConnected) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { bump(toEl); return; }
+  const a = centerOf(fromEl), b = centerOf(toEl);
+  const dx = b.x - a.x, dy = b.y - a.y, lift = Math.min(90, Math.abs(dx) * 0.25 + 40);
+  const el = document.createElement('div');
+  el.className = 'fly-chip ' + kind; el.textContent = text;
+  el.style.left = a.x + 'px'; el.style.top = a.y + 'px';
+  document.body.appendChild(el);
+  const anim = el.animate([
+    { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+    { transform: `translate(calc(-50% + ${dx * 0.5}px), calc(-50% + ${dy * 0.5 - lift}px)) scale(1.15)`, opacity: 1, offset: 0.5 },
+    { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.45)`, opacity: 0.2 }
+  ], { duration: 650, easing: 'cubic-bezier(.45,.05,.35,1)' });
+  anim.onfinish = () => { el.remove(); bump(toEl); };
+}
+function openCart() { document.querySelector('.cart-panel').classList.add('open'); $('cartBackdrop').classList.add('show'); document.body.classList.add('cart-open'); }
+function closeCart() { document.querySelector('.cart-panel').classList.remove('open'); $('cartBackdrop').classList.remove('show'); document.body.classList.remove('cart-open'); }
+function updateFab(total) { $('fabCount').textContent = cart.length; $('fabTotal').textContent = money(total); }
 
 /* تۆمارکردنی فرۆشتن */
 let isSubmitting = false;   // ڕێگری لە دووجار کلیک
@@ -656,7 +613,7 @@ function renderModalItems() {
 /* دوای تۆمارکردن: دوگمەکانی مۆداڵ */
 function closeKeepEditing() { $('successModal').classList.add('hidden'); }   // سەبەتە دەمێنێتەوە، پاشەکەوتی داهاتوو هەمان وەسڵ نوێ دەکاتەوە
 function startNewSale() {
-  $('successModal').classList.add('hidden');
+  $('successModal').classList.add('hidden'); closeCart();
   if (editSale) { window.location.href = '{{ route('pos.index') }}'; return; }
   cart = []; savedSaleId = null; lastUse = {}; lastSaleItems = []; lastDiscount = 0;
   $('cartDiscount').value = 0; $('paidAmount').value = 0; $('customerId').value = '';
