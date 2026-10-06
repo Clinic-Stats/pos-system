@@ -11,7 +11,8 @@
 <style>
 /* ===== ڕووناک: بەشەکان بە ڕوونی لێک جیا دەبنەوە ===== */
 :root{
---bg:#d8d8d8; --sf2:#f0f0f0; --bd:#c8c8c8; --mu:#606060;  --ac:#0f766e; --ac2:#0e7490; --acs:#d8f3ee; --on:#ffffff;
+--bg:#d8d8d8; --sf:#fafafa; --sf2:#ebebeb; --bd:#cfcfcf; --mu:#606060;  --ac:#0f766e; --ac2:#0e7490;
+ --acs:#d8f3ee; --on:#ffffff;
   --wa:#b45309; --was:#fff0cc; --ro:#dc2626; --ros:#ffe2e2;
   --shadow:0 1px 2px rgba(60,45,20,.08),0 10px 28px -14px rgba(60,45,20,.30);
   --shadow-sm:0 1px 2px rgba(60,45,20,.07),0 4px 10px -6px rgba(60,45,20,.20);
@@ -19,7 +20,8 @@
 
 /* ===== تاریک ===== */
 .dark{
---page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.12),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.10),transparent 60%),#1e2a42;  --wa:#fbbf24; --was:#3a2a0b; --ro:#fb7185; --ros:#3f1523;
+--page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.12),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.10),transparent 60%),#1e2a42;  
+--wa:#fbbf24; --was:#3a2a0b; --ro:#fb7185; --ros:#3f1523;
   --shadow:0 0 0 1px rgba(255,255,255,.05) inset,0 14px 34px -14px rgba(0,0,0,.6);
   --shadow-sm:0 6px 14px -8px rgba(0,0,0,.55);
   --page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.12),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.10),transparent 60%),#131c2e;
