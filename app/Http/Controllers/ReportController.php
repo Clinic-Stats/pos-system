@@ -83,13 +83,22 @@ class ReportController extends Controller
         $totalCostAll   = $this->byCur($sales, 'total_cost');
         $totalGrossProfit = $this->byCur($sales, 'total_profit');
 
-        // قازانجی گەڕاوەکان کەم دەکرێتەوە: داهاتی گەڕاو − تێچووی کاڵاکان (بە تێچووی تێکڕای ئێستا)
+        // گەڕاوەکان: قازانج کەم دەکەنەوە، و بەپێی جۆر (ئاسایی / بەسەرچوو / تێکچوو) پۆلێن دەکرێن
+        $salesProfitBefore   = $totalGrossProfit;          // قازانجی فرۆشتن پێش کەمکردنەوەی گەڕاوە
+        $returnsProfitEffect = $this->empty();
+        $returnsSummary = [];
+        foreach (['normal', 'expired', 'damaged'] as $c) {
+            $returnsSummary[$c] = ['value' => $this->empty(), 'lines' => 0, 'ids' => []];
+        }
+        $allReturnIds = [];
+
         if (Schema::hasTable('sale_return_details')) {
             $retQ = DB::table('sale_return_details as d')
                 ->join('sale_returns as r', 'd.sale_return_id', '=', 'r.id')
                 ->join('products as p', 'd.product_id', '=', 'p.id')
                 ->join('units as u', 'd.unit_id', '=', 'u.id')
-                ->select('d.quantity', 'd.subtotal', 'r.currency', 'p.base_buy_price', 'p.kg_per_carton', 'p.sell_type', 'u.name as unit_name', 'u.factor_to_base');
+                ->select('d.quantity', 'd.subtotal', 'd.condition_type', 'r.id as return_id', 'r.currency',
+                         'p.base_buy_price', 'p.kg_per_carton', 'p.sell_type', 'u.name as unit_name', 'u.factor_to_base');
             if ($hasRange) $retQ->whereBetween('r.created_at', [$fromDate, $toDate]);
 
             foreach ($retQ->get() as $row) {
@@ -99,10 +108,36 @@ class ReportController extends Controller
                 elseif (str_contains($n, 'تەن') || str_contains($n, 'ton')) $f = 1000.0;
                 else $f = (float) ($row->factor_to_base ?: 1);
 
-                $isUsd = strtoupper($row->currency ?? 'IQD') === 'USD';
+                $cur = strtoupper($row->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
                 $costUsd = (float) $row->quantity * $f * (float) $row->base_buy_price;
-                $cost = $isUsd ? $costUsd : $costUsd * $rate;
-                $totalGrossProfit[$isUsd ? 'USD' : 'IQD'] -= ((float) $row->subtotal - $cost);
+                $cost = $cur === 'USD' ? $costUsd : $costUsd * $rate;
+                $effect = (float) $row->subtotal - $cost;
+
+                $totalGrossProfit[$cur]   -= $effect;
+                $returnsProfitEffect[$cur] += $effect;
+
+                $cond = in_array($row->condition_type, ['expired', 'damaged'], true) ? $row->condition_type : 'normal';
+                $returnsSummary[$cond]['value'][$cur] += (float) $row->subtotal;
+                $returnsSummary[$cond]['lines']++;
+                $returnsSummary[$cond]['ids'][$row->return_id] = true;
+                $allReturnIds[$row->return_id] = true;
+            }
+        }
+        $returnsTotalValue = $this->empty();
+        foreach ($returnsSummary as $c => $s) {
+            $returnsSummary[$c]['count'] = count($s['ids']);
+            unset($returnsSummary[$c]['ids']);
+            $returnsTotalValue = $this->add($returnsTotalValue, $s['value']);
+        }
+        $returnsAllCount = count($allReturnIds);
+
+        // زیانی کاڵای گەڕاوی بەسەرچوو / تێکچوو (بە نرخی کڕین، دۆلار)
+        $returnLoss = ['expired' => 0.0, 'damaged' => 0.0];
+        if (Schema::hasTable('stock_losses')) {
+            $rl = StockLoss::where('source', 'sale_return');
+            if ($hasRange) $rl->whereBetween('loss_date', [$fromDate, $toDate]);
+            foreach ($rl->selectRaw('reason, SUM(total_cost_usd) as t')->groupBy('reason')->pluck('t', 'reason') as $reason => $v) {
+                if (isset($returnLoss[$reason])) $returnLoss[$reason] = (float) $v;
             }
         }
         $debtPaidAtSale = $this->byCur($debtSales, 'paid_amount');   // بەشی دراو لە کاتی فرۆشتنی قەرز
@@ -186,7 +221,7 @@ class ReportController extends Controller
             'rate', 'toUsd', 'paginatedSales',
             'totalSalesAll', 'totalSalesCash', 'totalSalesDebt', 'totalCostAll', 'totalGrossProfit',
             'realNetProfit', 'debtPaidAtSale', 'totalDebtCollected', 'totalCashReturns', 'totalExpenses', 'cashInHand',
-            'totalCustomerDebts', 'totalLosses', 'stockCost', 'stockValue', 'stockProfit', 'totalStockKg',
+            'totalCustomerDebts', 'totalLosses', 'salesProfitBefore', 'returnsProfitEffect', 'returnsSummary', 'returnsTotalValue', 'returnsAllCount', 'returnLoss', 'stockCost', 'stockValue', 'stockProfit', 'totalStockKg',
             'topProducts', 'topCustomers'
         ));
     }

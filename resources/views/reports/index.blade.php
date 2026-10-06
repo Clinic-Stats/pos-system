@@ -26,9 +26,9 @@
 
     // [ناونیشان، دراوەکان، ئایکۆن، ڕەنگی ئایکۆن/ژمارە، ژێرنووس]
     $row1 = [
-        ['کۆی فرۆشراو', $totalSalesAll, 'fa-bag-shopping', 'text-blue-600', 'نەقد ≈ ' . $u($toUsd($totalSalesCash)) . ' · قەرز ≈ ' . $u($toUsd($totalSalesDebt))],
+        ['کۆی فرۆشراو', $totalSalesAll, 'fa-bag-shopping', 'text-blue-600', 'نەقد ≈ ' . $u($toUsd($totalSalesCash)) . ' · قەرز ≈ ' . $u($toUsd($totalSalesDebt)) . ($toUsd($returnsTotalValue) > 0 ? ' · گەڕاوە −' . $u($toUsd($returnsTotalValue)) : '')],
         ['کۆی تێچووی فرۆشراو', $totalCostAll, 'fa-boxes-stacked', 'text-slate-600', 'تێچووی کڕینی کاڵاکان'],
-        ['قازانجی کاڵا', $totalGrossProfit, 'fa-chart-line', 'text-emerald-600', 'فرۆشراو − تێچوو − قازانجی گەڕاوەکان'],
+        ['قازانجی کاڵا', $totalGrossProfit, 'fa-chart-line', 'text-emerald-600', 'فرۆشتن ' . $u($toUsd($salesProfitBefore)) . ' − گەڕاوە ' . $u($toUsd($returnsProfitEffect))],
         ['کۆی مەسروفات', $totalExpenses, 'fa-wallet', 'text-rose-600', 'خەرجیی ئەم ماوەیە'],
         ['پوختەی قازانج (صافی)', $realNetProfit, 'fa-scale-balanced', $toUsd($realNetProfit) >= 0 ? 'text-emerald-600' : 'text-rose-600', 'قازانج - مەسروفات - تەلەف'],
     ];
@@ -126,6 +126,44 @@
         </div>
         @endforeach
     </section>
+
+    @if($returnsAllCount > 0)
+    @php
+        $rc = [
+            ['normal', 'گەڕاوەی ئاسایی', 'fa-box-open', 'text-emerald-600', 'دەگەڕێتەوە کۆگا'],
+            ['expired', 'بەسەرچوو', 'fa-hourglass-end', 'text-amber-600', 'ناگەڕێتەوە کۆگا'],
+            ['damaged', 'تێکچوو / شکاو', 'fa-burst', 'text-rose-600', 'ناگەڕێتەوە کۆگا'],
+        ];
+    @endphp
+    <section class="card p-4 space-y-3">
+        <div class="flex items-center justify-between">
+            <h3 class="text-xs font-extrabold flex items-center gap-1.5"><i class="fa-solid fa-rotate-left text-rose-500"></i> گەڕاوەکانی ئەم ماوەیە</h3>
+            <a href="{{ route('returns.index') }}" class="text-[11px] font-bold text-blue-600 hover:underline">بینینی هەموو وەسڵەکان ←</a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="rounded-2xl p-3.5 border border-slate-200 bg-slate-50/60">
+                <p class="text-[11px] font-bold text-slate-500">کۆی گەڕاوەکان</p>
+                <p class="usd font-num text-xl font-extrabold text-rose-600 mt-1">{{ $u($returnsTotalValue['USD']) }}</p>
+                <p class="iqd font-num text-xs font-bold text-slate-500">{{ $i($returnsTotalValue['IQD']) }}</p>
+                <p class="eq font-num text-[10px] text-slate-400">کۆی هەموو ≈ {{ $u($toUsd($returnsTotalValue)) }}</p>
+                <p class="text-[10px] text-slate-500 pt-2 mt-2 border-t border-slate-200">{{ $returnsAllCount }} وەسڵی گەڕاوە · قازانج کەمبووەوە {{ $u($toUsd($returnsProfitEffect)) }}</p>
+            </div>
+            @foreach($rc as [$key, $title, $ic, $col, $note])
+            @php $s = $returnsSummary[$key]; @endphp
+            <div class="rounded-2xl p-3.5 border border-slate-200 {{ $s['count'] ? '' : 'opacity-60' }}">
+                <p class="text-[11px] font-bold text-slate-500 flex items-center justify-between"><span>{{ $title }}</span><i class="fa-solid {{ $ic }} {{ $col }}"></i></p>
+                <p class="usd font-num text-xl font-extrabold {{ $col }} mt-1">{{ $u($s['value']['USD']) }}</p>
+                <p class="iqd font-num text-xs font-bold text-slate-500">{{ $i($s['value']['IQD']) }}</p>
+                <p class="eq font-num text-[10px] text-slate-400">≈ {{ $u($toUsd($s['value'])) }}</p>
+                <p class="text-[10px] text-slate-500 pt-2 mt-2 border-t border-slate-200">
+                    {{ $s['count'] }} وەسڵ · {{ $note }}
+                    @if($key !== 'normal' && ($returnLoss[$key] ?? 0) > 0)<br><b class="text-rose-600">زیانی کاڵا: {{ $u($returnLoss[$key]) }}</b>@endif
+                </p>
+            </div>
+            @endforeach
+        </div>
+    </section>
+    @endif
 
     <!-- چارتەکان -->
     <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
