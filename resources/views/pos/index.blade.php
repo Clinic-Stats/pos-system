@@ -70,7 +70,15 @@ body{font-family:'Almarai',sans-serif;background:var(--page);background-attachme
 /* کاڵاکان */
 .pc{background:#ffffff;border:1px solid var(--bd);border-radius:1.05rem;padding:.7rem;display:flex;flex-direction:column;justify-content:space-between;gap:.55rem;position:relative;overflow:visible;transition:transform .15s,box-shadow .15s,border-color .15s;box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px -6px rgba(0,0,0,.12)}
 .pc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:3px;border-radius:0 0 6px 6px;background:linear-gradient(90deg,var(--ac),var(--ac2));opacity:0;transition:opacity .15s}
-.pc:hover{border-color:var(--ac);transform:translateY(-3px);box-shadow:0 12px 24px -8px color-mix(in srgb,var(--ac) 40%,transparent),0 4px 12px -4px rgba(0,0,0,.12)}
+.pc:hover{
+  border-color:var(--ac);
+  transform:translateY(-4px) scale(1.02);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb,var(--ac) 35%,transparent),
+    0 12px 28px -8px color-mix(in srgb,var(--ac) 45%,transparent),
+    0 6px 16px -4px rgba(0,0,0,.15);
+}
+.pc:hover::before{opacity:1;left:8px;right:8px}
 .pc:hover::before{opacity:1}
 .pc.low{border-color:color-mix(in srgb,var(--wa) 55%,var(--bd))}
 .pc.low::before{background:var(--wa);opacity:1}
@@ -98,6 +106,35 @@ body{font-family:'Almarai',sans-serif;background:var(--page);background-attachme
 
 .scroll::-webkit-scrollbar{width:7px;height:7px}.scroll::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--mu) 40%,transparent);border-radius:9px}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type=number]{-moz-appearance:textfield}
+/* ===== جولەی کاڵا بۆ سەبەتە ===== */
+.fly-item{
+  position:fixed;z-index:9999;pointer-events:none;
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:13px;color:#fff;
+  box-shadow:0 8px 24px -4px rgba(15,118,110,.6),0 0 0 3px rgba(255,255,255,.9);
+  transition:all .65s cubic-bezier(.5,-0.3,.7,1);
+  will-change:transform,left,top,opacity;
+}
+.fly-item.to-cart{background:linear-gradient(135deg,#0f766e,#0e7490)}
+.fly-item.from-cart{background:linear-gradient(135deg,#dc2626,#b45309)}
+.fly-item.fly-done{opacity:0;transform:scale(.2) rotate(180deg)}
+
+/* بۆچوونی سەبەتە */
+@keyframes cartBump{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.25) rotate(-8deg)}
+  70%{transform:scale(.92) rotate(5deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+.cart-bump{animation:cartBump .55s cubic-bezier(.4,1.6,.5,1)}
+
+/* بازنەی کەوتنە سەر کاڵا */
+@keyframes productPulse{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ac) 55%,transparent)}
+  100%{box-shadow:0 0 0 18px transparent}
+}
+.product-pulse{animation:productPulse .6s ease-out}
 @media (prefers-reduced-motion:reduce){.rowin{animation:none}.pc,.chip,.nav{transition:none}}
 </style>
     @include('partials.system-head')
@@ -385,12 +422,81 @@ function addToCart(id) {
   }
   renderCart(); return true;
 }
-function quickIncrease(id, e) { e.stopPropagation(); addToCart(id); }
+function quickIncrease(id, e) {
+  e.stopPropagation();
+  if (addToCart(id)) flyToCart(e.currentTarget, id, 'to');
+}
 function quickDecrease(id, e) {
   e.stopPropagation();
   const i = cart.findIndex(x => x.id === id); if (i === -1) return;
+  const removed = cart[i].qty <= 1;
   if (cart[i].qty > 1) cart[i].qty--; else cart.splice(i, 1);
   renderCart();
+  flyToCart(e.currentTarget, id, 'from', removed);
+}
+
+/* ===== ئەنیمەیشنی جولە ===== */
+function flyToCart(sourceEl, productId, direction, removed = false) {
+  const cartEl = document.querySelector('#cartCount');
+  if (!cartEl || !sourceEl) return;
+
+  const src = sourceEl.getBoundingClientRect();
+  const dst = cartEl.getBoundingClientRect();
+  const product = allProducts.find(x => x.id == productId);
+
+  // ئەگەر product نەبوو، بگەڕێوە
+  if (!product) return;
+
+  // دروستکردنی بازنە
+  const fly = document.createElement('div');
+  fly.className = 'fly-item ' + (direction === 'to' ? 'to-cart' : 'from-cart');
+  fly.innerHTML = direction === 'to'
+    ? '<i class="fa-solid fa-plus"></i>'
+    : '<i class="fa-solid fa-minus"></i>';
+
+  // شوێنی دەستپێک
+  const startX = src.left + src.width / 2 - 21;
+  const startY = src.top + src.height / 2 - 21;
+  fly.style.left = startX + 'px';
+  fly.style.top = startY + 'px';
+  document.body.appendChild(fly);
+
+  // شوێنی کۆتایی
+  const endX = dst.left + dst.width / 2 - 21;
+  const endY = dst.top + dst.height / 2 - 21;
+
+  // ئاراستە: بۆ سەبەتە یان لە سەبەتەوە
+  const isToCart = direction === 'to';
+
+  // دەستپێکردنی ئەنیمەیشن بە دواخستنی بچووک
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      fly.style.left = endX + 'px';
+      fly.style.top = endY + 'px';
+      fly.style.transform = isToCart ? 'scale(.4)' : 'scale(1.4)';
+      fly.style.opacity = isToCart ? '.85' : '1';
+    });
+  });
+
+  // کاتێک گەیشتە سەبەتە
+  setTimeout(() => {
+    fly.classList.add('fly-done');
+    if (isToCart) {
+      cartEl.classList.remove('cart-bump');
+      void cartEl.offsetWidth;
+      cartEl.classList.add('cart-bump');
+    } else if (removed) {
+      // ئەگەر کاڵاکە لە سەبەتە دەرکرا، کاڵاکە بلەرزێنینەوە
+      const cardEl = document.querySelector(`.pc[data-name="${product.name}"]`)
+        || document.querySelectorAll('.pc')[0];
+      if (cardEl) {
+        cardEl.classList.remove('product-pulse');
+        void cardEl.offsetWidth;
+        cardEl.classList.add('product-pulse');
+      }
+    }
+    setTimeout(() => fly.remove(), 400);
+  }, 680);
 }
 function updateItemPrice(i, v) { const p = parseFloat(v) || 0; cart[i].price_usd = currentCurrency === 'USD' ? p : p / rate; renderCart(); }
 function updateItemUnit(i, uid) {
