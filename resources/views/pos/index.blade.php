@@ -12,15 +12,14 @@
 /* ===== ڕووناک: بەشەکان بە ڕوونی لێک جیا دەبنەوە ===== */
 /* ===== ڕووناک: ڕەساسی ===== */
 :root{
-  --bg:#d8d8d8; --sf:#fafafa; --sf2:#ebebeb; --bd:#cfcfcf;
-  --tx:#0b1b33; --mu:#606060;
+  --bg:#cfcfcf; --sf:#ececec; --sf2:#e3e3e3; --bd:#c0c0c0;
+  --tx:#0b1b33; --mu:#5a5a5a;
   --ac:#0f766e; --ac2:#0e7490; --acs:#d8f3ee; --on:#ffffff;
   --wa:#b45309; --was:#fff0cc; --ro:#dc2626; --ros:#ffe2e2;
-  --shadow:0 1px 2px rgba(60,60,60,.08),0 10px 28px -14px rgba(60,60,60,.30);
-  --shadow-sm:0 1px 2px rgba(60,60,60,.07),0 4px 10px -6px rgba(60,60,60,.20);
-  --page:radial-gradient(900px 420px at 88% -8%,rgba(14,116,144,.08),transparent 60%),radial-gradient(700px 380px at 5% 105%,rgba(15,118,110,.07),transparent 60%),linear-gradient(180deg,#e2e2e2,#cfcfcf);
+  --shadow:0 2px 4px rgba(0,0,0,.06),0 10px 28px -14px rgba(0,0,0,.25);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08),0 4px 10px -6px rgba(0,0,0,.15);
+  --page:radial-gradient(900px 420px at 88% -8%,rgba(14,116,144,.08),transparent 60%),radial-gradient(700px 380px at 5% 105%,rgba(15,118,110,.07),transparent 60%),linear-gradient(180deg,#d5d5d5,#bfbfbf);
 }
-
 /* ===== تاریک: کاڵتر ===== */
 .dark{
   --bg:#1e2a42; --sf:#2a3654; --sf2:#33405f; --bd:#445574;
@@ -69,9 +68,9 @@ body{font-family:'Almarai',sans-serif;background:var(--page);background-attachme
 #moreDropdown .nav{width:100%}
 
 /* کاڵاکان */
-.pc{background:var(--sf);border:1px solid var(--bd);border-radius:1.05rem;padding:.7rem;display:flex;flex-direction:column;justify-content:space-between;gap:.55rem;position:relative;overflow:visible;transition:transform .15s,box-shadow .15s,border-color .15s;box-shadow:var(--shadow-sm)}
+.pc{background:#ffffff;border:1px solid var(--bd);border-radius:1.05rem;padding:.7rem;display:flex;flex-direction:column;justify-content:space-between;gap:.55rem;position:relative;overflow:visible;transition:transform .15s,box-shadow .15s,border-color .15s;box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px -6px rgba(0,0,0,.12)}
 .pc::before{content:'';position:absolute;top:0;left:14px;right:14px;height:3px;border-radius:0 0 6px 6px;background:linear-gradient(90deg,var(--ac),var(--ac2));opacity:0;transition:opacity .15s}
-.pc:hover{border-color:var(--ac);transform:translateY(-3px);box-shadow:0 16px 28px -16px var(--ac)}
+.pc:hover{border-color:var(--ac);transform:translateY(-3px);box-shadow:0 12px 24px -8px color-mix(in srgb,var(--ac) 40%,transparent),0 4px 12px -4px rgba(0,0,0,.12)}
 .pc:hover::before{opacity:1}
 .pc.low{border-color:color-mix(in srgb,var(--wa) 55%,var(--bd))}
 .pc.low::before{background:var(--wa);opacity:1}
