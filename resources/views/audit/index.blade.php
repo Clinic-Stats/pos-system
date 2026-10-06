@@ -17,6 +17,7 @@
         details[open] .chev { transform: rotate(180deg); }
         ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
+    @include('partials.system-head')
 </head>
 @php
     $actions = \App\Models\ActivityLog::ACTIONS;

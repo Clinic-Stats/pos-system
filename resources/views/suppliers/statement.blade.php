@@ -43,6 +43,7 @@
             .page { border: 0; padding: 0; max-width: none; }
         }
     </style>
+    @include('partials.system-head')
 </head>
 @php
     $fmt = fn($v, $c) => ($v < 0 ? '-' : '') . ($c === 'USD' ? '$' . number_format(abs($v), 2) : number_format(abs($v)) . ' IQD');

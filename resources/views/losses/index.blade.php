@@ -15,6 +15,7 @@
         .inp:focus, button:focus-visible, a:focus-visible { outline: 2px solid #fb7185; outline-offset: 1px; }
         ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
+    @include('partials.system-head')
 </head>
 @php
     $usd = fn($v) => '$' . number_format($v, 2);

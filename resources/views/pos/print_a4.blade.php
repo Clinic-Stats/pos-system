@@ -63,6 +63,7 @@
             }
         }
     </style>
+    @include('partials.system-head')
 </head>
 
 <body class="bg-slate-100 text-slate-900 min-h-screen p-6">

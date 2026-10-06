@@ -35,6 +35,7 @@
             .page { border: 0; padding: 0; max-width: none; }
         }
     </style>
+    @include('partials.system-head')
 </head>
 @php
     $u = fn($v) => ($v < 0 ? '-' : '') . '$' . number_format(abs($v), 2);

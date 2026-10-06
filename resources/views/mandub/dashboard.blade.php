@@ -16,6 +16,7 @@
         .seg button[aria-pressed="true"] { background: #10b981; color: #052e24; }
         a:focus-visible, input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
     </style>
+    @include('partials.system-head')
 </head>
 @php
     $usd = fn($v) => ($v < 0 ? '-' : '') . '$' . number_format(abs($v), 2);

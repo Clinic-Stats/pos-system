@@ -18,6 +18,7 @@
             overflow-x: hidden !important;
         }
     </style>
+    @include('partials.system-head')
 </head>
 
 <body class="bg-slate-900 text-slate-100 min-h-screen p-6">

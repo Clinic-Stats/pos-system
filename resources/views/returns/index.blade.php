@@ -13,6 +13,7 @@
             ? '$' . number_format((float) $v, 2)
             : number_format((float) $v) . ' IQD';
     @endphp
+    @include('partials.system-head')
 </head>
 <body class="bg-[#0f172a] text-slate-100 min-h-screen p-6">
 

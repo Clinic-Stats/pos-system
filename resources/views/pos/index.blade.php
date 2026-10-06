@@ -97,6 +97,7 @@ body{font-family:'Almarai',sans-serif;background:var(--page);background-attachme
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type=number]{-moz-appearance:textfield}
 @media (prefers-reduced-motion:reduce){.rowin{animation:none}.pc,.chip,.nav{transition:none}}
 </style>
+    @include('partials.system-head')
 </head>
 <body class="min-h-screen lg:h-screen p-2 flex flex-col gap-2 lg:overflow-hidden select-none">
 

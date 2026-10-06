@@ -15,6 +15,7 @@
             .print-card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
         }
     </style>
+    @include('partials.system-head')
 </head>
 @php
     $isUsd = strtoupper($handover->currency ?? 'IQD') === 'USD';

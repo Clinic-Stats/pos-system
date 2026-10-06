@@ -18,6 +18,7 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         @if($isEmbedded) body { padding: 10px !important; } @endif
     </style>
+    @include('partials.system-head')
 </head>
 @php
     $usd = fn($v) => '$' . number_format($v, 2);

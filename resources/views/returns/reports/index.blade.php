@@ -24,6 +24,7 @@
             transform: scale(0.96);
         }
     </style>
+    @include('partials.system-head')
 </head>
 <body class="bg-[#f1f5f9] text-slate-800 min-h-screen p-3 md:p-5 select-none">
 

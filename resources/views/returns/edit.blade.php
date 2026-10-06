@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style> body { font-family: 'Noto Sans Arabic', sans-serif; } </style>
     @php $retCur = ($return->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD'; @endphp
+    @include('partials.system-head')
 </head>
 <body class="bg-[#0f172a] text-slate-100 min-h-screen p-6">
 

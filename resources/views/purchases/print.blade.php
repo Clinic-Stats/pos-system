@@ -62,6 +62,7 @@
             .invoice-box { border: none; padding: 0; max-width: none; }
         }
     </style>
+    @include('partials.system-head')
 </head>
 
 <body>

@@ -18,6 +18,7 @@ body{font-family:'Almarai',sans-serif;background:radial-gradient(900px 400px at 
 .seg button.on{background:#14b8a6;color:#04201d}
 .sc::-webkit-scrollbar{width:5px;height:5px}.sc::-webkit-scrollbar-thumb{background:#334155;border-radius:9px}
 </style>
+    @include('partials.system-head')
 </head>
 @php
     $exchangeRate = $setting->exchange_rate ?? 1500;

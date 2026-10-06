@@ -40,6 +40,7 @@
             background: rgba(59, 130, 246, 0.2);
         }
     </style>
+    @include('partials.system-head')
 </head>
 <body class="bg-[#0b1329] text-slate-100 min-h-screen flex items-center justify-center p-4">
 

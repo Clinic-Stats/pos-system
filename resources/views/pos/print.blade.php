@@ -2,6 +2,7 @@
 <html lang="ckb" dir="rtl">
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>پسوولەی فرۆشتن - {{ $sale->invoice_no }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
@@ -153,6 +154,7 @@
             }
         }
     </style>
+    @include('partials.system-head')
 </head>
 
 <body>

@@ -18,6 +18,7 @@
     $curPaid = old('paid_amount', $purchase->paid_amount ?? 0);
     $curNo = old('purchase_no', $purchase->purchase_no ?? $purchase->invoice_no);
     @endphp
+    @include('partials.system-head')
 </head>
 
 <body class="bg-slate-900 text-slate-100 min-h-screen p-6">

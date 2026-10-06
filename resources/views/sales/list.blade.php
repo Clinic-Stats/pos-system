@@ -27,6 +27,7 @@
             border-radius: 10px;
         }
     </style>
+    @include('partials.system-head')
 </head>
 
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden p-3 gap-3">
