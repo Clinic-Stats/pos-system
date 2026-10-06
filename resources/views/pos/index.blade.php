@@ -10,21 +10,26 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 /* ===== ڕووناک: بەشەکان بە ڕوونی لێک جیا دەبنەوە ===== */
+/* ===== ڕووناک: ڕەساسی ===== */
 :root{
---bg:#d8d8d8; --sf:#fafafa; --sf2:#ebebeb; --bd:#cfcfcf; --mu:#606060;  --ac:#0f766e; --ac2:#0e7490;
- --acs:#d8f3ee; --on:#ffffff;
+  --bg:#d8d8d8; --sf:#fafafa; --sf2:#ebebeb; --bd:#cfcfcf;
+  --tx:#0b1b33; --mu:#606060;
+  --ac:#0f766e; --ac2:#0e7490; --acs:#d8f3ee; --on:#ffffff;
   --wa:#b45309; --was:#fff0cc; --ro:#dc2626; --ros:#ffe2e2;
-  --shadow:0 1px 2px rgba(60,45,20,.08),0 10px 28px -14px rgba(60,45,20,.30);
-  --shadow-sm:0 1px 2px rgba(60,45,20,.07),0 4px 10px -6px rgba(60,45,20,.20);
---page:radial-gradient(900px 420px at 88% -8%,rgba(14,116,144,.08),transparent 60%),radial-gradient(700px 380px at 5% 105%,rgba(15,118,110,.07),transparent 60%),linear-gradient(180deg,#e2e2e2,#cfcfcf);
+  --shadow:0 1px 2px rgba(60,60,60,.08),0 10px 28px -14px rgba(60,60,60,.30);
+  --shadow-sm:0 1px 2px rgba(60,60,60,.07),0 4px 10px -6px rgba(60,60,60,.20);
+  --page:radial-gradient(900px 420px at 88% -8%,rgba(14,116,144,.08),transparent 60%),radial-gradient(700px 380px at 5% 105%,rgba(15,118,110,.07),transparent 60%),linear-gradient(180deg,#e2e2e2,#cfcfcf);
 }
-/* ===== تاریک ===== */
+
+/* ===== تاریک: کاڵتر ===== */
 .dark{
---page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.12),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.10),transparent 60%),#1e2a42;  
---wa:#fbbf24; --was:#3a2a0b; --ro:#fb7185; --ros:#3f1523;
+  --bg:#1e2a42; --sf:#2a3654; --sf2:#33405f; --bd:#445574;
+  --tx:#eef3fc; --mu:#b0bfda;
+  --ac:#2dd4bf; --ac2:#38bdf8; --acs:#0d3a3d; --on:#03201d;
+  --wa:#fbbf24; --was:#3a2a0b; --ro:#fb7185; --ros:#3f1523;
   --shadow:0 0 0 1px rgba(255,255,255,.05) inset,0 14px 34px -14px rgba(0,0,0,.6);
   --shadow-sm:0 6px 14px -8px rgba(0,0,0,.55);
-  --page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.12),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.10),transparent 60%),#131c2e;
+  --page:radial-gradient(900px 480px at 88% -10%,rgba(56,189,248,.12),transparent 60%),radial-gradient(760px 420px at 0% 110%,rgba(45,212,191,.10),transparent 60%),#1e2a42;
 }
 body{font-family:'Almarai',sans-serif;background:var(--page);background-attachment:fixed;color:var(--tx)}
 .num{font-family:'Plus Jakarta Sans',sans-serif;direction:ltr;unicode-bidi:isolate}
