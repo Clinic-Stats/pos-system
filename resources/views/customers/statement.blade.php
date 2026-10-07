@@ -33,6 +33,7 @@
         $hasDebt = ($summary['USD']['debt'] ?? 0) > 0 || ($summary['IQD']['debt'] ?? 0) > 0;
     @endphp
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen p-4 md:p-8">
 

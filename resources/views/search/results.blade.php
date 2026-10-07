@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style> body { font-family: 'Noto Sans Arabic', sans-serif; } </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-6">
 

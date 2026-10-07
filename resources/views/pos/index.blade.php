@@ -154,6 +154,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 @media (prefers-reduced-motion:reduce){.rowin,.bump,.flash{animation:none}.pc,.chip,.nav,.cart-panel{transition:none}}
 </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 <body class="min-h-screen lg:h-screen p-2 flex flex-col gap-2 lg:overflow-hidden select-none">
 

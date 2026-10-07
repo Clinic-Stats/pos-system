@@ -28,6 +28,7 @@
         }
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden p-3 gap-3">

@@ -15,6 +15,7 @@
         }
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 @php $fmtMoney = fn($v, $cur) => ($cur ?? 'IQD') === 'USD' ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' IQD'; @endphp
 <body class="bg-slate-100 text-slate-900 min-h-screen p-6" onload="window.print()">

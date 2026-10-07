@@ -19,6 +19,7 @@
         a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 @php
     $u = fn($v) => ($v < 0 ? '-' : '') . '$' . number_format(abs($v), 2);

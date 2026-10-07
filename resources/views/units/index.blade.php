@@ -14,6 +14,7 @@
         input:focus, button:focus-visible { outline: 2px solid #2dd4bf; outline-offset: 1px; }
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 @php
     $kindOf = function ($name) {

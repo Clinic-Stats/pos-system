@@ -44,6 +44,7 @@
         }
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 @php
     $fmt = fn($v, $c) => ($v < 0 ? '-' : '') . ($c === 'USD' ? '$' . number_format(abs($v), 2) : number_format(abs($v)) . ' IQD');

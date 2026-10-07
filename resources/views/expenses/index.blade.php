@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style> body { font-family: 'Noto Sans Arabic', sans-serif; } </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 @php
     $fmtMoney = fn($v, $cur) => ($cur ?? 'IQD') === 'USD' ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' IQD';

@@ -155,6 +155,7 @@
         }
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 
 <body>

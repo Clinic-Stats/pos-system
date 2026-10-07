@@ -16,6 +16,7 @@
         }
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 @php
     $isUsd = strtoupper($handover->currency ?? 'IQD') === 'USD';

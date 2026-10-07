@@ -41,6 +41,7 @@
         }
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 <body class="bg-[#0b1329] text-slate-100 min-h-screen flex items-center justify-center p-4">
 

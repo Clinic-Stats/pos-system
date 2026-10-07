@@ -16,6 +16,7 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 @php
     $usd = fn($v) => '$' . number_format($v, 2);

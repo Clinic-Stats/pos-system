@@ -19,6 +19,7 @@
         @if($isEmbedded) body { padding: 10px !important; } @endif
     </style>
     @include('partials.system-head')
+    @include('partials.mobile-tables')
 </head>
 @php
     $usd = fn($v) => '$' . number_format($v, 2);
