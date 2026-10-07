@@ -129,7 +129,15 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
   .cart-fab{display:flex;position:fixed;left:.75rem;right:.75rem;bottom:.75rem;z-index:60;align-items:center;justify-content:space-between;gap:.75rem;padding:.85rem 1.05rem;border-radius:1.1rem;background:linear-gradient(135deg,var(--ac),var(--ac2));color:var(--on);font-weight:800;font-size:13px;box-shadow:0 16px 30px -12px var(--ac)}
   body.cart-open .cart-fab{display:none}
 }
-@media (prefers-reduced-motion:reduce){.rowin,.bump{animation:none}.pc,.chip,.nav,.cart-panel{transition:none}}
+/* سەبەتەی گەورەتر */
+.cart-panel{overflow-y:auto}
+#cartItemsContainer{min-height:9.5rem}
+.cart-panel .panel-head .inp{font-size:12.5px;padding:.55rem .75rem}
+.cart-panel .seg>*{font-size:12.5px;padding:.5rem .6rem}
+.cart-panel #grandTotalText{font-size:1.9rem}
+.flash{animation:flash 1.1s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 3px var(--ac),0 14px 26px -8px var(--ac)}100%{box-shadow:var(--shadow-sm)}}
+@media (prefers-reduced-motion:reduce){.rowin,.bump,.flash{animation:none}.pc,.chip,.nav,.cart-panel{transition:none}}
 </style>
     @include('partials.system-head')
 </head>
@@ -191,7 +199,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
   </div>
 </header>
 
-<main class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[1fr_390px] gap-2">
+<main class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_470px] xl:grid-cols-[minmax(0,1fr)_580px] gap-2">
 
   <!-- کاڵاکان -->
   <section class="sf pc-section p-3 flex flex-col min-h-0 h-[70vh] lg:h-auto">
@@ -208,7 +216,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
       </div>
     </div>
 
-    <div id="productsGrid" class="grow overflow-y-auto scroll pt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2.5 content-start">
+    <div id="productsGrid" class="grow overflow-y-auto scroll pt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-3 content-start">
       @foreach($products as $p)
         @php
           $stockVal = (float) ($p->stock_kg ?? $p->stock ?? 0);
@@ -245,7 +253,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
   <aside class="sf cart-panel p-3 flex flex-col min-h-0 h-[85vh] lg:h-auto">
     <div class="shrink-0 space-y-2.5 panel-head">
       <div class="flex items-center justify-between">
-        <h2 class="font-extrabold text-sm flex items-center gap-2"><i class="fa-solid fa-cart-shopping" style="color:var(--ac)"></i> سەبەتە <span id="cartCount" class="num text-[10px] px-1.5 rounded-md" style="background:var(--acs);color:var(--ac)">0</span></h2>
+        <h2 class="font-extrabold text-base flex items-center gap-2 flex-wrap"><i class="fa-solid fa-cart-shopping" style="color:var(--ac)"></i> سەبەتە
+          <span class="inline-flex items-center gap-1 text-[12px] font-extrabold px-2 py-0.5 rounded-lg" style="background:var(--acs);color:var(--ac)" title="ژمارەی کاڵا"><i class="fa-solid fa-cubes text-[10px]"></i><span id="cartCount" class="num">0</span> دانە</span>
+          <span class="inline-flex items-center gap-1 text-[12px] font-extrabold px-2 py-0.5 rounded-lg" style="background:var(--sf);color:var(--mu);border:1px solid var(--bd)" title="کێشی گشتی"><i class="fa-solid fa-weight-hanging text-[10px]"></i><span id="cartWeight" class="num">0 کگ</span></span>
+        </h2>
         <div class="flex items-center gap-1.5"><button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" class="chip !py-1.5 flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span></button><button type="button" class="sq sub lg:hidden" onclick="closeCart()" title="داخستن"><i class="fa-solid fa-chevron-down"></i></button></div>
       </div>
 
@@ -280,21 +291,22 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
     <div id="cartItemsContainer" class="grow overflow-y-auto scroll py-2.5 space-y-2"></div>
 
     <div class="shrink-0 space-y-2 panel-foot">
-      <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">کۆی کاڵا</span><span id="subTotalText" class="num">$0.00</span></div>
-      <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">کێشی گشتی</span><span id="cartWeight" class="num">0 کگ</span></div>
-      <div class="flex justify-between items-center text-[11px] font-bold"><span style="color:var(--mu)">داشکاندن</span><input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart()" class="inp num !w-24 !py-1 text-left"></div>
+      <div class="grid grid-cols-2 gap-3 items-center text-[12px] font-bold">
+        <div class="flex justify-between items-center"><span style="color:var(--mu)">کۆی کاڵا</span><span id="subTotalText" class="num">$0.00</span></div>
+        <div class="flex items-center justify-end gap-2"><span style="color:var(--mu)">داشکاندن</span><input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart()" class="inp num !w-24 !py-1.5 text-left"></div>
+      </div>
       <div class="total-card rounded-2xl px-3.5 py-3 flex justify-between items-end">
         <span class="font-extrabold text-sm" style="color:var(--ac)">کۆی گشتی</span>
         <div class="text-left leading-tight"><div id="grandTotalText" class="num font-extrabold text-2xl" style="color:var(--ac)">$0.00</div><div id="grandAltText" class="num text-[10px] font-bold" style="color:var(--mu)"></div></div>
       </div>
-      <button type="button" onclick="submitSale()" id="btnSubmitSale" class="w-full py-3.5 rounded-2xl font-extrabold text-[13px] flex items-center justify-center gap-2 transition active:scale-[.98]" style="background:var(--ac);color:var(--bg)"><i class="fa-solid fa-paper-plane"></i> پسوولەکردن</button>
+      <button type="button" onclick="submitSale()" id="btnSubmitSale" class="w-full py-4 rounded-2xl font-extrabold text-[15px] flex items-center justify-center gap-2 transition active:scale-[.98]" style="background:var(--ac);color:var(--bg)"><i class="fa-solid fa-paper-plane"></i> پسوولەکردن</button>
     </div>
   </aside>
 </main>
 
 <!-- مۆبایل: دوگمەی سەبەتە و پەردە -->
 <div id="cartBackdrop" class="cart-backdrop" onclick="closeCart()"></div>
-<button type="button" id="cartFab" class="cart-fab" onclick="openCart()"><span><i class="fa-solid fa-cart-shopping"></i> سەبەتە <b id="fabCount" class="num">0</b></span><span id="fabTotal" class="num">$0.00</span></button>
+<button type="button" id="cartFab" class="cart-fab" onclick="openCart()"><span><i class="fa-solid fa-cart-shopping"></i> سەبەتە · <b id="fabCount" class="num">0</b> دانە · <b id="fabWeight" class="num">0</b> کگ</span><span id="fabTotal" class="num">$0.00</span></button>
 
 <!-- مۆداڵی سەرکەوتن -->
 <div id="successModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 z-[999]">
@@ -328,6 +340,7 @@ const editSale = @json($editSale ?? null);
 let cart = [], lastSaleItems = [], activeSaleId = null;
 let currentCurrency = 'USD';
 let rate = parseFloat(document.getElementById('exchangeRate').value) || 1500;
+let lastAddedId = null;   // دوا کاڵایەی زیادکرا، لە سەبەتە دەدرەوشێتەوە
 let clearTimer = null, confirmingClear = false;
 const $ = id => document.getElementById(id);
 const getRate = () => parseFloat($('exchangeRate').value) || 1500;
@@ -418,7 +431,7 @@ function addToCart(id, e) {
     cart.push({ carton: isC, id: p.id, name: p.name, code: p.code, price_usd: parseFloat(p.base_sale_price) || 0, stock_kg: stock,
       kg_per_carton: parseFloat(p.kg_per_carton) || 1, qty: 1, unit_id: u.id, factor: unitFactor(p, u) });
   }
-  renderCart();
+  lastAddedId = p.id; renderCart();
   if (e && e.currentTarget) fly(e.currentTarget, cartTarget(), '+1', 'add');   // دانە بەرەو سەبەتە دەفڕێت
   return true;
 }
@@ -458,35 +471,38 @@ function updateBadges() {
 function renderCart() {
   rate = getRate();
   const box = $('cartItemsContainer'); box.innerHTML = '';
-  let subtotal = 0, weight = 0;
-  $('cartCount').innerText = cart.length;
+  let subtotal = 0, weight = 0, qtySum = 0, addedEl = null;
   if (!cart.length) {
     box.innerHTML = `<div class="h-full min-h-[8rem] flex flex-col items-center justify-center text-[11px] font-bold gap-2" style="color:var(--mu)"><i class="fa-solid fa-cart-arrow-down text-3xl opacity-50"></i>سەبەتە بەتاڵە<span class="text-[10px] font-normal">کلیک لە کاڵا بکە بۆ زیادکردن</span></div>`;
   }
   cart.forEach((it, idx) => {
     const price = toDisp(it.price_usd), line = it.qty * price * it.factor;
-    subtotal += line;
+    subtotal += line; qtySum += it.qty;
     weight += it.carton ? it.qty * (it.kg_per_carton || 1) : it.qty * it.factor;
     const opts = units.map(u => `<option value="${u.id}" ${it.unit_id == u.id ? 'selected' : ''}>${u.name}</option>`).join('');
     const d = document.createElement('div');
-    d.className = 'rowin rounded-xl p-2.5 border'; d.style.cssText = 'background:var(--sf2);border-color:var(--bd)';
+    d.className = 'rowin rounded-xl p-3 border'; d.style.cssText = 'background:var(--sf2);border-color:var(--bd)';
     d.innerHTML = `
       <div class="flex justify-between items-center mb-2">
-        <h4 class="font-extrabold text-[11px] truncate">${it.name}</h4>
-        <button type="button" onclick="removeItem(${idx})" class="text-[11px]" style="color:var(--ro)"><i class="fa-solid fa-xmark"></i></button>
+        <h4 class="font-extrabold text-[14px] truncate">${it.name}</h4>
+        <button type="button" onclick="removeItem(${idx})" class="text-[14px] px-1" style="color:var(--ro)"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="grid grid-cols-12 gap-1.5 items-center">
-        ${it.carton ? `<div class="inp col-span-4 !px-1.5 text-center">کارتۆن</div>` : `<select onchange="updateItemUnit(${idx}, this.value)" class="inp col-span-4 !px-1.5">${opts}</select>`}
-        <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}" onchange="updateItemPrice(${idx}, this.value)" class="inp num col-span-4 text-center" style="color:var(--ac)">
+        ${it.carton ? `<div class="inp col-span-4 !px-1.5 !py-2 !text-[13px] text-center">کارتۆن</div>` : `<select onchange="updateItemUnit(${idx}, this.value)" class="inp col-span-4 !px-1.5 !py-2 !text-[13px]">${opts}</select>`}
+        <input type="number" step="any" min="0" value="${currentCurrency === 'USD' ? price.toFixed(2) : Math.round(price)}" onchange="updateItemPrice(${idx}, this.value)" class="inp num col-span-4 text-center !py-2 !text-[14px]" style="color:var(--ac)">
         <div class="col-span-4 flex items-center justify-between">
-          <button type="button" class="sq add !w-6 !h-6 !rounded-md" onclick="updateQty(${idx}, 1)">+</button>
-          <input type="number" step="any" min="0.01" value="${+it.qty.toFixed(3)}" onchange="setQtyDirect(${idx}, this.value)" class="num w-9 text-center bg-transparent font-extrabold text-[11px] focus:outline-none">
-          <button type="button" class="sq sub !w-6 !h-6 !rounded-md" onclick="updateQty(${idx}, -1)">-</button>
+          <button type="button" class="sq add !w-8 !h-8 !rounded-lg !text-sm" onclick="updateQty(${idx}, 1)">+</button>
+          <input type="number" step="any" min="0.01" value="${+it.qty.toFixed(3)}" onchange="setQtyDirect(${idx}, this.value)" class="num w-12 text-center bg-transparent font-extrabold text-[15px] focus:outline-none">
+          <button type="button" class="sq sub !w-8 !h-8 !rounded-lg !text-sm" onclick="updateQty(${idx}, -1)">-</button>
         </div>
       </div>
-      <div class="num text-left text-[11px] font-extrabold mt-1.5" style="color:var(--ac)">${money(line)}</div>`;
+      <div class="num text-left text-[14px] font-extrabold mt-2" style="color:var(--ac)">${money(line)}</div>`;
+    if (it.id === lastAddedId) { d.classList.add('flash'); addedEl = d; }
     box.appendChild(d);
   });
+  if (addedEl) addedEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  lastAddedId = null;
+  $('cartCount').innerText = +qtySum.toFixed(2);
   const discount = parseFloat($('cartDiscount').value) || 0;
   const total = Math.max(0, subtotal - discount);
   const other = currentCurrency === 'USD' ? 'IQD' : 'USD';
@@ -496,7 +512,7 @@ function renderCart() {
   $('grandTotalText').innerText = money(total);
   $('grandAltText').innerText = total > 0 ? '≈ ' + money(alt, other) : '';
   if (!cart.length) resetClear();
-  updateBadges(); updateCardPrices(); updateFab(total);
+  updateBadges(); updateCardPrices(); updateFab(total, qtySum, weight);
 }
 
 function togglePaymentType() {
@@ -526,7 +542,7 @@ function fly(fromEl, toEl, text, kind) {
 }
 function openCart() { document.querySelector('.cart-panel').classList.add('open'); $('cartBackdrop').classList.add('show'); document.body.classList.add('cart-open'); }
 function closeCart() { document.querySelector('.cart-panel').classList.remove('open'); $('cartBackdrop').classList.remove('show'); document.body.classList.remove('cart-open'); }
-function updateFab(total) { $('fabCount').textContent = cart.length; $('fabTotal').textContent = money(total); }
+function updateFab(total, qty, weight) { $('fabCount').textContent = +(+qty).toFixed(2); $('fabWeight').textContent = +(+weight).toFixed(2); $('fabTotal').textContent = money(total); }
 
 /* تۆمارکردنی فرۆشتن */
 let isSubmitting = false;   // ڕێگری لە دووجار کلیک
