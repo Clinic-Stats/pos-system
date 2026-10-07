@@ -184,3 +184,35 @@ Route::middleware(['auth'])->group(function () {
         return response()->json(\App\Models\Supplier::orderBy('name')->get(['id', 'name']));
     });
 });
+
+Route::get('/karwan-clear-data', function () {
+    // تەنها بۆ ئەدمین
+    if (!auth()->check() || !auth()->user()->canReceiveCash()) {
+        abort(403, 'ڕێگەپێدراو نییە');
+    }
+
+    $keep = [
+        'users', 'migrations', 'roles', 'permissions',
+        'model_has_roles', 'model_has_permissions', 'role_has_permissions',
+        'password_resets', 'failed_jobs', 'personal_access_tokens',
+        'sessions', 'cache', 'cache_locks', 'jobs', 'job_batches',
+    ];
+
+    $dbName = \DB::getDatabaseName();
+    $key = 'Tables_in_' . $dbName;
+    $tables = \DB::select('SHOW TABLES');
+
+    \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    $cleared = [];
+    foreach ($tables as $t) {
+        $name = $t->$key;
+        if (in_array($name, $keep)) continue;
+        \DB::table($name)->truncate();
+        $cleared[] = $name;
+    }
+    \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+    return '<div style="font-family:sans-serif;padding:30px;background:#0b1220;color:#10b981;min-height:100vh">'
+        . '<h2>✅ پاککرایەوە</h2><ul><li>' . implode('</li><li>', $cleared) . '</li></ul>'
+        . '<p>خشتەکانی پارێزراو: users + ڕۆڵەکان</p></div>';
+});
