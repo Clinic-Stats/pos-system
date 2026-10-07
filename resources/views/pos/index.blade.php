@@ -261,7 +261,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
     <div class="shrink-0 space-y-2.5 panel-head">
       <div class="flex items-center justify-between">
         <h2 class="font-extrabold text-base flex items-center gap-2 flex-wrap"><i class="fa-solid fa-cart-shopping" style="color:var(--ac)"></i> سەبەتە
-          <span class="inline-flex items-center gap-1 text-[12px] font-extrabold px-2 py-0.5 rounded-lg" style="background:var(--acs);color:var(--ac)" title="ژمارەی کاڵا (بەپێی جۆر)"><i class="fa-solid fa-cubes text-[10px]"></i><span id="cartCount" class="num">0 دانە</span></span>
+          <span class="inline-flex items-center gap-1 text-[12px] font-extrabold px-2 py-0.5 rounded-lg" style="background:var(--acs);color:var(--ac)" title="ژمارەی کاڵا"><i class="fa-solid fa-cubes text-[10px]"></i><span id="cartCount" class="num">0</span> دانە</span>
+          <span id="cartTypesBox" class="hidden inline-flex items-center gap-1 text-[12px] font-extrabold px-2 py-0.5 rounded-lg" style="background:var(--was);color:var(--wa)" title="ژمارە بەپێی جۆر"><i class="fa-solid fa-layer-group text-[10px]"></i><span id="cartTypes" class="num"></span></span>
           <span class="inline-flex items-center gap-1 text-[12px] font-extrabold px-2 py-0.5 rounded-lg" style="background:var(--sf);color:var(--mu);border:1px solid var(--bd)" title="کێشی گشتی"><i class="fa-solid fa-weight-hanging text-[10px]"></i><span id="cartWeight" class="num">0 کگ</span></span>
         </h2>
         <div class="flex items-center gap-1.5"><button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" class="chip !py-1.5 flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span></button><button type="button" class="sq sub lg:hidden" onclick="closeCart()" title="داخستن"><i class="fa-solid fa-chevron-down"></i></button></div>
@@ -516,7 +517,9 @@ function renderCart() {
   lastAddedId = null;
   // نیشاندانی ژمارە بەپێی جۆر: نموونە «٣ کارتۆن + ٢ کیلۆ»
   const typeText = Object.keys(typeTotals).map(k => (+typeTotals[k].toFixed(2)) + ' ' + k).join(' + ');
-  $('cartCount').innerText = typeText || '0 دانە';
+  $('cartCount').innerText = +qtySum.toFixed(2);
+  $('cartTypes').innerText = typeText;
+  $('cartTypesBox').classList.toggle('hidden', !typeText);
   const discount = parseFloat($('cartDiscount').value) || 0;
   const total = Math.max(0, subtotal - discount);
   const other = currentCurrency === 'USD' ? 'IQD' : 'USD';
