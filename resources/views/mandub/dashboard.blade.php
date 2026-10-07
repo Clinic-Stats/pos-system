@@ -16,7 +16,6 @@
         .seg button[aria-pressed="true"] { background: #10b981; color: #052e24; }
         a:focus-visible, input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
     </style>
-    @include('partials.system-head')
 </head>
 @php
     $usd = fn($v) => ($v < 0 ? '-' : '') . '$' . number_format(abs($v), 2);
@@ -151,7 +150,7 @@
             <div class="overflow-auto max-h-80">
                 <table class="w-full text-xs text-right text-slate-300">
                     <thead class="text-slate-400 sticky top-0 bg-[#0f1a2e]"><tr>
-                        <th class="p-2.5">وەسڵ</th><th class="p-2.5">بەروار</th><th class="p-2.5">تەسلیمکار</th><th class="p-2.5">وەرگر</th><th class="p-2.5">بڕ</th><th class="p-2.5 text-center">چاپ</th>
+                        <th class="p-2.5">وەسڵ</th><th class="p-2.5">بەروار</th><th class="p-2.5">تەسلیمکار</th><th class="p-2.5">وەرگر</th><th class="p-2.5">بڕ</th>@if($canReceive)<th class="p-2.5 text-center">دەستکاری</th>@endif<th class="p-2.5 text-center">چاپ</th>
                     </tr></thead>
                     <tbody class="divide-y divide-white/5">
                     @forelse($handovers as $h)
@@ -161,11 +160,16 @@
                             <td class="p-2.5 num text-slate-400">{{ $h->handover_date->format('Y-m-d h:i A') }}</td>
                             <td class="p-2.5 text-amber-400 font-bold">{{ $h->mandub->name ?? '-' }}</td>
                             <td class="p-2.5 font-bold">{{ $h->receiver->name ?? 'سندوق' }}</td>
-                            <td class="p-2.5 num font-bold {{ $hU ? 'usd text-emerald-400' : 'iqd text-slate-200' }}">{{ $hU ? $usd($h->amount) : $iqd($h->amount) }}</td>
+                            <td class="p-2.5 num font-bold {{ $hU ? 'usd text-emerald-400' : 'iqd text-slate-200' }}">{{ $hU ? $usd($h->amount) : $iqd($h->amount) }}
+                                @if($h->updated_at && $h->created_at && $h->updated_at->gt($h->created_at->copy()->addSeconds(5)))<div class="text-[9px] font-bold text-amber-400" dir="rtl">دەستکاری کراوە</div>@endif
+                            </td>
+                            @if($canReceive)
+                            <td class="p-2.5 text-center"><button type="button" onclick="openEditHandover({{ $h->id }})" class="bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-900 px-2.5 py-1 rounded-lg font-bold inline-flex items-center gap-1 transition" title="دەستکاری"><i class="fa-solid fa-pen-to-square"></i></button></td>
+                            @endif
                             <td class="p-2.5 text-center"><a href="{{ route('handovers.print', $h->id) }}" target="_blank" class="bg-sky-500/20 hover:bg-sky-500/40 text-sky-300 px-2.5 py-1 rounded-lg font-bold inline-flex items-center gap-1 transition"><i class="fa-solid fa-print"></i></a></td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="p-6 text-center text-slate-500">هیچ وەسڵێکی تەسلیمات تۆمار نەکراوە</td></tr>
+                        <tr><td colspan="{{ $canReceive ? 7 : 6 }}" class="p-6 text-center text-slate-500">هیچ وەسڵێکی تەسلیمات تۆمار نەکراوە</td></tr>
                     @endforelse
                     </tbody>
                 </table>
@@ -201,6 +205,70 @@
         </div>
     </section>
 </div>
+
+@if($canReceive)
+<!-- مۆداڵی دەستکاریکردنی وەسڵی تەسلیمات (سڕینەوە نییە) -->
+<div id="editHandoverModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md p-5 space-y-4 shadow-2xl text-xs max-h-[92vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+            <h3 class="text-sm font-extrabold flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-amber-400"></i> دەستکاریکردنی وەسڵی تەسلیمات <span id="eh_receipt" class="num text-sky-400"></span></h3>
+            <button type="button" onclick="closeEditHandover()" class="text-slate-400 hover:text-white text-lg">&times;</button>
+        </div>
+        <form id="editHandoverForm" method="POST" class="space-y-3">
+            @csrf @method('PUT')
+            <div>
+                <label class="block font-bold text-slate-300 mb-1">کەسی تەسلیمکار</label>
+                <select name="mandub_id" id="eh_mandub" class="w-full p-2.5 bg-slate-800 border border-white/10 rounded-xl">
+                    @foreach($mandubs as $m)<option value="{{ $m->id }}">{{ $m->name }}</option>@endforeach
+                </select>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <div class="col-span-2">
+                    <label class="block font-bold text-slate-300 mb-1">بڕی پارە</label>
+                    <input type="number" step="any" min="0" name="amount" id="eh_amount" required class="num w-full p-2.5 bg-slate-800 border border-white/10 rounded-xl">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-300 mb-1">دراو</label>
+                    <select name="currency" id="eh_currency" class="w-full p-2.5 bg-slate-800 border border-white/10 rounded-xl"><option value="USD">$</option><option value="IQD">IQD</option></select>
+                </div>
+            </div>
+            <div>
+                <label class="block font-bold text-slate-300 mb-1">بەروار و کات</label>
+                <input type="datetime-local" name="handover_date" id="eh_date" class="num w-full p-2.5 bg-slate-800 border border-white/10 rounded-xl">
+            </div>
+            <div>
+                <label class="block font-bold text-slate-300 mb-1">تێبینی</label>
+                <input type="text" name="note" id="eh_note" class="w-full p-2.5 bg-slate-800 border border-white/10 rounded-xl">
+            </div>
+            <p class="text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2">دەتوانیت بڕەکە بکەیت بە سفر، بەڵام وەسڵەکە ناسڕدرێتەوە. هەموو دەستکارییەک لە تۆماری چالاکییەکان دەنووسرێت.</p>
+            <div class="flex justify-end gap-2 pt-2 border-t border-white/10">
+                <button type="button" onclick="closeEditHandover()" class="bg-slate-700 hover:bg-slate-600 font-bold px-4 py-2 rounded-xl">داخستن</button>
+                <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold px-5 py-2 rounded-xl"><i class="fa-solid fa-check"></i> نوێکردنەوە</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    const HANDOVERS = @json($handovers->mapWithKeys(fn($h) => [$h->id => [
+        'receipt' => $h->receipt_no, 'mandub_id' => $h->mandub_id, 'amount' => (float) $h->amount,
+        'currency' => strtoupper($h->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD',
+        'note' => $h->note, 'date' => $h->handover_date->format('Y-m-d\TH:i'),
+    ]]));
+    function openEditHandover(id) {
+        const h = HANDOVERS[id]; if (!h) return;
+        document.getElementById('editHandoverForm').action = '/handovers/' + id;
+        document.getElementById('eh_receipt').textContent = h.receipt;
+        document.getElementById('eh_mandub').value = h.mandub_id;
+        document.getElementById('eh_amount').value = h.amount;
+        document.getElementById('eh_currency').value = h.currency;
+        document.getElementById('eh_date').value = h.date;
+        document.getElementById('eh_note').value = h.note || '';
+        document.getElementById('editHandoverModal').classList.remove('hidden');
+    }
+    function closeEditHandover() { document.getElementById('editHandoverModal').classList.add('hidden'); }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditHandover(); });
+</script>
+@endif
 
 <script>
     const root = document.getElementById('root');
