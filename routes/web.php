@@ -52,6 +52,7 @@ Route::middleware(['auth'])->group(function () {
     
     // ڕادەستکردنی پارە (Handover)
     Route::post('/handovers', [CashHandoverController::class, 'store'])->name('handovers.store');
+    Route::put('/handovers/{id}', [CashHandoverController::class, 'update'])->name('handovers.update');
     Route::get('/handovers/{id}/print', [CashHandoverController::class, 'printReceipt'])->name('handovers.print');
 
     // لاپەڕەی سەرەکی و POS

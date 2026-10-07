@@ -10,9 +10,6 @@ class CashHandoverController extends Controller
 {
     public function store(Request $request)
     {
-        // تەنها ئەدمین، کاشیر، یان کەسێکی خاوەن دەسەڵات دەتوانێت پارە وەربگرێت
-        abort_unless(auth()->user() && auth()->user()->canReceiveCash(), 403, 'ئەم کارە بۆ تۆ ڕێگەپێدراو نییە');
-
         $request->validate([
             'mandub_id' => 'required|exists:users,id',
             'amount'    => 'required|numeric|min:0.01',
@@ -34,6 +31,36 @@ class CashHandoverController extends Controller
         ]);
 
         return redirect()->back()->with('success', "پارەکە بە سەرکەوتوویی وەرگیرا. ژمارەی پسوولە: {$receiptNo}");
+    }
+
+    /**
+     * دەستکاریکردنی وەسڵی تەسلیمات (بڕ، دراو، کەسی تەسلیمکار، بەروار، تێبینی).
+     * سڕینەوە بوونی نییە: ئەگەر بڕەکە بکرێت بە سفر، وەسڵەکە هەر دەمێنێتەوە.
+     * هەر دەستکارییەک لە «تۆماری چالاکییەکان» دەنووسرێت (پێش و دوای).
+     */
+    public function update(Request $request, $id)
+    {
+        abort_unless(auth()->user() && auth()->user()->canReceiveCash(), 403, 'ئەم کارە بۆ تۆ ڕێگەپێدراو نییە');
+
+        $handover = CashHandover::findOrFail($id);
+
+        $data = $request->validate([
+            'mandub_id'     => 'required|exists:users,id',
+            'amount'        => 'required|numeric|min:0',
+            'currency'      => 'required|in:USD,IQD',
+            'note'          => 'nullable|string|max:255',
+            'handover_date' => 'nullable|date',
+        ]);
+
+        $handover->update([
+            'mandub_id'     => $data['mandub_id'],
+            'amount'        => $data['currency'] === 'USD' ? round($data['amount'], 2) : round($data['amount']),
+            'currency'      => $data['currency'],
+            'note'          => $data['note'] ?? null,
+            'handover_date' => !empty($data['handover_date']) ? Carbon::parse($data['handover_date']) : $handover->handover_date,
+        ]);
+
+        return redirect()->back()->with('success', 'وەسڵی تەسلیمات ' . $handover->receipt_no . ' نوێکرایەوە');
     }
 
     public function printReceipt($id)
