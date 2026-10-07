@@ -22,18 +22,6 @@
     $iqd = fn($v) => ($v < 0 ? '-' : '') . number_format(abs($v)) . ' IQD';
     $inCur = fn($s, $v) => strtoupper($s->currency ?? 'IQD') === 'USD' ? $usd($v) : $iqd($v);
 
-    // 👇 داتای وەسڵەکانی تەسلیمات بۆ JS (دەرەوەی @json بۆ ئەوەی Blade هەڵە نەکات)
-    $handoversJson = $handovers->mapWithKeys(function ($h) {
-        return [$h->id => [
-            'receipt'   => $h->receipt_no,
-            'mandub_id' => $h->mandub_id,
-            'amount'    => (float) $h->amount,
-            'currency'  => strtoupper($h->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD',
-            'note'      => $h->note,
-            'date'      => $h->handover_date->format('Y-m-d\TH:i'),
-        ]];
-    });
-
     // [ناونیشان، دراوەکان، ئایکۆن، ڕەنگ، ژێرنووس]
     $cards = [
         ['وەرگیراو لە کڕیاران (ماوەکە)', $collectedPeriod, 'fa-hand-holding-dollar', 'text-emerald-400', 'نەقد + بەشی دراوی قەرز + وەرگرتنەوەی قەرز'],
@@ -260,10 +248,23 @@
         </form>
     </div>
 </div>
-<script>
-    // ✅ ئێستا @json تەنها variable یەکی سادە دەگرێت — هەڵە نادات
-    const HANDOVERS = @json($handoversJson);
 
+@php
+    $mappedHandovers = $handovers->mapWithKeys(fn($h) => [
+        $h->id => [
+            'receipt' => $h->receipt_no, 
+            'mandub_id' => $h->mandub_id, 
+            'amount' => (float) $h->amount,
+            'currency' => strtoupper($h->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD',
+            'note' => $h->note, 
+            'date' => $h->handover_date->format('Y-m-d\TH:i'),
+        ]
+    ]);
+@endphp
+
+<script>
+    const HANDOVERS = @json($mappedHandovers);
+    
     function openEditHandover(id) {
         const h = HANDOVERS[id]; if (!h) return;
         document.getElementById('editHandoverForm').action = '/handovers/' + id;
