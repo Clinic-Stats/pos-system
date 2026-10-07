@@ -142,6 +142,13 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 .cart-panel .panel-head .inp.sm{font-size:10.5px;padding:.34rem .45rem;border-radius:.65rem}
 .cart-panel .panel-head .inp.cust-big{font-size:15px;font-weight:800;padding:.85rem 1rem;border-radius:1rem}
 
+/* ===== مۆبایل: لیستی بچووکی کاڵاکانی سەبەتە لەسەر دوگمەی خوارەوە ===== */
+.mini-cart{display:none}
+@media (max-width:1023px){
+  .mini-cart.has-items{display:block;position:fixed;left:.75rem;right:.75rem;bottom:4.7rem;z-index:59;max-height:30vh;overflow-y:auto;padding:.4rem .7rem .3rem}
+  body.mini-on main{padding-bottom:calc(6.2rem + 30vh)}
+  body.cart-open .mini-cart{display:none!important}
+}
 .flash{animation:flash 1.1s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 3px var(--ac),0 14px 26px -8px var(--ac)}100%{box-shadow:var(--shadow-sm)}}
 @media (prefers-reduced-motion:reduce){.rowin,.bump,.flash{animation:none}.pc,.chip,.nav,.cart-panel{transition:none}}
@@ -314,6 +321,13 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 
 <!-- مۆبایل: دوگمەی سەبەتە و پەردە -->
 <div id="cartBackdrop" class="cart-backdrop" onclick="closeCart()"></div>
+<div id="miniCart" class="mini-cart sf scroll">
+  <div class="flex items-center justify-between pb-1 mb-1 border-b sticky top-0" style="border-color:var(--bd);background:var(--sf)">
+    <span class="text-[11px] font-extrabold" style="color:var(--mu)"><i class="fa-solid fa-basket-shopping"></i> کاڵاکانی سەبەتە</span>
+    <button type="button" class="text-[10px] font-extrabold px-2 py-1 rounded-lg" style="color:var(--ac)" onclick="openCart()">کردنەوە <i class="fa-solid fa-chevron-up"></i></button>
+  </div>
+  <div id="miniCartItems"></div>
+</div>
 <button type="button" id="cartFab" class="cart-fab" onclick="openCart()"><span><i class="fa-solid fa-cart-shopping"></i> سەبەتە · <b id="fabCount" class="num">0</b> دانە · <b id="fabWeight" class="num">0</b> کگ</span><span id="fabTotal" class="num">$0.00</span></button>
 
 <!-- مۆداڵی سەرکەوتن -->
@@ -482,6 +496,7 @@ function renderCart() {
   const box = $('cartItemsContainer'); box.innerHTML = '';
   let subtotal = 0, weight = 0, qtySum = 0, addedEl = null;
   const typeTotals = {};   // کۆی بڕ بەپێی جۆر (کارتۆن / کیلۆ / ...)
+  let mini = '';
   if (!cart.length) {
     box.innerHTML = `<div class="h-full min-h-[8rem] flex flex-col items-center justify-center text-[11px] font-bold gap-2" style="color:var(--mu)"><i class="fa-solid fa-cart-arrow-down text-3xl opacity-50"></i>سەبەتە بەتاڵە<span class="text-[10px] font-normal">کلیک لە کاڵا بکە بۆ زیادکردن</span></div>`;
   }
@@ -492,6 +507,13 @@ function renderCart() {
     const unitObj = units.find(u => u.id == it.unit_id);
     const typeName = it.carton ? 'کارتۆن' : (unitObj ? unitObj.name : 'دانە');
     typeTotals[typeName] = (typeTotals[typeName] || 0) + it.qty;
+    mini += `<div class="flex items-center gap-2 py-1.5 border-b" style="border-color:var(--bd)">
+      <button type="button" class="sq sub !w-7 !h-7 !rounded-lg" onclick="updateQty(${idx},-1)"><i class="fa-solid fa-minus text-[10px]"></i></button>
+      <span class="num font-extrabold text-[12px] w-9 text-center">${+it.qty.toFixed(2)}</span>
+      <button type="button" class="sq add !w-7 !h-7 !rounded-lg" onclick="updateQty(${idx},1)"><i class="fa-solid fa-plus text-[10px]"></i></button>
+      <div class="flex-1 min-w-0"><div class="font-extrabold text-[12px] truncate">${it.name}</div><div class="text-[10px]" style="color:var(--mu)">${typeName}</div></div>
+      <div class="num font-extrabold text-[12px]" style="color:var(--ac)">${money(line)}</div>
+    </div>`;
     const opts = units.map(u => `<option value="${u.id}" ${it.unit_id == u.id ? 'selected' : ''}>${u.name}</option>`).join('');
     const d = document.createElement('div');
     d.className = 'rowin rounded-xl p-3 border'; d.style.cssText = 'background:var(--sf2);border-color:var(--bd)';
@@ -529,6 +551,9 @@ function renderCart() {
   $('grandTotalText').innerText = money(total);
   $('grandAltText').innerText = total > 0 ? '≈ ' + money(alt, other) : '';
   if (!cart.length) resetClear();
+  $('miniCartItems').innerHTML = mini;
+  $('miniCart').classList.toggle('has-items', cart.length > 0);
+  document.body.classList.toggle('mini-on', cart.length > 0);
   updateBadges(); updateCardPrices(); updateFab(total, qtySum, weight);
 }
 
