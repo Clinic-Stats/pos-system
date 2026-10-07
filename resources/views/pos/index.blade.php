@@ -135,6 +135,13 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 .cart-panel .panel-head .inp{font-size:12.5px;padding:.55rem .75rem}
 .cart-panel .seg>*{font-size:12.5px;padding:.5rem .6rem}
 .cart-panel #grandTotalText{font-size:1.9rem}
+
+/* ===== دوگمە و بەرواری بچووک، کڕیاری گەورە ===== */
+.cart-panel .seg.sm{padding:.12rem;border-radius:.7rem}
+.cart-panel .seg.sm>*{font-size:10.5px;padding:.28rem .5rem;border-radius:.55rem;white-space:nowrap}
+.cart-panel .panel-head .inp.sm{font-size:10.5px;padding:.34rem .45rem;border-radius:.65rem}
+.cart-panel .panel-head .inp.cust-big{font-size:15px;font-weight:800;padding:.85rem 1rem;border-radius:1rem}
+
 .flash{animation:flash 1.1s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 3px var(--ac),0 14px 26px -8px var(--ac)}100%{box-shadow:var(--shadow-sm)}}
 @media (prefers-reduced-motion:reduce){.rowin,.bump,.flash{animation:none}.pc,.chip,.nav,.cart-panel{transition:none}}
@@ -254,7 +261,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
     <div class="shrink-0 space-y-2.5 panel-head">
       <div class="flex items-center justify-between">
         <h2 class="font-extrabold text-base flex items-center gap-2 flex-wrap"><i class="fa-solid fa-cart-shopping" style="color:var(--ac)"></i> سەبەتە
-          <span class="inline-flex items-center gap-1 text-[12px] font-extrabold px-2 py-0.5 rounded-lg" style="background:var(--acs);color:var(--ac)" title="ژمارەی کاڵا"><i class="fa-solid fa-cubes text-[10px]"></i><span id="cartCount" class="num">0</span> دانە</span>
+          <span class="inline-flex items-center gap-1 text-[12px] font-extrabold px-2 py-0.5 rounded-lg" style="background:var(--acs);color:var(--ac)" title="ژمارەی کاڵا (بەپێی جۆر)"><i class="fa-solid fa-cubes text-[10px]"></i><span id="cartCount" class="num">0 دانە</span></span>
           <span class="inline-flex items-center gap-1 text-[12px] font-extrabold px-2 py-0.5 rounded-lg" style="background:var(--sf);color:var(--mu);border:1px solid var(--bd)" title="کێشی گشتی"><i class="fa-solid fa-weight-hanging text-[10px]"></i><span id="cartWeight" class="num">0 کگ</span></span>
         </h2>
         <div class="flex items-center gap-1.5"><button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" class="chip !py-1.5 flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span></button><button type="button" class="sq sub lg:hidden" onclick="closeCart()" title="داخستن"><i class="fa-solid fa-chevron-down"></i></button></div>
@@ -265,23 +272,23 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
         <a href="{{ route('pos.index') }}" class="underline">پسوولەی نوێ</a>
       </div>
 
-      <div class="flex items-center gap-2">
-        <div class="seg flex-1">
+      <!-- دراو + نرخ + بەروار (بچووک) -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <div class="seg sm">
           <button type="button" id="btn-cur-usd" onclick="setCurrency('USD')" class="on">$ دۆلار</button>
           <button type="button" id="btn-cur-iqd" onclick="setCurrency('IQD')">دینار</button>
         </div>
-        <input type="number" id="exchangeRate" value="{{ $setting->exchange_rate ?? 1500 }}" onchange="renderCart()" class="inp num !w-20 text-center" title="نرخی ئاڵوگۆڕی ئەم وەسڵە">
+        <input type="number" id="exchangeRate" value="{{ $setting->exchange_rate ?? 1500 }}" onchange="renderCart()" class="inp sm num !w-16 text-center" title="نرخی ئاڵوگۆڕی ئەم وەسڵە">
+        <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="inp sm num flex-1 !w-auto min-w-[9.5rem]">
       </div>
 
-      <div class="grid grid-cols-2 gap-2">
-        <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="inp num">
-        <select id="customerId" class="inp">
-          <option value="">کڕیاری نەقد</option>
-          @foreach($customers as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach
-        </select>
-      </div>
+      <!-- کڕیار (گەورە) -->
+      <select id="customerId" class="inp cust-big">
+        <option value="">کڕیاری نەقد</option>
+        @foreach($customers as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach
+      </select>
 
-      <div class="seg">
+      <div class="seg sm">
         <label><input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()"><i class="fa-solid fa-money-bill-wave"></i> نەقد</label>
         <label class="debt"><input type="radio" name="paymentType" value="debt" onchange="togglePaymentType()"><i class="fa-solid fa-clock"></i> قەرز</label>
       </div>
@@ -340,7 +347,7 @@ const editSale = @json($editSale ?? null);
 let cart = [], lastSaleItems = [], activeSaleId = null;
 let currentCurrency = 'USD';
 let rate = parseFloat(document.getElementById('exchangeRate').value) || 1500;
-let lastAddedId = null;   // دوا کاڵایەی زیادکرا، لە سەبەتە دەدرەوشێتەوە
+let lastAddedId = null;   // دوا کاڵایەی زیادکرا یان کەمکرایەوە، لە سەبەتە دەدرەوشێتەوە
 let clearTimer = null, confirmingClear = false;
 const $ = id => document.getElementById(id);
 const getRate = () => parseFloat($('exchangeRate').value) || 1500;
@@ -440,7 +447,8 @@ function quickDecrease(id, e) {
   e.stopPropagation();
   const i = cart.findIndex(x => x.id === id); if (i === -1) return;
   const btn = e.currentTarget;
-  if (cart[i].qty > 1) cart[i].qty--; else cart.splice(i, 1);
+  if (cart[i].qty > 1) { cart[i].qty--; lastAddedId = id; }   // فۆکەس بچێتە سەر هەمان کاڵا لە سەبەتە
+  else cart.splice(i, 1);                                    // ئەگەر لابرا، شتێک نەماوە فۆکەسی بکرێت
   renderCart();
   fly(cartTarget(), btn, '−1', 'sub');   // دانە لە سەبەتەوە دەگەڕێتەوە بۆ کاڵاکە
 }
@@ -472,6 +480,7 @@ function renderCart() {
   rate = getRate();
   const box = $('cartItemsContainer'); box.innerHTML = '';
   let subtotal = 0, weight = 0, qtySum = 0, addedEl = null;
+  const typeTotals = {};   // کۆی بڕ بەپێی جۆر (کارتۆن / کیلۆ / ...)
   if (!cart.length) {
     box.innerHTML = `<div class="h-full min-h-[8rem] flex flex-col items-center justify-center text-[11px] font-bold gap-2" style="color:var(--mu)"><i class="fa-solid fa-cart-arrow-down text-3xl opacity-50"></i>سەبەتە بەتاڵە<span class="text-[10px] font-normal">کلیک لە کاڵا بکە بۆ زیادکردن</span></div>`;
   }
@@ -479,6 +488,9 @@ function renderCart() {
     const price = toDisp(it.price_usd), line = it.qty * price * it.factor;
     subtotal += line; qtySum += it.qty;
     weight += it.carton ? it.qty * (it.kg_per_carton || 1) : it.qty * it.factor;
+    const unitObj = units.find(u => u.id == it.unit_id);
+    const typeName = it.carton ? 'کارتۆن' : (unitObj ? unitObj.name : 'دانە');
+    typeTotals[typeName] = (typeTotals[typeName] || 0) + it.qty;
     const opts = units.map(u => `<option value="${u.id}" ${it.unit_id == u.id ? 'selected' : ''}>${u.name}</option>`).join('');
     const d = document.createElement('div');
     d.className = 'rowin rounded-xl p-3 border'; d.style.cssText = 'background:var(--sf2);border-color:var(--bd)';
@@ -502,7 +514,9 @@ function renderCart() {
   });
   if (addedEl) addedEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   lastAddedId = null;
-  $('cartCount').innerText = +qtySum.toFixed(2);
+  // نیشاندانی ژمارە بەپێی جۆر: نموونە «٣ کارتۆن + ٢ کیلۆ»
+  const typeText = Object.keys(typeTotals).map(k => (+typeTotals[k].toFixed(2)) + ' ' + k).join(' + ');
+  $('cartCount').innerText = typeText || '0 دانە';
   const discount = parseFloat($('cartDiscount').value) || 0;
   const total = Math.max(0, subtotal - discount);
   const other = currentCurrency === 'USD' ? 'IQD' : 'USD';
