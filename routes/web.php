@@ -186,7 +186,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/karwan-clear-data', function () {
-    // تەنها بۆ ئەدمین
     if (!auth()->check() || !auth()->user()->canReceiveCash()) {
         abort(403, 'ڕێگەپێدراو نییە');
     }
