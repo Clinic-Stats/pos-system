@@ -69,8 +69,7 @@
     <div class="sheet max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-xs">
 
         <!-- دوگمەکانی چاپ و داخستن -->
-        <div class="no-print flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
-            <a href="{{ route('sales.list') }}" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-xl font-bold transition">گەڕانەوە بۆ لیستی فرۆشتنەکان</a>
+        <div class="no-print flex justify-end items-center mb-6 pb-4 border-b border-slate-200">
             <div class="flex gap-2">
                 <a href="{{ route('sales.print', $sale->id) }}?type=small" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-bold transition">وەسڵی بچووک</a>
                 <button onclick="window.print()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition">چاپکردن</button>
@@ -186,28 +185,28 @@
                 </div>
                 @endif
 
-               @if($showDebt)
-@php
-    $fmtDebt = function($arr) {
-        $parts = [];
-        if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
-        if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
-        return empty($parts) ? '0' : implode(' + ', $parts);
-    };
-@endphp
+                @if($showDebt)
+                @php
+                    $fmtDebt = function($arr) {
+                        $parts = [];
+                        if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
+                        if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
+                        return empty($parts) ? '0' : implode(' + ', $parts);
+                    };
+                @endphp
 
-<div class="flex justify-between text-slate-600 pt-2 border-t border-slate-300 text-[11px]">
-    <span>قەرزی پێش ئەم پسوولەیە:</span>
-    <span class="font-mono font-bold" dir="ltr">{{ $fmtDebt($debtBefore) }}</span>
-</div>
-<div class="flex justify-between text-rose-700 font-black text-[12px]">
-    <span>کۆی گشتی قەرز دوای ئەم پسوولەیە:</span>
-    <span class="font-mono" dir="ltr">{{ $fmtDebt($debtAfter) }}</span>
-</div>
-<div class="text-[10px] text-slate-500 pt-0.5" style="text-align: left;" dir="ltr">
-    کۆی گشتی قەرز بە دۆلار ≈ <b>${{ number_format($debtAfterUsd, 2) }}</b>
-</div>
-@endif
+                <div class="flex justify-between text-slate-600 pt-2 border-t border-slate-300 text-[11px]">
+                    <span>قەرزی پێش ئەم پسوولەیە:</span>
+                    <span class="font-mono font-bold" dir="ltr">{{ $fmtDebt($debtBefore) }}</span>
+                </div>
+                <div class="flex justify-between text-rose-700 font-black text-[12px]">
+                    <span>کۆی گشتی قەرز دوای ئەم پسوولەیە:</span>
+                    <span class="font-mono" dir="ltr">{{ $fmtDebt($debtAfter) }}</span>
+                </div>
+                <div class="text-[10px] text-slate-500 pt-0.5" style="text-align: left;" dir="ltr">
+                    کۆی گشتی قەرز بە دۆلار ≈ <b>{{ '$' . number_format($debtAfterUsd, 2) }}</b>
+                </div>
+                @endif
             </div>
         </div>
 

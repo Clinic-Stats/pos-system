@@ -91,6 +91,7 @@
 
         .btn-print { background: #2563eb; }
         .btn-a4 { background: #0891b2; }
+        .btn-close { background: #dc2626; }
 
         @media print {
             .toolbar { display: none; }
@@ -105,6 +106,7 @@
     <div class="toolbar">
         <button onclick="window.print()" class="btn btn-print">چاپکردن</button>
         <a href="{{ route('sales.print', $sale->id) }}?type=a4" class="btn btn-a4">A4</a>
+        <button onclick="window.close()" class="btn btn-close">داخستن</button>
     </div>
 
     <!-- سەردێڕ و لۆگۆ -->
@@ -180,30 +182,30 @@
             <td class="text-left" dir="ltr">{{ $fmt($sale->remaining_amount) }}</td>
         </tr>
         @endif
-       @if($showDebt)
-@php
-    $fmtDebt = function($arr) {
-        $parts = [];
-        if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
-        if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
-        return empty($parts) ? '0' : implode(' + ', $parts);
-    };
-@endphp
+        @if($showDebt)
+        @php
+            $fmtDebt = function($arr) {
+                $parts = [];
+                if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
+                if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
+                return empty($parts) ? '0' : implode(' + ', $parts);
+            };
+        @endphp
 
-<tr>
-    <td>قەرزی پێش ئەم وەسڵە:</td>
-    <td class="text-left" dir="ltr">{{ $fmtDebt($debtBefore) }}</td>
-</tr>
-<tr class="font-bold">
-    <td>کۆی قەرز دوای ئەم وەسڵە:</td>
-    <td class="text-left" dir="ltr">{{ $fmtDebt($debtAfter) }}</td>
-</tr>
-<tr>
-    <td colspan="2" class="text-left" style="font-size:10px; color:#555;" dir="ltr">
-        کۆی گشتی قەرز بە دۆلار ≈ ${{ number_format($debtAfterUsd, 2) }}
-    </td>
-</tr>
-@endif
+        <tr>
+            <td>قەرزی پێش ئەم وەسڵە:</td>
+            <td class="text-left" dir="ltr">{{ $fmtDebt($debtBefore) }}</td>
+        </tr>
+        <tr class="font-bold">
+            <td>کۆی قەرز دوای ئەم وەسڵە:</td>
+            <td class="text-left" dir="ltr">{{ $fmtDebt($debtAfter) }}</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="text-left" style="font-size:10px; color:#555;" dir="ltr">
+                کۆی گشتی قەرز بە دۆلار ≈ {{ '$' . number_format($debtAfterUsd, 2) }}
+            </td>
+        </tr>
+        @endif
     </table>
 
     <div style="margin-top: 10px; padding: 6px; border: 1.5px dashed #000; text-align: center; font-weight: bold; font-size: 12px;">

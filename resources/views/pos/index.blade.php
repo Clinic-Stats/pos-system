@@ -301,7 +301,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
         <label><input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()"><i class="fa-solid fa-money-bill-wave"></i> نەقد</label>
         <label class="debt"><input type="radio" name="paymentType" value="debt" onchange="togglePaymentType()"><i class="fa-solid fa-clock"></i> قەرز</label>
       </div>
-      <div id="paidAmountBox" class="hidden"><input type="number" id="paidAmount" placeholder="بڕی پارەی دراو" value="0" min="0" class="inp num"></div>
     </div>
 
     <div id="cartItemsContainer" class="grow overflow-y-auto scroll py-2.5 space-y-2"></div>
@@ -314,6 +313,12 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
       <div class="total-card rounded-2xl px-3.5 py-3 flex justify-between items-end">
         <span class="font-extrabold text-sm" style="color:var(--ac)">کۆی گشتی</span>
         <div class="text-left leading-tight"><div id="grandTotalText" class="num font-extrabold text-2xl" style="color:var(--ac)">$0.00</div><div id="grandAltText" class="num text-[10px] font-bold" style="color:var(--mu)"></div></div>
+      </div>
+      <div id="paidAmountBox" class="hidden">
+        <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="background:var(--was);border:1px solid color-mix(in srgb,var(--wa) 40%,transparent)">
+          <label class="text-[12px] font-extrabold whitespace-nowrap" style="color:var(--wa)"><i class="fa-solid fa-hand-holding-dollar"></i> پارەی دراو</label>
+          <input type="number" id="paidAmount" placeholder="0" value="0" min="0" class="inp num flex-1 !py-1.5" style="text-align: left;background:var(--card)">
+        </div>
       </div>
       <button type="button" onclick="submitSale()" id="btnSubmitSale" class="w-full py-4 rounded-2xl font-extrabold text-[15px] flex items-center justify-center gap-2 transition active:scale-[.98]" style="background:var(--ac);color:var(--bg)"><i class="fa-solid fa-paper-plane"></i> پسوولەکردن</button>
     </div>
