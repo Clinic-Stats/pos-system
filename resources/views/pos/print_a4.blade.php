@@ -8,13 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&family=Libre+Barcode+39&display=swap" rel="stylesheet">
     @php
-    $setting = \App\Models\Setting::first();
-
-    // نیشاندانی بڕ بەپێی دراوی وەسڵ (USD یان IQD)
+    $setting = $setting ?? \App\Models\Setting::first();
     $isUsd = ($sale->currency ?? 'IQD') === 'USD';
     $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';
 
-    // کێشی گشتی
     $totalWeightKg = 0;
     foreach ($sale->details as $item) {
     $unitName = strtolower(trim($item->unit->name ?? ''));
@@ -27,10 +24,6 @@
     }
     }
     @endphp
-
-    {{-- قەرزی کڕیار پێش و دوای ئەم وەسڵە --}}
-    @include('partials.sale-debt')
-
     <style>
         body {
             font-family: 'Noto Sans Arabic', sans-serif;
@@ -193,7 +186,7 @@
                 </div>
                 @endif
 
-                @if($showDebt)
+                @if(!empty($showDebt))
                 <div class="flex justify-between text-slate-600 pt-1 border-t border-slate-200 text-[11px]">
                     <span>قەرزی پێش ئەم پسوولەیە:</span>
                     <span class="font-mono" dir="ltr">{{ $fmt($debtBefore) }}</span>

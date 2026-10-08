@@ -7,7 +7,7 @@
     <title>پسوولەی فرۆشتن - {{ $sale->invoice_no }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
     @php
-    $setting = \App\Models\Setting::first();
+    $setting = $setting ?? \App\Models\Setting::first();
     $paperWidth = ($setting && in_array($setting->receipt_width, ['58mm', '80mm'])) ? $setting->receipt_width : '80mm';
     $is58 = $paperWidth === '58mm';
     $bodyWidth = $is58 ? '56mm' : '78mm';
@@ -15,12 +15,10 @@
     $fsTd = $is58 ? '10px' : '11px';
     $pad = $is58 ? '4px' : '10px';
 
-    // نیشاندانی بڕ بەپێی دراوی وەسڵ
     $isUsd = ($sale->currency ?? 'IQD') === 'USD';
     $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';
     $fmtShort = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v);
 
-    // کێشی گشتی
     $totalWeightKg = 0;
     foreach ($sale->details as $item) {
     $unitName = strtolower(trim($item->unit->name ?? ''));
@@ -33,10 +31,6 @@
     }
     }
     @endphp
-
-    {{-- قەرزی کڕیار پێش و دوای ئەم وەسڵە --}}
-    @include('partials.sale-debt')
-
     <style>
         @page {
             size: {{ $paperWidth }} auto;
@@ -52,25 +46,11 @@
             color: #000;
         }
 
-        .text-center {
-            text-align: center;
-        }
-
-        .text-left {
-            text-align: left;
-        }
-
-        .font-bold {
-            font-weight: bold;
-        }
-
-        .border-b {
-            border-bottom: 1px dashed #000;
-        }
-
-        .my-2 {
-            margin: 6px 0;
-        }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .font-bold { font-weight: bold; }
+        .border-b { border-bottom: 1px dashed #000; }
+        .my-2 { margin: 6px 0; }
 
         table {
             width: 100%;
@@ -78,8 +58,7 @@
             margin-top: 5px;
         }
 
-        th,
-        td {
+        th, td {
             padding: 4px 0;
             font-size: {{ $fsTd }};
         }
@@ -110,18 +89,11 @@
             font-size: 11px;
         }
 
-        .btn-print {
-            background: #2563eb;
-        }
-
-        .btn-a4 {
-            background: #0891b2;
-        }
+        .btn-print { background: #2563eb; }
+        .btn-a4 { background: #0891b2; }
 
         @media print {
-            .toolbar {
-                display: none;
-            }
+            .toolbar { display: none; }
         }
     </style>
     @include('partials.system-head')
@@ -147,6 +119,7 @@
         @if(!empty($setting->shop_address))
         <div style="font-size: 10px; color: #333;">{{ $setting->shop_address }}</div>
         @endif
+        <div style="font-size: 11px; margin-top: 3px; font-weight: bold;">وەسڵی فرۆشتن</div>
     </div>
 
     <div class="border-b my-2"></div>
@@ -207,7 +180,7 @@
             <td class="text-left" dir="ltr">{{ $fmt($sale->remaining_amount) }}</td>
         </tr>
         @endif
-        @if($showDebt)
+        @if(!empty($showDebt))
         <tr>
             <td>قەرزی پێش ئەم وەسڵە:</td>
             <td class="text-left" dir="ltr">{{ $fmt($debtBefore) }}</td>
