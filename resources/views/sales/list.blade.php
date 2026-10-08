@@ -105,55 +105,70 @@
 
         <div class="flex-1 overflow-auto custom-scrollbar rounded-lg border border-slate-700/80">
             <table class="w-full text-xs text-right text-slate-300">
-                <thead class="bg-slate-700/50 text-[11px] text-slate-400 sticky top-0 z-10">
-                    <tr>
-                        <th class="p-2.5">#</th>
-                        <th class="p-2.5">ژمارەی وەسڵ</th>
-                        <th class="p-2.5">کڕیار</th>
-                        <th class="p-2.5">کۆی پارە</th>
-                        <th class="p-2.5">قازانج</th>
-                        <th class="p-2.5">دراو</th>
-                        <th class="p-2.5">جۆر</th>
-                        <th class="p-2.5">بەروار</th>
-                        <th class="p-2.5 text-center">کردارەکان</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-700">
-                    @forelse($sales as $index => $sale)
-                    <tr class="hover:bg-slate-700/30 transition {{ $sale->remaining_amount > 0 ? 'bg-amber-950/20' : '' }}">
-                        <td class="p-2.5 font-num text-slate-500">{{ $sales->firstItem() + $index }}</td>
-                        <td class="p-2.5 font-mono text-blue-400 text-[11px]">{{ $sale->invoice_no }}</td>
-                        <td class="p-2.5 text-[11px]">{{ $sale->customer->name ?? 'کڕیاری نەقد' }}</td>
-                        <td class="p-2.5 font-mono font-bold text-emerald-400 text-[11px]" dir="ltr">
-                            @if($sale->currency == 'USD')
-                            ${{ number_format($sale->total_amount, 2) }}
-                            @else
-                            {{ number_format($sale->total_amount) }} IQD
-                            @endif
-                        </td>
-                        <td class="p-2.5 font-mono font-bold text-blue-400 text-[11px]" dir="ltr">
-                            @if($sale->currency == 'USD')
-                            ${{ number_format($sale->total_profit, 2) }}
-                            @else
-                            {{ number_format($sale->total_profit) }} IQD
-                            @endif
-                        </td>
-                        <td class="p-2.5 text-[10px] font-bold text-slate-400">
-                            {{ $sale->currency ?? 'IQD' }}
-                        </td>
-                        <td class="p-2.5">
-                            @if($sale->payment_type == 'cash')
-                            <span class="bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[10px] font-bold">نەقد</span>
-                            @else
-                            <span class="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[10px] font-bold">قەرز</span>
-                            @if($sale->remaining_amount > 0)
-                            <span class="block text-[9px] text-rose-400 mt-0.5 font-num" dir="ltr">ماوە: {{ number_format($sale->remaining_amount) }}</span>
-                            @endif
-                            @endif
-                        </td>
-                        <td class="p-2.5 text-[10px] text-slate-400 font-mono">{{ $sale->created_at->format('Y-m-d H:i') }}</td>
-                        <td class="p-2.5">
-                            <div class="flex items-center justify-center gap-1">
+               <thead class="bg-slate-700/50 text-[11px] text-slate-400 sticky top-0 z-10">
+    <tr>
+        <th class="p-2.5">#</th>
+        <th class="p-2.5">ژمارەی وەسڵ</th>
+        <th class="p-2.5">کڕیار</th>
+        <th class="p-2.5">کۆی کاڵاکان</th>
+        <th class="p-2.5">کۆی گشتی</th>
+        <th class="p-2.5">بڕی دراو</th>
+        <th class="p-2.5">قازانج</th>
+        <th class="p-2.5">دراو</th>
+        <th class="p-2.5">جۆر</th>
+        <th class="p-2.5">بەروار</th>
+        <th class="p-2.5 text-center">کردارەکان</th>
+    </tr>
+</thead>
+<tbody class="divide-y divide-slate-700">
+    @forelse($sales as $index => $sale)
+    @php
+        $disc = (float) ($sale->discount ?? 0);
+        $subtotal = $sale->total_amount + $disc;
+        $fmt = fn($v) => $sale->currency == 'USD' ? '$' . number_format((float)$v, 2) : number_format((float)$v) . ' IQD';
+    @endphp
+    <tr class="hover:bg-slate-700/30 transition {{ $sale->remaining_amount > 0 ? 'bg-amber-950/20' : '' }}">
+        <td class="p-2.5 font-num text-slate-500">{{ $sales->firstItem() + $index }}</td>
+        <td class="p-2.5 font-mono text-blue-400 text-[11px]">{{ $sale->invoice_no }}</td>
+        <td class="p-2.5 text-[11px]">{{ $sale->customer->name ?? 'کڕیاری نەقد' }}</td>
+
+        {{-- کۆی کاڵاکان (پێش داشکاندن) --}}
+        <td class="p-2.5 font-mono text-slate-300 text-[11px]" dir="ltr">
+            {{ $fmt($subtotal) }}
+            @if($disc > 0)
+            <span class="block text-[9px] text-amber-400 mt-0.5">داشکاندن: -{{ $fmt($disc) }}</span>
+            @endif
+        </td>
+
+        {{-- کۆی گشتی (دوای داشکاندن) --}}
+        <td class="p-2.5 font-mono font-bold text-emerald-400 text-[11px]" dir="ltr">
+            {{ $fmt($sale->total_amount) }}
+        </td>
+
+        {{-- بڕی دراو --}}
+        <td class="p-2.5 font-mono text-[11px]" dir="ltr">
+            <span class="text-cyan-400 font-bold">{{ $fmt($sale->paid_amount) }}</span>
+            @if($sale->remaining_amount > 0)
+            <span class="block text-[9px] text-rose-400 mt-0.5">ماوە: {{ $fmt($sale->remaining_amount) }}</span>
+            @endif
+        </td>
+
+        <td class="p-2.5 font-mono font-bold text-blue-400 text-[11px]" dir="ltr">
+            {{ $fmt($sale->total_profit) }}
+        </td>
+        <td class="p-2.5 text-[10px] font-bold text-slate-400">
+            {{ $sale->currency ?? 'IQD' }}
+        </td>
+        <td class="p-2.5">
+            @if($sale->payment_type == 'cash')
+            <span class="bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded text-[10px] font-bold">نەقد</span>
+            @else
+            <span class="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[10px] font-bold">قەرز</span>
+            @endif
+        </td>
+        <td class="p-2.5 text-[10px] text-slate-400 font-mono">{{ $sale->created_at->format('Y-m-d H:i') }}</td>
+        <td class="p-2.5">
+            <div class="flex items-center justify-center gap-1">
                                 <!-- چاپی A4 -->
                                 <a href="{{ route('sales.print', $sale->id) }}?type=a4" target="_blank" title="چاپی A4"
                                     class="bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">

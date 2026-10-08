@@ -310,14 +310,18 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
         <div class="flex justify-between items-center"><span style="color:var(--mu)">کۆی کاڵا</span><span id="subTotalText" class="num">$0.00</span></div>
         <div class="flex items-center justify-end gap-2"><span style="color:var(--mu)">داشکاندن</span><input type="number" min="0" id="cartDiscount" value="0" oninput="renderCart()" class="inp num !w-24 !py-1.5 text-left"></div>
       </div>
-      <div class="total-card rounded-2xl px-3.5 py-3 flex justify-between items-end">
-        <span class="font-extrabold text-sm" style="color:var(--ac)">کۆی گشتی</span>
-        <div class="text-left leading-tight"><div id="grandTotalText" class="num font-extrabold text-2xl" style="color:var(--ac)">$0.00</div><div id="grandAltText" class="num text-[10px] font-bold" style="color:var(--mu)"></div></div>
-      </div>
+     <div class="total-card rounded-2xl px-3.5 py-3 flex justify-between items-end">
+  <span class="font-extrabold text-sm" style="color:var(--ac)">کۆی گشتی</span>
+  <div class="text-left leading-tight">
+    <div id="grandTotalText" class="num font-extrabold text-2xl" style="color:var(--ac)">$0.00</div>
+    <div id="grandAltText" class="num text-[10px] font-bold" style="color:var(--mu)"></div>
+    <div id="grandRemainingText" class="num text-[12px] font-extrabold hidden mt-1"></div>
+  </div>
+</div>
       <div id="paidAmountBox" class="hidden">
         <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="background:var(--was);border:1px solid color-mix(in srgb,var(--wa) 40%,transparent)">
           <label class="text-[12px] font-extrabold whitespace-nowrap" style="color:var(--wa)"><i class="fa-solid fa-hand-holding-dollar"></i> پارەی دراو</label>
-          <input type="number" id="paidAmount" placeholder="0" value="0" min="0" class="inp num flex-1 !py-1.5" style="text-align: left;background:var(--card)">
+          <input type="number" id="paidAmount" placeholder="0" value="0" min="0" oninput="renderCart()" class="inp num flex-1 !py-1.5" style="text-align: left;background:var(--card)">
         </div>
       </div>
       <button type="button" onclick="submitSale()" id="btnSubmitSale" class="w-full py-4 rounded-2xl font-extrabold text-[15px] flex items-center justify-center gap-2 transition active:scale-[.98]" style="background:var(--ac);color:var(--bg)"><i class="fa-solid fa-paper-plane"></i> پسوولەکردن</button>
@@ -370,6 +374,8 @@ let currentCurrency = 'USD';
 let rate = parseFloat(document.getElementById('exchangeRate').value) || 1500;
 let lastAddedId = null;   // دوا کاڵایەی زیادکرا یان کەمکرایەوە، لە سەبەتە دەدرەوشێتەوە
 let clearTimer = null, confirmingClear = false;
+let originalReserved = {};  // ئەو بڕەی لە سەرەتاوە دیاریکرابوو (بۆ edit)
+let reservedStock = {};     // ئەو بڕەی ئێستا لە سەبەتەدایە
 const $ = id => document.getElementById(id);
 const getRate = () => parseFloat($('exchangeRate').value) || 1500;
 const money = (v, cur = currentCurrency) => cur === 'USD' ? '$' + v.toFixed(2) : Math.round(v).toLocaleString() + ' IQD';
@@ -556,10 +562,35 @@ function renderCart() {
   $('cartWeight').innerText = (+weight.toFixed(2)).toLocaleString() + ' کگ';
   $('grandTotalText').innerText = money(total);
   $('grandAltText').innerText = total > 0 ? '≈ ' + money(alt, other) : '';
+
+  // ═══ ماوە (قەرز) کاتێک پارەی دراو هەیە ═══
+  const isDebt = document.querySelector('input[name="paymentType"]:checked')?.value === 'debt';
+  const paid = isDebt ? (parseFloat($('paidAmount').value) || 0) : 0;
+  const remaining = Math.max(0, total - paid);
+  const remEl = $('grandRemainingText');
+  if (isDebt && paid > 0) {
+    const otherRem = currentCurrency === 'USD' ? remaining * rate : remaining / rate;
+    remEl.classList.remove('hidden');
+    remEl.style.color = 'var(--ro)';
+    remEl.innerText = 'ماوە (قەرز): ' + money(remaining) + ' ≈ ' + money(otherRem, other);
+  } else if (isDebt && paid === 0 && total > 0) {
+    remEl.classList.remove('hidden');
+    remEl.style.color = 'var(--mu)';
+    remEl.innerText = 'ماوە (قەرز): ' + money(total);
+  } else {
+    remEl.classList.add('hidden');
+  }
+
   if (!cart.length) resetClear();
   $('miniCartItems').innerHTML = mini;
   $('miniCart').classList.toggle('has-items', cart.length > 0);
   document.body.classList.toggle('mini-on', cart.length > 0);
+
+  // ═══ نوێکردنەوەی کۆگا ═══
+  reservedStock = {};
+  cart.forEach(i => { reservedStock[i.id] = (reservedStock[i.id] || 0) + i.qty * i.factor; });
+  recalcStockDisplay();
+
   updateBadges(); updateCardPrices(); updateFab(total, qtySum, weight);
 }
 
@@ -598,17 +629,39 @@ let savedSaleId = null;     // دوای یەکەم تۆمارکردن، پاشە
 let lastUse = {};           // ئەو بڕەی ئەم وەسڵە لە کۆگا بردوویەتی
 let lastDiscount = 0;
 
-function adjustStock(pid, delta) {
-  const p = allProducts.find(x => x.id == pid); if (!p) return;
-  const key = p.stock_kg !== undefined ? 'stock_kg' : 'stock';
-  p[key] = (parseFloat(p[key]) || 0) + delta;
-  const el = $('stock-' + pid); if (el) el.textContent = +(+p[key]).toFixed(2);
+/* نیشاندانی کۆگا بەپێی سەبەتە: master + (ڕەسەن) - (ئێستا) */
+function recalcStockDisplay() {
+  allProducts.forEach(p => {
+    const el = $('stock-' + p.id);
+    if (!el) return;
+    const key = p.stock_kg !== undefined ? 'stock_kg' : 'stock';
+    const master = parseFloat(p[key] || 0);
+    const orig = originalReserved[p.id] || 0;
+    const curr = reservedStock[p.id] || 0;
+    let val = master + orig - curr;
+    if (val < 0) val = 0;
+    el.textContent = +val.toFixed(2);
+  });
 }
 function applySaleUse(items) {
-  Object.keys(lastUse).forEach(pid => adjustStock(pid, lastUse[pid]));   // بڕە کۆنەکە دەگەڕێتەوە
-  lastUse = {};
-  items.forEach(i => { lastUse[i.id] = (lastUse[i.id] || 0) + i.qty * i.factor; });
-  Object.keys(lastUse).forEach(pid => adjustStock(pid, -lastUse[pid]));
+  // ١) بڕی پێشوو دەگەڕێنینەوە بۆ master
+  Object.keys(lastUse).forEach(pid => {
+    const p = allProducts.find(x => x.id == pid); if (!p) return;
+    const key = p.stock_kg !== undefined ? 'stock_kg' : 'stock';
+    p[key] = (parseFloat(p[key]) || 0) + lastUse[pid];
+  });
+  // ٢) بڕی نوێ لە master کەم دەکەین
+  const newUse = {};
+  items.forEach(i => { newUse[i.id] = (newUse[i.id] || 0) + i.qty * i.factor; });
+  Object.keys(newUse).forEach(pid => {
+    const p = allProducts.find(x => x.id == pid); if (!p) return;
+    const key = p.stock_kg !== undefined ? 'stock_kg' : 'stock';
+    p[key] = (parseFloat(p[key]) || 0) - newUse[pid];
+  });
+  lastUse = newUse;
+  originalReserved = { ...newUse };
+  reservedStock = { ...newUse };
+  recalcStockDisplay();
 }
 const labelNew = '<i class="fa-solid fa-paper-plane"></i> پسوولەکردن';
 const labelUpdate = '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە';
@@ -680,6 +733,7 @@ function startNewSale() {
   $('successModal').classList.add('hidden'); closeCart();
   if (editSale) { window.location.href = '{{ route('pos.index') }}'; return; }
   cart = []; savedSaleId = null; lastUse = {}; lastSaleItems = []; lastDiscount = 0;
+  originalReserved = {}; reservedStock = {};
   $('cartDiscount').value = 0; $('paidAmount').value = 0; $('customerId').value = '';
   document.querySelector('input[name="paymentType"][value="cash"]').checked = true; togglePaymentType();
   $('saleCreatedAt').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -731,6 +785,7 @@ function loadEditSale() {
       kg_per_carton: parseFloat(p.kg_per_carton) || 1, qty: parseFloat(it.quantity), unit_id: unit.id, factor };
   }).filter(Boolean);
   lastUse = {}; cart.forEach(i => { lastUse[i.id] = (lastUse[i.id] || 0) + i.qty * i.factor; });
+  originalReserved = { ...lastUse };
   paintCurrency();
   $('editBanner').classList.remove('hidden'); $('editInvoiceNo').innerText = editSale.invoice_no;
   $('btnSubmitSale').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە';
