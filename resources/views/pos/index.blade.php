@@ -733,8 +733,8 @@ function loadEditSale() {
 }
 renderCart(); loadEditSale();
 </script>
+
 <!-- ===== جووڵەی مینیوی سەرەوە (شێوەی ڤیدیۆکە) ===== -->
-<!-- ئەمە لەپێش </body> دابنێ، هیچ شتێکی تر نەگۆڕە -->
 <style id="navMotionCss">
 .nav-group{position:relative;flex-wrap:wrap;gap:.1rem;padding:.35rem .6rem;background:#1d1e22;border:0;border-radius:999px;
   box-shadow:0 12px 26px -12px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.06)}

@@ -27,6 +27,10 @@
     }
     }
     @endphp
+
+    {{-- قەرزی کڕیار پێش و دوای ئەم وەسڵە --}}
+    @include('partials.sale-debt')
+
     <style>
         body {
             font-family: 'Noto Sans Arabic', sans-serif;
@@ -100,9 +104,8 @@
             @endif
 
             <div class="text-left space-y-1 flex-1">
-                <div class="inline-block bg-slate-900 text-white px-3 py-1 rounded-lg font-bold text-sm mb-1">وەسڵی فرۆشتن (A4)</div>
                 <div class="font-mono text-xs font-bold text-slate-800">وەسڵ: {{ $sale->invoice_no }}</div>
-                <div class="font-mono text-xs text-slate-600">بەروار: {{ $sale->created_at->format('Y-m-d H:i') }}</div>
+                <div class="font-mono text-xs text-slate-600">بەروار: {{ $sale->created_at->format('n/j/y, g:i A') }}</div>
             </div>
         </div>
 
@@ -187,6 +190,17 @@
                 <div class="flex justify-between text-rose-700 font-black text-[11px]">
                     <span>ماوە (قەرز):</span>
                     <span class="font-mono" dir="ltr">{{ $fmt($sale->remaining_amount) }}</span>
+                </div>
+                @endif
+
+                @if($showDebt)
+                <div class="flex justify-between text-slate-600 pt-1 border-t border-slate-200 text-[11px]">
+                    <span>قەرزی پێش ئەم پسوولەیە:</span>
+                    <span class="font-mono" dir="ltr">{{ $fmt($debtBefore) }}</span>
+                </div>
+                <div class="flex justify-between text-rose-700 font-black text-[12px]">
+                    <span>کۆی گشتی قەرز دوای ئەم پسوولەیە:</span>
+                    <span class="font-mono" dir="ltr">{{ $fmt($debtAfter) }}</span>
                 </div>
                 @endif
             </div>

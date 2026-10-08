@@ -33,45 +33,22 @@
     }
     }
     @endphp
+
+    {{-- قەرزی کڕیار پێش و دوای ئەم وەسڵە --}}
+    @include('partials.sale-debt')
+
     <style>
         @page {
-            size: {
-                    {
-                    $paperWidth
-                }
-            }
-
-            auto;
+            size: {{ $paperWidth }} auto;
             margin: 0;
         }
 
         body {
             font-family: 'Tahoma', 'Noto Sans Arabic', sans-serif;
-
-            width: {
-                    {
-                    $bodyWidth
-                }
-            }
-
-            ;
+            width: {{ $bodyWidth }};
             margin: 0 auto;
-
-            padding: {
-                    {
-                    $pad
-                }
-            }
-
-            ;
-
-            font-size: {
-                    {
-                    $fs
-                }
-            }
-
-            ;
+            padding: {{ $pad }};
+            font-size: {{ $fs }};
             color: #000;
         }
 
@@ -104,14 +81,7 @@
         th,
         td {
             padding: 4px 0;
-
-            font-size: {
-                    {
-                    $fsTd
-                }
-            }
-
-            ;
+            font-size: {{ $fsTd }};
         }
 
         .barcode {
@@ -177,14 +147,13 @@
         @if(!empty($setting->shop_address))
         <div style="font-size: 10px; color: #333;">{{ $setting->shop_address }}</div>
         @endif
-        <div style="font-size: 11px; margin-top: 3px; font-weight: bold;">وەسڵی فرۆشتن</div>
     </div>
 
     <div class="border-b my-2"></div>
 
     <div>
         <div><strong>وەسڵ:</strong> {{ $sale->invoice_no }}</div>
-        <div><strong>بەروار:</strong> {{ $sale->created_at->format('Y-m-d H:i') }}</div>
+        <div><strong>بەروار:</strong> {{ $sale->created_at->format('n/j/y, g:i A') }}</div>
         <div><strong>کڕیار:</strong> {{ $sale->customer->name ?? 'کڕیاری گشتی' }}</div>
         <div><strong>جۆری پارەدان:</strong> {{ $sale->payment_type == 'cash' ? 'نەقد' : 'قەرز' }}</div>
         <div><b>کاشیر:</b> {{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</div>
@@ -236,6 +205,16 @@
         <tr class="font-bold">
             <td>ماوە (قەرز):</td>
             <td class="text-left" dir="ltr">{{ $fmt($sale->remaining_amount) }}</td>
+        </tr>
+        @endif
+        @if($showDebt)
+        <tr>
+            <td>قەرزی پێش ئەم وەسڵە:</td>
+            <td class="text-left" dir="ltr">{{ $fmt($debtBefore) }}</td>
+        </tr>
+        <tr class="font-bold">
+            <td>کۆی قەرز دوای ئەم وەسڵە:</td>
+            <td class="text-left" dir="ltr">{{ $fmt($debtAfter) }}</td>
         </tr>
         @endif
     </table>
