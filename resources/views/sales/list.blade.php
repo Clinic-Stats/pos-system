@@ -144,9 +144,10 @@
                         <td class="p-2.5 font-mono text-blue-400 text-[11px]">{{ $sale->invoice_no }}</td>
                         <td class="p-2.5 text-[11px]">{{ $sale->customer->name ?? 'کڕیاری نەقد' }}</td>
 
-                       {{-- کۆی پسوولە: جۆر و بڕ + کۆی کاڵاکان --}}
+                     {{-- کۆی پسوولە: نرخی سەرەتا + جۆر و بڕ --}}
 <td class="p-2.5 font-mono text-slate-300 text-[11px]">
-    <span class="block text-[9px] text-slate-400 mb-0.5 font-sans whitespace-nowrap">
+    <span class="block font-bold text-slate-200" dir="ltr">{{ $fmt($subtotal) }}</span>
+    <span class="block text-[9px] text-slate-400 mt-0.5 font-sans whitespace-nowrap">
         <i class="fa-solid fa-cubes"></i>
         {{ $typesCount }} جۆر
         @if($unitText)
@@ -154,16 +155,17 @@
         <span class="text-amber-300">{{ $unitText }}</span>
         @endif
     </span>
-    <span class="block" dir="ltr">{{ $fmt($subtotal) }}</span>
-    @if($disc > 0)
-    <span class="block text-[9px] text-amber-400 mt-0.5">داشکاندن: -{{ $fmt($disc) }}</span>
-    @endif
 </td>
 
                         {{-- کۆی گشتی (دوای داشکاندن) --}}
-                        <td class="p-2.5 font-mono font-bold text-emerald-400 text-[11px]" dir="ltr">
-                            {{ $fmt($sale->total_amount) }}
-                        </td>
+<td class="p-2.5 font-mono font-bold text-emerald-400 text-[11px]">
+    <span class="block" dir="ltr">{{ $fmt($sale->total_amount) }}</span>
+    @if($disc > 0)
+    <span class="block text-[9px] text-amber-400 mt-0.5 font-sans whitespace-nowrap">
+        داشکاندن: -{{ $fmt($disc) }}
+    </span>
+    @endif
+</td>
 
                         {{-- بڕی دراو --}}
                         <td class="p-2.5 font-mono text-[11px]" dir="ltr">
