@@ -733,5 +733,87 @@ function loadEditSale() {
 }
 renderCart(); loadEditSale();
 </script>
+<!-- ===== جووڵەی مینیوی سەرەوە (شێوەی ڤیدیۆکە) ===== -->
+<!-- ئەمە لەپێش </body> دابنێ، هیچ شتێکی تر نەگۆڕە -->
+<style id="navMotionCss">
+.nav-group{position:relative;flex-wrap:wrap;gap:.1rem;padding:.35rem .6rem;background:#1d1e22;border:0;border-radius:999px;
+  box-shadow:0 12px 26px -12px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.06)}
+.nav-group>.nav,.nav-group>.relative>.nav{position:relative;z-index:1;padding:.5rem .85rem;color:#cfd1d8;
+  background:transparent!important;box-shadow:none!important;filter:none!important;transition:color .3s}
+.nav-group>.nav i,.nav-group>.relative>.nav i{color:#e8e9ee;display:inline-block;transition:transform .45s cubic-bezier(.34,1.56,.64,1),color .3s}
+.nav-group>.nav.nav-on,.nav-group>.relative>.nav.nav-on{color:var(--ac)}
+.nav-group>.nav.nav-on i:first-child,.nav-group>.relative>.nav.nav-on i:first-child{color:var(--ac);transform:translateY(-3px) scale(1.22)}
+.nav-group>.nav:active i:first-child,.nav-group>.relative>.nav:active i:first-child{transform:translateY(0) scale(.85)}
+#navArch{position:absolute;left:0;top:0;z-index:0;pointer-events:none;direction:ltr;overflow:visible}
+#navArch path{fill:none;stroke:var(--ac);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 4px color-mix(in srgb,var(--ac) 70%,transparent))}
+#navArch.off{display:none}
+</style>
+<script>
+(function () {
+  const group = document.querySelector('.nav-group'); if (!group) return;
+  const items = [...group.querySelectorAll(':scope > .nav, :scope > .relative > .nav')];
+  if (!items.length) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg'), path = document.createElementNS(NS, 'path');
+  svg.id = 'navArch'; svg.appendChild(path); group.insertBefore(svg, group.firstChild);
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const home = group.querySelector(':scope > .nav.hl') || items[0];
+  const more = group.querySelector('#moreDropdown');
+  const moreBtn = more ? more.previousElementSibling : null;
+  let cur = { cx: 0, bw: 40, amp: 1 }, raf = 0, target = home;
+
+  function geom(el) {
+    const g = group.getBoundingClientRect(), r = el.getBoundingClientRect();
+    return { cx: r.left - g.left + r.width / 2, bw: r.width / 2 + 12 };
+  }
+  function draw(s) {
+    const W = group.offsetWidth, H = group.offsetHeight, r = H / 2, yb = H - 1.5;
+    const yt = yb - (yb - 5) * s.amp, k = s.bw;
+    svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    path.setAttribute('d',
+      `M1.5 ${r} A${r - 1.5} ${r - 1.5} 0 0 0 ${r} ${yb} H${s.cx - k} ` +
+      `C${s.cx - k * .45} ${yb} ${s.cx - k * .6} ${yt} ${s.cx} ${yt} ` +
+      `C${s.cx + k * .6} ${yt} ${s.cx + k * .45} ${yb} ${s.cx + k} ${yb} ` +
+      `H${W - r} A${r - 1.5} ${r - 1.5} 0 0 0 ${W - 1.5} ${r}`);
+  }
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+  function moveTo(el, instant) {
+    target = el;
+    items.forEach(i => i.classList.toggle('nav-on', i === el));
+    if (group.offsetHeight > 64) { svg.classList.add('off'); return; }   // مۆبایل: چەند ڕیزە، تەنها ڕەنگ
+    svg.classList.remove('off');
+    const to = geom(el), from = { ...cur };
+    cancelAnimationFrame(raf);
+    if (instant || reduce || !from.cx) { cur = { ...to, amp: 1 }; draw(cur); return; }
+    const D = 480, t0 = performance.now();
+    (function step(now) {
+      const t = Math.min(1, (now - t0) / D), e = ease(t);
+      cur = { cx: from.cx + (to.cx - from.cx) * e, bw: from.bw + (to.bw - from.bw) * e,
+              amp: 1 - 0.7 * Math.sin(Math.PI * t) };   // لە کاتی جووڵەدا نزم دەبێتەوە، دواتر هەڵدەستێتەوە
+      draw(cur);
+      if (t < 1) raf = requestAnimationFrame(step);
+    })(t0);
+  }
+  const rest = () => (more && !more.classList.contains('hidden') && moreBtn) ? moreBtn : home;
+
+  items.forEach(it => it.addEventListener('mouseenter', () => moveTo(it)));
+  group.addEventListener('mouseleave', () => moveTo(rest()));
+  items.forEach(it => it.addEventListener('click', e => {
+    moveTo(it);
+    if (it.tagName !== 'A' || !it.href || e.ctrlKey || e.metaKey || e.shiftKey || e.button || it.target === '_blank') return;
+    e.preventDefault();                                   // با ئەنیمەیشنەکە تەواو بێت، پاشان بڕۆ
+    setTimeout(() => { location.href = it.href; }, reduce ? 0 : 380);
+  }));
+  document.addEventListener('click', () => setTimeout(() => { if (!group.matches(':hover')) moveTo(rest()); }, 0));
+
+  const init = () => moveTo(home, true);
+  init(); addEventListener('resize', () => moveTo(target, true));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(init);
+  addEventListener('load', init);
+})();
+</script>
 </body>
 </html>
