@@ -112,7 +112,7 @@
                         <th class="p-2.5">کڕیار</th>
                         <th class="p-2.5">کۆی پسوولە</th>
                         <th class="p-2.5">کۆی گشتی</th>
-                        <th class="p-2.5">بڕی دراو</th>
+                        <th class="p-2.5">ماوە (قەرز)</th>
                         <th class="p-2.5">قازانج</th>
                         <th class="p-2.5">دراو</th>
                         <th class="p-2.5">جۆر</th>
@@ -144,34 +144,51 @@
                         <td class="p-2.5 font-mono text-blue-400 text-[11px]">{{ $sale->invoice_no }}</td>
                         <td class="p-2.5 text-[11px]">{{ $sale->customer->name ?? 'کڕیاری نەقد' }}</td>
 
-                     {{-- کۆی پسوولە: نرخی سەرەتا + جۆر و بڕ --}}
-<td class="p-2.5 font-mono text-slate-300 text-[11px]">
-    <span class="block font-bold text-slate-200" dir="ltr">{{ $fmt($subtotal) }}</span>
-    <span class="block text-[9px] text-slate-400 mt-0.5 font-sans whitespace-nowrap">
-        <i class="fa-solid fa-cubes"></i>
-        {{ $typesCount }} جۆر
-        @if($unitText)
-        <span class="text-slate-500 mx-0.5">·</span>
-        <span class="text-amber-300">{{ $unitText }}</span>
-        @endif
-    </span>
-</td>
+                        {{-- کۆی پسوولە: نرخی سەرەتا + جۆر و بڕ --}}
+                        <td class="p-2.5 font-mono text-slate-300 text-[11px]">
+                            <span class="block font-bold text-slate-200" dir="ltr">{{ $fmt($subtotal) }}</span>
+                            <span class="block text-[9px] text-slate-400 mt-0.5 font-sans whitespace-nowrap">
+                                <i class="fa-solid fa-cubes"></i>
+                                {{ $typesCount }} جۆر
+                                @if($unitText)
+                                <span class="text-slate-500 mx-0.5">·</span>
+                                <span class="text-amber-300">{{ $unitText }}</span>
+                                @endif
+                            </span>
+                        </td>
 
                         {{-- کۆی گشتی (دوای داشکاندن) --}}
-<td class="p-2.5 font-mono font-bold text-emerald-400 text-[11px]">
-    <span class="block" dir="ltr">{{ $fmt($sale->total_amount) }}</span>
-    @if($disc > 0)
-    <span class="block text-[9px] text-amber-400 mt-0.5 font-sans whitespace-nowrap">
-        داشکاندن: -{{ $fmt($disc) }}
-    </span>
-    @endif
-</td>
+                        <td class="p-2.5 font-mono font-bold text-emerald-400 text-[11px]">
+                            <span class="block" dir="ltr">{{ $fmt($sale->total_amount) }}</span>
+                            @if($disc > 0)
+                            <span class="block text-[9px] text-amber-400 mt-0.5 font-sans whitespace-nowrap">
+                                داشکاندن: -{{ $fmt($disc) }}
+                            </span>
+                            @endif
+                        </td>
 
-                        {{-- بڕی دراو --}}
-                        <td class="p-2.5 font-mono text-[11px]" dir="ltr">
-                            <span class="text-cyan-400 font-bold">{{ $fmt($sale->paid_amount) }}</span>
+                        {{-- ماوە (قەرز): گەورە و دیار | دراو: بچووک لە خوارەوە --}}
+                        <td class="p-2.5 font-mono text-[11px]">
                             @if($sale->remaining_amount > 0)
-                            <span class="block text-[9px] text-rose-400 mt-0.5">ماوە: {{ $fmt($sale->remaining_amount) }}</span>
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg whitespace-nowrap"
+                                 style="background: rgba(244,63,94,.18); border: 1.5px solid rgba(244,63,94,.55);">
+                                <i class="fa-solid fa-clock text-rose-400 text-[10px]"></i>
+                                <span class="text-rose-200 font-black text-[13px] font-num" dir="ltr">
+                                    {{ $fmt($sale->remaining_amount) }}
+                                </span>
+                            </div>
+                            <div class="mt-1 text-[10px] text-cyan-400/80 whitespace-nowrap font-sans">
+                                دراو: <span class="font-num" dir="ltr">{{ $fmt($sale->paid_amount) }}</span>
+                            </div>
+                            @else
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg whitespace-nowrap"
+                                 style="background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.4);">
+                                <i class="fa-solid fa-check text-emerald-400 text-[10px]"></i>
+                                <span class="text-emerald-300 font-bold text-[11px] font-sans">تەواو دراوە</span>
+                            </div>
+                            <div class="mt-1 text-[10px] text-cyan-400/70 whitespace-nowrap font-sans">
+                                دراو: <span class="font-num" dir="ltr">{{ $fmt($sale->paid_amount) }}</span>
+                            </div>
                             @endif
                         </td>
 
