@@ -65,7 +65,7 @@ class SaleController extends Controller
      */
     public function listSales(Request $request)
     {
-        $query = Sale::with(['customer', 'user']);
+        $query = Sale::with(['customer', 'user', 'details.unit']);
 
         if ($request->filled('from_date')) {
             $query->whereDate('created_at', '>=', $request->from_date);
