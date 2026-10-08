@@ -186,16 +186,28 @@
                 </div>
                 @endif
 
-                @if(!empty($showDebt))
-                <div class="flex justify-between text-slate-600 pt-1 border-t border-slate-200 text-[11px]">
-                    <span>قەرزی پێش ئەم پسوولەیە:</span>
-                    <span class="font-mono" dir="ltr">{{ $fmt($debtBefore) }}</span>
-                </div>
-                <div class="flex justify-between text-rose-700 font-black text-[12px]">
-                    <span>کۆی گشتی قەرز دوای ئەم پسوولەیە:</span>
-                    <span class="font-mono" dir="ltr">{{ $fmt($debtAfter) }}</span>
-                </div>
-                @endif
+               @if($showDebt)
+@php
+    $fmtDebt = function($arr) {
+        $parts = [];
+        if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
+        if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
+        return empty($parts) ? '0' : implode(' + ', $parts);
+    };
+@endphp
+
+<div class="flex justify-between text-slate-600 pt-2 border-t border-slate-300 text-[11px]">
+    <span>قەرزی پێش ئەم پسوولەیە:</span>
+    <span class="font-mono font-bold" dir="ltr">{{ $fmtDebt($debtBefore) }}</span>
+</div>
+<div class="flex justify-between text-rose-700 font-black text-[12px]">
+    <span>کۆی گشتی قەرز دوای ئەم پسوولەیە:</span>
+    <span class="font-mono" dir="ltr">{{ $fmtDebt($debtAfter) }}</span>
+</div>
+<div class="text-[10px] text-slate-500 pt-0.5" style="text-align: left;" dir="ltr">
+    کۆی گشتی قەرز بە دۆلار ≈ <b>${{ number_format($debtAfterUsd, 2) }}</b>
+</div>
+@endif
             </div>
         </div>
 

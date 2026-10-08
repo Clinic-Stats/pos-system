@@ -348,27 +348,22 @@ class SaleController extends Controller
     /**
      * چاپ: ?type=a4 -> A4 | ?type=small -> بچووک | بێ type -> بەپێی ڕێکخستنی وەسڵ
      */
-   public function print(Request $request, $id)
+ public function print(Request $request, $id)
 {
     $sale = Sale::with(['details.product', 'details.unit', 'customer', 'user'])->findOrFail($id);
     $setting = Setting::first();
     $type = $request->get('type');
 
-    // ═════════ حیسابکردنی قەرزی کڕیار پێش و دوای ئەم وەسڵە ═════════
-    $isUsd      = ($sale->currency ?? 'IQD') === 'USD';
-    $debtBefore = 0;
-    $debtAfter  = 0;
+    $isUsd = ($sale->currency ?? 'IQD') === 'USD';
+    $rate  = (float) ($sale->exchange_rate ?: 1500);
+    if ($rate <= 0) $rate = 1500;
+
+    // ═══════ قەرزی کڕیار بە جیا بۆ هەر دراوێک ═══════
+    $debtBefore = ['USD' => 0.0, 'IQD' => 0.0];
+    $debtAfter  = ['USD' => 0.0, 'IQD' => 0.0];
     $showDebt   = false;
 
     if ($sale->customer_id) {
-        $toCur = function ($s, $amount) use ($isUsd) {
-            $amount = (float) $amount;
-            $sUsd   = ($s->currency ?? 'IQD') === 'USD';
-            $r      = (float) ($s->exchange_rate ?: 1500);
-            if ($sUsd === $isUsd) return $amount;
-            return $isUsd ? $amount / $r : $amount * $r;
-        };
-
         $before = Sale::where('customer_id', $sale->customer_id)
             ->where('payment_type', 'debt')
             ->where('id', '!=', $sale->id)
@@ -376,27 +371,42 @@ class SaleController extends Controller
             ->filter(fn($s) => $s->created_at->lt($sale->created_at)
                 || ($s->created_at->eq($sale->created_at) && $s->id < $sale->id));
 
-        $debtBefore = round($before->sum(fn($s) => $toCur($s, $s->remaining_amount)), 2);
-        $thisRemain = $sale->payment_type === 'debt' ? $toCur($sale, $sale->remaining_amount) : 0;
-        $debtAfter  = round($debtBefore + $thisRemain, 2);
+        foreach ($before as $s) {
+            $cur = strtoupper($s->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
+            $debtBefore[$cur] += (float) $s->remaining_amount;
+        }
 
-        $showDebt = $sale->payment_type === 'debt' || $debtBefore > 0;
+        $debtAfter = $debtBefore;
+        if ($sale->payment_type === 'debt') {
+            $cur = $isUsd ? 'USD' : 'IQD';
+            $debtAfter[$cur] += (float) $sale->remaining_amount;
+        }
+
+        $showDebt = $sale->payment_type === 'debt'
+            || $debtBefore['USD'] > 0
+            || $debtBefore['IQD'] > 0;
     }
 
-    $shared = compact('sale', 'setting', 'showDebt', 'debtBefore', 'debtAfter');
+    // کۆی گشتی قەرز بە دۆلار (دینار دەگۆڕدرێت بۆ دۆلار)
+    $debtBeforeUsd = $debtBefore['USD'] + ($debtBefore['IQD'] / $rate);
+    $debtAfterUsd  = $debtAfter['USD']  + ($debtAfter['IQD']  / $rate);
+
+    $shared = compact(
+        'sale', 'setting', 'showDebt',
+        'debtBefore', 'debtAfter',
+        'debtBeforeUsd', 'debtAfterUsd',
+        'isUsd', 'rate'
+    );
 
     if ($type === 'a4') {
         return view('pos.print_a4', $shared);
     }
-
     if ($type === 'small') {
         return view('pos.print', $shared);
     }
-
     if ($setting && $setting->receipt_width === 'a4') {
         return view('pos.print_a4', $shared);
     }
-
     return view('pos.print', $shared);
 }
     // ---------------------------------------------------------------

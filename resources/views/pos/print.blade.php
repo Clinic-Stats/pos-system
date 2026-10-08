@@ -180,16 +180,30 @@
             <td class="text-left" dir="ltr">{{ $fmt($sale->remaining_amount) }}</td>
         </tr>
         @endif
-        @if(!empty($showDebt))
-        <tr>
-            <td>قەرزی پێش ئەم وەسڵە:</td>
-            <td class="text-left" dir="ltr">{{ $fmt($debtBefore) }}</td>
-        </tr>
-        <tr class="font-bold">
-            <td>کۆی قەرز دوای ئەم وەسڵە:</td>
-            <td class="text-left" dir="ltr">{{ $fmt($debtAfter) }}</td>
-        </tr>
-        @endif
+       @if($showDebt)
+@php
+    $fmtDebt = function($arr) {
+        $parts = [];
+        if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
+        if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
+        return empty($parts) ? '0' : implode(' + ', $parts);
+    };
+@endphp
+
+<tr>
+    <td>قەرزی پێش ئەم وەسڵە:</td>
+    <td class="text-left" dir="ltr">{{ $fmtDebt($debtBefore) }}</td>
+</tr>
+<tr class="font-bold">
+    <td>کۆی قەرز دوای ئەم وەسڵە:</td>
+    <td class="text-left" dir="ltr">{{ $fmtDebt($debtAfter) }}</td>
+</tr>
+<tr>
+    <td colspan="2" class="text-left" style="font-size:10px; color:#555;" dir="ltr">
+        کۆی گشتی قەرز بە دۆلار ≈ ${{ number_format($debtAfterUsd, 2) }}
+    </td>
+</tr>
+@endif
     </table>
 
     <div style="margin-top: 10px; padding: 6px; border: 1.5px dashed #000; text-align: center; font-weight: bold; font-size: 12px;">
