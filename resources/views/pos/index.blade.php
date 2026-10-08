@@ -733,6 +733,7 @@ function startNewSale() {
   $('successModal').classList.add('hidden'); closeCart();
   if (editSale) { window.location.href = '{{ route('pos.index') }}'; return; }
   cart = []; savedSaleId = null; lastUse = {}; lastSaleItems = []; lastDiscount = 0;
+  originalReserved = {}; reservedStock = {};
   $('cartDiscount').value = 0; $('paidAmount').value = 0; $('customerId').value = '';
   document.querySelector('input[name="paymentType"][value="cash"]').checked = true; togglePaymentType();
   $('saleCreatedAt').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
