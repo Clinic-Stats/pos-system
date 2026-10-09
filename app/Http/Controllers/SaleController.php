@@ -348,67 +348,102 @@ class SaleController extends Controller
     /**
      * چاپ: ?type=a4 -> A4 | ?type=small -> بچووک | بێ type -> بەپێی ڕێکخستنی وەسڵ
      */
- public function print(Request $request, $id)
-{
-    $sale = Sale::with(['details.product', 'details.unit', 'customer', 'user'])->findOrFail($id);
-    $setting = Setting::first();
-    $type = $request->get('type');
+    public function print(Request $request, $id)
+    {
+        $sale = Sale::with(['details.product', 'details.unit', 'customer', 'user'])->findOrFail($id);
+        $setting = Setting::first();
+        $type = $request->get('type');
 
-    $isUsd = ($sale->currency ?? 'IQD') === 'USD';
-    $rate  = (float) ($sale->exchange_rate ?: 1500);
-    if ($rate <= 0) $rate = 1500;
+        $isUsd = ($sale->currency ?? 'IQD') === 'USD';
+        $rate  = (float) ($sale->exchange_rate ?: 1500);
+        if ($rate <= 0) $rate = 1500;
 
-    // ═══════ قەرزی کڕیار بە جیا بۆ هەر دراوێک ═══════
-    $debtBefore = ['USD' => 0.0, 'IQD' => 0.0];
-    $debtAfter  = ['USD' => 0.0, 'IQD' => 0.0];
-    $showDebt   = false;
+        // ═══════ قەرزی کڕیار بە جیا بۆ هەر دراوێک ═══════
+        $debtBefore = ['USD' => 0.0, 'IQD' => 0.0];
+        $debtAfter  = ['USD' => 0.0, 'IQD' => 0.0];
+        $showDebt   = false;
 
-    if ($sale->customer_id) {
-        $before = Sale::where('customer_id', $sale->customer_id)
-            ->where('payment_type', 'debt')
-            ->where('id', '!=', $sale->id)
-            ->get()
-            ->filter(fn($s) => $s->created_at->lt($sale->created_at)
-                || ($s->created_at->eq($sale->created_at) && $s->id < $sale->id));
+        if ($sale->customer_id) {
+            // ═══ ١) کۆکردنەوەی remaining_amount ی هەموو فرۆشتنە قەرزەکانی پێشوو ═══
+            $before = Sale::where('customer_id', $sale->customer_id)
+                ->where('payment_type', 'debt')
+                ->where('id', '!=', $sale->id)
+                ->get()
+                ->filter(fn($s) => $s->created_at->lt($sale->created_at)
+                    || ($s->created_at->eq($sale->created_at) && $s->id < $sale->id));
 
-        foreach ($before as $s) {
-            $cur = strtoupper($s->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
-            $debtBefore[$cur] += (float) $s->remaining_amount;
+            foreach ($before as $s) {
+                $cur = strtoupper($s->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
+                $debtBefore[$cur] += (float) $s->remaining_amount;
+            }
+
+            // ═══ ٢) کەمکردنەوەی پارەدانەوەکانی پێش ئەم پسوولە ═══
+            $paymentsBefore = \App\Models\CustomerPayment::where('customer_id', $sale->customer_id)
+                ->get()
+                ->filter(function ($p) use ($sale) {
+                    $pDate = $p->payment_date
+                        ? Carbon::parse($p->payment_date)->endOfDay()
+                        : $p->created_at;
+                    return $pDate->lt($sale->created_at);
+                });
+
+            foreach ($paymentsBefore as $p) {
+                $cur = strtoupper($p->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
+                $debtBefore[$cur] -= (float) $p->amount;
+            }
+
+            // ═══ ٣) کەمکردنەوەی گەڕاوە قەرزەکان (deduct_debt) ی پێش ئەم پسوولە ═══
+            $returnsBefore = \App\Models\SaleReturn::where('customer_id', $sale->customer_id)
+                ->where('refund_type', 'deduct_debt')
+                ->where('created_at', '<', $sale->created_at)
+                ->get();
+
+            foreach ($returnsBefore as $r) {
+                $cur = strtoupper($r->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
+                $debtBefore[$cur] -= (float) $r->total_amount;
+            }
+
+            // ═══ ٤) نابێت نەرێنی بێت ═══
+            foreach (['USD', 'IQD'] as $cur) {
+                if ($debtBefore[$cur] < 0) $debtBefore[$cur] = 0;
+            }
+
+            // ═══ ٥) زیادکردنی ئەم پسوولەیە ئەگەر قەرزە ═══
+            $debtAfter = $debtBefore;
+            if ($sale->payment_type === 'debt') {
+                $cur = $isUsd ? 'USD' : 'IQD';
+                $debtAfter[$cur] += (float) $sale->remaining_amount;
+            }
+
+            // ═══ ٦) نیشاندان ═══
+            $showDebt = $sale->payment_type === 'debt'
+                || $debtBefore['USD'] > 0
+                || $debtBefore['IQD'] > 0;
         }
 
-        $debtAfter = $debtBefore;
-        if ($sale->payment_type === 'debt') {
-            $cur = $isUsd ? 'USD' : 'IQD';
-            $debtAfter[$cur] += (float) $sale->remaining_amount;
+        // کۆی گشتی قەرز بە دۆلار (دینار دەگۆڕدرێت بۆ دۆلار)
+        $debtBeforeUsd = $debtBefore['USD'] + ($debtBefore['IQD'] / $rate);
+        $debtAfterUsd  = $debtAfter['USD']  + ($debtAfter['IQD']  / $rate);
+
+        $shared = compact(
+            'sale', 'setting', 'showDebt',
+            'debtBefore', 'debtAfter',
+            'debtBeforeUsd', 'debtAfterUsd',
+            'isUsd', 'rate'
+        );
+
+        if ($type === 'a4') {
+            return view('pos.print_a4', $shared);
         }
-
-        $showDebt = $sale->payment_type === 'debt'
-            || $debtBefore['USD'] > 0
-            || $debtBefore['IQD'] > 0;
-    }
-
-    // کۆی گشتی قەرز بە دۆلار (دینار دەگۆڕدرێت بۆ دۆلار)
-    $debtBeforeUsd = $debtBefore['USD'] + ($debtBefore['IQD'] / $rate);
-    $debtAfterUsd  = $debtAfter['USD']  + ($debtAfter['IQD']  / $rate);
-
-    $shared = compact(
-        'sale', 'setting', 'showDebt',
-        'debtBefore', 'debtAfter',
-        'debtBeforeUsd', 'debtAfterUsd',
-        'isUsd', 'rate'
-    );
-
-    if ($type === 'a4') {
-        return view('pos.print_a4', $shared);
-    }
-    if ($type === 'small') {
+        if ($type === 'small') {
+            return view('pos.print', $shared);
+        }
+        if ($setting && $setting->receipt_width === 'a4') {
+            return view('pos.print_a4', $shared);
+        }
         return view('pos.print', $shared);
     }
-    if ($setting && $setting->receipt_width === 'a4') {
-        return view('pos.print_a4', $shared);
-    }
-    return view('pos.print', $shared);
-}
+
     // ---------------------------------------------------------------
     // یاریدەدەرەکان (کۆدی دووبارەی store و update یەکخراوە)
     // ---------------------------------------------------------------
