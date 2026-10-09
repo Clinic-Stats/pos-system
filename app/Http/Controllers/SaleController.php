@@ -358,67 +358,55 @@ class SaleController extends Controller
         $rate  = (float) ($sale->exchange_rate ?: 1500);
         if ($rate <= 0) $rate = 1500;
 
-        // ═══════ قەرزی کڕیار بە جیا بۆ هەر دراوێک ═══════
+        // ═══════ قەرزی کڕیار بە جیا بۆ هەر دراوێک (هەمان لۆجیکی کەشفی حیساب) ═══════
         $debtBefore = ['USD' => 0.0, 'IQD' => 0.0];
         $debtAfter  = ['USD' => 0.0, 'IQD' => 0.0];
         $showDebt   = false;
 
-        if ($sale->customer_id) {
-            // ═══ ١) کۆکردنەوەی remaining_amount ی هەموو فرۆشتنە قەرزەکانی پێشوو ═══
-            $before = Sale::where('customer_id', $sale->customer_id)
-                ->where('payment_type', 'debt')
+        if ($sale->customer_id && $sale->customer) {
+            $norm    = fn($c) => Customer::normalizeCurrency($c);
+            $saleAt  = $sale->created_at;
+            $saleDay = $saleAt->toDateString();
+
+            // ١. وەسڵە فرۆشتنەکانی پێش ئەم وەسڵە (کڕین − پارەی دراو لە کاتی وەسڵەکە)
+            $prevSales = Sale::where('customer_id', $sale->customer_id)
                 ->where('id', '!=', $sale->id)
                 ->get()
-                ->filter(fn($s) => $s->created_at->lt($sale->created_at)
-                    || ($s->created_at->eq($sale->created_at) && $s->id < $sale->id));
+                ->filter(fn($s) => $s->created_at->lt($saleAt)
+                    || ($s->created_at->eq($saleAt) && $s->id < $sale->id));
 
-            foreach ($before as $s) {
-                $cur = strtoupper($s->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
-                $debtBefore[$cur] += (float) $s->remaining_amount;
+            foreach ($prevSales as $s) {
+                $debtBefore[$norm($s->currency)] += (float) $s->total_amount - (float) $s->paid_amount;
             }
 
-            // ═══ ٢) کەمکردنەوەی پارەدانەوەکانی پێش ئەم پسوولە ═══
-            $paymentsBefore = \App\Models\CustomerPayment::where('customer_id', $sale->customer_id)
-                ->get()
-                ->filter(function ($p) use ($sale) {
-                    $pDate = $p->payment_date
-                        ? Carbon::parse($p->payment_date)->endOfDay()
-                        : $p->created_at;
-                    return $pDate->lt($sale->created_at);
-                });
-
-            foreach ($paymentsBefore as $p) {
-                $cur = strtoupper($p->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
-                $debtBefore[$cur] -= (float) $p->amount;
+            // ٢. وەرگرتنەوەی قەرزەکان (تا ڕۆژی ئەم وەسڵە، چونکە payment_date کاتی نییە)
+            foreach ($sale->customer->payments as $pay) {
+                $d = $pay->payment_date ? Carbon::parse($pay->payment_date) : $pay->created_at;
+                if ($d->toDateString() <= $saleDay) {
+                    $debtBefore[$norm($pay->currency)] -= (float) $pay->amount;
+                }
             }
 
-            // ═══ ٣) کەمکردنەوەی گەڕاوە قەرزەکان (deduct_debt) ی پێش ئەم پسوولە ═══
-            $returnsBefore = \App\Models\SaleReturn::where('customer_id', $sale->customer_id)
-                ->where('refund_type', 'deduct_debt')
-                ->where('created_at', '<', $sale->created_at)
-                ->get();
-
-            foreach ($returnsBefore as $r) {
-                $cur = strtoupper($r->currency ?? 'IQD') === 'USD' ? 'USD' : 'IQD';
-                $debtBefore[$cur] -= (float) $r->total_amount;
+            // ٣. گەڕاوەکانی کاڵا کە لە قەرز دادەشکێن
+            foreach ($sale->customer->returns as $ret) {
+                if ($ret->refund_type === 'deduct_debt' && $ret->created_at && $ret->created_at->lt($saleAt)) {
+                    $debtBefore[$norm($ret->currency)] -= (float) $ret->total_amount;
+                }
             }
 
-            // ═══ ٤) نابێت نەرێنی بێت ═══
-            foreach (['USD', 'IQD'] as $cur) {
-                if ($debtBefore[$cur] < 0) $debtBefore[$cur] = 0;
-            }
-
-            // ═══ ٥) زیادکردنی ئەم پسوولەیە ئەگەر قەرزە ═══
+            // قەرزی دوای ئەم وەسڵە = پێشوو + ماوەی ئەم وەسڵە
             $debtAfter = $debtBefore;
-            if ($sale->payment_type === 'debt') {
-                $cur = $isUsd ? 'USD' : 'IQD';
-                $debtAfter[$cur] += (float) $sale->remaining_amount;
+            $thisRemain = (float) $sale->total_amount - (float) $sale->paid_amount;
+            $debtAfter[$norm($sale->currency)] += $thisRemain;
+
+            foreach (['USD', 'IQD'] as $c) {
+                $debtBefore[$c] = round($debtBefore[$c], 2);
+                $debtAfter[$c]  = round($debtAfter[$c], 2);
             }
 
-            // ═══ ٦) نیشاندان ═══
             $showDebt = $sale->payment_type === 'debt'
-                || $debtBefore['USD'] > 0
-                || $debtBefore['IQD'] > 0;
+                || abs($debtBefore['USD']) > 0.004
+                || abs($debtBefore['IQD']) > 0.004;
         }
 
         // کۆی گشتی قەرز بە دۆلار (دینار دەگۆڕدرێت بۆ دۆلار)
