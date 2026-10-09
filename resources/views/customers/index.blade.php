@@ -133,12 +133,12 @@
                 <table class="w-full text-sm text-right text-slate-300">
                     <thead class="bg-slate-700/50 text-xs text-slate-400">
                         <tr>
-                            <th class="p-3">ناو</th>
-                            <th class="p-3">مۆبایل</th>
-                            <th class="p-3">کۆی کڕینەکان</th>
-                            <th class="p-3">قەرزی ماوە</th>
-                            <th class="p-3">وەرگرتنەوەی قەرز</th>
-                            <th class="p-3 text-center">ڕاپۆرت / کردار</th>
+                            <th class="p-3 min-w-[140px]">ناو</th>
+                            <th class="p-3 min-w-[120px]">مۆبایل</th>
+                            <th class="p-3 min-w-[100px]">کۆی کڕینەکان</th>
+                            <th class="p-3 min-w-[100px]">قەرزی ماوە</th>
+                            <th class="p-3 min-w-[240px]">وەرگرتنەوەی قەرز</th>
+                            <th class="p-3 text-center min-w-[180px]">ڕاپۆرت / کردار</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-700" id="customersBody">
@@ -148,22 +148,24 @@
                             $isDebtor = $sum['USD']['debt'] > 0 || $sum['IQD']['debt'] > 0;
                             // دراوی بنەڕەتی فۆڕمی پارەدان: ئەو دراوەی قەرزی هەیە
                             $defaultCur = ($sum['USD']['debt'] > 0 && $sum['IQD']['debt'] <= 0) ? 'USD' : 'IQD';
+                            $usdHasDebt = $sum['USD']['debt'] > 0;
+                            $iqdHasDebt = $sum['IQD']['debt'] > 0;
                         @endphp
                         <tr class="customer-row hover:bg-slate-700/30 transition"
                             data-search="{{ mb_strtolower($cust->name . ' ' . ($cust->phone ?? '') . ' ' . ($cust->address ?? '')) }}"
                             data-debtor="{{ $isDebtor ? 1 : 0 }}">
                             <td class="p-3">
-                                <div class="font-bold text-white flex items-center gap-1.5">
+                                <div class="font-bold text-white">
                                     {{ $cust->name }}
                                     @if($isDebtor)
-                                        <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[9px] font-black">قەرزار</span>
+                                        <span class="mr-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[9px] font-black whitespace-nowrap">قەرزار</span>
                                     @endif
                                 </div>
                                 @if(!empty($cust->address))
                                     <div class="text-[10px] text-slate-500 mt-0.5"><i class="fa-solid fa-location-dot"></i> {{ $cust->address }}</div>
                                 @endif
                             </td>
-                            <td class="p-3 font-mono text-cyan-400 text-xs">{{ $cust->phone ?? '-' }}</td>
+                            <td class="p-3 font-mono text-cyan-400 text-xs whitespace-nowrap" dir="ltr" style="text-align:right;">{{ $cust->phone ?? '-' }}</td>
 
                             <td class="p-3 font-mono font-bold text-xs space-y-1" dir="ltr">
                                 <div class="{{ $sum['USD']['purchases'] > 0 ? 'text-slate-100' : 'text-slate-600' }}">{{ $fmt($sum['USD']['purchases'], 'USD') }}</div>
@@ -179,18 +181,30 @@
                             </td>
 
                             <td class="p-3">
-                                <form action="{{ route('customers.payment', $cust->id) }}" method="POST" class="flex flex-wrap items-center gap-1.5" autocomplete="off">
+                                <form action="{{ route('customers.payment', $cust->id) }}" method="POST" class="space-y-1.5 min-w-[220px]" autocomplete="off">
                                     @csrf
-                                    <input type="number" step="any" min="0.01" name="amount" placeholder="بڕی پارە" required class="w-24 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs font-mono text-white">
-                                    <select name="currency" class="p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs font-bold text-white">
-                                        <option value="USD" {{ $defaultCur === 'USD' ? 'selected' : '' }}>$ دۆلار</option>
-                                        <option value="IQD" {{ $defaultCur === 'IQD' ? 'selected' : '' }}>د.ع دینار</option>
-                                    </select>
-                                    <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required class="p-1 bg-slate-700 border border-slate-600 rounded-lg text-xs text-slate-300 font-mono">
-                                    <input type="text" name="note" placeholder="تێبینی (ئارەزوومەندانە)" class="w-40 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs text-white">
-                                    <button type="submit" title="وەرگرتنی پارە" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 rounded-lg text-xs transition">
-                                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                                    </button>
+                                    <div class="flex items-center gap-1">
+                                        <input type="number" step="any" min="0.01" name="amount" placeholder="بڕی پارە" required
+                                               class="flex-1 min-w-0 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs font-mono text-white">
+                                        <select name="currency" class="p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs font-bold text-white">
+                                            <option value="USD" {{ $defaultCur === 'USD' ? 'selected' : '' }}>
+                                                $ {{ $usdHasDebt ? '· قەرز' : '' }}
+                                            </option>
+                                            <option value="IQD" {{ $defaultCur === 'IQD' ? 'selected' : '' }}>
+                                                د.ع {{ $iqdHasDebt ? '· قەرز' : '' }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required
+                                               class="flex-1 min-w-0 p-1 bg-slate-700 border border-slate-600 rounded-lg text-[10px] text-slate-300 font-mono">
+                                        <input type="text" name="note" placeholder="تێبینی"
+                                               class="flex-1 min-w-0 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-[10px] text-white">
+                                        <button type="submit" title="وەرگرتنی پارە"
+                                                class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs transition whitespace-nowrap">
+                                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                                        </button>
+                                    </div>
                                 </form>
                             </td>
 
@@ -205,6 +219,7 @@
                                             data-name="{{ $cust->name }}"
                                             data-phone="{{ $cust->phone ?? '' }}"
                                             data-address="{{ $cust->address ?? '' }}"
+                                            data-action="{{ route('customers.update', $cust->id) }}"
                                             onclick="openEditCustomerModal(this)"
                                             class="bg-amber-600/20 text-amber-400 border border-amber-500/40 hover:bg-amber-600 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
                                         <i class="fa-solid fa-pen-to-square"></i> دەستکاری
@@ -258,7 +273,7 @@
 
                 <div>
                     <label class="block text-slate-400 mb-1 font-bold">ژمارەی مۆبایل:</label>
-                    <input type="text" name="phone" id="edit_phone" class="w-full p-2.5 rounded-xl bg-slate-700 border border-slate-600 text-white text-xs font-mono focus:outline-none focus:border-amber-400">
+                    <input type="text" name="phone" id="edit_phone" class="w-full p-2.5 rounded-xl bg-slate-700 border border-slate-600 text-white text-xs font-mono focus:outline-none focus:border-amber-400" dir="ltr" style="text-align:right;">
                 </div>
 
                 <div>
@@ -283,7 +298,7 @@
             document.getElementById('edit_name').value = btn.dataset.name || '';
             document.getElementById('edit_phone').value = (phone && phone !== '-') ? phone : '';
             document.getElementById('edit_address').value = (address && address !== '-') ? address : '';
-            document.getElementById('editCustomerForm').action = '/customers/' + btn.dataset.id;
+            document.getElementById('editCustomerForm').action = btn.dataset.action;
             document.getElementById('editCustomerModal').classList.remove('hidden');
         }
 
