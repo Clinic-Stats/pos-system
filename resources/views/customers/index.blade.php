@@ -13,7 +13,6 @@
             ? '$' . number_format((float) $v, 2)
             : number_format((float) $v) . ' IQD';
 
-        // یەک جار حیساب دەکرێت بۆ هەموو کڕیارەکان (بۆ کارتەکان و خشتەکە)
         $summaries = [];
         $totalDebt = ['USD' => 0, 'IQD' => 0];
         $debtorsCount = 0;
@@ -130,15 +129,21 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                <table class="w-full text-sm text-right text-slate-300">
-                    <thead class="bg-slate-700/50 text-xs text-slate-400">
+                <table class="w-full text-xs text-right text-slate-300 table-fixed">
+                    <colgroup>
+                        <col style="width: 16%;">
+                        <col style="width: 13%;">
+                        <col style="width: 13%;">
+                        <col style="width: 32%;">
+                        <col style="width: 26%;">
+                    </colgroup>
+                    <thead class="bg-slate-700/50 text-[11px] text-slate-400">
                         <tr>
-                            <th class="p-3 min-w-[140px]">ناو</th>
-                            <th class="p-3 min-w-[120px]">مۆبایل</th>
-                            <th class="p-3 min-w-[100px]">کۆی کڕینەکان</th>
-                            <th class="p-3 min-w-[100px]">قەرزی ماوە</th>
-                            <th class="p-3 min-w-[240px]">وەرگرتنەوەی قەرز</th>
-                            <th class="p-3 text-center min-w-[180px]">ڕاپۆرت / کردار</th>
+                            <th class="p-2.5">ناو</th>
+                            <th class="p-2.5">کۆی کڕینەکان</th>
+                            <th class="p-2.5">قەرزی ماوە</th>
+                            <th class="p-2.5">وەرگرتنەوەی قەرز</th>
+                            <th class="p-2.5 text-center">ڕاپۆرت / کردار</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-700" id="customersBody">
@@ -146,33 +151,35 @@
                         @php
                             $sum = $summaries[$cust->id];
                             $isDebtor = $sum['USD']['debt'] > 0 || $sum['IQD']['debt'] > 0;
-                            // دراوی بنەڕەتی فۆڕمی پارەدان: ئەو دراوەی قەرزی هەیە
-                            $defaultCur = ($sum['USD']['debt'] > 0 && $sum['IQD']['debt'] <= 0) ? 'USD' : 'IQD';
+                            // دراوی بنەڕەتی: ئەگەر دۆلار قەرزی هەیە، دۆلار پێشە، ئەگەر نا دینار
+                            $defaultCur = ($sum['USD']['debt'] > 0) ? 'USD' : 'IQD';
                             $usdHasDebt = $sum['USD']['debt'] > 0;
                             $iqdHasDebt = $sum['IQD']['debt'] > 0;
                         @endphp
                         <tr class="customer-row hover:bg-slate-700/30 transition"
                             data-search="{{ mb_strtolower($cust->name . ' ' . ($cust->phone ?? '') . ' ' . ($cust->address ?? '')) }}"
                             data-debtor="{{ $isDebtor ? 1 : 0 }}">
-                            <td class="p-3">
-                                <div class="font-bold text-white">
+                            <td class="p-2.5 align-top">
+                                <div class="font-bold text-white text-[12px] truncate">
                                     {{ $cust->name }}
-                                    @if($isDebtor)
-                                        <span class="mr-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[9px] font-black whitespace-nowrap">قەرزار</span>
-                                    @endif
                                 </div>
+                                <div class="text-[10px] text-cyan-400 font-mono mt-0.5 truncate" dir="ltr" style="text-align:right;">
+                                    {{ $cust->phone ?? '-' }}
+                                </div>
+                                @if($isDebtor)
+                                    <span class="inline-block mt-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[8px] font-black">قەرزار</span>
+                                @endif
                                 @if(!empty($cust->address))
-                                    <div class="text-[10px] text-slate-500 mt-0.5"><i class="fa-solid fa-location-dot"></i> {{ $cust->address }}</div>
+                                    <div class="text-[9px] text-slate-500 mt-0.5 truncate"><i class="fa-solid fa-location-dot"></i> {{ $cust->address }}</div>
                                 @endif
                             </td>
-                            <td class="p-3 font-mono text-cyan-400 text-xs whitespace-nowrap" dir="ltr" style="text-align:right;">{{ $cust->phone ?? '-' }}</td>
 
-                            <td class="p-3 font-mono font-bold text-xs space-y-1" dir="ltr">
+                            <td class="p-2.5 font-mono font-bold text-[10px] align-top space-y-0.5" dir="ltr">
                                 <div class="{{ $sum['USD']['purchases'] > 0 ? 'text-slate-100' : 'text-slate-600' }}">{{ $fmt($sum['USD']['purchases'], 'USD') }}</div>
                                 <div class="{{ $sum['IQD']['purchases'] > 0 ? 'text-slate-100' : 'text-slate-600' }}">{{ $fmt($sum['IQD']['purchases'], 'IQD') }}</div>
                             </td>
 
-                            <td class="p-3 font-mono font-black text-xs space-y-1" dir="ltr">
+                            <td class="p-2.5 font-mono font-black text-[10px] align-top space-y-0.5" dir="ltr">
                                 @foreach(['USD', 'IQD'] as $cur)
                                     <div class="{{ $sum[$cur]['debt'] > 0 ? 'text-amber-400' : ($sum[$cur]['debt'] < 0 ? 'text-sky-400' : 'text-emerald-400') }}">
                                         {{ $fmt($sum[$cur]['debt'], $cur) }}
@@ -180,37 +187,38 @@
                                 @endforeach
                             </td>
 
-                            <td class="p-3">
-                                <form action="{{ route('customers.payment', $cust->id) }}" method="POST" class="space-y-1.5 min-w-[220px]" autocomplete="off">
+                            <td class="p-2.5 align-top">
+                                <form action="{{ route('customers.payment', $cust->id) }}" method="POST" class="space-y-1" autocomplete="off">
                                     @csrf
                                     <div class="flex items-center gap-1">
-                                        <input type="number" step="any" min="0.01" name="amount" placeholder="بڕی پارە" required
-                                               class="flex-1 min-w-0 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs font-mono text-white">
-                                        <select name="currency" class="p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-xs font-bold text-white">
+                                        <select name="currency" class="p-1 bg-slate-700 border border-slate-600 rounded text-[10px] font-bold text-white shrink-0">
                                             <option value="USD" {{ $defaultCur === 'USD' ? 'selected' : '' }}>
-                                                $ {{ $usdHasDebt ? '· قەرز' : '' }}
+                                                $ @if($usdHasDebt)· قەرز@endif
                                             </option>
                                             <option value="IQD" {{ $defaultCur === 'IQD' ? 'selected' : '' }}>
-                                                د.ع {{ $iqdHasDebt ? '· قەرز' : '' }}
+                                                د.ع @if($iqdHasDebt)· قەرز@endif
                                             </option>
                                         </select>
+                                        <input type="number" step="any" min="0.01" name="amount" placeholder="بڕ" required
+                                               class="flex-1 min-w-0 p-1 bg-slate-700 border border-slate-600 rounded text-[10px] font-mono text-white">
                                     </div>
                                     <div class="flex items-center gap-1">
                                         <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required
-                                               class="flex-1 min-w-0 p-1 bg-slate-700 border border-slate-600 rounded-lg text-[10px] text-slate-300 font-mono">
+                                               class="flex-1 min-w-0 p-1 bg-slate-700 border border-slate-600 rounded text-[9px] text-slate-300 font-mono">
                                         <input type="text" name="note" placeholder="تێبینی"
-                                               class="flex-1 min-w-0 p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-[10px] text-white">
+                                               class="flex-1 min-w-0 p-1 bg-slate-700 border border-slate-600 rounded text-[9px] text-white">
                                         <button type="submit" title="وەرگرتنی پارە"
-                                                class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg text-xs transition whitespace-nowrap">
+                                                class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] transition shrink-0">
                                             <i class="fa-solid fa-hand-holding-dollar"></i>
                                         </button>
                                     </div>
                                 </form>
                             </td>
 
-                            <td class="p-3 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <a href="{{ route('customers.statement', $cust->id) }}" target="_blank" class="bg-blue-600/20 text-blue-400 border border-blue-500/40 hover:bg-blue-600 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                            <td class="p-2.5 text-center align-top">
+                                <div class="flex items-center justify-center gap-1 flex-wrap">
+                                    <a href="{{ route('customers.statement', $cust->id) }}" target="_blank" title="کەشف"
+                                       class="bg-blue-600/20 text-blue-400 border border-blue-500/40 hover:bg-blue-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
                                         <i class="fa-solid fa-file-lines"></i> کەشف
                                     </a>
 
@@ -221,14 +229,16 @@
                                             data-address="{{ $cust->address ?? '' }}"
                                             data-action="{{ route('customers.update', $cust->id) }}"
                                             onclick="openEditCustomerModal(this)"
-                                            class="bg-amber-600/20 text-amber-400 border border-amber-500/40 hover:bg-amber-600 hover:text-white px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                        <i class="fa-solid fa-pen-to-square"></i> دەستکاری
+                                            title="دەستکاری"
+                                            class="bg-amber-600/20 text-amber-400 border border-amber-500/40 hover:bg-amber-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
+                                        <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
 
-                                    <form action="{{ route('customers.destroy', $cust->id) }}" method="POST" onsubmit="return confirm('ئایا دڵنیایت لە سڕینەوەی ({{ addslashes($cust->name) }})؟')">
+                                    <form action="{{ route('customers.destroy', $cust->id) }}" method="POST" onsubmit="return confirm('ئایا دڵنیایت لە سڕینەوەی ({{ addslashes($cust->name) }})؟')" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-rose-500 hover:text-rose-400 text-xs p-1">
+                                        <button type="submit" title="سڕینەوە"
+                                                class="bg-rose-600/20 text-rose-400 border border-rose-500/40 hover:bg-rose-600 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -236,10 +246,10 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="6" class="p-6 text-center text-slate-500">هیچ کڕیارێک تۆمار نەکراوە</td></tr>
+                        <tr><td colspan="5" class="p-6 text-center text-slate-500">هیچ کڕیارێک تۆمار نەکراوە</td></tr>
                         @endforelse
                         <tr id="noResultRow" class="hidden">
-                            <td colspan="6" class="p-6 text-center text-slate-500">هیچ کڕیارێک نەدۆزرایەوە</td>
+                            <td colspan="5" class="p-6 text-center text-slate-500">هیچ کڕیارێک نەدۆزرایەوە</td>
                         </tr>
                     </tbody>
                 </table>
@@ -310,7 +320,6 @@
             if (e.key === 'Escape') closeEditCustomerModal();
         });
 
-        // گەڕان + فلتەری قەرزارەکان
         function filterCustomers() {
             const q = document.getElementById('customerSearch').value.toLowerCase().trim();
             const debtorsOnly = document.getElementById('debtorsOnly').checked;
