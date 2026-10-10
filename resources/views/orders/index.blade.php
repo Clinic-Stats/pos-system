@@ -75,7 +75,7 @@
     {{-- لیستی داواکارییەکان --}}
     <div id="ordersGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         @forelse($orders as $o)
-            @include('orders.card', ['o' => $o])
+            @include('orders.order_card', ['o' => $o])
         @empty
             <div id="emptyState" class="lg:col-span-2 bg-slate-800 border border-slate-700 rounded-2xl p-10 text-center text-slate-500 text-sm font-bold">
                 <i class="fa-solid fa-inbox text-3xl mb-2 block opacity-50"></i> هیچ داواکارییەک نییە
