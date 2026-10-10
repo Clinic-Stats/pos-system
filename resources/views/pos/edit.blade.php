@@ -63,7 +63,7 @@
             <div class="p-3 bg-slate-700/40 border-b border-slate-700 space-y-3">
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1">بەروار و کاتی وەسڵ:</label>
-                    <input type="datetime-local" id="sale-date" value="{{ $sale->created_at ? $sale->created_at->format('Y-m-d h:i A') : date('Y-m-d\TH:i') }}" class="w-full p-2 border border-slate-600 rounded-xl text-xs bg-slate-800 text-white font-mono">
+                    <input type="datetime-local" id="sale-date" value="{{ $sale->created_at ? $sale->created_at->format('Y-m-d\TH:i') : date('Y-m-d\TH:i') }}" class="w-full p-2 border border-slate-600 rounded-xl text-xs bg-slate-800 text-white font-mono">
                 </div>
 
                 <div>
