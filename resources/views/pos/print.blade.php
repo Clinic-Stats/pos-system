@@ -129,7 +129,13 @@
     <div>
         <div><strong>وەسڵ:</strong> {{ $sale->invoice_no }}</div>
         <div><strong>بەروار:</strong> {{ $sale->created_at->format('n/j/y, g:i A') }}</div>
-        <div><strong>کڕیار:</strong> {{ $sale->customer->name ?? 'کڕیاری گشتی' }}</div>
+        <div><strong>کڕیار:</strong> {{ $sale->customer->name ?? ($sale->guest_name ?: 'کڕیاری گشتی') }}</div>
+        @if(!$sale->customer && $sale->guest_phone)
+        <div><strong>مۆبایل:</strong> <span dir="ltr">{{ $sale->guest_phone }}</span></div>
+        @endif
+        @if(!$sale->customer && $sale->guest_address)
+        <div><strong>ناونیشان:</strong> {{ $sale->guest_address }}</div>
+        @endif
         <div><strong>جۆری پارەدان:</strong> {{ $sale->payment_type == 'cash' ? 'نەقد' : 'قەرز' }}</div>
         <div><b>کاشیر:</b> {{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</div>
     </div>

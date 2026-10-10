@@ -104,6 +104,10 @@ class SaleController extends Controller
             'discount'      => 'nullable|numeric|min:0',
             'currency'      => 'required|in:USD,IQD',
             'exchange_rate' => 'required|numeric|min:1',
+            'guest_name'    => 'nullable|string|max:255',
+            'guest_phone'   => 'nullable|string|max:50',
+            'guest_address' => 'nullable|string|max:255',
+            'order_id'      => 'nullable|integer',
         ]);
 
         try {
@@ -168,8 +172,27 @@ class SaleController extends Controller
                     $saleData['discount'] = $discount;
                 }
 
+                // کڕیاری ئاسایی (نەتۆمارکراو): ناو / مۆبایل / ناونیشان لەسەر وەسڵەکە
+                if (!$request->customer_id && Schema::hasColumn('sales', 'guest_name')) {
+                    $saleData['guest_name']    = $request->guest_name ?: null;
+                    $saleData['guest_phone']   = $request->guest_phone ?: null;
+                    $saleData['guest_address'] = $request->guest_address ?: null;
+                }
+
                 $sale = Sale::create($saleData);
                 $this->saveLines($sale, $lines, $stockCol);
+
+                // ئەگەر لە داواکاری کڕیارەوە هاتووە: بیکە بە «قبوڵکراو» و بیبەستەرەوە بە وەسڵەکە
+                if ($request->filled('order_id')) {
+                    \App\Models\CustomerOrder::where('id', $request->order_id)
+                        ->where('status', 'pending')
+                        ->update([
+                            'status'     => 'accepted',
+                            'sale_id'    => $sale->id,
+                            'handled_by' => auth()->id(),
+                            'handled_at' => now(),
+                        ]);
+                }
 
                 return $sale;
             });
@@ -182,6 +205,39 @@ class SaleController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
         }
+    }
+
+    /**
+     * قبوڵکردنی داواکاری کڕیار: POS دەکرێتەوە و کاڵاکانی داواکارییەکە دەچنە ناو سەبەتە
+     * (کڕیاری تۆمارکراو = قەرز، کڕیاری ئاسایی = نەقد؛ دوای پسوولەکردن داواکارییەکە دەبێتە «قبوڵکراو»)
+     */
+    public function fromOrder($id)
+    {
+        $order = \App\Models\CustomerOrder::with('items.product', 'items.unit')->findOrFail($id);
+
+        if ($order->status !== 'pending') {
+            return redirect()->route('orders.index', ['status' => $order->status])
+                ->with('success', 'ئەم داواکارییە پێشتر مامەڵەی لەسەر کراوە');
+        }
+
+        $fromOrder = [
+            'id'          => $order->id,
+            'order_no'    => $order->order_no,
+            'customer_id' => $order->customer_id,
+            'name'        => $order->name,
+            'phone'       => $order->phone,
+            'address'     => $order->address,
+            'note'        => $order->note,
+            'items'       => $order->items->map(fn($i) => [
+                'product_id' => $i->product_id,
+                'unit_id'    => $i->unit_id,
+                'quantity'   => (float) $i->quantity,
+                'name'       => $i->product->name ?? '',
+            ])->values(),
+        ];
+
+        return $this->posView($order->items->pluck('product_id')->all())
+            ->with('fromOrder', $fromOrder);
     }
 
     /**
@@ -214,6 +270,9 @@ class SaleController extends Controller
             'id'            => $sale->id,
             'invoice_no'    => $sale->invoice_no,
             'customer_id'   => $sale->customer_id,
+            'guest_name'    => $sale->guest_name ?? null,
+            'guest_phone'   => $sale->guest_phone ?? null,
+            'guest_address' => $sale->guest_address ?? null,
             'payment_type'  => $sale->payment_type,
             'paid_amount'   => (float) $sale->paid_amount,
             'discount'      => (float) ($sale->discount ?? 0),
@@ -302,6 +361,13 @@ class SaleController extends Controller
 
                 if ($request->filled('created_at')) {
                     $updateData['created_at'] = Carbon::parse($request->created_at);
+                }
+
+                if (Schema::hasColumn('sales', 'guest_name')) {
+                    $hasCustomer = !empty($request->customer_id);
+                    $updateData['guest_name']    = $hasCustomer ? null : ($request->guest_name ?: null);
+                    $updateData['guest_phone']   = $hasCustomer ? null : ($request->guest_phone ?: null);
+                    $updateData['guest_address'] = $hasCustomer ? null : ($request->guest_address ?: null);
                 }
 
                 $sale->update($updateData);

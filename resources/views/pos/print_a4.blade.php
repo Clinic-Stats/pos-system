@@ -105,9 +105,15 @@
         <div class="grid grid-cols-2 gap-4 my-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
             <div class="space-y-1">
                 <span class="block text-slate-500 text-[11px] font-bold">زانیاری کڕیار:</span>
-                <span class="text-sm font-bold text-slate-900">{{ $sale->customer->name ?? 'کڕیاری گشتی' }}</span>
+                <span class="text-sm font-bold text-slate-900">{{ $sale->customer->name ?? ($sale->guest_name ?: 'کڕیاری گشتی') }}</span>
                 @if($sale->customer && $sale->customer->phone)
                 <span class="block font-mono text-slate-600">{{ $sale->customer->phone }}</span>
+                @endif
+                @if(!$sale->customer && $sale->guest_phone)
+                <span class="block font-mono text-slate-600">{{ $sale->guest_phone }}</span>
+                @endif
+                @if(!$sale->customer && $sale->guest_address)
+                <span class="block text-slate-600">{{ $sale->guest_address }}</span>
                 @endif
             </div>
             <div class="space-y-1 text-left">

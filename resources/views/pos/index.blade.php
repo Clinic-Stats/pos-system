@@ -166,7 +166,9 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
   </div>
 
   <nav class="nav-group">
+    @php $pendingOrders = \App\Models\CustomerOrder::where('status', 'pending')->count(); @endphp
     <a href="{{ route('purchases.create') }}" class="nav hl"><i class="fa-solid fa-box-open"></i> کڕین</a>
+    <a href="{{ route('orders.index') }}" class="nav"><i class="fa-solid fa-bell-concierge"></i> داواکاری @if($pendingOrders > 0)<span class="num" style="background:var(--ro);color:#fff;border-radius:999px;padding:0 .4rem;font-size:10px;line-height:1.5">{{ $pendingOrders }}</span>@endif</a>
     <a href="{{ route('purchases.index') }}" class="nav"><i class="fa-solid fa-file-invoice"></i> وەسڵەکانی کڕین</a>
     <a href="{{ route('sales.list') }}" class="nav"><i class="fa-solid fa-receipt"></i> فرۆشتنەکان</a>
     <a href="{{ route('products.index') }}" class="nav"><i class="fa-solid fa-boxes-stacked"></i> کۆگا</a>
@@ -276,6 +278,11 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
         <div class="flex items-center gap-1.5"><button type="button" id="btnClearCart" onclick="handleClearCartTwoClicks()" class="chip !py-1.5 flex items-center gap-1"><i class="fa-solid fa-trash-can"></i> <span id="clearCartLabel">سڕینەوە</span></button><button type="button" class="sq sub lg:hidden" onclick="closeCart()" title="داخستن"><i class="fa-solid fa-chevron-down"></i></button></div>
       </div>
 
+      <div id="orderBanner" class="hidden rounded-xl px-3 py-2 text-[11px] font-extrabold space-y-0.5" style="background:var(--acs);color:var(--ac)">
+        <div><i class="fa-solid fa-bell-concierge"></i> داواکاری کڕیار <span id="orderNo" class="num"></span></div>
+        <div id="orderNote" class="font-bold" style="color:var(--mu)"></div>
+      </div>
+
       <div id="editBanner" class="hidden rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center justify-between" style="background:var(--was);color:var(--wa)">
         <span><i class="fa-solid fa-pen-to-square"></i> دەستکاریکردنی وەسڵ <span id="editInvoiceNo" class="num"></span></span>
         <a href="{{ route('pos.index') }}" class="underline">پسوولەی نوێ</a>
@@ -296,6 +303,15 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
         <option value="">کڕیاری نەقد</option>
         @foreach($customers as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach
       </select>
+
+      <!-- ناو / مۆبایل / ناونیشانی کڕیاری ئاسایی (دەچێتە سەر وەسڵەکە) -->
+      <div id="guestBox" class="hidden space-y-1.5">
+        <input type="text" id="guestName" placeholder="ناوی کڕیار" class="inp">
+        <div class="flex gap-1.5">
+          <input type="text" id="guestPhone" placeholder="ژ.مۆبایل" class="inp num">
+          <input type="text" id="guestAddress" placeholder="ناونیشان" class="inp">
+        </div>
+      </div>
 
       <div class="seg sm">
         <label><input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()"><i class="fa-solid fa-money-bill-wave"></i> نەقد</label>
@@ -369,6 +385,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 const units = @json($units);
 const allProducts = @json($products);
 const editSale = @json($editSale ?? null);
+const fromOrder = @json($fromOrder ?? null);   // داواکاری کڕیار کە قبوڵکراوە
 let cart = [], lastSaleItems = [], activeSaleId = null;
 let currentCurrency = 'USD';
 let rate = parseFloat(document.getElementById('exchangeRate').value) || 1500;
@@ -685,6 +702,8 @@ function submitSale() {
     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
     body: JSON.stringify({
       customer_id: customerId, payment_type: debt ? 'debt' : 'cash',
+      guest_name: $('guestName').value.trim(), guest_phone: $('guestPhone').value.trim(), guest_address: $('guestAddress').value.trim(),
+      order_id: fromOrder ? fromOrder.id : null,
       paid_amount: debt ? parseFloat($('paidAmount').value) || 0 : null,
       discount: sentDiscount,
       created_at: $('saleCreatedAt').value, currency: currentCurrency, exchange_rate: getRate(),
@@ -731,7 +750,7 @@ function renderModalItems() {
 function closeKeepEditing() { $('successModal').classList.add('hidden'); }   // سەبەتە دەمێنێتەوە، پاشەکەوتی داهاتوو هەمان وەسڵ نوێ دەکاتەوە
 function startNewSale() {
   $('successModal').classList.add('hidden'); closeCart();
-  if (editSale) { window.location.href = '{{ route('pos.index') }}'; return; }
+  if (editSale || fromOrder) { window.location.href = '{{ route('pos.index') }}'; return; }
   cart = []; savedSaleId = null; lastUse = {}; lastSaleItems = []; lastDiscount = 0;
   originalReserved = {}; reservedStock = {};
   $('cartDiscount').value = 0; $('paidAmount').value = 0; $('customerId').value = '';
@@ -772,6 +791,10 @@ function loadEditSale() {
   $('exchangeRate').value = editSale.exchange_rate; rate = parseFloat(editSale.exchange_rate) || rate;
   currentCurrency = editSale.currency || 'USD';
   $('customerId').value = editSale.customer_id || '';
+  if (!editSale.customer_id && (editSale.guest_name || editSale.guest_phone || editSale.guest_address)) {
+    $('guestName').value = editSale.guest_name || ''; $('guestPhone').value = editSale.guest_phone || ''; $('guestAddress').value = editSale.guest_address || '';
+    $('guestBox').classList.remove('hidden');
+  }
   $('saleCreatedAt').value = editSale.created_at;
   $('cartDiscount').value = editSale.discount || 0;
   const radio = document.querySelector('input[name="paymentType"][value="' + editSale.payment_type + '"]');
@@ -791,10 +814,45 @@ function loadEditSale() {
   $('btnSubmitSale').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> نوێکردنەوەی پسوولە';
   renderCart();
 }
-renderCart(); loadEditSale();
+
+/* قبوڵکردنی داواکاری کڕیار: کاڵاکان دەچنە سەبەتە */
+function loadFromOrder() {
+  if (!fromOrder) return;
+  const notes = [];
+  cart = fromOrder.items.map(it => {
+    const p = allProducts.find(x => x.id == it.product_id);
+    if (!p) { notes.push((it.name || 'کاڵا') + ' (نەماوە)'); return null; }
+    const stock = parseFloat(p.stock_kg ?? p.stock ?? 0);
+    if (stock <= 0) { notes.push(p.name + ' (لە کۆگا نەماوە)'); return null; }
+    const isC = p.sell_type === 'carton';
+    const unit = isC ? cartonUnit() : (units.find(u => u.id == it.unit_id) || defaultUnit());
+    const item = { carton: isC, id: p.id, name: p.name, code: p.code, price_usd: parseFloat(p.base_sale_price) || 0, stock_kg: stock,
+      kg_per_carton: parseFloat(p.kg_per_carton) || 1, qty: parseFloat(it.quantity) || 1, unit_id: unit.id, factor: unitFactor(p, unit) };
+    const mx = maxQty(item);
+    if (item.qty > mx) { item.qty = Math.floor(mx * 100) / 100; notes.push(p.name + ' (بڕەکە کەمکرایەوە بۆ ' + item.qty + ')'); }
+    return item.qty > 0 ? item : null;
+  }).filter(Boolean);
+
+  const known = !!fromOrder.customer_id;
+  $('customerId').value = known ? fromOrder.customer_id : '';
+  if (!known) {   // کڕیاری ئاسایی: نەقد + ناو و مۆبایل و ناونیشان لەسەر وەسڵ
+    $('guestName').value = fromOrder.name || ''; $('guestPhone').value = fromOrder.phone || ''; $('guestAddress').value = fromOrder.address || '';
+    $('guestBox').classList.remove('hidden');
+  }
+  // کڕیاری تۆمارکراو: بە قەرز دەچێتە سەر حیسابی، بە پارەی دراوی ٠
+  document.querySelector('input[name="paymentType"][value="' + (known ? 'debt' : 'cash') + '"]').checked = true;
+  $('paidAmount').value = 0; togglePaymentType();
+
+  $('orderNo').innerText = fromOrder.order_no;
+  $('orderNote').innerText = fromOrder.note ? 'تێبینی: ' + fromOrder.note : '';
+  $('orderBanner').classList.remove('hidden');
+  renderCart();
+  if (notes.length) showToast(notes.join(' · '), 'warning');
+  openCart();   // لە مۆبایل سەبەتە بکەرەوە
+}
+renderCart(); loadEditSale(); loadFromOrder();
 </script>
 <!-- ===== جووڵەی مینیوی سەرەوە (شێوەی ڤیدیۆکە) ===== -->
-<!-- ئەمە لەپێش </body> دابنێ، هیچ شتێکی تر نەگۆڕە -->
 <style id="navMotionCss">
 .nav-group{position:relative;flex-wrap:wrap;gap:.1rem;padding:.35rem .6rem;background:#1d1e22;border:0;border-radius:999px;
   box-shadow:0 12px 26px -12px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.06)}

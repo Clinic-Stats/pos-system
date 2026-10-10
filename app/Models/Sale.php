@@ -20,6 +20,9 @@ class Sale extends Model
         'currency',
         'exchange_rate',
         'discount',      // پێشتر نەبوو، بۆیە داشکاندن پاشەکەوت نەدەکرا
+        'guest_name',    // ناوی کڕیاری ئاسایی (نەتۆمارکراو)
+        'guest_phone',   // مۆبایلی کڕیاری ئاسایی
+        'guest_address', // ناونیشانی کڕیاری ئاسایی
         'created_at',
     ];
 

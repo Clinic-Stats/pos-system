@@ -21,20 +21,30 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\StockLossController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BackupAndExportController;
+use App\Http\Controllers\CustomerOrderController; // ئەمەمان زیاد کرد
+
+// ============================================
+// ١. بەشی کڕیاران ئۆنلاین (دەرەوەی Auth - بەبێ لۆگین دەکرێتەوە)
+// ============================================
+Route::get('/order', [CustomerOrderController::class, 'create'])->name('order.create');
+Route::post('/order/lookup', [CustomerOrderController::class, 'lookup'])->middleware('throttle:12,1')->name('order.lookup');
+Route::post('/order', [CustomerOrderController::class, 'store'])->middleware('throttle:6,1')->name('order.store');
 
 
-// ڕووتی لۆگین و دەرچوون
+// ============================================
+// ٢. ڕووتی لۆگین و دەرچوون بۆ کارمەندان
+// ============================================
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// هەموو بەشەکانی ناوەوەی سیستەم
+
+// ============================================
+// ٣. هەموو بەشەکانی ناوەوەی سیستەم (تەنها بە لۆگین دەکرێنەوە)
+// ============================================
 Route::middleware(['auth'])->group(function () {
 
-    // ============================================
-    // ڕاوتێکی کاتی بۆ پاککردنەوەی کاش
-    // تەنها ئەو کەسانەی لۆگینیان کردووە دەتوانن بەکاری بهێنن
-    // ============================================
+    // پاککردنەوەی کاش
     Route::middleware('permission:backup')->get('/karwan-cache', function() {
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
         \Illuminate\Support\Facades\Artisan::call('route:clear');
@@ -44,8 +54,17 @@ Route::middleware(['auth'])->group(function () {
         return '<div style="font-family:sans-serif;text-align:center;margin-top:100px;color:green;font-size:24px">✅ کاشەکە بە سەرکەوتوویی پاککرایەوە!</div>';
     });
 
-    // نوێکردنەوەی نرخی ئاڵوگۆڕ لە شاشەی POS
+    // نوێکردنەوەی نرخی ئاڵوگۆڕ
     Route::post('/update-exchange-rate', [SettingController::class, 'updateExchangeRate'])->name('settings.updateExchangeRate');
+
+    // ============================================
+    // بەڕێوەبردنی داواکارییە ئۆنلاینەکان (لە ناو داشبۆرد)
+    // ============================================
+    Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/pending-count', [CustomerOrderController::class, 'pendingCount'])->name('orders.count');
+    Route::post('/orders/{id}/reject', [CustomerOrderController::class, 'reject'])->name('orders.reject');
+    Route::delete('/orders/{id}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy');
+    Route::get('/pos/order/{id}', [SaleController::class, 'fromOrder'])->name('pos.order');
 
     // لیستی هەموو فرۆشتنەکان
     Route::get('/sales-list', [SaleController::class, 'listSales'])->name('sales.list')->middleware('permission:pos');
@@ -90,7 +109,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');
         Route::post('/products', [ProductController::class, 'store'])->name('products.store');
         
-        // 👇 ئەم دوو ڕاوتە بۆ نوێکردنەوەی کاڵا زۆر گرنگن
         Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
         Route::patch('/products/{id}', [ProductController::class, 'update'])->name('products.update.patch');
         
@@ -103,10 +121,9 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');  
         Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
         
-
         Route::get('/global-search', [GlobalSearchController::class, 'search'])->name('global.search');
 
-        // زیانی کاڵا (بەسەرچوو / تەلەف)
+        // زیانی کاڵا
         Route::get('/stock-losses', [StockLossController::class, 'index'])->name('losses.index');
         Route::post('/stock-losses', [StockLossController::class, 'store'])->name('losses.store');
         Route::delete('/stock-losses/{id}', [StockLossController::class, 'destroy'])->name('losses.destroy');
@@ -132,7 +149,6 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/suppliers/{id}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 
-        // کەشفی حسابی دابینکەر و پارەدان پێیان
         Route::get('/suppliers/{id}/statement', [SupplierController::class, 'statement'])->name('suppliers.statement');
         Route::post('/suppliers/{id}/payments', [SupplierController::class, 'storePayment'])->name('suppliers.payments.store');
         Route::delete('/supplier-payments/{id}', [SupplierController::class, 'destroyPayment'])->name('suppliers.payments.destroy');
@@ -152,7 +168,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/partners/{id}/statement', [PartnerController::class, 'show'])->name('partners.show');
     });
 
-    // تۆماری چالاکییەکان (تەنها ئەدمین)
+    // تۆماری چالاکییەکان
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('audit.index')->middleware('permission:audit');
 
     // خەرجییەکان
@@ -173,7 +189,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/export/products', [BackupAndExportController::class, 'exportProducts'])->name('export.products')->middleware('permission:products');
     Route::get('/export/customers', [BackupAndExportController::class, 'exportCustomers'])->name('export.customers')->middleware('permission:customers');
     Route::get('/backup/database', [BackupAndExportController::class, 'backupDatabase'])->name('backup.database')->middleware('permission:backup');
-
     Route::post('/products/import-csv', [App\Http\Controllers\ProductController::class, 'importCsv'])->name('products.importCsv');
 
     // بەڕێوەبردنی کارمەندان (Users)
@@ -184,4 +199,3 @@ Route::middleware(['auth'])->group(function () {
         return response()->json(\App\Models\Supplier::orderBy('name')->get(['id', 'name']));
     });
 });
-
