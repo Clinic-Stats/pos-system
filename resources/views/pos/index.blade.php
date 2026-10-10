@@ -281,6 +281,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
       <div id="orderBanner" class="hidden rounded-xl px-3 py-2 text-[11px] font-extrabold space-y-0.5" style="background:var(--acs);color:var(--ac)">
         <div><i class="fa-solid fa-bell-concierge"></i> داواکاری کڕیار <span id="orderNo" class="num"></span></div>
         <div id="orderNote" class="font-bold" style="color:var(--mu)"></div>
+        <a id="orderMap" href="#" target="_blank" rel="noopener" class="hidden underline"><i class="fa-solid fa-map-location-dot"></i> شوێنی کڕیار لەسەر نەخشە</a>
       </div>
 
       <div id="editBanner" class="hidden rounded-xl px-3 py-2 text-[10px] font-extrabold flex items-center justify-between" style="background:var(--was);color:var(--wa)">
@@ -845,6 +846,10 @@ function loadFromOrder() {
 
   $('orderNo').innerText = fromOrder.order_no;
   $('orderNote').innerText = fromOrder.note ? 'تێبینی: ' + fromOrder.note : '';
+  if (fromOrder.latitude && fromOrder.longitude) {
+    $('orderMap').href = 'https://www.google.com/maps?q=' + fromOrder.latitude + ',' + fromOrder.longitude;
+    $('orderMap').classList.remove('hidden');
+  }
   $('orderBanner').classList.remove('hidden');
   renderCart();
   if (notes.length) showToast(notes.join(' · '), 'warning');

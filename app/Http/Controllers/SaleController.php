@@ -228,6 +228,8 @@ class SaleController extends Controller
             'phone'       => $order->phone,
             'address'     => $order->address,
             'note'        => $order->note,
+            'latitude'    => $order->latitude,
+            'longitude'   => $order->longitude,
             'items'       => $order->items->map(fn($i) => [
                 'product_id' => $i->product_id,
                 'unit_id'    => $i->unit_id,
@@ -479,11 +481,19 @@ class SaleController extends Controller
         $debtBeforeUsd = $debtBefore['USD'] + ($debtBefore['IQD'] / $rate);
         $debtAfterUsd  = $debtAfter['USD']  + ($debtAfter['IQD']  / $rate);
 
+        // شوێنی کڕیار (QR لەسەر وەسڵ): ئەگەر ئەم وەسڵە لە داواکاری کڕیارەوە هاتبێت و شوێنی ناردبێت
+        $mapUrl = null;
+        $orderLoc = \App\Models\CustomerOrder::where('sale_id', $sale->id)
+            ->whereNotNull('latitude')->whereNotNull('longitude')->first();
+        if ($orderLoc) {
+            $mapUrl = 'https://www.google.com/maps?q=' . $orderLoc->latitude . ',' . $orderLoc->longitude;
+        }
+
         $shared = compact(
             'sale', 'setting', 'showDebt',
             'debtBefore', 'debtAfter',
             'debtBeforeUsd', 'debtAfterUsd',
-            'isUsd', 'rate'
+            'isUsd', 'rate', 'mapUrl'
         );
 
         if ($type === 'a4') {

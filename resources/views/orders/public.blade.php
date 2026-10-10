@@ -194,6 +194,15 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
         <div id="rvAlt" class="num text-[10px] font-bold" style="color:var(--mu)"></div>
       </div>
     </div>
+    <div class="rounded-2xl p-3 space-y-2" style="background:var(--card);border:1px solid var(--bd)">
+      <div class="flex items-center justify-between gap-2">
+        <div class="font-extrabold text-[13px]"><i class="fa-solid fa-location-crosshairs" style="color:var(--ac)"></i> شوێنی من (ئارەزوومەندانە)</div>
+        <button type="button" id="locClear" class="hidden text-[11px] font-extrabold underline" style="color:var(--ro)" onclick="clearLocation()">لابردن</button>
+      </div>
+      <p class="text-[11px]" style="color:var(--mu)">بۆ ئەوەی بە ئاسانی بتگەیەنین، شوێنی ئێستات بنێرە.</p>
+      <button type="button" id="locBtn" class="btn btn-soft !py-3 !text-[13px]" onclick="getLocation()"><i class="fa-solid fa-location-dot"></i> ناردنی شوێنی ئێستام</button>
+      <div id="locStatus" class="hidden rounded-xl px-3 py-2 text-[11px] font-extrabold"></div>
+    </div>
     <div>
       <label class="text-xs font-bold block mb-1">تێبینی (ئارەزوومەندانە)</label>
       <textarea id="note" rows="2" maxlength="500" class="inp" placeholder="نموونە: کاتی گەیاندن..."></textarea>
@@ -231,6 +240,7 @@ const fmtQty = n => +(+n).toFixed(3);
 const state = { mode: null, name: '', phone: '', address: '' };
 let cart = [];            // { id, name, code, price, stock, kgc, carton, qty, unit_id, factor }
 let cat = 'all', clearTimer = null, confirmingClear = false;
+let loc = null;           // شوێنی کڕیار { lat, lng, acc }
 
 /* ───── یەکە (هەمان لۆجیکی POS) ───── */
 const cartonUnit = () => units.find(u => /کارتۆن|carton/i.test(u.name || '')) || defaultUnit();
@@ -460,6 +470,30 @@ function renderReview() {
   $('rvTotal').textContent = usd(t.sum); $('rvAlt').textContent = t.sum > 0 ? '≈ ' + iqd(t.sum) : '';
 }
 
+/* ───── شوێن (GPS) ───── */
+function locMsg(text, ok) {
+  const st = $('locStatus'); st.textContent = text; st.classList.remove('hidden');
+  st.style.background = ok ? 'var(--acs)' : 'var(--ros)'; st.style.color = ok ? 'var(--ac)' : 'var(--ro)';
+}
+function getLocation() {
+  if (!navigator.geolocation) { locMsg('ئامێرەکەت پشتگیری شوێن ناکات.', false); return; }
+  const btn = $('locBtn'); btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> چاوەڕوان بە...';
+  navigator.geolocation.getCurrentPosition(pos => {
+    loc = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.round(pos.coords.accuracy) };
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-rotate"></i> نوێکردنەوەی شوێن';
+    $('locClear').classList.remove('hidden');
+    locMsg('شوێنەکەت وەرگیرا ✓ (وردی نزیکەی ' + loc.acc + ' مەتر)', true);
+  }, err => {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-location-dot"></i> ناردنی شوێنی ئێستام';
+    locMsg(err.code === 1 ? 'ڕێگەت نەدا بە شوێن؛ لە ڕێکخستنی وێبگەڕ ڕێگە بدە و دووبارە هەوڵ بدەرەوە.'
+         : err.code === 3 ? 'کاتەکە تەواو بوو، دووبارە هەوڵ بدەرەوە.' : 'شوێنەکەت نەدۆزرایەوە.', false);
+  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+}
+function clearLocation() {
+  loc = null; $('locClear').classList.add('hidden'); $('locStatus').classList.add('hidden');
+  $('locBtn').innerHTML = '<i class="fa-solid fa-location-dot"></i> ناردنی شوێنی ئێستام';
+}
+
 /* ───── ناردن ───── */
 async function sendOrder() {
   const err = $('sendError'); err.classList.add('hidden');
@@ -468,6 +502,7 @@ async function sendOrder() {
   const res = await post('{{ route('order.store') }}', {
     mode: state.mode, name: state.name, phone: state.phone, address: state.address,
     note: $('note').value.trim(), website: $('website').value,
+    latitude: loc ? loc.lat : null, longitude: loc ? loc.lng : null,
     items: cart.map(i => ({ product_id: i.id, unit_id: i.unit_id, quantity: i.qty }))
   });
   btn.disabled = false; btn.innerHTML = old;

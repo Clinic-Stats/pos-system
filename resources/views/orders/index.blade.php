@@ -88,6 +88,12 @@
                     </div>
                     <div class="text-xs text-cyan-300 font-mono" dir="ltr" style="text-align:right;"><i class="fa-solid fa-phone"></i> {{ $o->phone }}</div>
                     @if($o->address)<div class="text-xs text-slate-400"><i class="fa-solid fa-location-dot"></i> {{ $o->address }}</div>@endif
+                    @if($o->latitude && $o->longitude)
+                        <a href="https://www.google.com/maps?q={{ $o->latitude }},{{ $o->longitude }}" target="_blank" rel="noopener"
+                           class="inline-flex items-center gap-1.5 bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600 hover:text-white px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition">
+                            <i class="fa-solid fa-map-location-dot"></i> کردنەوەی شوێن لەسەر نەخشە
+                        </a>
+                    @endif
                     @if($debt)
                         <div class="text-[11px] text-slate-400 flex flex-wrap gap-x-4 gap-y-0.5 pt-1 border-t border-slate-700">
                             <span>قەرزی ئێستا:</span>

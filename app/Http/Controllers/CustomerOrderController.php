@@ -63,6 +63,8 @@ class CustomerOrderController extends Controller
             'phone'               => 'required|string|max:50',
             'address'             => 'nullable|string|max:255',
             'note'                => 'nullable|string|max:500',
+            'latitude'            => 'nullable|numeric|between:-90,90',
+            'longitude'           => 'nullable|numeric|between:-180,180',
             'website'             => 'nullable|string',                 // honeypot بۆ بۆتەکان
             'items'               => 'required|array|min:1|max:80',
             'items.*.product_id'  => 'required|integer|exists:products,id',
@@ -119,6 +121,8 @@ class CustomerOrderController extends Controller
                 'phone'          => trim($data['phone']),
                 'address'        => $customer ? ($customer->address ?: ($data['address'] ?? null)) : trim($data['address']),
                 'note'           => $data['note'] ?? null,
+                'latitude'       => $data['latitude'] ?? null,
+                'longitude'      => $data['longitude'] ?? null,
                 'status'         => 'pending',
             ]);
             $order->items()->createMany(array_values($merged));

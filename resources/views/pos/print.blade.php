@@ -222,6 +222,13 @@
         @endif
     </div>
 
+    @if(!empty($mapUrl))
+    <div class="text-center" style="margin-top: 8px;">
+        <div id="qrBox" style="width: {{ $is58 ? '80px' : '100px' }}; height: {{ $is58 ? '80px' : '100px' }}; margin: 0 auto; background: #fff;"></div>
+        <div style="font-size: 10px; font-weight: bold; margin-top: 3px;">شوێنی گەیاندن (QR)</div>
+    </div>
+    @endif
+
     <div class="border-b my-2"></div>
 
     <div class="text-center" style="font-size: 10px; margin-top: 6px;">
@@ -233,6 +240,18 @@
         </div>
         @endif
     </div>
+
+    @if(!empty($mapUrl))
+    <script src="{{ asset('js/qrcode.min.js') }}"></script>
+    <script>
+        (function () {
+            var qr = qrcode(0, 'M'); qr.addData(@json($mapUrl)); qr.make();
+            var el = document.getElementById('qrBox'); if (!el) return;
+            el.innerHTML = qr.createImgTag(4, 0);
+            var im = el.querySelector('img'); im.style.width = '100%'; im.style.height = '100%'; im.style.imageRendering = 'pixelated';
+        })();
+    </script>
+    @endif
 
     <script>
         window.addEventListener('load', function() {

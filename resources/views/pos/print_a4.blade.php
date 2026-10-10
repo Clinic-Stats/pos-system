@@ -161,6 +161,16 @@
                     <span class="text-xs text-slate-600 font-normal">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>
                     @endif
                 </div>
+
+                @if(!empty($mapUrl))
+                <div class="pt-3 mt-1 border-t border-slate-200 flex items-center gap-3">
+                    <div id="qrBox" class="w-24 h-24 shrink-0 bg-white"></div>
+                    <div class="text-[11px] text-slate-700 font-bold leading-snug">
+                        شوێنی گەیاندن
+                        <div class="font-normal text-[10px] text-slate-500 mt-0.5">QR سکان بکە بۆ کردنەوەی شوێنەکە لەسەر نەخشە</div>
+                    </div>
+                </div>
+                @endif
             </div>
 
             <div class="space-y-1.5 p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold">
@@ -235,6 +245,18 @@
         </div>
 
     </div>
+
+    @if(!empty($mapUrl))
+    <script src="{{ asset('js/qrcode.min.js') }}"></script>
+    <script>
+        (function () {
+            var qr = qrcode(0, 'M'); qr.addData(@json($mapUrl)); qr.make();
+            var el = document.getElementById('qrBox'); if (!el) return;
+            el.innerHTML = qr.createImgTag(4, 0);
+            var im = el.querySelector('img'); im.style.width = '100%'; im.style.height = '100%'; im.style.imageRendering = 'pixelated';
+        })();
+    </script>
+    @endif
 
     <script>
         window.addEventListener('load', function() {
