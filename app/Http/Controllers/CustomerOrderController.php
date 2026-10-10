@@ -148,7 +148,32 @@ class CustomerOrderController extends Controller
         $orders = $query->limit(200)->get();
         $counts = CustomerOrder::selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status');
 
-        return view('orders.index', compact('orders', 'counts', 'status'));
+        $lastId = (int) (CustomerOrder::max('id') ?? 0);
+
+        return view('orders.index', compact('orders', 'counts', 'status', 'lastId'));
+    }
+
+    /** داواکاری نوێ (پاش ئەو id ـەی کە لاپەڕەکە دوایین جار بینیویەتی)؛ بۆ نیشاندانی ڕاستەوخۆ */
+    public function feed(Request $request)
+    {
+        $after = (int) $request->get('after', 0);
+
+        $new = CustomerOrder::with(['items.product', 'items.unit', 'customer.sales', 'customer.payments', 'customer.returns'])
+            ->where('id', '>', $after)->where('status', 'pending')->orderBy('id')->get();
+
+        $html = $new->map(fn($o) => view('orders._card', ['o' => $o])->render())->implode('');
+        $counts = CustomerOrder::selectRaw('status, count(*) as c')->groupBy('status')->pluck('c', 'status');
+
+        return response()->json([
+            'new_count' => $new->count(),
+            'html'      => $html,
+            'last_id'   => (int) (CustomerOrder::max('id') ?? 0),
+            'counts'    => [
+                'pending'  => (int) ($counts['pending'] ?? 0),
+                'accepted' => (int) ($counts['accepted'] ?? 0),
+                'rejected' => (int) ($counts['rejected'] ?? 0),
+            ],
+        ]);
     }
 
     public function pendingCount()

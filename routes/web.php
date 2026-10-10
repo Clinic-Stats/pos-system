@@ -21,7 +21,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\StockLossController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BackupAndExportController;
-use App\Http\Controllers\CustomerOrderController; // ئەمەمان زیاد کرد
+use App\Http\Controllers\CustomerOrderController; 
 
 // ============================================
 // ١. بەشی کڕیاران ئۆنلاین (دەرەوەی Auth - بەبێ لۆگین دەکرێتەوە)
@@ -61,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
     // بەڕێوەبردنی داواکارییە ئۆنلاینەکان (لە ناو داشبۆرد)
     // ============================================
     Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/feed', [CustomerOrderController::class, 'feed'])->name('orders.feed'); // <-- ئەمە لێرە زیاد کرا
     Route::get('/orders/pending-count', [CustomerOrderController::class, 'pendingCount'])->name('orders.count');
     Route::post('/orders/{id}/reject', [CustomerOrderController::class, 'reject'])->name('orders.reject');
     Route::delete('/orders/{id}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy');

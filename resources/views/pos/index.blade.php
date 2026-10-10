@@ -152,6 +152,23 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
 .flash{animation:flash 1.1s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 3px var(--ac),0 14px 26px -8px var(--ac)}100%{box-shadow:var(--shadow-sm)}}
 @media (prefers-reduced-motion:reduce){.rowin,.bump,.flash{animation:none}.pc,.chip,.nav,.cart-panel{transition:none}}
+
+/* ===== دوگمەی داواکاری کڕیار (لای ڕاست، جیا لە مینیو) ===== */
+.orders-btn{position:relative;display:flex;align-items:center;gap:.45rem;padding:.55rem .95rem;border-radius:1rem;font-size:11px;font-weight:800;background:var(--card);border:1px solid var(--bd);color:var(--tx);box-shadow:var(--shadow-sm);transition:transform .15s,filter .15s;white-space:nowrap}
+.orders-btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.orders-btn i{color:var(--ac);display:inline-block;transform-origin:50% 0}
+.orders-btn .cnt{background:#fff;color:#dc2626;border-radius:999px;padding:0 .5rem;font-size:11px;line-height:1.7;font-weight:800;min-width:1.4rem;text-align:center}
+.orders-btn.has{background:linear-gradient(135deg,#f59e0b,#ef4444);border-color:transparent;color:#fff;animation:ordPulse 2.2s ease-out infinite}
+.orders-btn.has i{color:#fff;animation:bellRing 3s ease-in-out infinite}
+.orders-btn.pop{animation:ordPop .75s cubic-bezier(.2,1.4,.3,1),ordPulse 2.2s ease-out .75s infinite}
+.orders-btn.pop i{animation:bellShake 1s ease-in-out 2}
+.orders-btn.pop .cnt{animation:cntBump .6s ease}
+@keyframes ordPulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.55)}70%{box-shadow:0 0 0 12px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+@keyframes ordPop{0%{transform:scale(1)}35%{transform:scale(1.18) rotate(-3deg)}65%{transform:scale(.97) rotate(2deg)}100%{transform:scale(1)}}
+@keyframes bellRing{0%,70%,100%{transform:rotate(0)}74%{transform:rotate(18deg)}78%{transform:rotate(-16deg)}82%{transform:rotate(12deg)}86%{transform:rotate(-8deg)}90%{transform:rotate(4deg)}}
+@keyframes bellShake{0%,100%{transform:rotate(0)}10%{transform:rotate(24deg)}20%{transform:rotate(-22deg)}30%{transform:rotate(18deg)}40%{transform:rotate(-14deg)}50%{transform:rotate(9deg)}60%{transform:rotate(-6deg)}70%{transform:rotate(0)}}
+@keyframes cntBump{0%{transform:scale(1)}40%{transform:scale(1.7)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.orders-btn,.orders-btn i,.orders-btn .cnt{animation:none!important}}
 </style>
     @include('partials.system-head')
     @include('partials.mobile-tables')
@@ -163,12 +180,15 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
   <div class="flex items-center gap-2.5">
     <div class="brand-tile w-10 h-10 rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-cash-register"></i></div>
     <div><h1 class="font-extrabold text-sm leading-none">POS</h1><p class="text-[10px] mt-1 flex items-center gap-1" style="color:var(--mu)"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>فرۆشتن</p></div>
+    @php $pendingOrders = \App\Models\CustomerOrder::where('status', 'pending')->count(); @endphp
+    <!-- داواکاری کڕیار: لە مینیو جیا کراوەتەوە و لای ڕاستە -->
+    <a id="ordersBtn" href="{{ route('orders.index') }}" class="orders-btn {{ $pendingOrders > 0 ? 'has' : '' }}" style="margin-inline-start:.9rem" title="داواکارییەکانی کڕیار">
+      <i class="fa-solid fa-bell-concierge"></i><span>داواکاری</span><span id="ordersCnt" data-n="{{ $pendingOrders }}" class="cnt num {{ $pendingOrders > 0 ? '' : 'hidden' }}">{{ $pendingOrders }}</span>
+    </a>
   </div>
 
   <nav class="nav-group">
-    @php $pendingOrders = \App\Models\CustomerOrder::where('status', 'pending')->count(); @endphp
     <a href="{{ route('purchases.create') }}" class="nav hl"><i class="fa-solid fa-box-open"></i> کڕین</a>
-    <a href="{{ route('orders.index') }}" class="nav"><i class="fa-solid fa-bell-concierge"></i> داواکاری @if($pendingOrders > 0)<span class="num" style="background:var(--ro);color:#fff;border-radius:999px;padding:0 .4rem;font-size:10px;line-height:1.5">{{ $pendingOrders }}</span>@endif</a>
     <a href="{{ route('purchases.index') }}" class="nav"><i class="fa-solid fa-file-invoice"></i> وەسڵەکانی کڕین</a>
     <a href="{{ route('sales.list') }}" class="nav"><i class="fa-solid fa-receipt"></i> فرۆشتنەکان</a>
     <a href="{{ route('products.index') }}" class="nav"><i class="fa-solid fa-boxes-stacked"></i> کۆگا</a>
@@ -856,6 +876,31 @@ function loadFromOrder() {
   openCart();   // لە مۆبایل سەبەتە بکەرەوە
 }
 renderCart(); loadEditSale(); loadFromOrder();
+
+/* داواکاری نوێ: ژمارە بەخۆکار نوێ دەبێتەوە و دوگمەکە جووڵە دەکات */
+(function () {
+  const btn = $('ordersBtn'), cnt = $('ordersCnt'); if (!btn || !cnt) return;
+  let known = parseInt(cnt.dataset.n || '0') || 0;
+  function beep() {
+    try {
+      const c = new (window.AudioContext || window.webkitAudioContext)();
+      [880, 1175].forEach((f, i) => { const o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = f; o.connect(g); g.connect(c.destination);
+        const t = c.currentTime + i * 0.16; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.12, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22); o.start(t); o.stop(t + 0.25); });
+      setTimeout(() => c.close(), 700);
+    } catch (e) {}
+  }
+  function paint(n) { cnt.textContent = n; cnt.classList.toggle('hidden', n <= 0); btn.classList.toggle('has', n > 0); }
+  function tick() {
+    if (document.hidden) return;
+    fetch('{{ route('orders.count') }}', { headers: { 'Accept': 'application/json' } }).then(r => r.json()).then(d => {
+      const n = parseInt(d.count) || 0;
+      if (n > known) { btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); beep(); showToast('داواکاری نوێ هاتووە!', 'success'); }
+      known = n; paint(n);
+    }).catch(() => {});
+  }
+  setInterval(tick, 5000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+})();
 </script>
 <!-- ===== جووڵەی مینیوی سەرەوە (شێوەی ڤیدیۆکە) ===== -->
 <style id="navMotionCss">

@@ -185,7 +185,7 @@ class SaleController extends Controller
                 // ئەگەر لە داواکاری کڕیارەوە هاتووە: بیکە بە «قبوڵکراو» و بیبەستەرەوە بە وەسڵەکە
                 if ($request->filled('order_id')) {
                     \App\Models\CustomerOrder::where('id', $request->order_id)
-                        ->where('status', 'pending')
+                        ->whereIn('status', ['pending', 'rejected'])
                         ->update([
                             'status'     => 'accepted',
                             'sale_id'    => $sale->id,
@@ -215,7 +215,7 @@ class SaleController extends Controller
     {
         $order = \App\Models\CustomerOrder::with('items.product', 'items.unit')->findOrFail($id);
 
-        if ($order->status !== 'pending') {
+        if (!in_array($order->status, ['pending', 'rejected'])) {
             return redirect()->route('orders.index', ['status' => $order->status])
                 ->with('success', 'ئەم داواکارییە پێشتر مامەڵەی لەسەر کراوە');
         }
