@@ -154,7 +154,7 @@ class SaleController extends Controller
                 $remaining = $totalAmount - $paid;
 
                 $saleData = [
-                    'invoice_no'       => 'INV-' . strtoupper(uniqid()),
+                    'invoice_no'       => $this->nextInvoiceNo(),   // ژمارەی ڕیزبەند: 1, 2, 3 ... (بێ بەتاڵی)
                     'customer_id'      => $request->customer_id ?: null,
                     'user_id'          => auth()->id() ?? $user->id,
                     'total_amount'     => $totalAmount,
@@ -572,6 +572,33 @@ class SaleController extends Controller
 
             $l['product']->decrement($stockCol, $l['quantity'] * $l['factor']);
         }
+    }
+
+    /**
+     * ژمارەی وەسڵی داهاتوو: 1, 2, 3 ...
+     * دەبێت لە ناو DB::transaction ی فرۆشتنەکەدا بانگ بکرێت. ڕیزی ژمارەدەرەکە قفڵ دەکرێت تا کۆتایی
+     * transaction، بۆیە لە یەک کاتدا چەند کەس وەسڵ بکەن ژمارەکان تێکەڵ نابن، و ئەگەر
+     * فرۆشتنەکە شکست بهێنێت ژمارەکە دەگەڕێتەوە (هیچ ژمارەیەک نادزرێت).
+     */
+    private function nextInvoiceNo(): string
+    {
+        $row = DB::table('invoice_counters')->where('name', 'sales')->lockForUpdate()->first();
+
+        if (!$row) {   // یەکەم جار (ئەگەر migration ڕیزەکەی دروست نەکردبێت)
+            DB::table('invoice_counters')->insertOrIgnore(['name' => 'sales', 'last_number' => 0, 'created_at' => now(), 'updated_at' => now()]);
+            $row = DB::table('invoice_counters')->where('name', 'sales')->lockForUpdate()->first();
+        }
+
+        $next = (int) $row->last_number + 1;
+
+        // ئەگەر ئەم ژمارەیە پێشتر بەکارهاتبێت (نموونە وەسڵی کۆن)، بپەڕێنە بۆ یەکەم ژمارەی بەتاڵ
+        while (Sale::where('invoice_no', (string) $next)->exists()) {
+            $next++;
+        }
+
+        DB::table('invoice_counters')->where('name', 'sales')->update(['last_number' => $next, 'updated_at' => now()]);
+
+        return (string) $next;
     }
 
     private function getUnitFactor($product, $unit)
