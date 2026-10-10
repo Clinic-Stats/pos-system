@@ -173,6 +173,52 @@ class PartnerController extends Controller
         return redirect()->back()->with('success', 'مامەڵەکە بە سەرکەوتوویی تۆمارکرا');
     }
 
+    /**
+     * دەستکاریکردنی جووڵەیەکی هاوبەش (دانان / ڕاکێشان): جۆر، بڕ، دراو، بەروار و تێبینی.
+     * بڕ هەمیشە بە دۆلار پاشەکەوت دەکرێت (هەروەک addTransaction).
+     */
+    public function updateTransaction(Request $request, $id)
+    {
+        $request->validate([
+            'type'          => 'required|in:deposit,withdraw',
+            'amount'        => 'required|numeric|min:0.01',
+            'date'          => 'required|date',
+            'note'          => 'nullable|string|max:255',
+            'currency'      => 'nullable|in:USD,IQD',
+            'exchange_rate' => 'nullable|numeric|min:1',
+        ]);
+
+        $trx = PartnerTransaction::findOrFail($id);
+
+        $amountVal = (float) $request->amount;
+        $currency = $request->input('currency', 'USD');
+        $exchangeRate = (float) $request->input('exchange_rate', 1500);
+
+        if ($currency === 'IQD' && $exchangeRate > 0) {
+            $amountVal = $amountVal / $exchangeRate;
+        }
+
+        // بە ڕاستەوخۆ دانانی تایبەتمەندییەکان، بۆ ئەوەی پێویست بە $fillable نەبێت
+        $trx->type       = $request->type;
+        $trx->amount     = round($amountVal, 2);
+        $trx->note       = $request->note;
+        $trx->created_at = Carbon::parse($request->date);
+
+        if (Schema::hasColumn('partner_transactions', 'date')) {
+            $trx->date = $request->date;
+        }
+        if (Schema::hasColumn('partner_transactions', 'currency')) {
+            $trx->currency = $currency;
+        }
+        if (Schema::hasColumn('partner_transactions', 'exchange_rate')) {
+            $trx->exchange_rate = $exchangeRate;
+        }
+
+        $trx->save();
+
+        return redirect()->back()->with('success', 'مامەڵەکە نوێکرایەوە');
+    }
+
     public function destroyTransaction($id)
     {
         PartnerTransaction::findOrFail($id)->delete();

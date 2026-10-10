@@ -61,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
     // بەڕێوەبردنی داواکارییە ئۆنلاینەکان (لە ناو داشبۆرد)
     // ============================================
     Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/feed', [CustomerOrderController::class, 'feed'])->name('orders.feed'); // <-- ئەمە لێرە زیاد کرا
+    Route::get('/orders/feed', [CustomerOrderController::class, 'feed'])->name('orders.feed');
     Route::get('/orders/pending-count', [CustomerOrderController::class, 'pendingCount'])->name('orders.count');
     Route::post('/orders/{id}/reject', [CustomerOrderController::class, 'reject'])->name('orders.reject');
     Route::delete('/orders/{id}', [CustomerOrderController::class, 'destroy'])->name('orders.destroy');
@@ -163,6 +163,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/partners/{id}', [PartnerController::class, 'destroy'])->name('partners.destroy');
 
         Route::post('/partners/{id}/transaction', [PartnerController::class, 'addTransaction'])->name('partners.transaction');
+        Route::put('/partners/transaction/{id}', [PartnerController::class, 'updateTransaction'])->name('partners.transaction.update');   // <-- دەستکاری جووڵەی هاوبەش (نوێ)
         Route::delete('/partners/transaction/{id}', [PartnerController::class, 'destroyTransaction'])->name('partners.transaction.destroy');
 
         Route::get('/partners/all-report', [PartnerController::class, 'allReport'])->name('partners.allReport');
