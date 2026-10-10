@@ -259,9 +259,11 @@
     @endif
 
     <script>
-        window.addEventListener('load', function() {
-            window.print();
-        });
+       window.addEventListener('load', function() {
+    setTimeout(function() {
+        window.print();
+    }, 800); // کەمێک چاوەڕوان بە بۆ ئەوەی کیوئار کۆدەکە بار ببێت
+});
     </script>
 </body>
 
