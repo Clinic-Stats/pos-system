@@ -164,7 +164,7 @@
 
                 @if(!empty($mapUrl))
                 <div class="pt-3 mt-1 border-t border-slate-200 flex items-center gap-3">
-                    <div id="qrBox" class="w-24 h-24 shrink-0 bg-white"></div>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($mapUrl) }}" alt="QR" class="w-24 h-24 shrink-0 bg-white object-contain">
                     <div class="text-[11px] text-slate-700 font-bold leading-snug">
                         شوێنی گەیاندن
                         <div class="font-normal text-[10px] text-slate-500 mt-0.5">QR سکان بکە بۆ کردنەوەی شوێنەکە لەسەر نەخشە</div>
@@ -259,10 +259,10 @@
     @endif
 
     <script>
-       window.addEventListener('load', function() {
+  window.addEventListener('load', function() {
     setTimeout(function() {
         window.print();
-    }, 800); // کەمێک چاوەڕوان بە بۆ ئەوەی کیوئار کۆدەکە بار ببێت
+    }, 1000); // ١ چرکە چاوەڕوان بە بۆ ئەوەی کیوئار کۆدەکە بار ببێت
 });
     </script>
 </body>

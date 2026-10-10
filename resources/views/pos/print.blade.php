@@ -224,7 +224,7 @@
 
     @if(!empty($mapUrl))
     <div class="text-center" style="margin-top: 8px;">
-        <div id="qrBox" style="width: {{ $is58 ? '80px' : '100px' }}; height: {{ $is58 ? '80px' : '100px' }}; margin: 0 auto; background: #fff;"></div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($mapUrl) }}" alt="QR" style="width: {{ $is58 ? '80px' : '100px' }}; height: {{ $is58 ? '80px' : '100px' }}; margin: 0 auto; background: #fff; object-fit: contain;">
         <div style="font-size: 10px; font-weight: bold; margin-top: 3px;">شوێنی گەیاندن (QR)</div>
     </div>
     @endif
@@ -254,10 +254,10 @@
     @endif
 
     <script>
-       window.addEventListener('load', function() {
+ window.addEventListener('load', function() {
     setTimeout(function() {
         window.print();
-    }, 800); // کەمێک چاوەڕوان بە بۆ ئەوەی کیوئار کۆدەکە بار ببێت
+    }, 1000); // ١ چرکە چاوەڕوان بە بۆ ئەوەی کیوئار کۆدەکە بار ببێت
 });
     </script>
 </body>
