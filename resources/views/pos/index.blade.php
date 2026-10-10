@@ -606,7 +606,13 @@ function renderCart() {
   const paid = isDebt ? (parseFloat($('paidAmount').value) || 0) : 0;
   const remaining = Math.max(0, total - paid);
   const remEl = $('grandRemainingText');
-  if (isDebt && paid > 0) {
+  const overpaid = isDebt && total > 0 && paid >= total - 0.005;   // پارەی دراو = کۆی گشتی: قەرز نامێنێتەوە
+  $('paidAmount').style.borderColor = overpaid ? 'var(--ro)' : '';
+  if (overpaid) {
+    remEl.classList.remove('hidden');
+    remEl.style.color = 'var(--ro)';
+    remEl.innerText = '⚠ پارەی دراو یەکسانە بە کۆی گشتی، قەرز نامێنێتەوە! بڕەکە کەم بکەرەوە';
+  } else if (isDebt && paid > 0) {
     const otherRem = currentCurrency === 'USD' ? remaining * rate : remaining / rate;
     remEl.classList.remove('hidden');
     remEl.style.color = 'var(--ro)';
@@ -632,9 +638,20 @@ function renderCart() {
   updateBadges(); updateCardPrices(); updateFab(total, qtySum, weight);
 }
 
-function togglePaymentType() {
+let lastPayType = 'cash';
+function togglePaymentType(fromUser = true) {
   const debt = document.querySelector('input[name="paymentType"]:checked').value === 'debt';
+  const type = debt ? 'debt' : 'cash';
   $('paidAmountBox').classList.toggle('hidden', !debt);
+  // کاتێک کڕیار لە «نەقد» دەگۆڕێت بۆ «قەرز»: پارەی دراوی پێشوو (کە یەکسان بوو بە کۆی گشتی) سفر دەکرێتەوە
+  if (fromUser && debt && lastPayType !== 'debt') {
+    if ((parseFloat($('paidAmount').value) || 0) > 0) {
+      $('paidAmount').value = 0;
+      showToast('پارەی دراو سفر کرایەوە؛ ئەگەر بڕێکت وەرگرتووە لە خانەی «پارەی دراو» بینووسە', 'warning');
+    }
+  }
+  lastPayType = type;
+  renderCart();
 }
 
 /* ===== جووڵەی فڕین و سەبەتەی مۆبایل ===== */
@@ -710,6 +727,14 @@ function submitSale() {
   const debt = document.querySelector('input[name="paymentType"]:checked').value === 'debt';
   const customerId = $('customerId').value;
   if (debt && !customerId) { showToast('کڕیار دیاری بکە بۆ قەرز', 'error'); return; }
+  if (debt) {   // ئەگەر پارەی دراو یەکسانە بە کۆی گشتی، ئەمە قەرز نییە
+    const tot = Math.max(0, cart.reduce((s, i) => s + i.qty * toDisp(i.price_usd) * i.factor, 0) - (parseFloat($('cartDiscount').value) || 0));
+    const pd = parseFloat($('paidAmount').value) || 0;
+    if (tot > 0 && pd >= tot - 0.005) {
+      showToast('پارەی دراو یەکسانە بە کۆی گشتی و ئەمە قەرز نییە. بڕی پارەی دراو کەم بکەرەوە، یان «نەقد» هەڵبژێرە.', 'error');
+      $('paidAmount').focus(); return;
+    }
+  }
 
   const targetId = editSale ? editSale.id : savedSaleId;   // ئەگەر وەسڵەکە پێشتر تۆمارکراوە، نوێ دەکرێتەوە نەک دووبارە
   const isEdit = !!targetId;
@@ -775,7 +800,7 @@ function startNewSale() {
   cart = []; savedSaleId = null; lastUse = {}; lastSaleItems = []; lastDiscount = 0;
   originalReserved = {}; reservedStock = {};
   $('cartDiscount').value = 0; $('paidAmount').value = 0; $('customerId').value = '';
-  document.querySelector('input[name="paymentType"][value="cash"]').checked = true; togglePaymentType();
+  document.querySelector('input[name="paymentType"][value="cash"]').checked = true; togglePaymentType(false);
   $('saleCreatedAt').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   $('btnSubmitSale').innerHTML = labelNew;
   renderCart();
@@ -820,7 +845,7 @@ function loadEditSale() {
   $('cartDiscount').value = editSale.discount || 0;
   const radio = document.querySelector('input[name="paymentType"][value="' + editSale.payment_type + '"]');
   if (radio) radio.checked = true;
-  $('paidAmount').value = editSale.paid_amount || 0; togglePaymentType();
+  $('paidAmount').value = editSale.paid_amount || 0; togglePaymentType(false);
   cart = editSale.items.map(it => {
     const p = allProducts.find(x => x.id == it.product_id); if (!p) return null;
     const unit = units.find(u => u.id == it.unit_id) || units[0], factor = unitFactor(p, unit);
@@ -862,7 +887,7 @@ function loadFromOrder() {
   }
   // کڕیاری تۆمارکراو: بە قەرز دەچێتە سەر حیسابی، بە پارەی دراوی ٠
   document.querySelector('input[name="paymentType"][value="' + (known ? 'debt' : 'cash') + '"]').checked = true;
-  $('paidAmount').value = 0; togglePaymentType();
+  $('paidAmount').value = 0; togglePaymentType(false);
 
   $('orderNo').innerText = fromOrder.order_no;
   $('orderNote').innerText = fromOrder.note ? 'تێبینی: ' + fromOrder.note : '';
