@@ -5,9 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>داواکاری کاڵا - {{ $setting->shop_name ?? '' }}</title>
+{{-- زیادکردنی فۆنتی NRT و ڕێکخستنەکانی سیستەم --}}
+@include('partials.system-head')
+@include('partials.mobile-tables')
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 <style>
 :root{
   --bg:#cfcfcf; --sf:#ececec; --sf2:#e3e3e3; --bd:#c0c0c0;
