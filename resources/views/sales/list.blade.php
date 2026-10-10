@@ -205,7 +205,7 @@
                             <span class="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[10px] font-bold">قەرز</span>
                             @endif
                         </td>
-                        <td class="p-2.5 text-[10px] text-slate-400 font-mono">{{ $sale->created_at->format('Y-m-d h:i A') }}</td>
+                        <td class="p-2.5 text-[10px] text-slate-400 font-mono">{{ $sale->created_at->format('n/j/y, g:i A') }}</td>
                         <td class="p-2.5">
                             <div class="flex items-center justify-center gap-1">
                                 <!-- چاپی A4 -->
