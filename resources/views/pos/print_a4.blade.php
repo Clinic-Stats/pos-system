@@ -9,9 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800;900&family=Libre+Barcode+39&display=swap" rel="stylesheet">
     @php
     $setting = $setting ?? \App\Models\Setting::first();
+    $L = \App\Support\InvoiceLabels::forSetting($setting);   // نووسینەکان لە ڕێکخستنەوە
     $isUsd = ($sale->currency ?? 'IQD') === 'USD';
-    $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';          // بە نیشانەی دراو
-    $fmtShort = fn($v) => $isUsd ? number_format((float) $v, 2) : number_format((float) $v);                    // تەنها ژمارە (بۆ خشتە)
+    $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';
+    $fmtShort = fn($v) => $isUsd ? number_format((float) $v, 2) : number_format((float) $v);
     $curLabel = $isUsd ? '$' : 'د.ع';
 
     $totalWeightKg = 0;
@@ -52,25 +53,23 @@
         }
 
         :root {
-            --inv-blue: #4f81bd;       /* سەرەوەی خشتە */
-            --inv-bar: #b8cce4;        /* بارە ئاسمانییەکان */
-            --inv-dark: #366092;       /* قەرزی پێشوو */
-            --inv-title: #243b9b;      /* ناوی فرۆشگا */
+            --inv-blue: #4f81bd;
+            --inv-bar: #b8cce4;
+            --inv-dark: #366092;
+            --inv-title: #243b9b;
         }
 
         .inv-title { color: var(--inv-title); }
 
         .inv-dash { border-top: 2px dashed #111; }
 
-        /* خشتەی کاڵاکان */
         .inv-table { width: 100%; border-collapse: collapse; font-weight: 800; }
         .inv-table th { background: var(--inv-blue); color: #fff; border: 1px solid #fff; padding: 7px 4px; font-size: 12px; font-weight: 800; }
         .inv-table td { border: 1px solid #111; padding: 6px 6px; text-align: center; font-size: 12.5px; }
         .inv-table td.name { font-size: 13px; }
-        .inv-table td.frac { color: #2e9e4f; }          /* بڕی بە کەسر (٠.٥ ...) سەوزە */
+        .inv-table td.frac { color: #2e9e4f; }
         .inv-table tfoot td { border: 0; padding: 8px 6px; font-size: 14px; }
 
-        /* بارەکانی خوارەوە: لەبەل = ناو، لای چەپ = بڕ */
         .inv-sum { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-weight: 800; }
         .inv-sum .lbl { background: var(--inv-bar); text-align: center; padding: 10px 8px; font-size: 14px; }
         .inv-sum .val { width: 32%; background: #fff; border: 1px solid #111; text-align: center; padding: 8px 6px; font-size: 16px; direction: ltr; }
@@ -123,7 +122,7 @@
             </div>
         </div>
 
-        <!-- ═══════ سەردێڕ: ناوی فرۆشگا لە ناوەڕاست، لۆگۆ لای چەپ ═══════ -->
+        <!-- ═══════ سەردێڕ ═══════ -->
         <div class="relative text-center pb-4 min-h-[88px] flex flex-col items-center justify-center">
             @if(!empty($setting->shop_logo) && file_exists(public_path($setting->shop_logo)))
             <div class="absolute left-0 top-0 w-24 h-24 flex items-center justify-center">
@@ -133,46 +132,46 @@
 
             <h1 class="inv-title text-[30px] leading-tight font-black px-24">{{ $setting->shop_name ?? 'کۆمپانیای بازرگانی' }}</h1>
             @if(!empty($setting->shop_address))
-            <p class="text-slate-800 text-[13px] font-bold mt-1 px-24">ناونیشان : {{ $setting->shop_address }}</p>
+            <p class="text-slate-800 text-[13px] font-bold mt-1 px-24">{{ $L['shop_address_label'] }} : {{ $setting->shop_address }}</p>
             @endif
             @if(!empty($setting->shop_phone))
-            <p class="text-slate-900 text-[13px] font-bold mt-0.5" dir="ltr">{{ $setting->shop_phone }} :تەلەفۆن</p>
+            <p class="text-slate-900 text-[13px] font-bold mt-0.5" dir="ltr">{{ $setting->shop_phone }} :{{ $L['shop_phone_label'] }}</p>
             @endif
         </div>
 
         <div class="inv-dash"></div>
 
-        <!-- ═══════ ناوی کڕیار (گەورە، ناوەڕاست) ═══════ -->
+        <!-- ═══════ ناوی کڕیار ═══════ -->
         <div class="text-center py-3">
             <div class="text-[26px] font-black text-slate-900">{{ $custName }}</div>
         </div>
 
-        <!-- ═══════ زانیاری وەسڵ (دوو ڕیز) ═══════ -->
+        <!-- ═══════ زانیاری وەسڵ ═══════ -->
         <div class="grid grid-cols-3 gap-2 text-[14px] font-extrabold items-center pb-2">
-            <div class="text-right">ژ.پسوولە&nbsp;&nbsp;<span class="text-[22px] font-black text-red-600 font-mono">{{ $sale->invoice_no }}</span></div>
-            <div class="text-center">کێشی بار : <span class="font-mono">{{ number_format($totalWeightKg, 2) }}</span> کگم@if($totalWeightKg >= 1000) <span class="text-[11px] font-bold">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>@endif</div>
-            <div class="text-left">فرۆشیار : {{ $sale->user->name ?? 'ئەدمین' }}</div>
+            <div class="text-right">{{ $L['invoice_no'] }}&nbsp;&nbsp;<span class="text-[22px] font-black text-red-600 font-mono">{{ $sale->invoice_no }}</span></div>
+            <div class="text-center">{{ $L['weight_row'] }} : <span class="font-mono">{{ number_format($totalWeightKg, 2) }}</span> کگم@if($totalWeightKg >= 1000) <span class="text-[11px] font-bold">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>@endif</div>
+            <div class="text-left">{{ $L['cashier'] }} : {{ $sale->user->name ?? 'ئەدمین' }}</div>
         </div>
         <div class="grid grid-cols-3 gap-2 text-[13px] font-extrabold items-center pb-3">
-            <div class="text-right">جۆری پسوولە : <span class="{{ $isDebtSale ? 'text-rose-700' : 'text-emerald-700' }}">{{ $isDebtSale ? 'قەرز' : 'نەقد' }}</span></div>
-            <div class="text-center">@if($custPhone)ژ.موبایل : <span class="font-mono" dir="ltr">{{ $custPhone }}</span>@endif</div>
+            <div class="text-right">{{ $L['invoice_type'] }} : <span class="{{ $isDebtSale ? 'text-rose-700' : 'text-emerald-700' }}">{{ $isDebtSale ? $L['type_debt'] : $L['type_cash'] }}</span></div>
+            <div class="text-center">@if($custPhone){{ $L['customer_phone'] }} : <span class="font-mono" dir="ltr">{{ $custPhone }}</span>@endif</div>
             <div class="text-left font-mono" dir="ltr">{{ $sale->created_at->format('n/j/y, g:i A') }}</div>
         </div>
         @if($custAddress)
-        <div class="text-[12.5px] font-bold text-slate-700 pb-3">ناونیشانی کڕیار : {{ $custAddress }}</div>
+        <div class="text-[12.5px] font-bold text-slate-700 pb-3">{{ $L['customer_address'] }} : {{ $custAddress }}</div>
         @endif
 
         <!-- ═══════ خشتەی کاڵاکان ═══════ -->
         <table class="inv-table">
             <thead>
                 <tr>
-                    <th style="width:4%">ژ</th>
-                    <th style="width:11%">کۆد</th>
-                    <th>مادده</th>
-                    <th style="width:11%">یەکە</th>
-                    <th style="width:10%">دانە</th>
-                    <th style="width:14%">نرخ ({{ $curLabel }})</th>
-                    <th style="width:15%">کۆ ({{ $curLabel }})</th>
+                    <th style="width:4%">{{ $L['col_no'] }}</th>
+                    <th style="width:11%">{{ $L['col_code'] }}</th>
+                    <th>{{ $L['col_item'] }}</th>
+                    <th style="width:11%">{{ $L['col_unit'] }}</th>
+                    <th style="width:10%">{{ $L['col_qty'] }}</th>
+                    <th style="width:14%">{{ $L['col_price'] }} ({{ $curLabel }})</th>
+                    <th style="width:15%">{{ $L['col_total'] }} ({{ $curLabel }})</th>
                 </tr>
             </thead>
             <tbody>
@@ -194,10 +193,14 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4" style="text-align:right">کۆ :</td>
+                    <td colspan="4" style="text-align:right">{{ $L['total_row'] }}</td>
                     <td class="font-mono">{{ $totalQty }}</td>
                     <td></td>
                     <td class="font-mono" dir="ltr">{{ $fmtShort($itemsTotal) }}</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align:right">{{ $L['weight_row'] }} :</td>
+                    <td colspan="3" class="font-mono">{{ number_format($totalWeightKg, 2) }} کگم@if($totalWeightKg >= 1000) <span style="font-size:12px">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>@endif</td>
                 </tr>
             </tfoot>
         </table>
@@ -205,20 +208,20 @@
         <!-- ═══════ داشکاندن، کۆ، پارەی دراو ═══════ -->
         <table class="inv-sum mt-1">
             <tr>
-                <td class="lbl">داشکاندن</td>
+                <td class="lbl">{{ $L['discount'] }}</td>
                 <td class="val">{{ $fmt($sale->discount ?? 0) }}</td>
             </tr>
             <tr>
-                <td class="lbl">کۆی پسوولە دوای داشکاندن</td>
+                <td class="lbl">{{ $L['after_discount'] }}</td>
                 <td class="val big">{{ $fmt($sale->total_amount) }}</td>
             </tr>
             @if($isDebtSale)
             <tr>
-                <td class="lbl">بڕی پارەی دراو</td>
+                <td class="lbl">{{ $L['paid'] }}</td>
                 <td class="val">{{ $fmt($sale->paid_amount) }}</td>
             </tr>
             <tr>
-                <td class="lbl" style="color:#b91c1c">ماوە (قەرز) لەم پسوولەیە</td>
+                <td class="lbl" style="color:#b91c1c">{{ $L['remaining'] }}</td>
                 <td class="val big" style="color:#b91c1c">{{ $fmt($sale->remaining_amount) }}</td>
             </tr>
             @endif
@@ -228,15 +231,15 @@
         <div class="inv-dash my-2"></div>
         <table class="inv-sum">
             <tr>
-                <td class="lbl">قەرزی پێشوو</td>
+                <td class="lbl">{{ $L['debt_before'] }}</td>
                 <td class="val dark big">{{ $fmtDebt($debtBefore) }}</td>
             </tr>
             <tr>
-                <td class="lbl">کۆی گشتی قەرز دوای ئەم پسوولەیە</td>
+                <td class="lbl">{{ $L['debt_after'] }}</td>
                 <td class="val big" style="color:#b91c1c">{{ $fmtDebt($debtAfter) }}</td>
             </tr>
         </table>
-        <div class="text-[11px] font-bold text-slate-600 text-left" dir="ltr">کۆی گشتی قەرز بە دۆلار ≈ {{ '$' . number_format($debtAfterUsd, 2) }}</div>
+        <div class="text-[11px] font-bold text-slate-600 text-left" dir="ltr">{{ $L['debt_usd_note'] }} ≈ {{ '$' . number_format($debtAfterUsd, 2) }}</div>
         @endif
 
         <!-- ═══════ QR ی شوێنی گەیاندن ═══════ -->
@@ -244,8 +247,8 @@
         <div class="mt-4 pt-3 border-t border-slate-300 flex items-center gap-3">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($mapUrl) }}" alt="QR" class="w-24 h-24 shrink-0 bg-white object-contain">
             <div class="text-[12px] text-slate-800 font-extrabold leading-snug">
-                شوێنی گەیاندن
-                <div class="font-normal text-[11px] text-slate-500 mt-0.5">QR سکان بکە بۆ کردنەوەی شوێنەکە لەسەر نەخشە</div>
+                {{ $L['delivery'] }}
+                <div class="font-normal text-[11px] text-slate-500 mt-0.5">{{ $L['qr_hint'] }}</div>
             </div>
         </div>
         @endif
@@ -253,7 +256,7 @@
         <!-- ═══════ واژوو و بارکۆد ═══════ -->
         <div class="mt-6 pt-4 border-t border-slate-300 grid grid-cols-3 gap-4 text-center text-slate-700">
             <div>
-                <span class="block mb-8 font-bold">واژووی کڕیار</span>
+                <span class="block mb-8 font-bold">{{ $L['sign_customer'] }}</span>
                 <span>......................</span>
             </div>
             <div class="flex flex-col items-center justify-center">
@@ -263,7 +266,7 @@
                 <p class="text-[11px] mt-1 font-bold">{{ $setting->invoice_footer ?? 'سوپاس بۆ سەردانەکەتان' }}</p>
             </div>
             <div>
-                <span class="block mb-8 font-bold">واژووی ژمێریار / کۆگا</span>
+                <span class="block mb-8 font-bold">{{ $L['sign_accountant'] }}</span>
                 <span>......................</span>
             </div>
         </div>
@@ -272,7 +275,7 @@
 
     <script>
         window.addEventListener('load', function () {
-            setTimeout(function () { window.print(); }, 600);   // کەمێک چاوەڕێ بۆ بارکردنی QR
+            setTimeout(function () { window.print(); }, 600);
         });
     </script>
 </body>

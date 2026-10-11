@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
     @php
     $setting = $setting ?? \App\Models\Setting::first();
+    $L = \App\Support\InvoiceLabels::forSetting($setting);   // نووسینەکان لە ڕێکخستنەوە
     $paperWidth = ($setting && in_array($setting->receipt_width, ['58mm', '80mm'])) ? $setting->receipt_width : '80mm';
     $is58 = $paperWidth === '58mm';
     $bodyWidth = $is58 ? '56mm' : '78mm';
@@ -116,7 +117,7 @@
         @endif
         <h2 style="margin: 0; font-size: 15px; font-weight: bold;">{{ $setting->shop_name ?? 'کۆمپانیای ساموا' }}</h2>
         @if(!empty($setting->shop_phone))
-        <div style="font-size: 11px; margin-top: 2px;">تەلەفۆن: {{ $setting->shop_phone }}</div>
+        <div style="font-size: 11px; margin-top: 2px;">{{ $L['shop_phone_label'] }}: {{ $setting->shop_phone }}</div>
         @endif
         @if(!empty($setting->shop_address))
         <div style="font-size: 10px; color: #333;">{{ $setting->shop_address }}</div>
@@ -127,17 +128,17 @@
     <div class="border-b my-2"></div>
 
     <div>
-        <div><strong>وەسڵ:</strong> {{ $sale->invoice_no }}</div>
+        <div><strong>{{ $L['invoice_no'] }}:</strong> {{ $sale->invoice_no }}</div>
         <div><strong>بەروار:</strong> {{ $sale->created_at->format('n/j/y, g:i A') }}</div>
         <div><strong>کڕیار:</strong> {{ $sale->customer->name ?? ($sale->guest_name ?: 'کڕیاری گشتی') }}</div>
         @if(!$sale->customer && $sale->guest_phone)
-        <div><strong>مۆبایل:</strong> <span dir="ltr">{{ $sale->guest_phone }}</span></div>
+        <div><strong>{{ $L['customer_phone'] }}:</strong> <span dir="ltr">{{ $sale->guest_phone }}</span></div>
         @endif
         @if(!$sale->customer && $sale->guest_address)
-        <div><strong>ناونیشان:</strong> {{ $sale->guest_address }}</div>
+        <div><strong>{{ $L['customer_address'] }}:</strong> {{ $sale->guest_address }}</div>
         @endif
-        <div><strong>جۆری پارەدان:</strong> {{ $sale->payment_type == 'cash' ? 'نەقد' : 'قەرز' }}</div>
-        <div><b>کاشیر:</b> {{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</div>
+        <div><strong>{{ $L['invoice_type'] }}:</strong> {{ $sale->payment_type == 'cash' ? $L['type_cash'] : $L['type_debt'] }}</div>
+        <div><b>{{ $L['cashier'] }}:</b> {{ $sale->user->name ?? (auth()->user()->name ?? 'کارمەند') }}</div>
     </div>
 
     <div class="border-b my-2"></div>
@@ -145,9 +146,9 @@
     <table>
         <thead>
             <tr class="border-b">
-                <th style="text-align: right;">کاڵا</th>
-                <th class="text-center">بڕ</th>
-                <th class="text-left">کۆ</th>
+                <th style="text-align: right;">{{ $L['col_item'] }}</th>
+                <th class="text-center">{{ $L['col_qty'] }}</th>
+                <th class="text-left">{{ $L['col_total'] }}</th>
             </tr>
         </thead>
         <tbody>
@@ -170,7 +171,7 @@
             <td class="text-left" dir="ltr">{{ $fmt($sale->total_amount + $sale->discount) }}</td>
         </tr>
         <tr>
-            <td>داشکاندن:</td>
+            <td>{{ $L['discount'] }}:</td>
             <td class="text-left" dir="ltr">{{ $fmt($sale->discount) }}</td>
         </tr>
         @endif
@@ -180,11 +181,11 @@
         </tr>
         @if($sale->payment_type === 'debt')
         <tr>
-            <td>بڕی دراو:</td>
+            <td>{{ $L['paid'] }}:</td>
             <td class="text-left" dir="ltr">{{ $fmt($sale->paid_amount) }}</td>
         </tr>
         <tr class="font-bold">
-            <td>ماوە (قەرز):</td>
+            <td>{{ $L['remaining'] }}:</td>
             <td class="text-left" dir="ltr">{{ $fmt($sale->remaining_amount) }}</td>
         </tr>
         @endif
@@ -199,23 +200,23 @@
         @endphp
 
         <tr>
-            <td>قەرزی پێش ئەم وەسڵە:</td>
+            <td>{{ $L['debt_before'] }}:</td>
             <td class="text-left" dir="ltr">{{ $fmtDebt($debtBefore) }}</td>
         </tr>
         <tr class="font-bold">
-            <td>کۆی قەرز دوای ئەم وەسڵە:</td>
+            <td>{{ $L['debt_after'] }}:</td>
             <td class="text-left" dir="ltr">{{ $fmtDebt($debtAfter) }}</td>
         </tr>
         <tr>
             <td colspan="2" class="text-left" style="font-size:10px; color:#555;" dir="ltr">
-                کۆی گشتی قەرز بە دۆلار ≈ {{ '$' . number_format($debtAfterUsd, 2) }}
+                {{ $L['debt_usd_note'] }} ≈ {{ '$' . number_format($debtAfterUsd, 2) }}
             </td>
         </tr>
         @endif
     </table>
 
     <div style="margin-top: 10px; padding: 6px; border: 1.5px dashed #000; text-align: center; font-weight: bold; font-size: 12px;">
-        کۆی کێشی گشتیی بار:
+        {{ $L['weight_row'] }}:
         <span>{{ number_format($totalWeightKg, 2) }} کگم</span>
         @if($totalWeightKg >= 1000)
         ({{ number_format($totalWeightKg / 1000, 2) }} تەن)
@@ -225,7 +226,7 @@
     @if(!empty($mapUrl))
     <div class="text-center" style="margin-top: 8px;">
         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($mapUrl) }}" alt="QR" style="width: {{ $is58 ? '80px' : '100px' }}; height: {{ $is58 ? '80px' : '100px' }}; margin: 0 auto; background: #fff; object-fit: contain;">
-        <div style="font-size: 10px; font-weight: bold; margin-top: 3px;">شوێنی گەیاندن (QR)</div>
+        <div style="font-size: 10px; font-weight: bold; margin-top: 3px;">{{ $L['delivery'] }} (QR)</div>
     </div>
     @endif
 
@@ -241,24 +242,12 @@
         @endif
     </div>
 
-    @if(!empty($mapUrl))
-    <script src="{{ asset('js/qrcode.min.js') }}"></script>
     <script>
-        (function () {
-            var qr = qrcode(0, 'M'); qr.addData(@json($mapUrl)); qr.make();
-            var el = document.getElementById('qrBox'); if (!el) return;
-            el.innerHTML = qr.createImgTag(4, 0);
-            var im = el.querySelector('img'); im.style.width = '100%'; im.style.height = '100%'; im.style.imageRendering = 'pixelated';
-        })();
-    </script>
-    @endif
-
-    <script>
- window.addEventListener('load', function() {
-    setTimeout(function() {
-        window.print();
-    }, 1000); // ١ چرکە چاوەڕوان بە بۆ ئەوەی کیوئار کۆدەکە بار ببێت
-});
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                window.print();
+            }, 1000); // چاوەڕوان بە بۆ ئەوەی QR بار ببێت
+        });
     </script>
 </body>
 
