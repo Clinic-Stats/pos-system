@@ -161,7 +161,7 @@
         <div class="grid grid-cols-3 gap-2 text-[13px] font-extrabold items-center pb-3">
             <div class="text-right">{{ $L['invoice_type'] }} : <span class="{{ $isDebtSale ? 'text-rose-700' : 'text-emerald-700' }}">{{ $isDebtSale ? $L['type_debt'] : $L['type_cash'] }}</span></div>
             <div class="text-center">@if($custPhone){{ $L['customer_phone'] }} : <span class="font-mono" dir="ltr">{{ $custPhone }}</span>@endif</div>
-            <div class="text-left font-mono" dir="ltr">{{ $sale->created_at->format('n/j/y, g:i A') }}</div>
+            <div class="text-left font-mono" dir="ltr">{{ $sale->created_at->format('j/n/y, g:i A') }}</div>
         </div>
         @if($custAddress)
         <div class="text-[12.5px] font-bold text-slate-700 pb-3">{{ $L['customer_address'] }} : {{ $custAddress }}</div>

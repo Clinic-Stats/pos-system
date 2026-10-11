@@ -310,34 +310,47 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}input[type
         <a href="{{ route('pos.index') }}" class="underline">پسوولەی نوێ</a>
       </div>
 
-      <!-- دراو + نرخ + بەروار (بچووک) -->
-      <div class="flex items-center gap-1.5 flex-wrap">
+      <!-- ═══ زانیاری وەسڵ (collapse): دراو، بەروار، کڕیار، جۆری پارەدان ═══ -->
+      <button type="button" id="cartInfoBar" onclick="toggleCartInfo()" class="cart-info-bar">
+        <span class="flex items-center gap-2 min-w-0">
+          <i class="fa-solid fa-sliders" style="color:var(--ac)"></i>
+          <span id="cartInfoSummary" class="truncate"></span>
+        </span>
+        <i id="cartInfoChevron" class="fa-solid fa-chevron-down text-[10px]"></i>
+      </button>
+
+      <div id="cartInfo" class="collapsed">
+
+        <!-- دراو + نرخ + بەروار (بچووک) -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <div class="seg sm">
+            <button type="button" id="btn-cur-usd" onclick="setCurrency('USD')" class="on">$ دۆلار</button>
+            <button type="button" id="btn-cur-iqd" onclick="setCurrency('IQD')">دینار</button>
+          </div>
+          <input type="number" id="exchangeRate" value="{{ $setting->exchange_rate ?? 1500 }}" onchange="renderCart()" class="inp sm num !w-16 text-center" title="نرخی ئاڵوگۆڕی ئەم وەسڵە">
+          <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="inp sm num flex-1 !w-auto min-w-[9.5rem]">
+        </div>
+
+        <!-- کڕیار (گەورە) -->
+        <select id="customerId" class="inp cust-big">
+          <option value="">کڕیاری نەقد</option>
+          @foreach($customers as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach
+        </select>
+
+        <!-- ناو / مۆبایل / ناونیشانی کڕیاری ئاسایی (دەچێتە سەر وەسڵەکە) -->
+        <div id="guestBox" class="hidden space-y-1.5">
+          <input type="text" id="guestName" placeholder="ناوی کڕیار" class="inp">
+          <div class="flex gap-1.5">
+            <input type="text" id="guestPhone" placeholder="ژ.مۆبایل" class="inp num">
+            <input type="text" id="guestAddress" placeholder="ناونیشان" class="inp">
+          </div>
+        </div>
+
         <div class="seg sm">
-          <button type="button" id="btn-cur-usd" onclick="setCurrency('USD')" class="on">$ دۆلار</button>
-          <button type="button" id="btn-cur-iqd" onclick="setCurrency('IQD')">دینار</button>
+          <label><input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()"><i class="fa-solid fa-money-bill-wave"></i> نەقد</label>
+          <label class="debt"><input type="radio" name="paymentType" value="debt" onchange="togglePaymentType()"><i class="fa-solid fa-clock"></i> قەرز</label>
         </div>
-        <input type="number" id="exchangeRate" value="{{ $setting->exchange_rate ?? 1500 }}" onchange="renderCart()" class="inp sm num !w-16 text-center" title="نرخی ئاڵوگۆڕی ئەم وەسڵە">
-        <input type="datetime-local" id="saleCreatedAt" value="{{ date('Y-m-d\TH:i') }}" class="inp sm num flex-1 !w-auto min-w-[9.5rem]">
-      </div>
 
-      <!-- کڕیار (گەورە) -->
-      <select id="customerId" class="inp cust-big">
-        <option value="">کڕیاری نەقد</option>
-        @foreach($customers as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach
-      </select>
-
-      <!-- ناو / مۆبایل / ناونیشانی کڕیاری ئاسایی (دەچێتە سەر وەسڵەکە) -->
-      <div id="guestBox" class="hidden space-y-1.5">
-        <input type="text" id="guestName" placeholder="ناوی کڕیار" class="inp">
-        <div class="flex gap-1.5">
-          <input type="text" id="guestPhone" placeholder="ژ.مۆبایل" class="inp num">
-          <input type="text" id="guestAddress" placeholder="ناونیشان" class="inp">
-        </div>
-      </div>
-
-      <div class="seg sm">
-        <label><input type="radio" name="paymentType" value="cash" checked onchange="togglePaymentType()"><i class="fa-solid fa-money-bill-wave"></i> نەقد</label>
-        <label class="debt"><input type="radio" name="paymentType" value="debt" onchange="togglePaymentType()"><i class="fa-solid fa-clock"></i> قەرز</label>
       </div>
     </div>
 
@@ -1012,13 +1025,26 @@ renderCart(); loadEditSale(); loadFromOrder();
   addEventListener('load', init);
 })();
 </script>
-<!-- ===== سەبەتەی کەمتر شوێن بگرێت: کاڵاکان زیاتر دیار بن ===== -->
+
+<!-- ===== سەبەتەی کەمتر شوێن بگرێت + بەشی زانیاری collapse ===== -->
 <style id="cartCompactCss">
-/* سەرەوە: کڕیار و نەقد/قەرز لەسەر یەک ڕیز، مەودا کەمتر */
-.cart-panel .panel-head{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-auto-flow:row dense;gap:.4rem .45rem;padding-top:.55rem;padding-bottom:.55rem}
-.cart-panel .panel-head>*{grid-column:1/-1;margin:0!important}
-.cart-panel .panel-head>#customerId{grid-column:1}
-.cart-panel .panel-head>.seg.sm{grid-column:2;min-width:9.5rem}
+/* سەرەوە */
+.cart-panel .panel-head{display:flex;flex-direction:column;gap:.4rem;padding-top:.55rem;padding-bottom:.55rem}
+.cart-panel .panel-head>*{margin:0!important}
+
+/* دوگمەی کورتەی زانیاری (کلیک بکە بۆ کردنەوە / داخستن) */
+.cart-info-bar{display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%;padding:.42rem .75rem;border-radius:.85rem;background:var(--card);border:1px solid var(--bd);font-size:11.5px;font-weight:800;color:var(--tx);box-shadow:var(--shadow-sm);text-align:right;transition:border-color .15s,color .15s}
+.cart-info-bar:hover{border-color:var(--ac)}
+.cart-info-bar.warn{border-color:var(--ro);color:var(--ro)}
+.cart-info-bar i:last-child{transition:transform .2s;color:var(--mu)}
+.cart-info-bar.open i:last-child{transform:rotate(180deg)}
+
+/* ناوەڕۆکی collapse: کڕیار و نەقد/قەرز لەسەر یەک ڕیز */
+#cartInfo{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-auto-flow:row dense;gap:.4rem .45rem}
+#cartInfo.collapsed{display:none}
+#cartInfo>*{grid-column:1/-1;margin:0!important}
+#cartInfo>#customerId{grid-column:1}
+#cartInfo>.seg.sm{grid-column:2;min-width:9.5rem}
 .cart-panel .panel-head .inp.cust-big{font-size:14px;padding:.55rem .85rem}
 
 /* کاڵاکانی سەبەتە: کارتی بچووکتر، کۆی هێڵ لەسەر هەمان ڕیزی ناو */
@@ -1032,12 +1058,58 @@ renderCart(); loadEditSale(); loadFromOrder();
 #cartItemsContainer .rowin .inp{padding-top:.3rem!important;padding-bottom:.3rem!important}
 #cartItemsContainer .rowin .sq{width:1.75rem!important;height:1.75rem!important}
 
-/* خوارەوە: کۆی گشتی و دوگمە بچووکتر */
+/* خوارەوە */
 .cart-panel .panel-foot{padding-top:.5rem;padding-bottom:.55rem}
 .cart-panel .panel-foot>*+*{margin-top:.4rem!important}
 .cart-panel .total-card{padding:.35rem .75rem}
 .cart-panel #grandTotalText{font-size:1.55rem}
 #btnSubmitSale{padding-top:.7rem;padding-bottom:.7rem;font-size:14px}
 </style>
+<script>
+(function () {
+  const KEY = 'pos_cart_info_open';
+  const info = document.getElementById('cartInfo'), bar = document.getElementById('cartInfoBar');
+  if (!info || !bar) return;
+
+  function setOpen(o, save) {
+    info.classList.toggle('collapsed', !o);
+    bar.classList.toggle('open', o);
+    if (save !== false) { try { localStorage.setItem(KEY, o ? '1' : '0'); } catch (e) {} }
+  }
+  window.toggleCartInfo = function () { setOpen(info.classList.contains('collapsed')); };
+
+  // دەقی کورتە: دراو · کڕیار · جۆری پارەدان
+  window.updateCartSummary = function () {
+    const sel = document.getElementById('customerId');
+    const debt = document.querySelector('input[name="paymentType"]:checked')?.value === 'debt';
+    const guest = (document.getElementById('guestName').value || '').trim();
+    const cust = sel.value ? sel.options[sel.selectedIndex].text : (guest || 'کڕیاری نەقد');
+    const cur = currentCurrency === 'USD' ? '$ دۆلار' : 'دینار';
+    document.getElementById('cartInfoSummary').textContent = cur + ' · ' + cust + ' · ' + (debt ? 'قەرز' : 'نەقد');
+    bar.classList.toggle('warn', debt && !sel.value);   // قەرز بێ کڕیار: سوور
+  };
+
+  // هەر جارێک سەبەتە نوێ دەبێتەوە، دەقی کورتەش نوێ دەبێتەوە
+  const _renderCart = renderCart;
+  renderCart = function () { _renderCart.apply(this, arguments); updateCartSummary(); };
+
+  document.getElementById('customerId').addEventListener('change', updateCartSummary);
+  document.getElementById('guestName').addEventListener('input', updateCartSummary);
+
+  // کاتێک «قەرز» هەڵدەبژێردرێت و کڕیار دیاری نەکراوە: بەشەکە دەکرێتەوە
+  document.querySelectorAll('input[name="paymentType"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      if (r.value === 'debt' && r.checked && !document.getElementById('customerId').value) setOpen(true, false);
+    });
+  });
+
+  // دۆخی سەرەتایی: داخراو (یان بەپێی هەڵبژاردنی پێشوو)، و کراوە بۆ دەستکاری / داواکاری کڕیار
+  let open = false;
+  try { open = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  if (editSale || fromOrder) open = true;
+  setOpen(open, false);
+  updateCartSummary();
+})();
+</script>
 </body>
 </html>
