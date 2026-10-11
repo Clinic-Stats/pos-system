@@ -6,11 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>پسوولەی فرۆشتن A4 - {{ $sale->invoice_no }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&family=Libre+Barcode+39&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800;900&family=Libre+Barcode+39&display=swap" rel="stylesheet">
     @php
     $setting = $setting ?? \App\Models\Setting::first();
     $isUsd = ($sale->currency ?? 'IQD') === 'USD';
-    $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';
+    $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';          // بە نیشانەی دراو
+    $fmtShort = fn($v) => $isUsd ? number_format((float) $v, 2) : number_format((float) $v);                    // تەنها ژمارە (بۆ خشتە)
+    $curLabel = $isUsd ? '$' : 'د.ع';
 
     $totalWeightKg = 0;
     foreach ($sale->details as $item) {
@@ -23,6 +25,20 @@
     $totalWeightKg += $item->quantity * ($item->unit->factor_to_base ?? 1 ?: 1);
     }
     }
+
+    $totalQty = (float) $sale->details->sum('quantity');
+    $itemsTotal = (float) $sale->details->sum('line_total');
+    $custName = $sale->customer->name ?? ($sale->guest_name ?: 'کڕیاری گشتی');
+    $custPhone = $sale->customer->phone ?? $sale->guest_phone;
+    $custAddress = $sale->customer->address ?? $sale->guest_address;
+    $isDebtSale = $sale->payment_type === 'debt';
+
+    $fmtDebt = function ($arr) {
+        $parts = [];
+        if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
+        if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
+        return empty($parts) ? '0' : implode(' + ', $parts);
+    };
     @endphp
     <style>
         body {
@@ -35,10 +51,36 @@
             line-height: 1;
         }
 
+        :root {
+            --inv-blue: #4f81bd;       /* سەرەوەی خشتە */
+            --inv-bar: #b8cce4;        /* بارە ئاسمانییەکان */
+            --inv-dark: #366092;       /* قەرزی پێشوو */
+            --inv-title: #243b9b;      /* ناوی فرۆشگا */
+        }
+
+        .inv-title { color: var(--inv-title); }
+
+        .inv-dash { border-top: 2px dashed #111; }
+
+        /* خشتەی کاڵاکان */
+        .inv-table { width: 100%; border-collapse: collapse; font-weight: 800; }
+        .inv-table th { background: var(--inv-blue); color: #fff; border: 1px solid #fff; padding: 7px 4px; font-size: 12px; font-weight: 800; }
+        .inv-table td { border: 1px solid #111; padding: 6px 6px; text-align: center; font-size: 12.5px; }
+        .inv-table td.name { font-size: 13px; }
+        .inv-table td.frac { color: #2e9e4f; }          /* بڕی بە کەسر (٠.٥ ...) سەوزە */
+        .inv-table tfoot td { border: 0; padding: 8px 6px; font-size: 14px; }
+
+        /* بارەکانی خوارەوە: لەبەل = ناو، لای چەپ = بڕ */
+        .inv-sum { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-weight: 800; }
+        .inv-sum .lbl { background: var(--inv-bar); text-align: center; padding: 10px 8px; font-size: 14px; }
+        .inv-sum .val { width: 32%; background: #fff; border: 1px solid #111; text-align: center; padding: 8px 6px; font-size: 16px; direction: ltr; }
+        .inv-sum .val.dark { background: var(--inv-dark); color: #fff; border-color: var(--inv-dark); }
+        .inv-sum .val.big { font-size: 17px; }
+
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 10mm 15mm;
+                margin: 10mm 12mm;
             }
 
             body {
@@ -53,11 +95,15 @@
                 box-shadow: none !important;
                 border: none !important;
                 padding: 0 !important;
+                max-width: none !important;
             }
 
             .no-print {
                 display: none !important;
             }
+
+            tr { page-break-inside: avoid; }
+            thead { display: table-header-group; }
         }
     </style>
     @include('partials.system-head')
@@ -77,157 +123,135 @@
             </div>
         </div>
 
-        <!-- هێدەر -->
-        <div class="flex justify-between items-center pb-6 border-b-2 border-slate-800 gap-4">
-            <div class="space-y-1.5 flex-1">
-                <h1 class="text-2xl font-black text-slate-900">{{ $setting->shop_name ?? 'کۆمپانیای بازرگانی' }}</h1>
-                @if(!empty($setting->shop_address))
-                <p class="text-slate-600 text-xs font-medium">{{ $setting->shop_address }}</p>
-                @endif
-                @if(!empty($setting->shop_phone))
-                <p class="text-slate-700 font-mono text-xs font-bold">تەلەفۆن: {{ $setting->shop_phone }}</p>
-                @endif
-            </div>
-
+        <!-- ═══════ سەردێڕ: ناوی فرۆشگا لە ناوەڕاست، لۆگۆ لای چەپ ═══════ -->
+        <div class="relative text-center pb-4 min-h-[88px] flex flex-col items-center justify-center">
             @if(!empty($setting->shop_logo) && file_exists(public_path($setting->shop_logo)))
-            <div class="w-32 h-20 flex items-center justify-center">
-                <img src="{{ asset($setting->shop_logo) }}" class="max-h-20 max-w-full object-contain">
+            <div class="absolute left-0 top-0 w-24 h-24 flex items-center justify-center">
+                <img src="{{ asset($setting->shop_logo) }}" class="max-h-24 max-w-full object-contain">
             </div>
             @endif
 
-            <div class="text-left space-y-1 flex-1">
-                <div class="font-mono text-xs font-bold text-slate-800">وەسڵ: {{ $sale->invoice_no }}</div>
-                <div class="font-mono text-xs text-slate-600">بەروار: {{ $sale->created_at->format('n/j/y, g:i A') }}</div>
-            </div>
+            <h1 class="inv-title text-[30px] leading-tight font-black px-24">{{ $setting->shop_name ?? 'کۆمپانیای بازرگانی' }}</h1>
+            @if(!empty($setting->shop_address))
+            <p class="text-slate-800 text-[13px] font-bold mt-1 px-24">ناونیشان : {{ $setting->shop_address }}</p>
+            @endif
+            @if(!empty($setting->shop_phone))
+            <p class="text-slate-900 text-[13px] font-bold mt-0.5" dir="ltr">{{ $setting->shop_phone }} :تەلەفۆن</p>
+            @endif
         </div>
 
-        <!-- زانیاری کڕیار -->
-        <div class="grid grid-cols-2 gap-4 my-6 p-4 bg-slate-50 border border-slate-200 rounded-xl">
-            <div class="space-y-1">
-                <span class="block text-slate-500 text-[11px] font-bold">زانیاری کڕیار:</span>
-                <span class="text-sm font-bold text-slate-900">{{ $sale->customer->name ?? ($sale->guest_name ?: 'کڕیاری گشتی') }}</span>
-                @if($sale->customer && $sale->customer->phone)
-                <span class="block font-mono text-slate-600">{{ $sale->customer->phone }}</span>
-                @endif
-                @if(!$sale->customer && $sale->guest_phone)
-                <span class="block font-mono text-slate-600">{{ $sale->guest_phone }}</span>
-                @endif
-                @if(!$sale->customer && $sale->guest_address)
-                <span class="block text-slate-600">{{ $sale->guest_address }}</span>
-                @endif
-            </div>
-            <div class="space-y-1 text-left">
-                <span class="block text-slate-500 text-[11px] font-bold">شێوازی مامەڵە:</span>
-                <span class="inline-block px-2.5 py-0.5 rounded-md font-bold {{ $sale->payment_type === 'cash' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
-                    {{ $sale->payment_type === 'cash' ? 'نەقد' : 'قەرز' }}
-                </span>
-                <span class="block text-[11px] text-slate-600">کاشیر / مەندووب: <b>{{ $sale->user->name ?? 'ئەدمین' }}</b></span>
-            </div>
+        <div class="inv-dash"></div>
+
+        <!-- ═══════ ناوی کڕیار (گەورە، ناوەڕاست) ═══════ -->
+        <div class="text-center py-3">
+            <div class="text-[26px] font-black text-slate-900">{{ $custName }}</div>
         </div>
 
-        <!-- خشتەی کاڵاکان -->
-        <table class="w-full text-right border border-slate-300 rounded-xl overflow-hidden mb-6">
-            <thead class="bg-slate-900 text-white text-[11px]">
+        <!-- ═══════ زانیاری وەسڵ (دوو ڕیز) ═══════ -->
+        <div class="grid grid-cols-3 gap-2 text-[14px] font-extrabold items-center pb-2">
+            <div class="text-right">ژ.پسوولە&nbsp;&nbsp;<span class="text-[22px] font-black text-red-600 font-mono">{{ $sale->invoice_no }}</span></div>
+            <div class="text-center">کێشی بار : <span class="font-mono">{{ number_format($totalWeightKg, 2) }}</span> کگم@if($totalWeightKg >= 1000) <span class="text-[11px] font-bold">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>@endif</div>
+            <div class="text-left">فرۆشیار : {{ $sale->user->name ?? 'ئەدمین' }}</div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-[13px] font-extrabold items-center pb-3">
+            <div class="text-right">جۆری پسوولە : <span class="{{ $isDebtSale ? 'text-rose-700' : 'text-emerald-700' }}">{{ $isDebtSale ? 'قەرز' : 'نەقد' }}</span></div>
+            <div class="text-center">@if($custPhone)ژ.موبایل : <span class="font-mono" dir="ltr">{{ $custPhone }}</span>@endif</div>
+            <div class="text-left font-mono" dir="ltr">{{ $sale->created_at->format('n/j/y, g:i A') }}</div>
+        </div>
+        @if($custAddress)
+        <div class="text-[12.5px] font-bold text-slate-700 pb-3">ناونیشانی کڕیار : {{ $custAddress }}</div>
+        @endif
+
+        <!-- ═══════ خشتەی کاڵاکان ═══════ -->
+        <table class="inv-table">
+            <thead>
                 <tr>
-                    <th class="p-2.5 text-center w-12">#</th>
-                    <th class="p-2.5">ناوی کاڵا</th>
-                    <th class="p-2.5 text-center">یەکە</th>
-                    <th class="p-2.5 text-center">بڕ</th>
-                    <th class="p-2.5 text-center">نرخی یەکە</th>
-                    <th class="p-2.5 text-left">کۆی گشتی</th>
+                    <th style="width:4%">ژ</th>
+                    <th style="width:11%">کۆد</th>
+                    <th>مادده</th>
+                    <th style="width:11%">یەکە</th>
+                    <th style="width:10%">دانە</th>
+                    <th style="width:14%">نرخ ({{ $curLabel }})</th>
+                    <th style="width:15%">کۆ ({{ $curLabel }})</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-200">
+            <tbody>
                 @foreach($sale->details as $index => $item)
+                @php
+                    $qty = (float) $item->quantity;
+                    $price = $item->unit_price ?? ($item->line_total / ($item->quantity ?: 1));
+                @endphp
                 <tr>
-                    <td class="p-2.5 text-center font-mono text-slate-500">{{ $index + 1 }}</td>
-                    <td class="p-2.5 font-bold text-slate-900">{{ $item->product->name ?? '-' }}</td>
-                    <td class="p-2.5 text-center text-slate-600">{{ $item->unit->name ?? 'دانە' }}</td>
-                    <td class="p-2.5 text-center font-mono font-bold">{{ (float) $item->quantity }}</td>
-                    <td class="p-2.5 text-center font-mono" dir="ltr">{{ $fmt($item->unit_price ?? ($item->line_total / ($item->quantity ?: 1))) }}</td>
-                    <td class="p-2.5 text-left font-mono font-bold text-slate-900" dir="ltr">{{ $fmt($item->line_total) }}</td>
+                    <td class="font-mono">{{ $index + 1 }}</td>
+                    <td class="font-mono">{{ $item->product->code ?? '-' }}</td>
+                    <td class="name">{{ $item->product->name ?? '-' }}</td>
+                    <td>{{ $item->unit->name ?? 'دانە' }}</td>
+                    <td class="font-mono {{ fmod($qty, 1) != 0 ? 'frac' : '' }}">{{ $qty }}</td>
+                    <td class="font-mono" dir="ltr">{{ $fmtShort($price) }}</td>
+                    <td class="font-mono" dir="ltr">{{ $fmtShort($item->line_total) }}</td>
                 </tr>
                 @endforeach
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" style="text-align:right">کۆ :</td>
+                    <td class="font-mono">{{ $totalQty }}</td>
+                    <td></td>
+                    <td class="font-mono" dir="ltr">{{ $fmtShort($itemsTotal) }}</td>
+                </tr>
+            </tfoot>
         </table>
 
-        <!-- کێش و کۆی پارەکان -->
-        <div class="grid grid-cols-2 gap-6 items-start mb-6">
-            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                <div class="font-bold text-slate-700">کۆی کێشی بار:</div>
-                <div class="text-base font-black text-slate-900 font-mono">
-                    {{ number_format($totalWeightKg, 2) }} کگم
-                    @if($totalWeightKg >= 1000)
-                    <span class="text-xs text-slate-600 font-normal">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>
-                    @endif
-                </div>
+        <!-- ═══════ داشکاندن، کۆ، پارەی دراو ═══════ -->
+        <table class="inv-sum mt-1">
+            <tr>
+                <td class="lbl">داشکاندن</td>
+                <td class="val">{{ $fmt($sale->discount ?? 0) }}</td>
+            </tr>
+            <tr>
+                <td class="lbl">کۆی پسوولە دوای داشکاندن</td>
+                <td class="val big">{{ $fmt($sale->total_amount) }}</td>
+            </tr>
+            @if($isDebtSale)
+            <tr>
+                <td class="lbl">بڕی پارەی دراو</td>
+                <td class="val">{{ $fmt($sale->paid_amount) }}</td>
+            </tr>
+            <tr>
+                <td class="lbl" style="color:#b91c1c">ماوە (قەرز) لەم پسوولەیە</td>
+                <td class="val big" style="color:#b91c1c">{{ $fmt($sale->remaining_amount) }}</td>
+            </tr>
+            @endif
+        </table>
 
-                @if(!empty($mapUrl))
-                <div class="pt-3 mt-1 border-t border-slate-200 flex items-center gap-3">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($mapUrl) }}" alt="QR" class="w-24 h-24 shrink-0 bg-white object-contain">
-                    <div class="text-[11px] text-slate-700 font-bold leading-snug">
-                        شوێنی گەیاندن
-                        <div class="font-normal text-[10px] text-slate-500 mt-0.5">QR سکان بکە بۆ کردنەوەی شوێنەکە لەسەر نەخشە</div>
-                    </div>
-                </div>
-                @endif
-            </div>
+        @if($showDebt)
+        <div class="inv-dash my-2"></div>
+        <table class="inv-sum">
+            <tr>
+                <td class="lbl">قەرزی پێشوو</td>
+                <td class="val dark big">{{ $fmtDebt($debtBefore) }}</td>
+            </tr>
+            <tr>
+                <td class="lbl">کۆی گشتی قەرز دوای ئەم پسوولەیە</td>
+                <td class="val big" style="color:#b91c1c">{{ $fmtDebt($debtAfter) }}</td>
+            </tr>
+        </table>
+        <div class="text-[11px] font-bold text-slate-600 text-left" dir="ltr">کۆی گشتی قەرز بە دۆلار ≈ {{ '$' . number_format($debtAfterUsd, 2) }}</div>
+        @endif
 
-            <div class="space-y-1.5 p-4 bg-slate-50 border border-slate-200 rounded-xl font-bold">
-                @if(($sale->discount ?? 0) > 0)
-                <div class="flex justify-between text-slate-600">
-                    <span>کۆی کاڵاکان:</span>
-                    <span class="font-mono" dir="ltr">{{ $fmt($sale->total_amount + $sale->discount) }}</span>
-                </div>
-                <div class="flex justify-between text-amber-600">
-                    <span>داشکاندن:</span>
-                    <span class="font-mono" dir="ltr">- {{ $fmt($sale->discount) }}</span>
-                </div>
-                @endif
-
-                <div class="flex justify-between text-base font-black text-slate-900 pt-1 border-t border-slate-300">
-                    <span>کۆی گشتی:</span>
-                    <span class="font-mono text-emerald-700" dir="ltr">{{ $fmt($sale->total_amount) }}</span>
-                </div>
-
-                @if($sale->payment_type === 'debt')
-                <div class="flex justify-between text-slate-600 pt-1 border-t border-slate-200 text-[11px]">
-                    <span>بڕی پارەی دراو:</span>
-                    <span class="font-mono" dir="ltr">{{ $fmt($sale->paid_amount) }}</span>
-                </div>
-                <div class="flex justify-between text-rose-700 font-black text-[11px]">
-                    <span>ماوە (قەرز):</span>
-                    <span class="font-mono" dir="ltr">{{ $fmt($sale->remaining_amount) }}</span>
-                </div>
-                @endif
-
-                @if($showDebt)
-                @php
-                    $fmtDebt = function($arr) {
-                        $parts = [];
-                        if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
-                        if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
-                        return empty($parts) ? '0' : implode(' + ', $parts);
-                    };
-                @endphp
-
-                <div class="flex justify-between text-slate-600 pt-2 border-t border-slate-300 text-[11px]">
-                    <span>قەرزی پێش ئەم پسوولەیە:</span>
-                    <span class="font-mono font-bold" dir="ltr">{{ $fmtDebt($debtBefore) }}</span>
-                </div>
-                <div class="flex justify-between text-rose-700 font-black text-[12px]">
-                    <span>کۆی گشتی قەرز دوای ئەم پسوولەیە:</span>
-                    <span class="font-mono" dir="ltr">{{ $fmtDebt($debtAfter) }}</span>
-                </div>
-                <div class="text-[10px] text-slate-500 pt-0.5" style="text-align: left;" dir="ltr">
-                    کۆی گشتی قەرز بە دۆلار ≈ <b>{{ '$' . number_format($debtAfterUsd, 2) }}</b>
-                </div>
-                @endif
+        <!-- ═══════ QR ی شوێنی گەیاندن ═══════ -->
+        @if(!empty($mapUrl))
+        <div class="mt-4 pt-3 border-t border-slate-300 flex items-center gap-3">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($mapUrl) }}" alt="QR" class="w-24 h-24 shrink-0 bg-white object-contain">
+            <div class="text-[12px] text-slate-800 font-extrabold leading-snug">
+                شوێنی گەیاندن
+                <div class="font-normal text-[11px] text-slate-500 mt-0.5">QR سکان بکە بۆ کردنەوەی شوێنەکە لەسەر نەخشە</div>
             </div>
         </div>
+        @endif
 
-        <!-- واژوو -->
-        <div class="pt-6 border-t border-slate-200 grid grid-cols-3 gap-4 text-center text-slate-600">
+        <!-- ═══════ واژوو و بارکۆد ═══════ -->
+        <div class="mt-6 pt-4 border-t border-slate-300 grid grid-cols-3 gap-4 text-center text-slate-700">
             <div>
                 <span class="block mb-8 font-bold">واژووی کڕیار</span>
                 <span>......................</span>
@@ -236,7 +260,7 @@
                 @if($setting && $setting->show_barcode)
                 <span class="barcode text-slate-800">*{{ $sale->invoice_no }}*</span>
                 @endif
-                <p class="text-[10px] mt-1">{{ $setting->invoice_footer ?? 'سوپاس بۆ سەردانەکەتان' }}</p>
+                <p class="text-[11px] mt-1 font-bold">{{ $setting->invoice_footer ?? 'سوپاس بۆ سەردانەکەتان' }}</p>
             </div>
             <div>
                 <span class="block mb-8 font-bold">واژووی ژمێریار / کۆگا</span>
@@ -246,24 +270,10 @@
 
     </div>
 
-    @if(!empty($mapUrl))
-    <script src="{{ asset('js/qrcode.min.js') }}"></script>
     <script>
-        (function () {
-            var qr = qrcode(0, 'M'); qr.addData(@json($mapUrl)); qr.make();
-            var el = document.getElementById('qrBox'); if (!el) return;
-            el.innerHTML = qr.createImgTag(4, 0);
-            var im = el.querySelector('img'); im.style.width = '100%'; im.style.height = '100%'; im.style.imageRendering = 'pixelated';
-        })();
-    </script>
-    @endif
-
-    <script>
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-        window.print();
-    }, 1000); // ١ چرکە چاوەڕوان بە بۆ ئەوەی کیوئار کۆدەکە بار ببێت
-});
+        window.addEventListener('load', function () {
+            setTimeout(function () { window.print(); }, 600);   // کەمێک چاوەڕێ بۆ بارکردنی QR
+        });
     </script>
 </body>
 
