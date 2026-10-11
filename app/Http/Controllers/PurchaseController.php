@@ -45,7 +45,7 @@ class PurchaseController extends Controller
         }
 
         $purchases = $query->latest('created_at')->paginate(15)->withQueryString();
-        $products = Product::where('is_active', 1)->get();
+        $products = Product::all();
         $categories = Category::all();
         $units = Unit::all();
         $suppliers = Supplier::all();
@@ -219,7 +219,7 @@ class PurchaseController extends Controller
 
     public function create()
     {
-        $products = $this->cartonSafe(Product::where('is_active', 1)->get());
+        $products = $this->cartonSafe(Product::all());
         $categories = Category::all();
         $units = Unit::all();
         $suppliers = Supplier::all();
@@ -339,9 +339,7 @@ class PurchaseController extends Controller
     public function edit($id)
     {
         $purchase = Purchase::with(['details.product', 'details.unit', 'supplier'])->findOrFail($id);
-        $products = Product::where('is_active', 1)
-            ->orWhereIn('id', $purchase->details->pluck('product_id'))
-            ->get();
+        $products = Product::all();
         $categories = Category::all();
         $units = Unit::all();
         $suppliers = Supplier::all();
