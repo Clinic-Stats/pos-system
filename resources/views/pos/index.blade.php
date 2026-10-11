@@ -1012,5 +1012,32 @@ renderCart(); loadEditSale(); loadFromOrder();
   addEventListener('load', init);
 })();
 </script>
+<!-- ===== سەبەتەی کەمتر شوێن بگرێت: کاڵاکان زیاتر دیار بن ===== -->
+<style id="cartCompactCss">
+/* سەرەوە: کڕیار و نەقد/قەرز لەسەر یەک ڕیز، مەودا کەمتر */
+.cart-panel .panel-head{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-auto-flow:row dense;gap:.4rem .45rem;padding-top:.55rem;padding-bottom:.55rem}
+.cart-panel .panel-head>*{grid-column:1/-1;margin:0!important}
+.cart-panel .panel-head>#customerId{grid-column:1}
+.cart-panel .panel-head>.seg.sm{grid-column:2;min-width:9.5rem}
+.cart-panel .panel-head .inp.cust-big{font-size:14px;padding:.55rem .85rem}
+
+/* کاڵاکانی سەبەتە: کارتی بچووکتر، کۆی هێڵ لەسەر هەمان ڕیزی ناو */
+#cartItemsContainer{min-height:13rem;padding-top:.4rem;padding-bottom:.4rem}
+#cartItemsContainer.space-y-2>*+*{margin-top:.4rem!important}
+#cartItemsContainer>.rowin{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-auto-flow:dense;align-items:center;gap:.3rem .5rem;padding:.45rem .6rem}
+#cartItemsContainer>.rowin>:nth-child(1){grid-column:1;grid-row:1;margin:0!important}
+#cartItemsContainer>.rowin>:nth-child(2){grid-column:1/-1;grid-row:2}
+#cartItemsContainer>.rowin>:nth-child(3){grid-column:2;grid-row:1;margin:0!important;font-size:13px!important}
+#cartItemsContainer .rowin h4{font-size:13px!important}
+#cartItemsContainer .rowin .inp{padding-top:.3rem!important;padding-bottom:.3rem!important}
+#cartItemsContainer .rowin .sq{width:1.75rem!important;height:1.75rem!important}
+
+/* خوارەوە: کۆی گشتی و دوگمە بچووکتر */
+.cart-panel .panel-foot{padding-top:.5rem;padding-bottom:.55rem}
+.cart-panel .panel-foot>*+*{margin-top:.4rem!important}
+.cart-panel .total-card{padding:.35rem .75rem}
+.cart-panel #grandTotalText{font-size:1.55rem}
+#btnSubmitSale{padding-top:.7rem;padding-bottom:.7rem;font-size:14px}
+</style>
 </body>
 </html>
