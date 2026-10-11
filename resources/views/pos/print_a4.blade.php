@@ -227,10 +227,12 @@
 
         @if($showDebt)
         <div class="inv-dash my-2"></div>
-        <table class="inv-sum inv-sum2">
+        <table class="inv-sum">
             <tr>
                 <td class="lbl">{{ $L['debt_before'] }}</td>
                 <td class="val dark big">{{ $fmtDebt($debtBefore) }}</td>
+            </tr>
+            <tr>
                 <td class="lbl">{{ $L['debt_after'] }}</td>
                 <td class="val big" style="color:#b91c1c">{{ $fmtDebt($debtAfter) }}</td>
             </tr>

@@ -212,8 +212,9 @@
 
                     <div style="border-top:2px dashed #111;margin:4px 0;"></div>
 
-                    <table class="a4p-sum a4p-sum2">
-                        <tr><td class="lbl" data-pv="debt_before">{{ $labels['debt_before'] }}</td><td class="val dark">0</td><td class="lbl" data-pv="debt_after">{{ $labels['debt_after'] }}</td><td class="val" style="color:#b91c1c">$12,000.00</td></tr>
+                    <table class="a4p-sum">
+                        <tr><td class="lbl" data-pv="debt_before">{{ $labels['debt_before'] }}</td><td class="val dark">0</td></tr>
+                        <tr><td class="lbl" data-pv="debt_after">{{ $labels['debt_after'] }}</td><td class="val" style="color:#b91c1c">$12,000.00</td></tr>
                     </table>
                     <div class="text-left" dir="ltr" style="font-size:8px;font-weight:700;color:#475569;"><span data-pv="debt_usd_note">{{ $labels['debt_usd_note'] }}</span> ≈ $12,000.00</div>
 
