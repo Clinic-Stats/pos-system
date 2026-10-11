@@ -31,6 +31,14 @@
             </div>
         @endif
 
+        @if($errors->any())
+            <div class="bg-red-600/20 border border-red-500 text-red-400 p-3.5 rounded-xl text-xs font-bold space-y-1">
+                @foreach($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
             <form action="{{ route('settings.receipt.update') }}" method="POST" enctype="multipart/form-data" class="lg:col-span-7 bg-slate-800 p-5 rounded-2xl border border-slate-700 space-y-4 text-xs">
@@ -80,6 +88,47 @@
                     </div>
                 </div>
 
+                <!-- نووسینەکانی پسوولەی A4 -->
+                <details class="pt-2 border-t border-slate-700 group" {{ $errors->has('labels.*') ? 'open' : '' }}>
+                    <summary class="cursor-pointer flex items-center justify-between text-slate-200 font-bold text-sm py-2 select-none">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square text-emerald-400"></i>
+                            نووسینەکانی پسوولەی A4
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition group-open:rotate-180"></i>
+                    </summary>
+
+                    <p class="text-slate-400 text-[11px] mb-3 leading-relaxed">
+                        هەر نووسینێک بگۆڕیت لە پسوولەی A4 دا دەگۆڕێت. ئەگەر بەتاڵی بهێڵیتەوە یان بنووسیتەوە بۆ نووسینی بنەڕەتی، دەگەڕێتەوە بۆ بنەڕەتی.
+                    </p>
+
+                    @foreach($groups as $groupName => $keys)
+                        <div class="mb-4 bg-slate-900/40 border border-slate-700 rounded-xl p-3">
+                            <h3 class="text-emerald-400 font-bold text-xs mb-2">{{ $groupName }}</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                @foreach($keys as $key)
+                                    <div>
+                                        <label for="label_{{ $key }}" class="block text-slate-400 text-[10px] mb-1">
+                                            بنەڕەتی: {{ $defaults[$key] }}
+                                        </label>
+                                        <input type="text"
+                                               id="label_{{ $key }}"
+                                               name="labels[{{ $key }}]"
+                                               value="{{ old('labels.' . $key, $labels[$key]) }}"
+                                               placeholder="{{ $defaults[$key] }}"
+                                               maxlength="150"
+                                               class="w-full p-2 rounded-lg bg-slate-700 border border-slate-600 text-white focus:outline-none focus:border-blue-500">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <button type="button" onclick="resetLabels()" class="text-[11px] text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left"></i> گەڕاندنەوەی هەموو نووسینەکان بۆ بنەڕەتی
+                    </button>
+                </details>
+
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition text-sm flex items-center justify-center gap-2">
                     <i class="fa-solid fa-floppy-disk"></i> پاشەکەوتکردن و پەسەندکردنی هێدەری پسوولە
                 </button>
@@ -102,16 +151,16 @@
                     </div>
 
                     <div class="text-[10px] space-y-0.5 border-b border-dashed border-black pb-2 text-zinc-800">
-                        <div class="flex justify-between"><span>وەسڵ: #INV-001</span><span>2026-09-09</span></div>
-                        <div class="flex justify-between"><span>کڕیار: گشتی</span><span>کاسیە: ئارام</span></div>
+                        <div class="flex justify-between"><span><span data-pv="invoice_no">{{ $labels['invoice_no'] }}</span>: #INV-001</span><span>2026-09-09</span></div>
+                        <div class="flex justify-between"><span>کڕیار: گشتی</span><span><span data-pv="cashier">{{ $labels['cashier'] }}</span>: ئارام</span></div>
                     </div>
 
                     <table class="w-full text-right text-[11px] border-b border-dashed border-black pb-2">
                         <thead>
                             <tr class="border-b border-black text-[10px]">
-                                <th class="py-1">کاڵا</th>
-                                <th class="text-center py-1">دانە</th>
-                                <th class="text-left py-1">کۆ</th>
+                                <th class="py-1" data-pv="col_item">{{ $labels['col_item'] }}</th>
+                                <th class="text-center py-1" data-pv="col_qty">{{ $labels['col_qty'] }}</th>
+                                <th class="text-left py-1" data-pv="col_total">{{ $labels['col_total'] }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -122,7 +171,7 @@
 
                     <div class="space-y-1 font-bold text-xs pt-1">
                         <div class="flex justify-between"><span>کۆی گشتی:</span><span dir="ltr">14,000 IQD</span></div>
-                        <div class="flex justify-between text-[10px] text-zinc-600"><span>شێوازی پارەدان:</span><span>نەقد</span></div>
+                        <div class="flex justify-between text-[10px] text-zinc-600"><span>شێوازی پارەدان:</span><span data-pv="type_cash">{{ $labels['type_cash'] }}</span></div>
                     </div>
 
                     <div class="text-center border-t border-dashed border-black pt-2 space-y-1">
@@ -137,11 +186,33 @@
     </div>
 
     <script>
+        const labelDefaults = @json($defaults);
+
         function updatePreview() {
             document.getElementById('pv_name').innerText = document.getElementById('in_name').value || 'ناوی فرۆشگا';
             document.getElementById('pv_phone').innerText = document.getElementById('in_phone').value || '';
             document.getElementById('pv_address').innerText = document.getElementById('in_address').value || '';
             document.getElementById('pv_footer').innerText = document.getElementById('in_footer').value || '';
+        }
+
+        // نوێکردنەوەی نووسینەکانی پێشبینین کاتێک نووسینەکان دەگۆڕدرێن
+        document.querySelectorAll('input[name^="labels["]').forEach(function (input) {
+            input.addEventListener('input', function () {
+                const key = input.name.match(/^labels\[(.+)\]$/)[1];
+                const value = input.value.trim() || labelDefaults[key];
+                document.querySelectorAll('[data-pv="' + key + '"]').forEach(function (el) {
+                    el.innerText = value;
+                });
+            });
+        });
+
+        function resetLabels() {
+            if (!confirm('هەموو نووسینەکان دەگەڕێنەوە بۆ بنەڕەتی. دڵنیایت؟')) return;
+            document.querySelectorAll('input[name^="labels["]').forEach(function (input) {
+                const key = input.name.match(/^labels\[(.+)\]$/)[1];
+                input.value = labelDefaults[key];
+                input.dispatchEvent(new Event('input'));
+            });
         }
 
         function changeReceiptWidth(width) {
