@@ -64,6 +64,13 @@
             font-size: {{ $fsTd }};
         }
 
+        .sg { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-top: 5px; }
+        .sc { border: 1px dashed #000; padding: 2px 3px; text-align: center; }
+        .sc.strong { border: 1.5px solid #000; }
+        .sc .l { font-size: {{ $is58 ? '8px' : '9px' }}; line-height: 1.25; }
+        .sc .v { font-size: {{ $is58 ? '10px' : '11px' }}; font-weight: bold; line-height: 1.3; }
+        .sg .sc:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
         .barcode {
             font-family: 'Libre Barcode 39', cursive;
             font-size: 34px;
@@ -164,56 +171,39 @@
 
     <div class="border-b my-2"></div>
 
-    <table style="font-size: 12px;">
-        @if(($sale->discount ?? 0) > 0)
-        <tr>
-            <td>کۆی کاڵاکان:</td>
-            <td class="text-left" dir="ltr">{{ $fmt($sale->total_amount + $sale->discount) }}</td>
-        </tr>
-        <tr>
-            <td>{{ $L['discount'] }}:</td>
-            <td class="text-left" dir="ltr">{{ $fmt($sale->discount) }}</td>
-        </tr>
-        @endif
-        <tr class="font-bold">
-            <td>کۆی گشتی:</td>
-            <td class="text-left" dir="ltr">{{ $fmt($sale->total_amount) }}</td>
-        </tr>
-        @if($sale->payment_type === 'debt')
-        <tr>
-            <td>{{ $L['paid'] }}:</td>
-            <td class="text-left" dir="ltr">{{ $fmt($sale->paid_amount) }}</td>
-        </tr>
-        <tr class="font-bold">
-            <td>{{ $L['remaining'] }}:</td>
-            <td class="text-left" dir="ltr">{{ $fmt($sale->remaining_amount) }}</td>
-        </tr>
-        @endif
-        @if($showDebt)
-        @php
-            $fmtDebt = function($arr) {
-                $parts = [];
-                if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
-                if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
-                return empty($parts) ? '0' : implode(' + ', $parts);
-            };
-        @endphp
-
-        <tr>
-            <td>{{ $L['debt_before'] }}:</td>
-            <td class="text-left" dir="ltr">{{ $fmtDebt($debtBefore) }}</td>
-        </tr>
-        <tr class="font-bold">
-            <td>{{ $L['debt_after'] }}:</td>
-            <td class="text-left" dir="ltr">{{ $fmtDebt($debtAfter) }}</td>
-        </tr>
-        <tr>
-            <td colspan="2" class="text-left" style="font-size:10px; color:#555;" dir="ltr">
-                {{ $L['debt_usd_note'] }} ≈ {{ '$' . number_format($debtAfterUsd, 2) }}
-            </td>
-        </tr>
-        @endif
-    </table>
+    @php
+        $fmtDebt = function($arr) {
+            $parts = [];
+            if ($arr['USD'] > 0) $parts[] = '$' . number_format($arr['USD'], 2);
+            if ($arr['IQD'] > 0) $parts[] = number_format($arr['IQD']) . ' د.ع';
+            return empty($parts) ? '0' : implode(' + ', $parts);
+        };
+        $cells = [];
+        if (($sale->discount ?? 0) > 0) {
+            $cells[] = ['کۆی کاڵاکان', $fmt($sale->total_amount + $sale->discount), false];
+            $cells[] = [$L['discount'], $fmt($sale->discount), false];
+        }
+        $cells[] = ['کۆی گشتی', $fmt($sale->total_amount), true];
+        if ($sale->payment_type === 'debt') {
+            $cells[] = [$L['paid'], $fmt($sale->paid_amount), false];
+            $cells[] = [$L['remaining'], $fmt($sale->remaining_amount), true];
+        }
+        if ($showDebt) {
+            $cells[] = [$L['debt_before'], $fmtDebt($debtBefore), false];
+            $cells[] = [$L['debt_after'], $fmtDebt($debtAfter), true];
+        }
+    @endphp
+    <div class="sg">
+        @foreach($cells as $c)
+        <div class="sc {{ $c[2] ? 'strong' : '' }}">
+            <div class="l">{{ $c[0] }}</div>
+            <div class="v" dir="ltr">{{ $c[1] }}</div>
+        </div>
+        @endforeach
+    </div>
+    @if($showDebt)
+    <div class="text-left" style="font-size:10px; color:#555; margin-top:3px;" dir="ltr">{{ $L['debt_usd_note'] }} ≈ {{ '$' . number_format($debtAfterUsd, 2) }}</div>
+    @endif
 
     <div style="margin-top: 10px; padding: 6px; border: 1.5px dashed #000; text-align: center; font-weight: bold; font-size: 12px;">
         {{ $L['weight_row'] }}:

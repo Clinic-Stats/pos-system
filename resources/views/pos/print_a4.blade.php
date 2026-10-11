@@ -76,6 +76,12 @@
         .inv-sum .val.dark { background: var(--inv-dark); color: #fff; border-color: var(--inv-dark); }
         .inv-sum .val.big { font-size: 17px; }
 
+        /* وەشانی بچووک: دوو جووت لەسەر یەک ڕیز */
+        .inv-sum2 { border-spacing: 8px 4px; width: calc(100% + 16px); margin-right: -8px; margin-left: -8px; }
+        .inv-sum2 .lbl { width: 22%; padding: 6px 4px; font-size: 11.5px; line-height: 1.35; }
+        .inv-sum2 .val { width: 28%; padding: 5px 4px; font-size: 13px; white-space: normal; }
+        .inv-sum2 .val.big { font-size: 14px; }
+
         @media print {
             @page {
                 size: A4 portrait;
@@ -149,7 +155,7 @@
         <!-- ═══════ زانیاری وەسڵ ═══════ -->
         <div class="grid grid-cols-3 gap-2 text-[14px] font-extrabold items-center pb-2">
             <div class="text-right">{{ $L['invoice_no'] }}&nbsp;&nbsp;<span class="text-[22px] font-black text-red-600 font-mono">{{ $sale->invoice_no }}</span></div>
-            <div class="text-center">{{ $L['weight_row'] }} : <span class="font-mono">{{ number_format($totalWeightKg, 2) }}</span> کگم@if($totalWeightKg >= 1000) <span class="text-[11px] font-bold">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>@endif</div>
+            <div></div>
             <div class="text-left">{{ $L['cashier'] }} : {{ $sale->user->name ?? 'ئەدمین' }}</div>
         </div>
         <div class="grid grid-cols-3 gap-2 text-[13px] font-extrabold items-center pb-3">
@@ -193,25 +199,19 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4" style="text-align:right">{{ $L['total_row'] }}</td>
+                    <td colspan="4" style="text-align:right"><div style="display:flex;justify-content:space-between;align-items:center"><span>{{ $L['total_row'] }}</span><span class="font-mono">{{ number_format($totalWeightKg, 2) }} کگم@if($totalWeightKg >= 1000) <span style="font-size:12px">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>@endif</span><span style="visibility:hidden">{{ $L['total_row'] }}</span></div></td>
                     <td class="font-mono">{{ $totalQty }}</td>
                     <td></td>
                     <td class="font-mono" dir="ltr">{{ $fmtShort($itemsTotal) }}</td>
-                </tr>
-                <tr>
-                    <td colspan="4" style="text-align:right">{{ $L['weight_row'] }} :</td>
-                    <td colspan="3" class="font-mono">{{ number_format($totalWeightKg, 2) }} کگم@if($totalWeightKg >= 1000) <span style="font-size:12px">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>@endif</td>
                 </tr>
             </tfoot>
         </table>
 
         <!-- ═══════ داشکاندن، کۆ، پارەی دراو ═══════ -->
-        <table class="inv-sum mt-1">
+        <table class="inv-sum inv-sum2 mt-1">
             <tr>
                 <td class="lbl">{{ $L['discount'] }}</td>
                 <td class="val">{{ $fmt($sale->discount ?? 0) }}</td>
-            </tr>
-            <tr>
                 <td class="lbl">{{ $L['after_discount'] }}</td>
                 <td class="val big">{{ $fmt($sale->total_amount) }}</td>
             </tr>
@@ -219,8 +219,6 @@
             <tr>
                 <td class="lbl">{{ $L['paid'] }}</td>
                 <td class="val">{{ $fmt($sale->paid_amount) }}</td>
-            </tr>
-            <tr>
                 <td class="lbl" style="color:#b91c1c">{{ $L['remaining'] }}</td>
                 <td class="val big" style="color:#b91c1c">{{ $fmt($sale->remaining_amount) }}</td>
             </tr>
@@ -229,12 +227,10 @@
 
         @if($showDebt)
         <div class="inv-dash my-2"></div>
-        <table class="inv-sum">
+        <table class="inv-sum inv-sum2">
             <tr>
                 <td class="lbl">{{ $L['debt_before'] }}</td>
                 <td class="val dark big">{{ $fmtDebt($debtBefore) }}</td>
-            </tr>
-            <tr>
                 <td class="lbl">{{ $L['debt_after'] }}</td>
                 <td class="val big" style="color:#b91c1c">{{ $fmtDebt($debtAfter) }}</td>
             </tr>

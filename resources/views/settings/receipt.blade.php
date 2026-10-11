@@ -16,6 +16,9 @@
         .a4p-sum .lbl { background: #b8cce4; text-align: center; padding: 5px 4px; font-size: 10px; }
         .a4p-sum .val { width: 32%; background: #fff; border: 1px solid #111; text-align: center; padding: 4px 3px; font-size: 11px; direction: ltr; }
         .a4p-sum .val.dark { background: #366092; color: #fff; border-color: #366092; }
+        .a4p-sum2 { border-spacing: 4px 3px; width: calc(100% + 8px); margin: 0 -4px; }
+        .a4p-sum2 .lbl { width: 22%; font-size: 9px; padding: 4px 2px; line-height: 1.3; }
+        .a4p-sum2 .val { width: 28%; font-size: 10px; }
     </style>
     @include('partials.system-head')
     @include('partials.mobile-tables')
@@ -167,7 +170,7 @@
 
                     <div class="grid grid-cols-3 gap-1 items-center" style="font-size:9px;font-weight:800;padding-bottom:3px;">
                         <div class="text-right"><span data-pv="invoice_no">{{ $labels['invoice_no'] }}</span> <span style="color:#dc2626;font-size:13px;font-weight:900;">1</span></div>
-                        <div class="text-center"><span data-pv="weight_row">{{ $labels['weight_row'] }}</span> : 4,000.00 کگم (4.00 تەن)</div>
+                        <div></div>
                         <div class="text-left"><span data-pv="cashier">{{ $labels['cashier'] }}</span> : ئارام</div>
                     </div>
                     <div class="grid grid-cols-3 gap-1 items-center" style="font-size:9px;font-weight:800;padding-bottom:5px;">
@@ -194,30 +197,23 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="4" style="border:0;text-align:right;font-size:10px;"><span data-pv="total_row">{{ $labels['total_row'] }}</span></td>
+                                <td colspan="4" style="border:0;text-align:right;font-size:10px;"><div style="display:flex;justify-content:space-between;align-items:center"><span data-pv="total_row">{{ $labels['total_row'] }}</span><span>4,000.00 کگم (4.00 تەن)</span><span data-pv="total_row" style="visibility:hidden">{{ $labels['total_row'] }}</span></div></td>
                                 <td style="border:0;font-size:10px;">4</td>
                                 <td style="border:0;"></td>
                                 <td style="border:0;font-size:10px;" dir="ltr">12,000.00</td>
                             </tr>
-                            <tr>
-                                <td colspan="4" style="border:0;text-align:right;font-size:10px;"><span data-pv="weight_row">{{ $labels['weight_row'] }}</span> :</td>
-                                <td colspan="3" style="border:0;font-size:10px;">4,000.00 کگم (4.00 تەن)</td>
-                            </tr>
                         </tfoot>
                     </table>
 
-                    <table class="a4p-sum">
-                        <tr><td class="lbl" data-pv="discount">{{ $labels['discount'] }}</td><td class="val">$0.00</td></tr>
-                        <tr><td class="lbl" data-pv="after_discount">{{ $labels['after_discount'] }}</td><td class="val">$12,000.00</td></tr>
-                        <tr><td class="lbl" data-pv="paid">{{ $labels['paid'] }}</td><td class="val">$0.00</td></tr>
-                        <tr><td class="lbl" style="color:#b91c1c" data-pv="remaining">{{ $labels['remaining'] }}</td><td class="val" style="color:#b91c1c">$12,000.00</td></tr>
+                    <table class="a4p-sum a4p-sum2">
+                        <tr><td class="lbl" data-pv="discount">{{ $labels['discount'] }}</td><td class="val">$0.00</td><td class="lbl" data-pv="after_discount">{{ $labels['after_discount'] }}</td><td class="val">$12,000.00</td></tr>
+                        <tr><td class="lbl" data-pv="paid">{{ $labels['paid'] }}</td><td class="val">$0.00</td><td class="lbl" style="color:#b91c1c" data-pv="remaining">{{ $labels['remaining'] }}</td><td class="val" style="color:#b91c1c">$12,000.00</td></tr>
                     </table>
 
                     <div style="border-top:2px dashed #111;margin:4px 0;"></div>
 
-                    <table class="a4p-sum">
-                        <tr><td class="lbl" data-pv="debt_before">{{ $labels['debt_before'] }}</td><td class="val dark">0</td></tr>
-                        <tr><td class="lbl" data-pv="debt_after">{{ $labels['debt_after'] }}</td><td class="val" style="color:#b91c1c">$12,000.00</td></tr>
+                    <table class="a4p-sum a4p-sum2">
+                        <tr><td class="lbl" data-pv="debt_before">{{ $labels['debt_before'] }}</td><td class="val dark">0</td><td class="lbl" data-pv="debt_after">{{ $labels['debt_after'] }}</td><td class="val" style="color:#b91c1c">$12,000.00</td></tr>
                     </table>
                     <div class="text-left" dir="ltr" style="font-size:8px;font-weight:700;color:#475569;"><span data-pv="debt_usd_note">{{ $labels['debt_usd_note'] }}</span> ≈ $12,000.00</div>
 
