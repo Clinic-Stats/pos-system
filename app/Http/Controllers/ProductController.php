@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Setting;
+use App\Support\ProductAutoStatus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class ProductController extends Controller
 {
     public function index()
     {
+        ProductAutoStatus::sync();   // دۆخی چالاک/ناچالاک بەپێی کۆگا ڕێک دەخرێت
+
         $categories = Category::all();
         $products = Product::with('category')->latest()->get();
         $setting = Setting::first();
@@ -62,6 +66,8 @@ class ProductController extends Controller
             'is_active'       => $request->has('is_active') ? 1 : 0,
         ]);
 
+        ProductAutoStatus::sync();
+
         return redirect()->route('products.index')->with('success', 'کاڵا بە سەرکەوتوویی زیادکرا');
     }
 
@@ -74,6 +80,9 @@ class ProductController extends Controller
         // جۆری فرۆشتن تەنها کاتێک دەگۆڕدرێت کە کۆگا سفر بێت، بۆ ئەوەی ژمارەی کۆگا تێک نەچێت
         $type = ((float) $product->stock_kg > 0) ? ($product->sell_type ?? 'weight') : $request->sell_type;
 
+        $wasActive = (int) $product->is_active;
+        $newActive = $request->has('is_active') ? 1 : 0;
+
         $product->update([
             'name'            => $request->name,
             'code'            => $request->code,
@@ -82,8 +91,15 @@ class ProductController extends Controller
             'kg_per_carton'   => $type === 'carton' ? $request->kg_per_carton : 1,
             'base_buy_price'  => $buy,
             'base_sale_price' => $sale,
-            'is_active'       => $request->has('is_active') ? 1 : 0,
+            'is_active'       => $newActive,
         ]);
+
+        // ئەگەر بە دەست دۆخی چالاکی گۆڕدرا، نیشانەی «ناچالاکی خۆکار» لادەبرێت
+        if ($wasActive !== $newActive && Schema::hasColumn('products', 'auto_disabled')) {
+            Product::whereKey($product->id)->update(['auto_disabled' => 0]);
+        }
+
+        ProductAutoStatus::sync();
 
         return redirect()->back()->with('success', 'زانیارییەکانی کاڵا بە سەرکەوتوویی نوێکرانەوە');
     }
@@ -93,6 +109,11 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $product->is_active = !$product->is_active;
         $product->save();
+
+        // گۆڕینی بە دەست: نیشانەی «ناچالاکی خۆکار» لادەبرێت
+        if (Schema::hasColumn('products', 'auto_disabled')) {
+            Product::whereKey($product->id)->update(['auto_disabled' => 0]);
+        }
 
         $status = $product->is_active ? 'چالاک کرا' : 'ناچالاک کرا';
         return redirect()->back()->with('success', "دۆخی کاڵاکە گۆڕدرا بۆ: {$status}");
@@ -104,6 +125,8 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $product->increment('stock_kg', $request->added_stock);
         $unit = ($product->sell_type ?? 'weight') === 'carton' ? 'کارتۆن' : 'کیلۆ';
+
+        ProductAutoStatus::sync();   // ئەگەر خۆکار ناچالاک کرابوو، ئێستا چالاک دەبێتەوە
 
         return redirect()->back()->with('success', "بڕی {$request->added_stock} {$unit} بۆ مەخزەن زیادکرا");
     }
@@ -143,6 +166,8 @@ class ProductController extends Controller
             }
         }
         fclose($file);
+
+        ProductAutoStatus::sync();
 
         return back()->with('success', 'هەموو کاڵاکان بە سەرکەوتوویی هاوردە کران!');
     }

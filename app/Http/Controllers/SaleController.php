@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
+use App\Support\ProductAutoStatus;
 
 class SaleController extends Controller
 {
@@ -27,6 +28,7 @@ class SaleController extends Controller
      */
     private function posView(array $extraProductIds = [])
     {
+        ProductAutoStatus::sync();
         $stockCol = Schema::hasColumn('products', 'stock_kg') ? 'stock_kg' : 'stock';
         $alertCol = Schema::hasColumn('products', 'alert_quantity') ? 'alert_quantity' : null;
 

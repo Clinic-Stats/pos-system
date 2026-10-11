@@ -87,6 +87,7 @@ body{font-family:'Almarai',sans-serif;background:var(--page);background-attachme
   .pc.out:hover{transform:none;box-shadow:var(--shadow-sm);border-color:var(--ro)}
 }
 .pc:active{transform:translateY(-1px) scale(.995)}
+.pc.auto-off{display:none!important}
 
 /* دوگمەی نەقد/قەرز و دراو */
 .seg{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:.9rem;padding:.2rem;gap:.2rem;box-shadow:inset 0 1px 2px rgba(15,35,70,.05)}
@@ -696,6 +697,9 @@ function recalcStockDisplay() {
     let val = master + orig - curr;
     if (val < 0) val = 0;
     el.textContent = +val.toFixed(2);
+    // نەماو و لە سەبەتەدا نییە: لە لیستی فرۆشتن دەشاردرێتەوە
+    const card = el.closest('.pc');
+    if (card) card.classList.toggle('auto-off', master <= 0 && orig <= 0 && curr <= 0);
   });
 }
 function applySaleUse(items) {
