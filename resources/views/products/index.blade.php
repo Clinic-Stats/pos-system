@@ -17,6 +17,8 @@ body{font-family:'Almarai',sans-serif;background:radial-gradient(900px 400px at 
 .seg button{flex:1;padding:.4rem;border-radius:.6rem;font-size:11px;font-weight:800;color:#94a3b8}
 .seg button.on{background:#14b8a6;color:#04201d}
 .sc::-webkit-scrollbar{width:5px;height:5px}.sc::-webkit-scrollbar-thumb{background:#334155;border-radius:9px}
+.pcard{transition:border-color .15s,background .15s}
+.pcard:hover{background:rgba(255,255,255,.07)}
 </style>
     @include('partials.system-head')
     @include('partials.mobile-tables')
@@ -53,109 +55,151 @@ body{font-family:'Almarai',sans-serif;background:radial-gradient(900px 400px at 
   <button type="button" onclick="filterByState('all')" class="glass rounded-xl p-2.5 text-right border-emerald-500/30"><span class="text-[10px] text-emerald-300 font-bold block">کۆی کاڵاکان</span><span class="num text-lg font-extrabold text-emerald-400">{{ $products->count() }}</span></button>
 </section>
 
-<main class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-3">
+<!-- لیستی مەخزەن: پانی تەواو -->
+<main class="flex-1 min-h-0">
+  <section class="glass rounded-2xl p-3 flex flex-col min-h-0 h-[80vh] lg:h-full">
+    <div class="flex flex-wrap justify-between items-center gap-2 pb-2 mb-2 border-b border-white/10">
+      <h2 class="text-sm font-extrabold flex items-center gap-2"><i class="fa-solid fa-warehouse text-teal-400"></i> لیستی مەخزەن <span id="countBadge" class="num text-[10px] font-bold bg-white/10 px-2 py-0.5 rounded">{{ $products->count() }}</span></h2>
+      <button type="button" onclick="toggle('addProductModal')" class="bg-teal-500 hover:bg-teal-400 text-slate-900 font-extrabold px-4 py-2 rounded-xl text-xs"><i class="fa-solid fa-plus"></i> زیادکردنی کاڵا</button>
+    </div>
 
-  <!-- فۆڕمی کاڵای نوێ -->
-  <section class="glass rounded-2xl p-3 flex flex-col min-h-0">
-    <h2 class="text-sm font-extrabold flex items-center gap-2 pb-2 mb-2 border-b border-white/10"><i class="fa-solid fa-square-plus text-teal-400"></i> زیادکردنی کاڵای نوێ</h2>
-    <form action="{{ route('products.store') }}" method="POST" id="productForm" class="flex-1 overflow-y-auto sc pr-1 space-y-2.5 text-xs">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2 text-xs">
+      <input type="text" id="q" onkeyup="filterTable()" placeholder="گەڕان..." class="inp">
+      <select id="fCat" onchange="filterTable()" class="inp"><option value="all">هەموو کاتیگۆرییەکان</option>@foreach($categories as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach</select>
+      <select id="fSort" onchange="sortCards()" class="inp">
+        <option value="new">ڕیزکردن: نوێترین</option>
+        <option value="name_asc">بەپێی ناوی کاڵا (أ - ی)</option>
+        <option value="name_desc">بەپێی ناوی کاڵا (ی - أ)</option>
+        <option value="sale_asc">نرخی فرۆشتن: کەم بۆ زۆر</option>
+        <option value="sale_desc">نرخی فرۆشتن: زۆر بۆ کەم</option>
+        <option value="buy_asc">نرخی کڕین: کەم بۆ زۆر</option>
+        <option value="buy_desc">نرخی کڕین: زۆر بۆ کەم</option>
+        <option value="stock_asc">کۆگا: کەم بۆ زۆر</option>
+        <option value="stock_desc">کۆگا: زۆر بۆ کەم</option>
+        <option value="type">بەپێی جۆر</option>
+      </select>
+    </div>
+    <input type="hidden" id="fState" value="all">
+
+    <div class="flex-1 overflow-y-auto sc pr-1">
+      <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
+      @forelse($products as $p)
+        @php
+          $stock = (float) $p->stock_kg; $isOut = $stock <= 0; $isLow = !$isOut && $stock <= ($p->alert_quantity ?? 5);
+          $isC = ($p->sell_type ?? 'weight') === 'carton'; $per = $isC ? 'کارتۆن' : 'کگ';
+        @endphp
+        <div class="prow pcard glass rounded-2xl p-3 flex flex-col gap-2 text-xs {{ $isOut ? 'border-rose-500/40' : ($isLow ? 'border-amber-500/40' : '') }} {{ !$p->is_active ? 'opacity-60' : '' }}"
+             data-idx="{{ $loop->index }}" data-name="{{ mb_strtolower($p->name) }}" data-code="{{ mb_strtolower($p->code) }}" data-cat="{{ $p->category_id }}"
+             data-stock="{{ $stock }}" data-low="{{ $p->alert_quantity ?? 5 }}" data-active="{{ $p->is_active ? 1 : 0 }}" data-type="{{ $isC ? 'carton' : 'weight' }}"
+             data-buy="{{ (float) $p->base_buy_price }}" data-sale="{{ (float) $p->base_sale_price }}">
+
+          <div class="flex justify-between items-start gap-2">
+            <div class="min-w-0">
+              <div class="font-extrabold text-white text-[13px] leading-5">{{ $p->name }}
+                @if($isOut)<span class="text-[9px] bg-rose-600 px-1.5 py-0.5 rounded align-middle">نەماوە</span>@elseif($isLow)<span class="text-[9px] bg-amber-600 px-1.5 py-0.5 rounded align-middle">کەمە</span>@endif
+              </div>
+              <span class="num text-[10px] text-teal-400">{{ $p->code }}</span>
+              <span class="text-[10px] text-slate-500 mr-1">{{ $p->category->name ?? '-' }}</span>
+            </div>
+            <form action="{{ route('products.toggle', $p->id) }}" method="POST" class="shrink-0">@csrf @method('PATCH')
+              <button class="px-2 py-0.5 rounded text-[10px] font-bold {{ $p->is_active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-600 text-slate-400' }}">{{ $p->is_active ? 'چالاک' : 'ناچالاک' }}</button>
+            </form>
+          </div>
+
+          <div>
+            @if($isC)<span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold text-[10px]">کارتۆن</span><span class="num text-[10px] text-slate-500 mx-1">{{ (float) $p->kg_per_carton }} کگ</span>
+            @else<span class="px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-300 font-bold text-[10px]">کیلۆ / تەن</span>@endif
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 bg-black/20 rounded-xl p-2">
+            <div><div class="text-[9px] text-slate-500 mb-0.5">نرخی کڕین</div>
+              <div class="num font-bold text-sky-300 text-[11px]">${{ number_format($p->base_buy_price, 2) }}<span class="text-[9px] text-slate-500"> /{{ $per }}</span></div>
+              <div class="num text-[9px] text-slate-500">≈ {{ number_format($p->base_buy_price * $exchangeRate) }} IQD</div></div>
+            <div><div class="text-[9px] text-slate-500 mb-0.5">نرخی فرۆشتن</div>
+              <div class="num font-bold text-emerald-400 text-[11px]">${{ number_format($p->base_sale_price, 2) }}<span class="text-[9px] text-slate-500"> /{{ $per }}</span></div>
+              <div class="num text-[9px] text-slate-500">≈ {{ number_format($p->base_sale_price * $exchangeRate) }} IQD</div></div>
+            <div><div class="text-[9px] text-slate-500 mb-0.5">کۆگا</div>
+              <div class="num font-extrabold text-[13px] {{ $isOut ? 'text-rose-400' : ($isLow ? 'text-amber-400' : 'text-slate-100') }}">{{ rtrim(rtrim(number_format($stock, 2), '0'), '.') ?: '0' }} <span class="text-[9px] text-slate-500 font-bold">{{ $per }}</span></div></div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            @if($stock > 0)
+              <span class="text-[10px] text-slate-500" title="کۆگای تێدایە"><i class="fa-solid fa-lock"></i></span>
+            @else
+              <form action="{{ route('products.destroy', $p->id) }}" method="POST" onsubmit="return confirm('دڵنیایت لە سڕینەوە؟')">@csrf @method('DELETE')
+                <button class="text-rose-400 hover:text-rose-300 text-sm px-1" title="سڕینەوە"><i class="fa-regular fa-trash-can"></i></button></form>
+            @endif
+            <button type="button" onclick='openEdit(@json($p))' class="bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-900 px-3 py-1 rounded-lg text-[11px] font-bold"><i class="fa-solid fa-pen-to-square"></i> دەستکاری</button>
+          </div>
+        </div>
+      @empty
+        <div class="col-span-full p-6 text-center text-slate-500">هیچ کاڵایەک تۆمار نەکراوە</div>
+      @endforelse
+      </div>
+      <div id="noResult" class="hidden p-6 text-center text-slate-500 text-xs">هیچ کاڵایەک نەدۆزرایەوە</div>
+    </div>
+  </section>
+</main>
+
+<!-- مۆداڵی زیادکردنی کاڵا (گەورە) -->
+<div id="addProductModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+  <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-3xl p-5 shadow-2xl text-xs max-h-[95vh] overflow-y-auto sc">
+    <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-4">
+      <h3 class="text-base font-extrabold flex items-center gap-2"><i class="fa-solid fa-square-plus text-teal-400"></i> زیادکردنی کاڵای نوێ</h3>
+      <button type="button" onclick="toggle('addProductModal')" class="text-slate-400 hover:text-white text-2xl leading-none">&times;</button>
+    </div>
+    <form action="{{ route('products.store') }}" method="POST" id="productForm" class="space-y-4 text-xs">
       @csrf
-      <div><label class="block text-slate-300 text-[11px] font-bold mb-1">ناوی کاڵا:</label><input type="text" name="name" id="f_name" required autofocus class="inp"></div>
-      <div><label class="block text-slate-300 text-[11px] font-bold mb-1">کۆد یان بارکۆد:</label><input type="text" name="code" id="f_code" required class="inp num"></div>
-      <div>
-        <div class="flex justify-between mb-1"><label class="text-slate-300 text-[11px] font-bold">کاتیگۆری:</label><button type="button" onclick="toggle('quickCategoryModal')" class="text-[10px] text-teal-400 font-bold"><i class="fa-solid fa-plus-circle"></i> نوێ</button></div>
-        <select name="category_id" id="f_category" required class="inp">@foreach($categories as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach</select>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div><label class="block text-slate-300 text-xs font-bold mb-1">ناوی کاڵا:</label><input type="text" name="name" id="f_name" required class="inp !text-sm !py-2.5" value="{{ old('name') }}"></div>
+        <div><label class="block text-slate-300 text-xs font-bold mb-1">کۆد یان بارکۆد:</label><input type="text" name="code" id="f_code" required class="inp num !text-sm !py-2.5" value="{{ old('code') }}"></div>
       </div>
 
-      <!-- جۆری فرۆشتن -->
       <div>
-        <label class="block text-slate-300 text-[11px] font-bold mb-1">چۆن دەیفرۆشیت؟</label>
+        <div class="flex justify-between mb-1"><label class="text-slate-300 text-xs font-bold">کاتیگۆری:</label><button type="button" onclick="toggle('quickCategoryModal')" class="text-[11px] text-teal-400 font-bold"><i class="fa-solid fa-plus-circle"></i> نوێ</button></div>
+        <select name="category_id" id="f_category" required class="inp !text-sm !py-2.5">@foreach($categories as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach</select>
+      </div>
+
+      <div>
+        <label class="block text-slate-300 text-xs font-bold mb-1">چۆن دەیفرۆشیت؟</label>
         <div class="seg" id="typeSeg">
           <button type="button" data-type="weight" class="on">کیلۆ / تەن</button>
           <button type="button" data-type="carton">کارتۆن (دانە)</button>
         </div>
         <input type="hidden" name="sell_type" id="f_type" value="weight">
-        <p id="typeHint" class="text-[10px] text-slate-400 mt-1.5 leading-5"></p>
+        <p id="typeHint" class="text-[11px] text-slate-400 mt-1.5 leading-5"></p>
       </div>
       <div id="cartonBox" class="hidden">
-        <label class="block text-amber-300 text-[11px] font-bold mb-1">کێشی هەر کارتۆنێک بە کیلۆ:</label>
-        <input type="number" step="any" min="0.01" name="kg_per_carton" id="f_carton" placeholder="نموونە: 10" class="inp num">
+        <label class="block text-amber-300 text-xs font-bold mb-1">کێشی هەر کارتۆنێک بە کیلۆ:</label>
+        <input type="number" step="any" min="0.01" name="kg_per_carton" id="f_carton" placeholder="نموونە: 10" class="inp num !text-sm !py-2.5">
         <p class="text-[10px] text-slate-500 mt-1">تەنها بۆ زانینی کێشی گشتی وەسڵە، نرخ و کۆگا بە کارتۆنە.</p>
       </div>
 
-      <div class="flex items-center justify-between bg-white/5 p-1.5 rounded-lg border border-white/10">
-        <span class="text-[10px] font-bold text-slate-300">دراوی نرخ:</span>
+      <div class="flex items-center justify-between bg-white/5 p-2 rounded-lg border border-white/10">
+        <span class="text-[11px] font-bold text-slate-300">دراوی نرخ:</span>
         <div class="flex gap-1">
-          <button type="button" id="cur-usd" onclick="setCur('USD')" class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-teal-500 text-slate-900">دۆلار</button>
-          <button type="button" id="cur-iqd" onclick="setCur('IQD')" class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-slate-700 text-slate-300">دینار</button>
+          <button type="button" id="cur-usd" onclick="setCur('USD')" class="px-3 py-1 rounded text-[11px] font-bold bg-teal-500 text-slate-900">دۆلار</button>
+          <button type="button" id="cur-iqd" onclick="setCur('IQD')" class="px-3 py-1 rounded text-[11px] font-bold bg-slate-700 text-slate-300">دینار</button>
         </div>
       </div>
       <input type="hidden" name="currency" id="f_currency" value="USD">
       <input type="hidden" name="exchange_rate" value="{{ $exchangeRate }}">
 
-      <div class="grid grid-cols-2 gap-2">
-        <div><label class="block text-slate-300 text-[11px] font-bold mb-1">نرخی کڕین (<span class="curLbl">$</span>) <span class="perLbl text-slate-500"></span></label><input type="number" step="any" min="0" name="base_buy_price" id="f_buy" required class="inp num"></div>
-        <div><label class="block text-slate-300 text-[11px] font-bold mb-1">نرخی فرۆشتن (<span class="curLbl">$</span>) <span class="perLbl text-slate-500"></span></label><input type="number" step="any" min="0" name="base_sale_price" id="f_sale" required class="inp num"></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div><label class="block text-slate-300 text-xs font-bold mb-1">نرخی کڕین (<span class="curLbl">$</span>) <span class="perLbl text-slate-500"></span></label><input type="number" step="any" min="0" name="base_buy_price" id="f_buy" required class="inp num !text-sm !py-2.5"></div>
+        <div><label class="block text-slate-300 text-xs font-bold mb-1">نرخی فرۆشتن (<span class="curLbl">$</span>) <span class="perLbl text-slate-500"></span></label><input type="number" step="any" min="0" name="base_sale_price" id="f_sale" required class="inp num !text-sm !py-2.5"></div>
+        <div><label class="block text-slate-300 text-xs font-bold mb-1">بڕی سەرەتایی (<span class="stockLbl">کیلۆ</span>):</label><input type="number" step="any" min="0" name="stock_kg" id="f_stock" value="0" required class="inp num !text-sm !py-2.5"></div>
       </div>
-      <div><label class="block text-slate-300 text-[11px] font-bold mb-1">بڕی سەرەتایی (<span class="stockLbl">کیلۆ</span>):</label><input type="number" step="any" min="0" name="stock_kg" id="f_stock" value="0" required class="inp num"></div>
-      <label class="flex items-center justify-between bg-white/5 p-2 rounded-lg border border-white/10 cursor-pointer text-[11px]"><span class="font-bold text-slate-300">چالاک بێت لە POS</span><input type="checkbox" name="is_active" value="1" checked class="w-4 h-4"></label>
-      <button type="submit" class="w-full bg-teal-500 hover:bg-teal-400 text-slate-900 font-extrabold py-2.5 rounded-xl text-xs"><i class="fa-solid fa-check"></i> تۆمارکردنی کاڵا</button>
-    </form>
-  </section>
 
-  <!-- خشتە -->
-  <section class="lg:col-span-2 glass rounded-2xl p-3 flex flex-col min-h-0 h-[70vh] lg:h-auto">
-    <div class="flex flex-wrap justify-between items-center gap-2 pb-2 mb-2 border-b border-white/10">
-      <h2 class="text-sm font-extrabold flex items-center gap-2"><i class="fa-solid fa-warehouse text-teal-400"></i> لیستی مەخزەن</h2>
-      <span id="countBadge" class="num text-[10px] font-bold bg-white/10 px-2 py-0.5 rounded">{{ $products->count() }}</span>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2 text-xs">
-      <input type="text" id="q" onkeyup="filterTable()" placeholder="گەڕان..." class="inp">
-      <select id="fCat" onchange="filterTable()" class="inp"><option value="all">هەموو کاتیگۆرییەکان</option>@foreach($categories as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach</select>
-      <select id="fState" onchange="filterTable()" class="inp">
-        <option value="all">هەموو ئاستەکان</option><option value="low">کەمبووەکان</option><option value="out">نەماوەکان</option>
-        <option value="carton">کارتۆنی</option><option value="weight">کیلۆ / تەن</option><option value="inactive">ناچالاک</option>
-      </select>
-    </div>
-    <div class="flex-1 overflow-auto sc rounded-lg border border-white/10">
-      <table class="w-full text-xs text-right text-slate-300">
-        <thead class="bg-slate-900 text-[11px] text-slate-400 sticky top-0 z-10"><tr>
-          <th class="p-2">کۆد / ناو</th><th class="p-2">جۆر</th><th class="p-2">نرخی کڕین</th><th class="p-2">نرخی فرۆشتن</th><th class="p-2">کۆگا</th><th class="p-2 text-center">دۆخ</th><th class="p-2 text-center">کردار</th>
-        </tr></thead>
-        <tbody class="divide-y divide-white/5" id="tbody">
-        @forelse($products as $p)
-          @php
-            $stock = (float) $p->stock_kg; $isOut = $stock <= 0; $isLow = !$isOut && $stock <= ($p->alert_quantity ?? 5);
-            $isC = ($p->sell_type ?? 'weight') === 'carton'; $per = $isC ? 'کارتۆن' : 'کگ';
-          @endphp
-          <tr class="prow hover:bg-white/5 {{ $isOut ? 'bg-rose-500/5' : ($isLow ? 'bg-amber-500/5' : '') }} {{ !$p->is_active ? 'opacity-60' : '' }}"
-              data-name="{{ mb_strtolower($p->name) }}" data-code="{{ mb_strtolower($p->code) }}" data-cat="{{ $p->category_id }}"
-              data-stock="{{ $stock }}" data-low="{{ $p->alert_quantity ?? 5 }}" data-active="{{ $p->is_active ? 1 : 0 }}" data-type="{{ $isC ? 'carton' : 'weight' }}">
-            <td class="p-2"><div class="font-bold text-white text-[11px]">{{ $p->name }}
-              @if($isOut)<span class="text-[8px] bg-rose-600 px-1 rounded">نەماوە</span>@elseif($isLow)<span class="text-[8px] bg-amber-600 px-1 rounded">کەمە</span>@endif</div>
-              <span class="num text-[10px] text-teal-400">{{ $p->code }}</span></td>
-            <td class="p-2 text-[11px]">
-              @if($isC)<span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 font-bold">کارتۆن</span><div class="num text-[9px] text-slate-500">{{ (float) $p->kg_per_carton }} کگ</div>
-              @else<span class="px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-300 font-bold">کیلۆ / تەن</span>@endif
-              <div class="text-[9px] text-slate-500">{{ $p->category->name ?? '-' }}</div></td>
-            <td class="p-2"><div class="num font-bold text-sky-300 text-[11px]">${{ number_format($p->base_buy_price, 2) }} <span class="text-[9px] text-slate-500">/{{ $per }}</span></div><div class="num text-[9px] text-slate-500">≈ {{ number_format($p->base_buy_price * $exchangeRate) }} IQD</div></td>
-            <td class="p-2"><div class="num font-bold text-emerald-400 text-[11px]">${{ number_format($p->base_sale_price, 2) }} <span class="text-[9px] text-slate-500">/{{ $per }}</span></div><div class="num text-[9px] text-slate-500">≈ {{ number_format($p->base_sale_price * $exchangeRate) }} IQD</div></td>
-            <td class="p-2 num font-bold text-[11px] {{ $isOut ? 'text-rose-400' : ($isLow ? 'text-amber-400' : 'text-slate-100') }}">{{ rtrim(rtrim(number_format($stock, 2), '0'), '.') ?: '0' }} <span class="text-[9px] text-slate-500">{{ $per }}</span></td>
-            <td class="p-2 text-center"><form action="{{ route('products.toggle', $p->id) }}" method="POST">@csrf @method('PATCH')<button class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $p->is_active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-600 text-slate-400' }}">{{ $p->is_active ? 'چالاک' : 'ناچالاک' }}</button></form></td>
-            <td class="p-2 text-center"><div class="flex items-center justify-center gap-1">
-              <button type="button" onclick='openEdit(@json($p))' class="bg-amber-500/15 hover:bg-amber-500 text-amber-400 hover:text-slate-900 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-pen-to-square"></i> دەستکاری</button>
-              @if($stock > 0)<span class="text-[10px] bg-slate-700/50 text-slate-500 px-1.5 py-0.5 rounded" title="کۆگای تێدایە"><i class="fa-solid fa-lock text-[9px]"></i></span>
-              @else<form action="{{ route('products.destroy', $p->id) }}" method="POST" onsubmit="return confirm('دڵنیایت لە سڕینەوە؟')">@csrf @method('DELETE')<button class="bg-rose-500/15 hover:bg-rose-500 text-rose-400 hover:text-white px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-trash"></i></button></form>@endif
-            </div></td>
-          </tr>
-        @empty
-          <tr><td colspan="7" class="p-4 text-center text-slate-500">هیچ کاڵایەک تۆمار نەکراوە</td></tr>
-        @endforelse
-        </tbody>
-      </table>
-    </div>
-  </section>
-</main>
+      <label class="flex items-center justify-between bg-white/5 p-2.5 rounded-lg border border-white/10 cursor-pointer text-xs"><span class="font-bold text-slate-300">چالاک بێت لە POS</span><input type="checkbox" name="is_active" value="1" checked class="w-4 h-4"></label>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-white/10">
+        <button type="button" onclick="toggle('addProductModal')" class="bg-slate-700 hover:bg-slate-600 font-bold px-4 py-2.5 rounded-xl">داخستن</button>
+        <button type="submit" class="bg-teal-500 hover:bg-teal-400 text-slate-900 font-extrabold px-8 py-2.5 rounded-xl"><i class="fa-solid fa-check"></i> تۆمارکردنی کاڵا</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- مۆداڵی دەستکاری -->
 <div id="editProductModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -197,8 +241,8 @@ body{font-family:'Almarai',sans-serif;background:radial-gradient(900px 400px at 
   </div>
 </div>
 
-<!-- کاتیگۆری خێرا -->
-<div id="quickCategoryModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+<!-- کاتیگۆری خێرا (دوا شوێن بۆ ئەوەی لەسەر مۆداڵی زیادکردن بێت) -->
+<div id="quickCategoryModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
   <div class="bg-slate-900 border border-white/10 p-4 rounded-2xl w-full max-w-sm space-y-3 text-xs">
     <h3 class="text-sm font-extrabold"><i class="fa-solid fa-tags text-teal-400"></i> کاتیگۆری نوێ</h3>
     <form action="{{ route('categories.store') }}" method="POST" id="quickCategoryForm" class="space-y-2.5">@csrf
@@ -231,12 +275,13 @@ setType('weight');
 /* دراو */
 function setCur(c) {
   $('f_currency').value = c;
-  $('cur-usd').className = 'px-2.5 py-0.5 rounded text-[10px] font-bold ' + (c === 'USD' ? 'bg-teal-500 text-slate-900' : 'bg-slate-700 text-slate-300');
-  $('cur-iqd').className = 'px-2.5 py-0.5 rounded text-[10px] font-bold ' + (c === 'IQD' ? 'bg-teal-500 text-slate-900' : 'bg-slate-700 text-slate-300');
+  $('cur-usd').className = 'px-3 py-1 rounded text-[11px] font-bold ' + (c === 'USD' ? 'bg-teal-500 text-slate-900' : 'bg-slate-700 text-slate-300');
+  $('cur-iqd').className = 'px-3 py-1 rounded text-[11px] font-bold ' + (c === 'IQD' ? 'bg-teal-500 text-slate-900' : 'bg-slate-700 text-slate-300');
   document.querySelectorAll('.curLbl').forEach(e => e.textContent = c === 'USD' ? '$' : 'IQD');
 }
 
 /* دەستکاری */
+let lockType = null;
 function openEdit(p) {
   $('editProductForm').action = '/products/' + p.id;
   $('e_name').value = p.name || ''; $('e_code').value = p.code || ''; $('e_category').value = p.category_id || '';
@@ -249,9 +294,8 @@ function openEdit(p) {
   $('e_active').checked = p.is_active == 1;
   editTypeChanged(); toggle('editProductModal');
 }
-let lockType = null;
 function editTypeChanged() {
-  if (lockType) $('e_type').value = lockType;   // کۆگا سفر نییە: جۆر ناگۆڕدرێت
+  if (lockType) $('e_type').value = lockType;
   const c = $('e_type').value === 'carton';
   $('e_cartonBox').classList.toggle('hidden', !c); $('e_carton').required = c;
   document.querySelectorAll('.e_per').forEach(e => e.textContent = c ? '/ کارتۆن' : '/ کگ');
@@ -264,13 +308,33 @@ function filterTable() {
     const stock = parseFloat(r.dataset.stock) || 0, low = parseFloat(r.dataset.low) || 5;
     const okS = !q || r.dataset.name.includes(q) || r.dataset.code.includes(q);
     const okC = cat === 'all' || r.dataset.cat == cat;
-    const okT = st === 'all' || (st === 'out' && stock <= 0) || (st === 'low' && stock > 0 && stock <= low)
-      || (st === 'carton' && r.dataset.type === 'carton') || (st === 'weight' && r.dataset.type === 'weight') || (st === 'inactive' && r.dataset.active === '0');
+    const okT = st === 'all' || (st === 'out' && stock <= 0) || (st === 'low' && stock > 0 && stock <= low);
     const show = okS && okC && okT; r.style.display = show ? '' : 'none'; if (show) n++;
   });
   $('countBadge').textContent = n;
+  $('noResult').classList.toggle('hidden', n > 0 || !document.querySelector('.prow'));
 }
 function filterByState(s) { $('fState').value = s; filterTable(); }
+
+/* ڕیزکردن */
+function sortCards() {
+  const grid = $('grid'), v = $('fSort').value;
+  const rows = [...grid.querySelectorAll('.prow')];
+  const num = (r, k) => parseFloat(r.dataset[k]) || 0;
+  const cmp = {
+    new: (a, b) => num(a, 'idx') - num(b, 'idx'),
+    name_asc: (a, b) => a.dataset.name.localeCompare(b.dataset.name, 'ckb'),
+    name_desc: (a, b) => b.dataset.name.localeCompare(a.dataset.name, 'ckb'),
+    sale_asc: (a, b) => num(a, 'sale') - num(b, 'sale'),
+    sale_desc: (a, b) => num(b, 'sale') - num(a, 'sale'),
+    buy_asc: (a, b) => num(a, 'buy') - num(b, 'buy'),
+    buy_desc: (a, b) => num(b, 'buy') - num(a, 'buy'),
+    stock_asc: (a, b) => num(a, 'stock') - num(b, 'stock'),
+    stock_desc: (a, b) => num(b, 'stock') - num(a, 'stock'),
+    type: (a, b) => a.dataset.type.localeCompare(b.dataset.type) || a.dataset.name.localeCompare(b.dataset.name, 'ckb'),
+  }[v];
+  rows.sort(cmp).forEach(r => grid.appendChild(r));
+}
 
 /* پاراستنی فۆڕم کاتێک کاتیگۆری خێرا زیاد دەکەیت */
 $('quickCategoryForm').addEventListener('submit', () => {
@@ -278,6 +342,9 @@ $('quickCategoryForm').addEventListener('submit', () => {
     buy: $('f_buy').value, sale: $('f_sale').value, stock: $('f_stock').value, cur: $('f_currency').value }));
 });
 document.addEventListener('DOMContentLoaded', () => {
+  @if($errors->any() && old('code') !== null)
+  $('addProductModal').classList.remove('hidden');
+  @endif
   const s = sessionStorage.getItem(KEY); if (!s) return;
   try {
     const d = JSON.parse(s);
@@ -285,6 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('f_buy').value = d.buy || ''; $('f_sale').value = d.sale || ''; $('f_stock').value = d.stock || 0;
     setType(d.type || 'weight'); setCur(d.cur || 'USD');
     $('f_category').selectedIndex = $('f_category').options.length - 1;
+    $('addProductModal').classList.remove('hidden');   // فۆڕمەکە دووبارە دەکرێتەوە
   } catch (e) {}
   sessionStorage.removeItem(KEY);
 });
