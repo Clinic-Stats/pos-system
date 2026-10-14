@@ -166,11 +166,11 @@
 
                     <div style="border-top:2px dashed #111;"></div>
 
-                    <div class="text-center" style="padding:6px 0;font-size:16px;font-weight:900;">حاجی کارزان</div>
+                    <div class="text-center" style="padding:6px 0;font-size:16px;font-weight:900;">پسووڵەی فرۆشتن</div>
 
                     <div class="grid grid-cols-3 gap-1 items-center" style="font-size:9px;font-weight:800;padding-bottom:3px;">
                         <div class="text-right"><span data-pv="invoice_no">{{ $labels['invoice_no'] }}</span> <span style="color:#dc2626;font-size:13px;font-weight:900;">1</span></div>
-                        <div></div>
+                        <div class="text-center" style="font-size:13px;font-weight:900;line-height:1.2;">کڕیار : حاجی کارزان</div>
                         <div class="text-left"><span data-pv="cashier">{{ $labels['cashier'] }}</span> : ئارام</div>
                     </div>
                     <div class="grid grid-cols-3 gap-1 items-center" style="font-size:9px;font-weight:800;padding-bottom:5px;">
@@ -188,19 +188,19 @@
                                 <th data-pv="col_item">{{ $labels['col_item'] }}</th>
                                 <th style="width:11%" data-pv="col_unit">{{ $labels['col_unit'] }}</th>
                                 <th style="width:10%" data-pv="col_qty">{{ $labels['col_qty'] }}</th>
-                                <th style="width:15%"><span data-pv="col_price">{{ $labels['col_price'] }}</span> ($)</th>
-                                <th style="width:15%"><span data-pv="col_total">{{ $labels['col_total'] }}</span> ($)</th>
+                                <th style="width:15%" data-pv="col_price">{{ $labels['col_price'] }}</th>
+                                <th style="width:15%" data-pv="col_total">{{ $labels['col_total'] }}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td>1</td><td>01</td><td>سنگی مریشک 2 کگم</td><td>تەن</td><td>4</td><td dir="ltr">3,000.00</td><td dir="ltr">12,000.00</td></tr>
+                            <tr><td>1</td><td>01</td><td>سنگی مریشک 2 کگم</td><td>تەن</td><td>4</td><td dir="ltr">$3,000.00</td><td dir="ltr">$12,000.00</td></tr>
                         </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="4" style="border:0;text-align:right;font-size:10px;"><div style="display:flex;justify-content:space-between;align-items:center"><span data-pv="total_row">{{ $labels['total_row'] }}</span><span>4,000.00 کگم (4.00 تەن)</span><span data-pv="total_row" style="visibility:hidden">{{ $labels['total_row'] }}</span></div></td>
                                 <td style="border:0;font-size:10px;">4</td>
                                 <td style="border:0;"></td>
-                                <td style="border:0;font-size:10px;" dir="ltr">12,000.00</td>
+                                <td style="border:0;font-size:10px;" dir="ltr">$12,000.00</td>
                             </tr>
                         </tfoot>
                     </table>

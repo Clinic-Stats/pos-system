@@ -152,13 +152,12 @@
         <!-- ═══════ ناونیشانی پسووڵە و ناوی کڕیار ═══════ -->
         <div class="text-center py-3">
             <div class="text-[26px] font-black text-slate-900">پسووڵەی فرۆشتن</div>
-            <div class="text-[15px] font-extrabold text-slate-800 mt-1">کڕیار : {{ $custName }}</div>
         </div>
 
         <!-- ═══════ زانیاری وەسڵ ═══════ -->
         <div class="grid grid-cols-3 gap-2 text-[14px] font-extrabold items-center pb-2">
             <div class="text-right">{{ $L['invoice_no'] }}&nbsp;&nbsp;<span class="text-[22px] font-black text-red-600 font-mono">{{ $sale->invoice_no }}</span></div>
-            <div></div>
+            <div class="text-center text-[22px] font-black text-slate-900 leading-tight">کڕیار : {{ $custName }}</div>
             <div class="text-left">{{ $L['cashier'] }} : {{ $sale->user->name ?? 'ئەدمین' }}</div>
         </div>
         <div class="grid grid-cols-3 gap-2 text-[13px] font-extrabold items-center pb-3">
