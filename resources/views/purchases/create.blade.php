@@ -9,106 +9,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
-            font-family: 'Noto Sans Arabic', sans-serif;
-            overflow-x: hidden !important;
-        }
-
-        html {
-            overflow-x: hidden !important;
-        }
-
-        /* ===== مۆبایل: هەر ڕیزێکی کاڵا دەبێتە کارت ===== */
-        @media (max-width: 767px) {
-
-            #itemsTable,
-            #itemsTable tbody {
-                display: block;
-                width: 100%;
-            }
-
-            #itemsTable thead {
-                display: none;
-            }
-
-            #tableBody tr {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: .65rem;
-                padding: .85rem;
-                margin-bottom: .75rem;
-                background: rgba(15, 23, 42, .55);
-                border: 1px solid #334155;
-                border-radius: 1rem;
-            }
-
-            #tableBody tr td {
-                display: block;
-                padding: 0 !important;
-                border: 0;
-                min-width: 0;
-            }
-
-            #tableBody tr td::before {
-                content: attr(data-label);
-                display: block;
-                font-size: 10px;
-                font-weight: 700;
-                color: #94a3b8;
-                margin-bottom: .25rem;
-            }
-
-            #tableBody tr td:nth-child(1) {
-                grid-column: 1 / -1;
-            }
-
-            /* کۆی پارە: ڕیزێکی تەواو */
-            #tableBody tr td:nth-child(5) {
-                grid-column: 1 / -1;
-                display: flex;
-                flex-direction: row-reverse;
-                justify-content: space-between;
-                align-items: center;
-                background: #0f172a;
-                padding: .55rem .75rem !important;
-                border-radius: .75rem;
-                font-size: 14px;
-            }
-
-            #tableBody tr td:nth-child(5)::before {
-                margin: 0;
-            }
-
-            #tableBody tr td:nth-child(6) {
-                grid-column: 1 / -1;
-                text-align: center;
-            }
-
-            #tableBody tr td:nth-child(6)::before {
-                display: none;
-            }
-
-            /* خانەکان گەورەتر بۆ پەنجە، و بێ زووم لە ئایفۆن */
-            #tableBody select,
-            #tableBody input {
-                font-size: 16px;
-                padding: .7rem .6rem;
-            }
-        }
+        body { font-family: 'Noto Sans Arabic', sans-serif; overflow-x: hidden !important; }
+        html { overflow-x: hidden !important; }
+        .pcard { transition: border-color .15s, background .15s, transform .08s; }
+        .pcard:hover { background: rgba(51, 65, 85, .8); border-color: #10b981; }
+        .pcard:active { transform: scale(.97); }
+        .flash { animation: flash .6s ease; }
+        @keyframes flash { 0% { background: rgba(16, 185, 129, .35); } 100% { background: transparent; } }
+        .sc::-webkit-scrollbar { width: 5px; height: 5px; }
+        .sc::-webkit-scrollbar-thumb { background: #334155; border-radius: 9px; }
+        /* بێ زووم لە ئایفۆن */
+        @media (max-width: 767px) { #cartList select, #cartList input { font-size: 16px; } }
     </style>
     @include('partials.system-head')
     @include('partials.mobile-tables')
 </head>
 
-<body class="bg-slate-900 text-slate-100 min-h-screen p-2 sm:p-6">
+<body class="bg-slate-900 text-slate-100 min-h-screen p-2 sm:p-4">
 
-    <div class="max-w-5xl mx-auto space-y-3 sm:space-y-6">
+    <div class="max-w-7xl mx-auto space-y-3">
 
-        <div class="flex flex-wrap justify-between items-center gap-2 bg-slate-800 p-3 sm:p-4 rounded-2xl border border-slate-700">
-            <h1 class="text-sm sm:text-xl font-bold flex items-center gap-2 text-white">
+        <div class="flex flex-wrap justify-between items-center gap-2 bg-slate-800 p-3 rounded-2xl border border-slate-700">
+            <h1 class="text-sm sm:text-lg font-bold flex items-center gap-2 text-white">
                 <i class="fa-solid fa-cart-flatbed text-emerald-400"></i>
                 وەسڵی نوێی کڕین
-                <span class="hidden sm:inline">(فرە-کاڵا)</span>
             </h1>
             <a href="{{ route('purchases.index') }}" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold px-3 sm:px-4 py-2 rounded-xl transition">
                 <i class="fa-solid fa-arrow-right"></i> لیستی وەسڵەکان
@@ -116,39 +40,32 @@
         </div>
 
         @if(session('error'))
-        <div class="bg-rose-600/20 border border-rose-500 text-rose-300 p-3.5 rounded-xl text-xs font-bold flex items-center gap-2">
-            <i class="fa-solid fa-circle-exclamation text-rose-400"></i>
-            {{ session('error') }}
+        <div class="bg-rose-600/20 border border-rose-500 text-rose-300 p-3 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation text-rose-400"></i> {{ session('error') }}
         </div>
         @endif
 
         @if($errors->any())
-        <div class="bg-rose-600/20 border border-rose-500 text-rose-400 p-3.5 rounded-xl text-xs font-bold space-y-1">
+        <div class="bg-rose-600/20 border border-rose-500 text-rose-400 p-3 rounded-xl text-xs font-bold space-y-1">
             @foreach($errors->all() as $err) <div>• {{ $err }}</div> @endforeach
         </div>
         @endif
 
-        <form action="{{ route('purchases.store') }}" method="POST" id="purchaseForm" onsubmit="return validatePurchaseForm(event)" class="space-y-3 sm:space-y-6" autocomplete="off">
+        <form action="{{ route('purchases.store') }}" method="POST" id="purchaseForm" onsubmit="return validatePurchaseForm(event)" class="space-y-3" autocomplete="off">
             @csrf
 
-            {{-- بەشی سەرەوەی وەسڵ --}}
-            <div class="bg-slate-800 p-3 sm:p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-
-                <div class="md:col-span-3">
-                    <label class="block text-xs font-bold text-slate-300 mb-1">
-                        ژمارەی پسوولەی کڕین <span class="text-rose-400">*</span>
-                        <span class="text-slate-500 font-normal block sm:inline">(ئەو ژمارەیەی لەسەر پسوولە کاغەزییەکە نووسراوە)</span>
-                    </label>
-                    <input type="text" name="purchase_no" id="purchase_no" value="{{ old('purchase_no') }}" required maxlength="100"
-                        placeholder="بۆ نموونە: 1254"
+            {{-- زانیاری وەسڵ --}}
+            <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="col-span-2 lg:col-span-1">
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">ژمارەی پسوولەی کڕین <span class="text-rose-400">*</span></label>
+                    <input type="text" name="purchase_no" id="purchase_no" value="{{ old('purchase_no') }}" required maxlength="100" placeholder="بۆ نموونە: 1254"
                         class="w-full p-2.5 rounded-xl border {{ $errors->has('purchase_no') ? 'border-rose-500' : 'border-slate-600' }} bg-slate-700 text-white text-base sm:text-sm font-mono focus:outline-none focus:border-blue-500" dir="ltr" style="text-align:right;">
                 </div>
 
-                <div>
+                <div class="col-span-2 lg:col-span-1">
                     <div class="flex justify-between items-center mb-1">
-                        <label class="block text-xs font-bold text-slate-300">شوێنی کڕین (کۆمپانیا/دابینکەر):</label>
-                        <button type="button" onclick="openSuppliersModal()"
-                            class="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold transition-colors shrink-0">
+                        <label class="block text-[11px] font-bold text-slate-300">شوێنی کڕین (دابینکەر):</label>
+                        <button type="button" onclick="openSuppliersModal()" class="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-bold shrink-0">
                             <i class="fa-solid fa-plus-circle"></i> بەڕێوەبردن
                         </button>
                     </div>
@@ -160,174 +77,168 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">بەرواری وەسڵ:</label>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">بەرواری وەسڵ:</label>
                     <input type="date" name="created_at" value="{{ old('created_at', date('Y-m-d')) }}" required class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-base sm:text-sm font-mono focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">دراوی وەسڵ:</label>
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">دراوی وەسڵ:</label>
                     <div class="flex items-center gap-1.5 bg-slate-700 p-1 rounded-xl">
-                        <button type="button" onclick="setCurrency('USD')" id="btn-cur-usd" class="flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white transition-colors">دۆلار</button>
-                        <button type="button" onclick="setCurrency('IQD')" id="btn-cur-iqd" class="flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 transition-colors">دینار</button>
+                        <button type="button" onclick="setCurrency('USD')" id="btn-cur-usd" class="flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-colors">دۆلار</button>
+                        <button type="button" onclick="setCurrency('IQD')" id="btn-cur-iqd" class="flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-colors">دینار</button>
                     </div>
-                    <input type="hidden" name="currency" id="currency_input" value="USD">
+                    <input type="hidden" name="currency" id="currency_input" value="{{ old('currency', 'USD') }}">
                 </div>
 
-                <div id="exchangeRateBox" class="md:col-span-3 hidden">
-                    <label class="block text-xs font-bold text-slate-300 mb-1">نرخی ئاڵوگۆڕی دۆلار (١ دۆلار = چ دینار):</label>
-                    <input type="number" step="any" min="1" name="exchange_rate" id="exchange_rate_input" value="{{ $setting->exchange_rate ?? 1500 }}" class="w-full p-2.5 rounded-xl border border-amber-600 bg-slate-700 text-white text-base sm:text-sm font-mono focus:outline-none focus:border-amber-500">
+                <div id="exchangeRateBox" class="col-span-2 lg:col-span-4 hidden">
+                    <label class="block text-[11px] font-bold text-slate-300 mb-1">نرخی ئاڵوگۆڕی دۆلار (١ دۆلار = چ دینار):</label>
+                    <input type="number" step="any" min="1" name="exchange_rate" id="exchange_rate_input" value="{{ old('exchange_rate', $setting->exchange_rate ?? 1500) }}" class="w-full p-2.5 rounded-xl border border-amber-600 bg-slate-700 text-white text-base sm:text-sm font-mono focus:outline-none focus:border-amber-500">
                     <p class="text-[10px] text-amber-400 mt-1">ئەم نرخە بۆ گۆڕینی نرخی کڕین بۆ دۆلار بەکار دەهێنرێت پێش پاشەکەوتکردن</p>
                 </div>
             </div>
 
-            {{-- خشتەی کاڵاکان (لە مۆبایل دەبێتە کارت) --}}
-            <div class="bg-slate-800 p-3 sm:p-5 rounded-2xl border border-slate-700 space-y-3 sm:space-y-4">
-                <div class="flex justify-between items-center gap-2">
-                    <h2 class="text-sm font-bold text-white">لیستی کاڵاکانی ئەم وەسڵە</h2>
-                    <button type="button" onclick="addRow()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2 sm:py-1.5 rounded-xl transition flex items-center gap-1 shrink-0">
-                        <i class="fa-solid fa-plus"></i> زیادکردنی کاڵا
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-3 items-start">
+
+                {{-- کاڵاکان: کلیک بکە بۆ زیادکردن --}}
+                <section class="lg:col-span-3 bg-slate-800 p-3 rounded-2xl border border-slate-700 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-boxes-stacked text-emerald-400"></i> کاڵاکان <span class="text-[10px] font-normal text-slate-400">(کلیک بکە بۆ زیادکردن)</span></h2>
+                        <span id="pCount" class="font-mono text-[10px] bg-slate-700 px-2 py-0.5 rounded">{{ $products->count() }}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="pSearch" oninput="filterProducts()" onkeydown="searchKey(event)" placeholder="گەڕان بە ناو یان کۆد..." class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-base sm:text-xs focus:outline-none focus:border-emerald-500">
+                        <select id="pCat" onchange="filterProducts()" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-base sm:text-xs focus:outline-none">
+                            <option value="all">هەموو کاتیگۆرییەکان</option>
+                            @foreach($categories as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach
+                        </select>
+                    </div>
+
+                    <div class="max-h-[55vh] lg:max-h-[68vh] overflow-y-auto sc pl-1">
+                        <div id="pGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2">
+                            @foreach($products as $p)
+                            @php
+                                $isC = ($p->sell_type ?? 'weight') === 'carton';
+                                $stk = (float) ($p->stock_kg ?? $p->stock ?? 0);
+                                $per = $isC ? 'کارتۆن' : 'کگ';
+                            @endphp
+                            <button type="button" onclick="addProduct({{ $p->id }})"
+                                class="pcard relative text-right bg-slate-900/60 border border-slate-700 rounded-xl p-2 flex flex-col gap-1 min-h-[84px]"
+                                data-pid="{{ $p->id }}" data-name="{{ mb_strtolower($p->name) }}" data-code="{{ mb_strtolower($p->code ?? '') }}" data-cat="{{ $p->category_id }}">
+                                <span class="cart-badge hidden absolute top-1.5 left-1.5 bg-emerald-500 text-slate-900 font-mono font-extrabold text-[10px] px-1.5 rounded-full"></span>
+                                <span class="font-bold text-white text-xs leading-4 pl-6">{{ $p->name }}</span>
+                                <span class="font-mono text-[10px] text-emerald-400" dir="ltr" style="text-align:right">{{ $p->code }}</span>
+                                <span class="mt-auto flex items-center justify-between gap-1 text-[10px]">
+                                    <span class="px-1.5 rounded {{ $isC ? 'bg-amber-500/15 text-amber-300' : 'bg-sky-500/15 text-sky-300' }} font-bold">{{ $isC ? 'کارتۆن' : 'کیلۆ' }}</span>
+                                    <span class="font-mono {{ $stk <= 0 ? 'text-rose-400' : 'text-slate-300' }}" dir="ltr">{{ rtrim(rtrim(number_format($stk, 2), '0'), '.') ?: '0' }} {{ $per }}</span>
+                                </span>
+                            </button>
+                            @endforeach
+                        </div>
+                        <div id="pEmpty" class="hidden p-6 text-center text-xs text-slate-500">هیچ کاڵایەک نەدۆزرایەوە</div>
+                    </div>
+                </section>
+
+                {{-- وەسڵ --}}
+                <section class="lg:col-span-2 bg-slate-800 p-3 rounded-2xl border border-slate-700 space-y-3 lg:sticky lg:top-2">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-receipt text-blue-400"></i> کاڵاکانی ئەم وەسڵە <span id="cartCount" class="font-mono text-[10px] bg-slate-700 px-2 py-0.5 rounded">0</span></h2>
+                    </div>
+
+                    <div id="emptyHint" class="border border-dashed border-slate-600 rounded-xl p-6 text-center text-xs text-slate-500">
+                        <i class="fa-solid fa-hand-pointer text-lg mb-2 block"></i> کلیک لە کاڵایەک بکە بۆ ئەوەی بچێتە ناو وەسڵەکە
+                    </div>
+                    <div id="cartList" class="space-y-2 max-h-[40vh] lg:max-h-[38vh] overflow-y-auto sc pl-1"></div>
+
+                    <div class="pt-2 border-t border-slate-700 flex justify-between items-center">
+                        <span class="text-sm font-bold text-slate-300">کۆی گشتی وەسڵ:</span>
+                        <span id="grandTotal" class="text-emerald-400 font-mono font-black text-lg" dir="ltr">$0.00</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-300 mb-1">جۆری پارەدان:</label>
+                            <select name="payment_type" id="payment_type" onchange="togglePaid()" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-base sm:text-xs focus:outline-none focus:border-blue-500">
+                                <option value="cash" {{ old('payment_type') === 'cash' ? 'selected' : '' }}>نەقد</option>
+                                <option value="debt" {{ old('payment_type') === 'debt' ? 'selected' : '' }}>قەرز</option>
+                            </select>
+                        </div>
+                        <div id="paidAmountBox" class="hidden">
+                            <label class="block text-[11px] font-bold text-slate-300 mb-1">بڕی پارەی دراو:</label>
+                            <input type="number" step="any" min="0" name="paid_amount" id="paid_amount" value="{{ old('paid_amount', 0) }}" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-base sm:text-xs font-mono focus:outline-none">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl transition text-sm shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check"></i> تۆمارکردنی وەسڵی کڕین بۆ ناو کۆگا
                     </button>
-                </div>
-
-                <div class="md:overflow-x-auto">
-                    <table class="w-full text-xs text-right text-slate-300" id="itemsTable">
-                        <thead class="bg-slate-700/50 text-slate-400">
-                            <tr>
-                                <th class="p-2.5 w-44">کاڵا</th>
-                                <th class="p-2.5 w-32">یەکە</th>
-                                <th class="p-2.5 w-24">بڕ</th>
-                                <th class="p-2.5 w-36">نرخی ١ کیلۆ (<span id="priceLabel">$</span>)</th>
-                                <th class="p-2.5 w-36">کۆی پارە</th>
-                                <th class="p-2.5 text-center w-12">لابردن</th>
-                            </tr>
-                        </thead>
-                        <tbody class="md:divide-y md:divide-slate-700" id="tableBody">
-                        </tbody>
-                    </table>
-                </div>
-
-                <button type="button" onclick="addRow()" class="md:hidden w-full border border-dashed border-slate-600 text-slate-300 text-xs font-bold py-2.5 rounded-xl">
-                    <i class="fa-solid fa-plus"></i> کاڵایەکی تر زیاد بکە
-                </button>
-
-                <div class="pt-3 sm:pt-4 border-t border-slate-700 flex justify-between items-center">
-                    <span class="text-sm font-bold text-slate-300">کۆی گشتی وەسڵ:</span>
-                    <span id="grandTotal" class="text-emerald-400 font-mono font-black text-lg sm:text-xl" dir="ltr">$0.00</span>
-                </div>
+                </section>
             </div>
-
-            {{-- پارەدان --}}
-            <div class="bg-slate-800 p-3 sm:p-5 rounded-2xl border border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">جۆری پارەدان:</label>
-                    <select name="payment_type" id="payment_type" onchange="togglePaid()" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-base sm:text-sm focus:outline-none focus:border-blue-500">
-                        <option value="cash">نەقد</option>
-                        <option value="debt">قەرز</option>
-                    </select>
-                </div>
-                <div id="paidAmountBox" class="hidden">
-                    <label class="block text-xs font-bold text-slate-300 mb-1">بڕی پارەی دراو:</label>
-                    <input type="number" step="any" min="0" name="paid_amount" id="paid_amount" value="0" autocomplete="off" class="w-full p-2.5 rounded-xl border border-slate-600 bg-slate-700 text-white text-base sm:text-sm font-mono focus:outline-none">
-                </div>
-            </div>
-
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl transition text-sm sm:text-base shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-check"></i> تۆمارکردنی وەسڵی کڕین بۆ ناو کۆگا
-            </button>
         </form>
-
     </div>
 
     <!-- مۆداڵی بەڕێوەبردنی دابینکەران -->
     <div id="suppliersModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 z-[100]">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-6xl h-[92vh] overflow-hidden flex flex-col shadow-2xl">
-
             <div class="flex justify-between items-center p-3 border-b border-slate-700 shrink-0 bg-slate-900/50">
-                <h3 class="text-sm font-black text-white flex items-center gap-2">
-                    <i class="fa-solid fa-truck-field text-emerald-400"></i>
-                    بەڕێوەبردنی دابینکەران
-                </h3>
+                <h3 class="text-sm font-black text-white flex items-center gap-2"><i class="fa-solid fa-truck-field text-emerald-400"></i> بەڕێوەبردنی دابینکەران</h3>
                 <div class="flex items-center gap-2">
-                    <button type="button" onclick="refreshSuppliersIframe()"
-                        title="نوێکردنەوەی لیستی دابینکەران"
-                        class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-rotate"></i> نوێکردنەوە
-                    </button>
-                    <button type="button" onclick="closeSuppliersModal()"
-                        class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
+                    <button type="button" onclick="refreshSuppliersIframe()" title="نوێکردنەوەی لیستی دابینکەران" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition"><i class="fa-solid fa-rotate"></i> نوێکردنەوە</button>
+                    <button type="button" onclick="closeSuppliersModal()" class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
-
             <div id="suppliersLoading" class="flex-1 flex items-center justify-center bg-slate-900">
-                <div class="text-center">
-                    <i class="fa-solid fa-spinner fa-spin text-emerald-400 text-3xl mb-3"></i>
-                    <p class="text-slate-400 text-xs font-bold">چاوەڕوان بە...</p>
-                </div>
+                <div class="text-center"><i class="fa-solid fa-spinner fa-spin text-emerald-400 text-3xl mb-3"></i><p class="text-slate-400 text-xs font-bold">چاوەڕوان بە...</p></div>
             </div>
-
-            <iframe id="suppliersIframe"
-                src=""
-                onload="hideSuppliersLoading()"
-                class="flex-1 w-full bg-white hidden"
-                style="overflow-x: hidden;"
-                frameborder="0"></iframe>
+            <iframe id="suppliersIframe" src="" onload="hideSuppliersLoading()" class="flex-1 w-full bg-white hidden" style="overflow-x: hidden;" frameborder="0"></iframe>
         </div>
     </div>
 
     <script>
         const products = @json($products);
         const units = @json($units);
+        const oldItems = @json(old('items', []));
         let rowCount = 0;
-        let currentCurrency = 'USD';
-        // نرخی ئاڵوگۆڕ لە خودی input ەکەوە دەخوێنرێتەوە (بێ Blade لەناو JS)
-        let currentRate = parseFloat(document.getElementById('exchange_rate_input').value) || 1500;
+        let currentCurrency = document.getElementById('currency_input').value || 'USD';
 
-        // ناونیشانی خانەی نرخ (لە مۆبایل لەسەر کارت دەردەکەوێت)
-        function priceLabelText() {
-            return 'نرخی ١ کیلۆ (' + (currentCurrency === 'USD' ? '$' : 'IQD') + ')';
-        }
+        const $ = id => document.getElementById(id);
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const rate = () => parseFloat($('exchange_rate_input').value) || 1500;
+        const isCarton = p => (p.sell_type || 'weight') === 'carton';
+        const perText = p => isCarton(p) ? 'کارتۆن' : 'کیلۆ';
 
-        function setCurrency(currency) {
-            currentCurrency = currency;
-            document.getElementById('currency_input').value = currency;
-
-            const btnIqd = document.getElementById('btn-cur-iqd');
-            const btnUsd = document.getElementById('btn-cur-usd');
-            const exchangeBox = document.getElementById('exchangeRateBox');
-            const priceLabel = document.getElementById('priceLabel');
-
-            if (currency === 'USD') {
-                btnUsd.className = 'flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white transition-colors';
-                btnIqd.className = 'flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 transition-colors';
-                exchangeBox.classList.add('hidden');
-                priceLabel.innerText = '$';
-            } else {
-                btnIqd.className = 'flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white transition-colors';
-                btnUsd.className = 'flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 transition-colors';
-                exchangeBox.classList.remove('hidden');
-                priceLabel.innerText = 'IQD';
-            }
-            document.querySelectorAll('.price-td').forEach(td => td.setAttribute('data-label', priceLabelText()));
+        /* ---------- دراو ---------- */
+        function setCurrency(cur) {
+            currentCurrency = cur;
+            $('currency_input').value = cur;
+            const on = 'flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white transition-colors';
+            const off = 'flex-1 py-2 sm:py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 transition-colors';
+            $('btn-cur-usd').className = cur === 'USD' ? on : off;
+            $('btn-cur-iqd').className = cur === 'IQD' ? on : off;
+            $('exchangeRateBox').classList.toggle('hidden', cur === 'USD');
+            document.querySelectorAll('.cur-lbl').forEach(e => e.textContent = cur === 'USD' ? '$' : 'IQD');
+            refreshAutoPrices();
             calcTotal();
         }
 
-        function togglePaid() {
-            const type = document.getElementById('payment_type').value;
-            const box = document.getElementById('paidAmountBox');
-            if (type === 'debt') {
-                box.classList.remove('hidden');
-            } else {
-                box.classList.add('hidden');
-            }
+        // نرخی خۆکار (لە نرخی ئێستای کاڵا) بەپێی دراو دەگۆڕدرێت؛ نرخی بە دەست نووسراو ناگۆڕدرێت
+        function refreshAutoPrices() {
+            document.querySelectorAll('.purchase-item-row').forEach(row => {
+                if (row.dataset.auto !== '1') return;
+                const usd = parseFloat(row.dataset.baseUsd) || 0;
+                const v = currentCurrency === 'USD' ? usd : usd * rate();
+                row.querySelector('.price-input').value = parseFloat(v.toFixed(currentCurrency === 'USD' ? 4 : 2));
+            });
         }
 
+        function togglePaid() {
+            $('paidAmountBox').classList.toggle('hidden', $('payment_type').value !== 'debt');
+        }
+
+        /* ---------- یەکە ---------- */
         function getUnitFactor(unitId, productId) {
             const unit = units.find(u => u.id == unitId);
             const product = products.find(p => p.id == productId);
             if (!unit) return 1;
-
             const uName = (unit.name || '').toLowerCase();
             if (uName.includes('تەن') || uName.includes('ton')) return 1000;
             if ((uName.includes('کارتۆن') || uName.includes('carton')) && product && product.kg_per_carton) {
@@ -336,201 +247,183 @@
             return parseFloat(unit.factor_to_base) || 1;
         }
 
-        function addRow() {
-            const tbody = document.getElementById('tableBody');
+        function defaultUnitId(p) {
+            const find = re => units.find(u => re.test((u.name || '').toLowerCase()));
+            const u = isCarton(p) ? find(/کارتۆن|carton/) : find(/کیلۆ|کگ|kg/);
+            return (u || units[0] || {}).id;
+        }
+
+        /* ---------- زیادکردنی کاڵا بە کلیک ---------- */
+        function addProduct(pid, opt = {}) {
+            const p = products.find(x => x.id == pid);
+            if (!p) return;
+
+            if (!opt.force) {
+                const exist = document.querySelector(`.purchase-item-row[data-pid="${pid}"]`);
+                if (exist) {   // هەمان کاڵا: تەنها بڕەکەی یەک زیاد دەکات
+                    const q = exist.querySelector('.qty-input');
+                    q.value = (parseFloat(q.value) || 0) + 1;
+                    exist.classList.remove('flash'); void exist.offsetWidth; exist.classList.add('flash');
+                    calcTotal();
+                    return;
+                }
+            }
+
             const rowId = rowCount++;
+            const baseUsd = parseFloat(p.base_buy_price ?? p.buy_price ?? 0) || 0;
+            const unitId = opt.unit_id || defaultUnitId(p);
+            const unitOptions = units.map(u => `<option value="${u.id}" ${u.id == unitId ? 'selected' : ''}>${esc(u.name)}</option>`).join('');
+            const stock = parseFloat(p.stock_kg ?? p.stock ?? 0) || 0;
 
-            // هەڵبژاردەی بەتاڵ بۆ کاڵا بۆ ئەوەی ڕیزەکە بەتاڵ دەست پێبکات
-            let prodOptions = '<option value="">— کاڵا هەڵبژێرە —</option>' + products.map(p => `<option value="${p.id}">${p.name} (کۆگا: ${p.stock_kg ?? p.stock ?? 0} کگ)</option>`).join('');
-            let unitOptions = units.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+            const row = document.createElement('div');
+            row.id = `row-${rowId}`;
+            row.className = 'purchase-item-row bg-slate-900/60 border border-slate-700 rounded-xl p-2.5 space-y-2';
+            row.dataset.pid = p.id;
+            row.dataset.baseUsd = baseUsd;
+            row.dataset.auto = opt.price === undefined ? '1' : '0';
 
-            const tr = document.createElement('tr');
-            tr.id = `row-${rowId}`;
-            tr.className = 'purchase-item-row';
+            row.innerHTML = `
+                <input type="hidden" class="prod-select" name="items[${rowId}][product_id]" value="${p.id}">
+                <div class="flex justify-between items-start gap-2">
+                    <div class="min-w-0">
+                        <div class="font-bold text-white text-xs leading-4">${esc(p.name)}</div>
+                        <div class="font-mono text-[10px] text-slate-500" dir="ltr" style="text-align:right">${esc(p.code)} · ${stock} ${isCarton(p) ? 'کارتۆن' : 'کگ'}</div>
+                    </div>
+                    <button type="button" onclick="removeRow(${rowId})" class="text-rose-400 hover:text-rose-300 text-sm px-1 shrink-0" title="لابردن"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div><label class="block text-[10px] text-slate-400 mb-0.5">یەکە</label>
+                        <select name="items[${rowId}][unit_id]" onchange="calcTotal()" class="unit-select w-full p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white text-xs">${unitOptions}</select></div>
+                    <div><label class="block text-[10px] text-slate-400 mb-0.5">بڕ</label>
+                        <input type="number" step="any" min="0.01" name="items[${rowId}][quantity]" value="${opt.qty ?? 1}" oninput="calcTotal()" class="qty-input w-full p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-xs"></div>
+                    <div><label class="block text-[10px] text-slate-400 mb-0.5">نرخی ١ ${perText(p)} (<span class="cur-lbl">${currentCurrency === 'USD' ? '$' : 'IQD'}</span>)</label>
+                        <input type="number" step="any" min="0" name="items[${rowId}][buy_price]" value="0" oninput="this.closest('.purchase-item-row').dataset.auto='0'; calcTotal()" class="price-input w-full p-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono text-xs"></div>
+                </div>
+                <div class="flex justify-between items-center bg-slate-950/50 rounded-lg px-2.5 py-1.5">
+                    <span class="text-[10px] text-slate-400">کۆی پارە</span>
+                    <span class="row-total font-mono font-bold text-emerald-400 text-sm" dir="ltr">0</span>
+                </div>`;
 
-            tr.innerHTML = `
-                <td class="p-2" data-label="کاڵا">
-                    <select name="items[${rowId}][product_id]" onchange="calcTotal()" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white prod-select">
-                        ${prodOptions}
-                    </select>
-                </td>
-                <td class="p-2" data-label="یەکە">
-                    <select name="items[${rowId}][unit_id]" onchange="calcTotal()" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white unit-select">
-                        ${unitOptions}
-                    </select>
-                </td>
-                <td class="p-2" data-label="بڕ">
-                    <input type="number" step="any" min="0.01" name="items[${rowId}][quantity]" value="1" oninput="calcTotal()" autocomplete="off" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono qty-input">
-                </td>
-                <td class="p-2 price-td" data-label="${priceLabelText()}">
-                    <input type="number" step="any" min="0" name="items[${rowId}][buy_price]" value="0" oninput="calcTotal()" autocomplete="off" class="w-full p-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono price-input">
-                </td>
-                <td class="p-2 font-mono font-bold text-emerald-400 row-total" dir="ltr" data-label="کۆی پارە">$0.00</td>
-                <td class="p-2 text-center">
-                    <button type="button" onclick="removeRow(${rowId})" class="text-rose-400 hover:text-rose-300 text-sm max-md:w-full max-md:bg-rose-500/10 max-md:border max-md:border-rose-500/30 max-md:rounded-xl max-md:py-2 max-md:text-xs max-md:font-bold">
-                        <i class="fa-solid fa-trash"></i><span class="md:hidden"> لابردنی ئەم کاڵایە</span>
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
+            $('cartList').prepend(row);
+            if (opt.price !== undefined) row.querySelector('.price-input').value = opt.price;
+            else refreshAutoPrices();
+            row.classList.add('flash');
             calcTotal();
         }
 
         function removeRow(id) {
-            const row = document.getElementById(`row-${id}`);
-            if (row) {
-                row.remove();
-                calcTotal();
-            }
+            const row = $(`row-${id}`);
+            if (row) { row.remove(); calcTotal(); }
         }
 
+        /* ---------- کۆ ---------- */
         function fmtMoney(v) {
-            const symbol = currentCurrency === 'USD' ? '$' : '';
-            const suffix = currentCurrency === 'IQD' ? ' IQD' : '';
-            return symbol + v.toLocaleString(undefined, {
-                minimumFractionDigits: currentCurrency === 'USD' ? 2 : 0,
-                maximumFractionDigits: 2
-            }) + suffix;
+            if (currentCurrency === 'USD') return '$' + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return Math.round(v).toLocaleString() + ' IQD';
         }
 
         function calcTotal() {
             let total = 0;
-            currentRate = parseFloat(document.getElementById('exchange_rate_input').value) || 1500;
-
-            document.querySelectorAll('#tableBody tr').forEach(row => {
-                const prodId = row.querySelector('.prod-select')?.value;
-
-                // ئەگەر کاڵا هەڵنەبژێردرابێت، هەژماری بۆ ناکەین
-                if (!prodId) {
-                    row.querySelector('.row-total').innerText = fmtMoney(0);
-                    return;
-                }
-
-                const unitId = row.querySelector('.unit-select')?.value;
-                const qty = parseFloat(row.querySelector('.qty-input')?.value) || 0;
-                const pricePerBase = parseFloat(row.querySelector('.price-input')?.value) || 0;
-
-                const factor = getUnitFactor(unitId, prodId);
-                const sub = qty * (pricePerBase * factor);
-
-                const cell = row.querySelector('.row-total');
-                if (cell) cell.innerText = fmtMoney(sub);
+            const rows = document.querySelectorAll('.purchase-item-row');
+            const qtyByPid = {};
+            rows.forEach(row => {
+                const pid = row.querySelector('.prod-select').value;
+                const unitId = row.querySelector('.unit-select').value;
+                const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                const price = parseFloat(row.querySelector('.price-input').value) || 0;
+                const sub = qty * (price * getUnitFactor(unitId, pid));
+                row.querySelector('.row-total').innerText = fmtMoney(sub);
                 total += sub;
+                qtyByPid[pid] = (qtyByPid[pid] || 0) + qty;
             });
+            $('grandTotal').innerText = fmtMoney(total);
+            $('cartCount').innerText = rows.length;
+            $('emptyHint').classList.toggle('hidden', rows.length > 0);
 
-            document.getElementById('grandTotal').innerText = fmtMoney(total);
+            document.querySelectorAll('#pGrid .pcard').forEach(c => {
+                const b = c.querySelector('.cart-badge'), q = qtyByPid[c.dataset.pid];
+                b.classList.toggle('hidden', !q);
+                if (q) b.textContent = parseFloat(q.toFixed(2));
+                c.classList.toggle('border-emerald-500', !!q);
+            });
             return total;
         }
+        $('exchange_rate_input').addEventListener('input', () => { refreshAutoPrices(); calcTotal(); });
 
-        document.getElementById('exchange_rate_input').addEventListener('input', calcTotal);
+        /* ---------- گەڕان ---------- */
+        function filterProducts() {
+            const q = $('pSearch').value.toLowerCase().trim(), cat = $('pCat').value; let n = 0;
+            document.querySelectorAll('#pGrid .pcard').forEach(c => {
+                const ok = (!q || c.dataset.name.includes(q) || c.dataset.code.includes(q)) && (cat === 'all' || c.dataset.cat == cat);
+                c.style.display = ok ? '' : 'none'; if (ok) n++;
+            });
+            $('pCount').textContent = n;
+            $('pEmpty').classList.toggle('hidden', n > 0);
+        }
+        // Enter: یەکەم کاڵای دەرکەوتوو زیاد دەکات (بۆ بارکۆد سکانەر)
+        function searchKey(e) {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            const first = [...document.querySelectorAll('#pGrid .pcard')].find(c => c.style.display !== 'none');
+            if (first) { addProduct(first.dataset.pid); $('pSearch').select(); }
+        }
 
+        /* ---------- پشکنین ---------- */
         function validatePurchaseForm(e) {
-            const noInput = document.getElementById('purchase_no');
-            if (!noInput.value.trim()) {
-                alert('تکایە ژمارەی پسوولەی کڕین بنووسە.');
-                noInput.focus();
-                e.preventDefault();
-                return false;
+            if (!$('purchase_no').value.trim()) {
+                alert('تکایە ژمارەی پسوولەی کڕین بنووسە.'); $('purchase_no').focus(); e.preventDefault(); return false;
             }
-
-            const rows = document.querySelectorAll('#tableBody tr');
+            const rows = document.querySelectorAll('.purchase-item-row');
             if (rows.length === 0) {
-                alert('وەسڵ ناتوانرێت بەتاڵ بێت!');
-                e.preventDefault();
-                return false;
+                alert('تکایە لانیکەم یەک کاڵا هەڵبژێرە بۆ ئەوەی وەسڵەکە تۆمار بکرێت!'); e.preventDefault(); return false;
             }
-
             let hasError = false;
-            let validRowsCount = 0;
-
             rows.forEach(row => {
-                const prodSelect = row.querySelector('.prod-select');
-                const qtyInput = row.querySelector('.qty-input');
-                const priceInput = row.querySelector('.price-input');
-
-                // ڕێستکردنەوەی ڕەنگی سوور
-                prodSelect.style.border = '';
-                qtyInput.style.border = '';
-                priceInput.style.border = '';
-
-                if (prodSelect.value) { // تەنها ڕیزە پڕکراوەکان پشکنین بکە
-                    const price = parseFloat(priceInput.value) || 0;
-                    const qty = parseFloat(qtyInput.value) || 0;
-
-                    if (price <= 0) {
-                        priceInput.style.border = '2px solid red';
-                        hasError = true;
-                    }
-                    if (qty <= 0) {
-                        qtyInput.style.border = '2px solid red';
-                        hasError = true;
-                    }
-                    validRowsCount++;
-                }
+                const qi = row.querySelector('.qty-input'), pi = row.querySelector('.price-input');
+                qi.style.border = ''; pi.style.border = '';
+                if ((parseFloat(qi.value) || 0) <= 0) { qi.style.border = '2px solid red'; hasError = true; }
+                if ((parseFloat(pi.value) || 0) <= 0) { pi.style.border = '2px solid red'; hasError = true; }
             });
-
             if (hasError) {
-                alert('تکایە نرخی کڕین و بڕی کاڵاکانی دیاریکراو بە دروستی پڕبکەرەوە! (خانە سوورەکان)');
-                e.preventDefault();
-                return false;
+                alert('تکایە نرخی کڕین و بڕی کاڵاکان بە دروستی پڕبکەرەوە! (خانە سوورەکان)'); e.preventDefault(); return false;
             }
-
-            if (validRowsCount === 0) {
-                alert('تکایە لانیکەم یەک کاڵا هەڵبژێرە و پڕی بکەرەوە بۆ ئەوەی وەسڵەکە تۆمار بکرێت!');
-                e.preventDefault();
-                return false;
-            }
-
-            // لابردنی ڕیزە بەتاڵەکان پێش ناردن بۆ داتابەیس
-            rows.forEach(row => {
-                const prodSelect = row.querySelector('.prod-select');
-                if (!prodSelect.value) {
-                    row.querySelectorAll('input, select').forEach(el => el.disabled = true);
-                }
-            });
-
             return true;
         }
 
-        addRow();
+        /* ---------- دەستپێک ---------- */
+        setCurrency(currentCurrency);
+        togglePaid();
+        // ئەگەر هەڵە هەبوو، کاڵاکانی پێشوو دەگەڕێنرێنەوە
+        Object.values(oldItems || {}).forEach(it => {
+            if (it && it.product_id) addProduct(it.product_id, { force: true, qty: it.quantity, price: it.buy_price, unit_id: it.unit_id });
+        });
+        calcTotal();
 
-        // مۆداڵی دابینکەران
+        /* ---------- مۆداڵی دابینکەران ---------- */
         function openSuppliersModal() {
-            const modal = document.getElementById('suppliersModal');
-            const iframe = document.getElementById('suppliersIframe');
-            const loading = document.getElementById('suppliersLoading');
-
-            modal.classList.remove('hidden');
-            loading.classList.remove('hidden');
-            iframe.classList.add('hidden');
-
-            iframe.src = @json(route('suppliers.index')) + '?embedded=1';
+            $('suppliersModal').classList.remove('hidden');
+            $('suppliersLoading').classList.remove('hidden');
+            $('suppliersIframe').classList.add('hidden');
+            $('suppliersIframe').src = @json(route('suppliers.index')) + '?embedded=1';
         }
-
         function closeSuppliersModal() {
-            document.getElementById('suppliersModal').classList.add('hidden');
-            document.getElementById('suppliersIframe').src = '';
+            $('suppliersModal').classList.add('hidden');
+            $('suppliersIframe').src = '';
         }
-
         function refreshSuppliersIframe() {
-            const iframe = document.getElementById('suppliersIframe');
-            document.getElementById('suppliersLoading').classList.remove('hidden');
+            const iframe = $('suppliersIframe');
+            $('suppliersLoading').classList.remove('hidden');
             iframe.classList.add('hidden');
             iframe.src = iframe.src;
         }
-
         function hideSuppliersLoading() {
-            const iframe = document.getElementById('suppliersIframe');
+            const iframe = $('suppliersIframe');
             if (!iframe.getAttribute('src')) return;
-            document.getElementById('suppliersLoading').classList.add('hidden');
+            $('suppliersLoading').classList.add('hidden');
             iframe.classList.remove('hidden');
         }
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const modal = document.getElementById('suppliersModal');
-                if (modal && !modal.classList.contains('hidden')) closeSuppliersModal();
-            }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && !$('suppliersModal').classList.contains('hidden')) closeSuppliersModal();
         });
     </script>
 </body>
