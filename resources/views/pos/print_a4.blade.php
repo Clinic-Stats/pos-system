@@ -12,8 +12,8 @@
     $L = \App\Support\InvoiceLabels::forSetting($setting);   // نووسینەکان لە ڕێکخستنەوە
     $isUsd = ($sale->currency ?? 'IQD') === 'USD';
     $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';
-    $fmtShort = fn($v) => $isUsd ? number_format((float) $v, 2) : number_format((float) $v);
-    $curLabel = $isUsd ? '$' : 'د.ع';
+    // ژمارەکانی خشتەکە: ئێستا نیشانەی $ یان د.ع یان لەگەڵە
+    $fmtShort = $fmt;
 
     $totalWeightKg = 0;
     foreach ($sale->details as $item) {
@@ -82,6 +82,8 @@
         .inv-sum2 .val { width: 28%; padding: 5px 4px; font-size: 13px; white-space: normal; }
         .inv-sum2 .val.big { font-size: 14px; }
 
+        .num { direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
+
         @media print {
             @page {
                 size: A4 portrait;
@@ -147,9 +149,10 @@
 
         <div class="inv-dash"></div>
 
-        <!-- ═══════ ناوی کڕیار ═══════ -->
+        <!-- ═══════ ناونیشانی پسووڵە و ناوی کڕیار ═══════ -->
         <div class="text-center py-3">
-            <div class="text-[26px] font-black text-slate-900">{{ $custName }}</div>
+            <div class="text-[26px] font-black text-slate-900">پسووڵەی فرۆشتن</div>
+            <div class="text-[15px] font-extrabold text-slate-800 mt-1">کڕیار : {{ $custName }}</div>
         </div>
 
         <!-- ═══════ زانیاری وەسڵ ═══════ -->
@@ -176,8 +179,8 @@
                     <th>{{ $L['col_item'] }}</th>
                     <th style="width:11%">{{ $L['col_unit'] }}</th>
                     <th style="width:10%">{{ $L['col_qty'] }}</th>
-                    <th style="width:14%">{{ $L['col_price'] }} ({{ $curLabel }})</th>
-                    <th style="width:15%">{{ $L['col_total'] }} ({{ $curLabel }})</th>
+                    <th style="width:14%">{{ $L['col_price'] }}</th>
+                    <th style="width:15%">{{ $L['col_total'] }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -192,8 +195,8 @@
                     <td class="name">{{ $item->product->name ?? '-' }}</td>
                     <td>{{ $item->unit->name ?? 'دانە' }}</td>
                     <td class="font-mono {{ fmod($qty, 1) != 0 ? 'frac' : '' }}">{{ $qty }}</td>
-                    <td class="font-mono" dir="ltr">{{ $fmtShort($price) }}</td>
-                    <td class="font-mono" dir="ltr">{{ $fmtShort($item->line_total) }}</td>
+                    <td class="font-mono num">{{ $fmtShort($price) }}</td>
+                    <td class="font-mono num">{{ $fmtShort($item->line_total) }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -202,7 +205,7 @@
                     <td colspan="4" style="text-align:right"><div style="display:flex;justify-content:space-between;align-items:center"><span>{{ $L['total_row'] }}</span><span class="font-mono">{{ number_format($totalWeightKg, 2) }} کگم@if($totalWeightKg >= 1000) <span style="font-size:12px">({{ number_format($totalWeightKg / 1000, 2) }} تەن)</span>@endif</span><span style="visibility:hidden">{{ $L['total_row'] }}</span></div></td>
                     <td class="font-mono">{{ $totalQty }}</td>
                     <td></td>
-                    <td class="font-mono" dir="ltr">{{ $fmtShort($itemsTotal) }}</td>
+                    <td class="font-mono num">{{ $fmtShort($itemsTotal) }}</td>
                 </tr>
             </tfoot>
         </table>

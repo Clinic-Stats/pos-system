@@ -43,6 +43,7 @@
         .table th, .table td { border: 1px solid #ccc; padding: 8px 10px; text-align: center; }
         .table th { background-color: #111; color: #fff; font-weight: bold; }
         .table tbody tr:nth-child(even) { background: #f9fafb; }
+        .num { direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
         .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
         .weight-box { border: 2px dashed #444; padding: 12px; text-align: center; font-weight: bold; font-size: 14px; background-color: #f9fafb; border-radius: 8px; }
         .totals { border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; padding: 8px 12px; }
@@ -132,9 +133,9 @@
                     <td>{{ $index + 1 }}</td>
                     <td style="text-align:right;font-weight:bold;">{{ $item->product->name ?? 'کاڵا' }}</td>
                     <td>{{ $item->unit->name ?? 'کگ' }}</td>
-                    <td>{{ (float) $item->quantity }}</td>
-                    <td dir="ltr">{{ $fmt($item->unit_buy_price) }}</td>
-                    <td dir="ltr" style="font-weight:bold;">{{ $fmt($item->subtotal) }}</td>
+                    <td class="num">{{ (float) $item->quantity }}</td>
+                    <td class="num">{{ $fmt($item->unit_buy_price) }}</td>
+                    <td class="num" style="font-weight:bold;">{{ $fmt($item->subtotal) }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -145,9 +146,9 @@
             <div class="weight-box">
                 کۆی کێشی گشتی بارەکە:
                 <div style="margin-top:4px;">
-                    {{ number_format($totalKg, 2) }} کیلۆگرام
+                    <span class="num">{{ number_format($totalKg, 2) }}</span> کیلۆگرام
                     @if($totalKg >= 1000)
-                    <span style="color:#4b5563;font-weight:normal;">({{ number_format($totalKg / 1000, 3) }} تەن)</span>
+                    <span style="color:#4b5563;font-weight:normal;">(<span class="num">{{ number_format($totalKg / 1000, 3) }}</span> تەن)</span>
                     @endif
                 </div>
             </div>
@@ -155,16 +156,16 @@
             <div class="totals">
                 <div class="row grand">
                     <span>کۆی گشتی کڕین:</span>
-                    <span dir="ltr">{{ $fmt($purchase->total_amount) }}</span>
+                    <span class="num">{{ $fmt($purchase->total_amount) }}</span>
                 </div>
                 @if(($purchase->payment_type ?? 'cash') === 'debt')
                 <div class="row">
                     <span>پارەی دراو:</span>
-                    <span dir="ltr">{{ $fmt($purchase->paid_amount) }}</span>
+                    <span class="num">{{ $fmt($purchase->paid_amount) }}</span>
                 </div>
                 <div class="row debt">
                     <span>ماوە (قەرز):</span>
-                    <span dir="ltr">{{ $fmt($purchase->remaining_amount) }}</span>
+                    <span class="num">{{ $fmt($purchase->remaining_amount) }}</span>
                 </div>
                 @endif
             </div>
@@ -183,7 +184,7 @@
     function closeOrRedirect(url) {
         // هەوڵدان بۆ داخستنی تابەکە
         window.close();
-        
+
         // ئەگەر وێبگەڕەکە ڕێگەی نەدا تابەکە دابخرێت، دوای ١٠٠ میلی چرکە دەگەڕێتەوە بۆ لیستەکە
         setTimeout(function() {
             window.location.href = url;
