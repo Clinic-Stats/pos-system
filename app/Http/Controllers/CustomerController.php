@@ -90,9 +90,7 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'پارەدانەوەکە سڕایەوە');
     }
 
-    public function statement($id)
-    {
-
+   public function statement($id)
     {
         // ─── پاراستنی لینکەکە بۆ کەسانی دەرەوە (کڕیار) ───
         if (!auth()->check()) {
@@ -101,6 +99,8 @@ class CustomerController extends Controller
                 abort(403, 'ببورە، ئەم لینکە ڕێگەپێدراو نییە یان هەڵەیە.');
             }
         }
+        // ──────────────────────────────────────
+
         $customer = Customer::with([
             'sales.details.product',
             'sales.details.unit',
@@ -128,7 +128,6 @@ class CustomerController extends Controller
                 'user_name'   => $sale->user->name ?? 'سیستەم',
             ]);
         }
-
         // ٢. وەرگرتنەوەی قەرزەکان
         foreach ($customer->payments as $pay) {
             $rawDate = $pay->payment_date ? Carbon::parse($pay->payment_date) : $pay->created_at;
