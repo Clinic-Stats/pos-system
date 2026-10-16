@@ -33,6 +33,9 @@
         $setting = \App\Models\Setting::first();
         $hasDebt = ($summary['USD']['debt'] ?? 0) > 0 || ($summary['IQD']['debt'] ?? 0) > 0;
     @endphp
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $setting->shop_name ?? 'کۆمپانیای بازرگانی' }} - کەشفی حیساب">
+    <meta property="og:description" content="کەشفی حیسابی {{ $customer->name }} · بۆ بینینی بە تەواوی کلیک بکە">
     {{-- ئەم دوو فایلە تەنها بۆ ئەدمین، بۆ ئەوەی لە لینکی کڕیاردا هیچ شتێکی ناوخۆیی نەیەتە ژوورەوە --}}
     @auth
         @include('partials.system-head')

@@ -32,6 +32,9 @@
     }
     }
     @endphp
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $setting->shop_name ?? 'کۆمپانیای بازرگانی' }} - پسووڵەی فرۆشتن {{ $sale->invoice_no }}">
+    <meta property="og:description" content="کۆی گشتی: {{ $fmt($sale->total_amount) }} · بۆ بینینی وەسڵەکە کلیک بکە">
     <style>
         @page {
             size: {{ $paperWidth }} auto;

@@ -22,6 +22,7 @@ use App\Http\Controllers\StockLossController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BackupAndExportController;
 use App\Http\Controllers\CustomerOrderController; 
+use App\Http\Controllers\ShareController;
 
 // ============================================
 // ١. بەشی کڕیاران ئۆنلاین (دەرەوەی Auth - بەبێ لۆگین دەکرێتەوە)
@@ -36,6 +37,12 @@ Route::post('/order', [CustomerOrderController::class, 'store'])->middleware('th
 //     لینکەکان لە WhatsAppReceipt::saleUrl() و statementUrl() دروست دەکرێن.
 //     middleware('signed') ڕێگری دەکات لە دەستکاریکردنی ID یان دروستکردنی لینکی ساختە.
 // ============================================
+// لینکی کورتی پارێزراو (ئەمە لەلایەن WhatsAppReceipt دروست دەکرێت)
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/s/{code}', [ShareController::class, 'sale'])->name('share.sale');
+    Route::get('/k/{code}', [ShareController::class, 'statement'])->name('share.statement');
+});
+
 Route::middleware('signed:relative')->group(function () {
     Route::get('/share/sale/{id}', [SaleController::class, 'print'])->name('sales.print.public');
     Route::get('/share/statement/{id}', [CustomerController::class, 'publicStatement'])->name('customers.statement.public');

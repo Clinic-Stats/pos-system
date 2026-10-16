@@ -47,16 +47,30 @@ class WhatsAppReceipt
         return 'https://wa.me/' . (self::phone($phone) ?? '') . '?text=' . rawurlencode($text);
     }
 
+    /** کۆدی کورتی پارێزراو: ID + ١٢ پیتی HMAC (بە APP_KEY). کەس ناتوانێت ID بگۆڕێت */
+    protected static function code(string $kind, $id): string
+    {
+        return $id . '-' . substr(hash_hmac('sha256', $kind . '|' . $id, (string) config('app.key')), 0, 12);
+    }
+
+    /** پشکنینی کۆد؛ ئەگەر دروست بوو ID دەگەڕێنێتەوە، ئەگەر نا null */
+    public static function verify(string $kind, string $code): ?int
+    {
+        [$id, $sig] = array_pad(explode('-', $code, 2), 2, '');
+        if ($id === '' || !ctype_digit($id)) return null;
+        return hash_equals(self::code($kind, $id), $id . '-' . $sig) ? (int) $id : null;
+    }
+
     /** لینکی پارێزراوی وەسڵی فرۆشتن (بێ پێویستی بە لۆگین، و کەس ناتوانێت دەستکاری بکات) */
     public static function saleUrl($sale): string
     {
-        return url(URL::signedRoute('sales.print.public', ['id' => $sale->id, 'type' => 'a4'], null, false));
+        return url(route('share.sale', ['code' => self::code('sale', $sale->id)], false));
     }
 
     /** لینکی پارێزراوی کەشفی حیساب */
     public static function statementUrl(Customer $customer): string
     {
-        return url(URL::signedRoute('customers.statement.public', ['id' => $customer->id], null, false));
+        return url(route('share.statement', ['code' => self::code('statement', $customer->id)], false));
     }
 
     protected static function money($v, string $cur): string
