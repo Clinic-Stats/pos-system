@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>کەشفی حیسابی {{ $customer->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- لایبرەری html2canvas بۆ گۆڕینی پەڕەکە بۆ وێنە -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -41,26 +40,34 @@
 
     <div class="max-w-4xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-slate-200 print-card space-y-6">
 
-        {{-- دوگمەکانی سەرەوە --}}
+        {{-- دوگمەکانی سەرەوە (دەگۆڕێت بەپێی ئەوەی ئەدمینە یان کڕیار) --}}
         <div class="flex flex-wrap justify-between items-center gap-2 pb-4 border-b border-slate-200 no-print" id="action-buttons">
             <div class="flex flex-wrap items-center gap-2">
+                @auth
+                {{-- ئەم دوگمانە تەنها ئەدمین دەیبینێت --}}
                 <a href="{{ route('customers.index') }}" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
                     <i class="fa-solid fa-arrow-right"></i> گەڕانەوە بۆ کڕیاران
                 </a>
                 <button type="button" onclick="closeStatement()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
                     <i class="fa-solid fa-xmark"></i> داخستن
                 </button>
+                @endauth
+                
+                {{-- ئەم دوگمانە کڕیاریش دەیبینێت بۆ ئەوەی خۆی وەسڵەکە چاپ بکات یان دایبەزێنێت --}}
                 <button type="button" onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-blue-500/30 transition">
-                    <i class="fa-solid fa-print"></i> چاپکردن (A4) / PDF
+                    <i class="fa-solid fa-print"></i> چاپکردن / PDF
                 </button>
-                <!-- دوگمەی نوێ بۆ داگرتنی وەکو وێنە -->
                 <button type="button" onclick="downloadAsImage()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-purple-500/30 transition">
                     <i class="fa-solid fa-camera"></i> داگرتن وەکو وێنە
                 </button>
+                
+                @auth
+                {{-- دوگمەی ناردنی واتساپ تەنها ئەدمین دەیبینێت --}}
                 <a href="{{ \App\Support\WhatsAppReceipt::link($customer->phone, \App\Support\WhatsAppReceipt::statement($customer)) }}" target="_blank" rel="noopener"
                    class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
                     <i class="fa-brands fa-whatsapp"></i> ناردنی کەشف بە واتساپ
                 </a>
+                @endauth
             </div>
             <span class="text-xs text-slate-500">
                 بەرواری دەرچوون:
@@ -209,7 +216,7 @@
                         <th class="p-2.5">بڕی دراو</th>
                         <th class="p-2.5">دراو</th>
                         <th class="p-2.5">تێبینی</th>
-                        <th class="p-2.5 text-center">کردار</th>
+                        @auth <th class="p-2.5 text-center">کردار</th> @endauth
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
@@ -219,46 +226,55 @@
                         $pc = \App\Models\Customer::normalizeCurrency($payment->currency);
                     @endphp
                     <tr>
-                        <td class="p-2">
-                            <input form="{{ $fid }}" type="date" name="payment_date" value="{{ $payment->payment_date ?? $payment->created_at->format('Y-m-d') }}" class="p-1 border border-slate-300 rounded font-mono text-xs">
-                        </td>
-                        <td class="p-2 font-bold text-blue-600">{{ $payment->user->name ?? 'سیستەم' }}</td>
-                        <td class="p-2">
-                            <input form="{{ $fid }}" type="number" step="any" min="0.01" name="amount" value="{{ $payment->amount }}" class="p-1 border border-slate-300 rounded font-mono text-xs w-28">
-                        </td>
-                        <td class="p-2">
-                            <select form="{{ $fid }}" name="currency" class="p-1 border border-slate-300 rounded text-xs font-bold">
-                                <option value="USD" {{ $pc === 'USD' ? 'selected' : '' }}>$ دۆلار</option>
-                                <option value="IQD" {{ $pc === 'IQD' ? 'selected' : '' }}>د.ع دینار</option>
-                            </select>
-                        </td>
-                        <td class="p-2">
-                            <input form="{{ $fid }}" type="text" name="note" value="{{ $payment->note }}" placeholder="تێبینی" class="p-1 border border-slate-300 rounded text-xs w-full">
-                        </td>
-                        <td class="p-2">
-                            <div class="flex items-center justify-center gap-2">
-                                {{-- ناردنی وەسڵی قەبز بە واتساپ --}}
-                                <a href="{{ \App\Support\WhatsAppReceipt::link($customer->phone, \App\Support\WhatsAppReceipt::payment($payment, $customer)) }}" target="_blank" rel="noopener"
-                                   title="ناردنی وەسڵی قەبز بە واتساپ"
-                                   class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-[11px] font-bold flex items-center gap-1">
-                                    <i class="fa-brands fa-whatsapp"></i> وەسڵی قەبز
-                                </a>
-                                <form id="{{ $fid }}" action="{{ route('customer_payments.update', $payment->id) }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[11px] font-bold">گۆڕین</button>
-                                </form>
-                                <form action="{{ route('customer_payments.destroy', $payment->id) }}" method="POST" onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم پارەدانەوەیە؟')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="bg-rose-500 hover:bg-rose-600 text-white px-2 py-1 rounded text-[11px] font-bold">سڕینەوە</button>
-                                </form>
-                            </div>
-                        </td>
+                        @auth
+                            {{-- ئەم بەشە ئەدمین دەیبینێت بۆ دەستکاریکردن --}}
+                            <td class="p-2">
+                                <input form="{{ $fid }}" type="date" name="payment_date" value="{{ $payment->payment_date ?? $payment->created_at->format('Y-m-d') }}" class="p-1 border border-slate-300 rounded font-mono text-xs">
+                            </td>
+                            <td class="p-2 font-bold text-blue-600">{{ $payment->user->name ?? 'سیستەم' }}</td>
+                            <td class="p-2">
+                                <input form="{{ $fid }}" type="number" step="any" min="0.01" name="amount" value="{{ $payment->amount }}" class="p-1 border border-slate-300 rounded font-mono text-xs w-28">
+                            </td>
+                            <td class="p-2">
+                                <select form="{{ $fid }}" name="currency" class="p-1 border border-slate-300 rounded text-xs font-bold">
+                                    <option value="USD" {{ $pc === 'USD' ? 'selected' : '' }}>$ دۆلار</option>
+                                    <option value="IQD" {{ $pc === 'IQD' ? 'selected' : '' }}>د.ع دینار</option>
+                                </select>
+                            </td>
+                            <td class="p-2">
+                                <input form="{{ $fid }}" type="text" name="note" value="{{ $payment->note }}" placeholder="تێبینی" class="p-1 border border-slate-300 rounded text-xs w-full">
+                            </td>
+                            <td class="p-2">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{{ \App\Support\WhatsAppReceipt::link($customer->phone, \App\Support\WhatsAppReceipt::payment($payment, $customer)) }}" target="_blank" rel="noopener"
+                                       title="ناردنی وەسڵی قەبز بە واتساپ"
+                                       class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-[11px] font-bold flex items-center gap-1">
+                                        <i class="fa-brands fa-whatsapp"></i> قەبز
+                                    </a>
+                                    <form id="{{ $fid }}" action="{{ route('customer_payments.update', $payment->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded text-[11px] font-bold">گۆڕین</button>
+                                    </form>
+                                    <form action="{{ route('customer_payments.destroy', $payment->id) }}" method="POST" onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم پارەدانەوەیە؟')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="bg-rose-500 hover:bg-rose-600 text-white px-2 py-1 rounded text-[11px] font-bold">سڕینەوە</button>
+                                    </form>
+                                </div>
+                            </td>
+                        @else
+                            {{-- ئەم بەشە کڕیار دەیبینێت (هیچ شتێک دەستکاری ناکرێت) --}}
+                            <td class="p-2 font-mono text-xs">{{ $payment->payment_date ?? $payment->created_at->format('Y-m-d') }}</td>
+                            <td class="p-2 font-bold text-blue-600">{{ $payment->user->name ?? 'سیستەم' }}</td>
+                            <td class="p-2 font-mono font-bold text-emerald-600" dir="ltr">{{ $fmt($payment->amount, $pc) }}</td>
+                            <td class="p-2 text-xs font-bold">{{ $pc === 'USD' ? '$ دۆلار' : 'د.ع دینار' }}</td>
+                            <td class="p-2 text-xs text-slate-500">{{ $payment->note ?: '-' }}</td>
+                        @endauth
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="p-4 text-center text-slate-400">هیچ پارەدانەوەیەک نییە</td>
+                        <td colspan="@auth 6 @else 5 @endauth" class="p-4 text-center text-slate-400">هیچ پارەدانەوەیەک نییە</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -282,7 +298,6 @@
     </div>
 
     <script>
-        // ئەگەر لە تابێکی نوێ کراوەتەوە دادەخرێت؛ ئەگەر نا دەگەڕێتەوە بۆ لیستی کڕیاران
         function closeStatement() {
             window.close();
             setTimeout(function () {
@@ -290,25 +305,19 @@
             }, 250);
         }
 
-        // فەنکشنی وێنەگرتن و داگرتنی کەشفی حیساب
         function downloadAsImage() {
             const element = document.querySelector(".print-card");
             const buttons = document.getElementById("action-buttons");
             
-            // شاردنەوەی دوگمەکان کاتی وێنەگرتن بۆ ئەوەی دەرنەکەون لە وێنەکەدا
             const originalDisplay = buttons.style.display;
             buttons.style.display = 'none';
             
-            // دروستکردنی وێنەکە
             html2canvas(element, {
-                scale: 2, // ڕوونی بەرز
+                scale: 2,
                 useCORS: true,
                 backgroundColor: "#ffffff"
             }).then(canvas => {
-                // هێنانەوەی دوگمەکان دوای تەواوبوون
                 buttons.style.display = originalDisplay || 'flex';
-                
-                // دروستکردنی فایل و داگرتنی بۆ ناو مۆبایل یان کۆمپیوتەر
                 let link = document.createElement('a');
                 link.download = 'کەشفی_حیسابی_{{ str_replace(" ", "_", $customer->name) }}.png';
                 link.href = canvas.toDataURL('image/png');
