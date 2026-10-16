@@ -114,6 +114,20 @@ class WhatsAppReceipt
 
         $L = array_merge($L, self::debtLines($sale->customer));
         $L[] = '';
+
+        $L = array_merge($L, self::debtLines($sale->customer));
+        
+        // ─── ئەم چەند دێڕە زیاد بکە بۆ دانانی لینکی وەسڵەکە ───
+        $L[] = '━━━━━━━━━━━━';
+        $L[] = '📎 بۆ بینینی وەسڵەکەت بە وێنە/PDF کلیک لێرە بکە:';
+        $L[] = route('sales.print', $sale->id); // ئەمە لینکە درێژەکە دروست دەکات خۆکارانە
+        // ──────────────────────────────────────────────
+        
+        $L[] = '';
+        $L[] = self::footer();
+
+        return implode("\n", $L);
+
         $L[] = self::footer();
 
         return implode("\n", $L);

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>کەشفی حیسابی {{ $customer->name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- لایبرەری html2canvas بۆ گۆڕینی پەڕەکە بۆ وێنە -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -40,7 +42,7 @@
     <div class="max-w-4xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-slate-200 print-card space-y-6">
 
         {{-- دوگمەکانی سەرەوە --}}
-        <div class="flex flex-wrap justify-between items-center gap-2 pb-4 border-b border-slate-200 no-print">
+        <div class="flex flex-wrap justify-between items-center gap-2 pb-4 border-b border-slate-200 no-print" id="action-buttons">
             <div class="flex flex-wrap items-center gap-2">
                 <a href="{{ route('customers.index') }}" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
                     <i class="fa-solid fa-arrow-right"></i> گەڕانەوە بۆ کڕیاران
@@ -50,6 +52,10 @@
                 </button>
                 <button type="button" onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-blue-500/30 transition">
                     <i class="fa-solid fa-print"></i> چاپکردن (A4) / PDF
+                </button>
+                <!-- دوگمەی نوێ بۆ داگرتنی وەکو وێنە -->
+                <button type="button" onclick="downloadAsImage()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-purple-500/30 transition">
+                    <i class="fa-solid fa-camera"></i> داگرتن وەکو وێنە
                 </button>
                 <a href="{{ \App\Support\WhatsAppReceipt::link($customer->phone, \App\Support\WhatsAppReceipt::statement($customer)) }}" target="_blank" rel="noopener"
                    class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
@@ -166,7 +172,7 @@
                             @if(!empty($row['details']) && count($row['details']) > 0)
                                 <div class="text-[10px] text-slate-500 mt-1">
                                     @foreach($row['details'] as $item)
-                                        <span>• {{ $item->product->name ?? '' }} ({{ $item->quantity }} {{ $item->unit->name ?? '' }}{{ isset($item->condition_type) ? ' - ' . ($item->condition_type === 'normal' ? 'ئاسایی' : ($item->condition_type === 'expired' ? 'بەسەرچوو' : 'تێکچوو')) : '' }})</span>
+                                        <span>{{ $item->product->name ?? '' }} ({{ $item->quantity }} {{ $item->unit->name ?? '' }}{{ isset($item->condition_type) ? ' - ' . ($item->condition_type === 'normal' ? 'ئاسایی' : ($item->condition_type === 'expired' ? 'بەسەرچوو' : 'تێکچوو')) : '' }})</span>
                                     @endforeach
                                 </div>
                             @endif
@@ -282,6 +288,36 @@
             setTimeout(function () {
                 window.location.href = "{{ route('customers.index') }}";
             }, 250);
+        }
+
+        // فەنکشنی وێنەگرتن و داگرتنی کەشفی حیساب
+        function downloadAsImage() {
+            const element = document.querySelector(".print-card");
+            const buttons = document.getElementById("action-buttons");
+            
+            // شاردنەوەی دوگمەکان کاتی وێنەگرتن بۆ ئەوەی دەرنەکەون لە وێنەکەدا
+            const originalDisplay = buttons.style.display;
+            buttons.style.display = 'none';
+            
+            // دروستکردنی وێنەکە
+            html2canvas(element, {
+                scale: 2, // ڕوونی بەرز
+                useCORS: true,
+                backgroundColor: "#ffffff"
+            }).then(canvas => {
+                // هێنانەوەی دوگمەکان دوای تەواوبوون
+                buttons.style.display = originalDisplay || 'flex';
+                
+                // دروستکردنی فایل و داگرتنی بۆ ناو مۆبایل یان کۆمپیوتەر
+                let link = document.createElement('a');
+                link.download = 'کەشفی_حیسابی_{{ str_replace(" ", "_", $customer->name) }}.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                buttons.style.display = originalDisplay || 'flex';
+                console.error("کێشەیەک هەیە لە وێنەگرتنەکە:", err);
+                alert("هەڵەیەک ڕوویدا لە کاتی دروستکردنی وێنەکە");
+            });
         }
     </script>
 </body>
