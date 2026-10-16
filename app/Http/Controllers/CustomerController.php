@@ -92,6 +92,15 @@ class CustomerController extends Controller
 
     public function statement($id)
     {
+
+    {
+        // ─── پاراستنی لینکەکە بۆ کەسانی دەرەوە (کڕیار) ───
+        if (!auth()->check()) {
+            $expectedToken = substr(md5(request()->route('id') . config('app.key')), 0, 10);
+            if (request()->token !== $expectedToken) {
+                abort(403, 'ببورە، ئەم لینکە ڕێگەپێدراو نییە یان هەڵەیە.');
+            }
+        }
         $customer = Customer::with([
             'sales.details.product',
             'sales.details.unit',

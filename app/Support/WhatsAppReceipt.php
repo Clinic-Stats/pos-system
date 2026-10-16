@@ -183,10 +183,13 @@ class WhatsAppReceipt
             $L[] = '⏳ ماوە: ' . self::money($s[$cur]['debt'] ?? 0, $cur);
         }
 
-        // ─── زیادکردنی لینکی کەشفی حیساب ───
+        // ─── زیادکردنی لینکی پارێزراو (بە پاسۆردی شاراوە) ───
         $L[] = '━━━━━━━━━━━━';
         $L[] = '📎 بۆ بینینی کەشفی حیسابەکەت بە تەواوی (وێنە یان PDF) کلیک لێرە بکە:';
-        $L[] = route('customers.statement', $customer->id); 
+        
+        // دروستکردنی تۆکن بۆ ئەوەی کەس نەتوانێت لینکەکە دەستکاری بکات
+        $token = substr(md5($customer->id . config('app.key')), 0, 10);
+        $L[] = route('customers.statement', ['id' => $customer->id, 'token' => $token]); 
         // ───────────────────────────────
 
         $L[] = '';
