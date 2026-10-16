@@ -10,6 +10,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body { font-family: 'Noto Sans Arabic', sans-serif; }
+
+        /* ═══ مۆبایل: کەشفی حیساب بە شێوەی کارت (چاپ و کۆمپیوتەر ناگۆڕێن) ═══ */
+        @media screen and (max-width: 640px) {
+            body { padding: .5rem !important; }
+            .sheet { padding: .85rem !important; border-radius: 1rem !important; }
+            .co-head { flex-wrap: wrap; justify-content: center; text-align: center; }
+            .co-head > * { flex: 1 1 100% !important; text-align: center !important; }
+            .co-head .w-28 { flex: 0 0 auto !important; width: 6rem; margin: 0 auto; }
+            .co-head [dir="ltr"] { text-align: center !important; }
+            .cust-head { flex-direction: column; }
+            .cust-head > div:last-child { min-width: 0 !important; width: 100%; }
+            .sum-table th, .sum-table td { padding: .4rem .15rem !important; font-size: 10px !important; }
+            .ledger thead { display: none; }
+            .ledger, .ledger tbody, .ledger tr, .ledger td { display: block; width: 100%; }
+            .ledger tr { border: 1px solid #e2e8f0; border-radius: .8rem; margin-bottom: .6rem; padding: .35rem .7rem; }
+            .ledger td { display: flex; justify-content: space-between; align-items: flex-start; gap: .6rem;
+                         padding: .3rem 0 !important; text-align: right !important; border: 0; }
+            .ledger td::before { content: attr(data-label); color: #64748b; font-size: 10px; font-weight: 700; flex-shrink: 0; padding-top: 2px; }
+            .ledger td.desc { flex-direction: column; gap: .15rem; }
+            .ledger td[colspan]::before { content: none; }
+            .ledger td[colspan] { display: block; text-align: center !important; }
+        }
+
         @media print {
             @page { size: A4 portrait; margin: 10mm 12mm; }
             .no-print { display: none !important; }
@@ -44,7 +67,7 @@
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen p-4 md:p-8">
 
-    <div class="max-w-4xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-slate-200 print-card space-y-6">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-slate-200 print-card sheet space-y-6">
 
         {{-- دوگمەکانی سەرەوە: تەنها ئەدمین دەیانبینێت، کڕیار هیچیان نابینێت --}}
         <div class="flex flex-wrap justify-between items-center gap-2 pb-4 border-b border-slate-200 no-print" id="action-buttons">
@@ -75,7 +98,7 @@
         </div>
 
         {{-- سەرپەڕەی کۆمپانیا --}}
-        <div class="flex justify-between items-center gap-4 pb-4 border-b-2 border-slate-800">
+        <div class="co-head flex justify-between items-center gap-4 pb-4 border-b-2 border-slate-800">
             <div class="space-y-1 flex-1">
                 <div class="text-xl font-black text-slate-900">{{ $setting->shop_name ?? 'کۆمپانیای بازرگانی' }}</div>
                 @if(!empty($setting->shop_address))
@@ -98,7 +121,7 @@
         </div>
 
         {{-- زانیاری کڕیار و کۆی قەرز --}}
-        <div class="flex justify-between items-start gap-4">
+        <div class="cust-head flex justify-between items-start gap-4">
             <div>
                 <h1 class="text-2xl font-black text-slate-800">{{ $customer->name }}</h1>
                 <div class="text-xs text-slate-500 space-y-0.5 mt-2">
@@ -128,7 +151,7 @@
 
         {{-- پوختەی حیساب بۆ هەر دراوێک --}}
         <div class="bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
-            <table class="w-full text-xs text-center">
+            <table class="sum-table w-full text-xs text-center">
                 <thead class="bg-slate-100 text-slate-500">
                     <tr>
                         <th class="p-2.5">دراو</th>
@@ -152,7 +175,7 @@
 
         {{-- خشتەی جووڵەکان --}}
         <div class="overflow-x-auto">
-            <table class="w-full text-xs text-right border-collapse">
+            <table class="ledger w-full text-xs text-right border-collapse">
                 <thead>
                     <tr class="bg-slate-100 text-slate-600 border-b border-slate-200">
                         <th class="p-3">بەروار</th>
@@ -168,9 +191,9 @@
                     @forelse($ledger as $row)
                     @php $cur = $row['currency']; @endphp
                     <tr class="{{ $row['type'] === 'payment' ? 'bg-emerald-50/40' : ($row['type'] === 'return' ? 'bg-amber-50/60' : '') }}">
-                        <td class="p-3 font-mono text-slate-500">{{ $row['date'] }}</td>
-                        <td class="p-3 font-mono font-bold text-slate-700">{{ $row['reference'] }}</td>
-                        <td class="p-3">
+                        <td class="p-3 font-mono text-slate-500" data-label="بەروار">{{ $row['date'] }}</td>
+                        <td class="p-3 font-mono font-bold text-slate-700" data-label="ژمارەی بەڵگە">{{ $row['reference'] }}</td>
+                        <td class="desc p-3" data-label="ڕوونکردنەوە">
                             <div class="font-bold {{ $row['type'] === 'return' ? 'text-amber-800' : ($row['type'] === 'payment' ? 'text-emerald-800' : 'text-slate-800') }}">
                                 {{ $row['description'] }}
                                 <span class="mr-1 px-1.5 py-0.5 rounded text-[10px] font-black {{ $cur === 'USD' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600' }}">{{ $cur === 'USD' ? '$' : 'IQD' }}</span>
@@ -183,16 +206,10 @@
                                 </div>
                             @endif
                         </td>
-                        <td class="p-3 font-bold text-blue-600">{{ $row['user_name'] ?? 'سیستەم' }}</td>
-                        <td class="p-3 font-mono text-center font-bold text-slate-800" dir="ltr">
-                            {{ $row['debit'] > 0 ? $fmt($row['debit'], $cur) : '-' }}
-                        </td>
-                        <td class="p-3 font-mono text-center font-bold text-emerald-600" dir="ltr">
-                            {{ $row['credit'] > 0 ? $fmt($row['credit'], $cur) : '-' }}
-                        </td>
-                        <td class="p-3 font-mono text-left font-bold {{ $row['balance'] > 0 ? 'text-rose-600' : 'text-slate-900' }}" dir="ltr">
-                            {{ $fmt($row['balance'], $cur) }}
-                        </td>
+                        <td class="p-3 font-bold text-blue-600" data-label="تۆمارکار">{{ $row['user_name'] ?? 'سیستەم' }}</td>
+                        <td class="p-3 font-mono text-center font-bold text-slate-800" data-label="کڕین (قەرز)"><span dir="ltr">{{ $row['debit'] > 0 ? $fmt($row['debit'], $cur) : '-' }}</span></td>
+                        <td class="p-3 font-mono text-center font-bold text-emerald-600" data-label="پارەدانەوە / داشکاندن"><span dir="ltr">{{ $row['credit'] > 0 ? $fmt($row['credit'], $cur) : '-' }}</span></td>
+                        <td class="p-3 font-mono text-left font-bold {{ $row['balance'] > 0 ? 'text-rose-600' : 'text-slate-900' }}" data-label="ڕەسید (ماوە)"><span dir="ltr">{{ $fmt($row['balance'], $cur) }}</span></td>
                     </tr>
                     @empty
                     <tr>
