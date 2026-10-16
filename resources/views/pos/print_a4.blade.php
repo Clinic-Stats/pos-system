@@ -87,6 +87,31 @@
 
         .num { direction: ltr; unicode-bidi: isolate; white-space: nowrap; }
 
+
+        /* ═══ مۆبایل: وەسڵی A4 بە شێوەیەکی ڕێکتر نیشان دەدرێت (چاپ ناگۆڕێت) ═══ */
+        @media screen and (max-width: 640px) {
+            body { padding: .5rem !important; }
+            .sheet { padding: .85rem !important; border-radius: .9rem !important; }
+            .sheet h1.inv-title { font-size: 22px !important; padding-left: .25rem !important; padding-right: .25rem !important; }
+            .sheet p.px-24 { padding-left: .25rem !important; padding-right: .25rem !important; }
+            .logo-box { position: static !important; width: 4.5rem !important; height: 3.5rem !important; margin: 0 auto .4rem; }
+            .info-grid { grid-template-columns: 1fr !important; gap: .2rem !important; }
+            .info-grid > * { text-align: right !important; }
+            .cust-name { font-size: 18px !important; }
+            .inv-table th { font-size: 10px; padding: 5px 2px; }
+            .inv-table td { font-size: 11px; padding: 5px 2px; }
+            .inv-table td.name { font-size: 11.5px; }
+            .inv-table tfoot td { font-size: 12px; padding: 6px 2px; }
+            /* خشتەی کۆکان: لەجیاتی چوار ستوون، دوو ستوون لە هەر ڕیزێک */
+            .inv-sum2, .inv-sum2 tbody { display: block; width: 100% !important; margin: 0 !important; }
+            .inv-sum2 tr { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 6px; margin-bottom: 6px; }
+            .inv-sum2 td { display: block; width: auto !important; }
+            .inv-sum2 .lbl { font-size: 11px; padding: 6px 4px; }
+            .inv-sum2 .val { font-size: 13px; }
+            .inv-sum .lbl { font-size: 12px; padding: 8px 6px; }
+            .inv-sum .val { font-size: 14px; }
+        }
+
         @media print {
             @page {
                 size: A4 portrait;
@@ -142,7 +167,7 @@
         <!-- ═══════ سەردێڕ ═══════ -->
         <div class="relative text-center pb-4 min-h-[88px] flex flex-col items-center justify-center">
             @if(!empty($setting->shop_logo) && file_exists(public_path($setting->shop_logo)))
-            <div class="absolute left-0 top-0 w-24 h-24 flex items-center justify-center">
+            <div class="logo-box absolute left-0 top-0 w-24 h-24 flex items-center justify-center">
                 <img src="{{ asset($setting->shop_logo) }}" class="max-h-24 max-w-full object-contain">
             </div>
             @endif
@@ -164,12 +189,12 @@
         </div>
 
         <!-- ═══════ زانیاری وەسڵ ═══════ -->
-        <div class="grid grid-cols-3 gap-2 text-[14px] font-extrabold items-center pb-2">
+        <div class="info-grid grid grid-cols-3 gap-2 text-[14px] font-extrabold items-center pb-2">
             <div class="text-right">{{ $L['invoice_no'] }}&nbsp;&nbsp;<span class="text-[22px] font-black text-red-600 font-mono">{{ $sale->invoice_no }}</span></div>
-            <div class="text-center text-[22px] font-black text-slate-900 leading-tight">کڕیار : {{ $custName }}</div>
+            <div class="cust-name text-center text-[22px] font-black text-slate-900 leading-tight">کڕیار : {{ $custName }}</div>
             <div class="text-left">{{ $L['cashier'] }} : {{ $sale->user->name ?? 'ئەدمین' }}</div>
         </div>
-        <div class="grid grid-cols-3 gap-2 text-[13px] font-extrabold items-center pb-3">
+        <div class="info-grid grid grid-cols-3 gap-2 text-[13px] font-extrabold items-center pb-3">
             <div class="text-right">{{ $L['invoice_type'] }} : <span class="{{ $isDebtSale ? 'text-rose-700' : 'text-emerald-700' }}">{{ $isDebtSale ? $L['type_debt'] : $L['type_cash'] }}</span></div>
             <div class="text-center">@if($custPhone){{ $L['customer_phone'] }} : <span class="font-mono" dir="ltr">{{ $custPhone }}</span>@endif</div>
             <div class="text-left font-mono" dir="ltr">{{ $sale->created_at->format('j/n/y, g:i A') }}</div>

@@ -94,7 +94,7 @@ class WhatsAppReceipt
     {
         $s = self::setting();
         $lines = [];
-        if (!empty($s->shop_phone)) $lines[] = '☎ ' . $s->shop_phone;
+        if (!empty($s->shop_phone)) $lines[] = '' . $s->shop_phone;
         $lines[] = $s->invoice_footer ?? 'سوپاس بۆ مامەڵەکەتان';
         return implode("\n", $lines);
     }
@@ -109,7 +109,7 @@ class WhatsAppReceipt
             $debt = (float) ($s[$cur]['debt'] ?? 0);
             if ($debt > 0) $parts[] = self::money($debt, $cur);
         }
-        return $parts ? ['', '📌 *قەرزی گشتی ماوە:* ' . implode(' + ', $parts)] : [];
+        return $parts ? ['', '*قەرزی گشتی ماوە:* ' . implode(' + ', $parts)] : [];
     }
 
     /** وەسڵی فرۆشتن */
@@ -119,7 +119,7 @@ class WhatsAppReceipt
         $name = $sale->customer->name ?? ($sale->guest_name ?: 'کڕیاری گشتی');
 
         $L = [];
-        $L[] = '🧾 *' . self::shop() . '*';
+        $L[] = '*' . self::shop() . '*';
         $L[] = '*پسووڵەی فرۆشتن*';
         $L[] = '━━━━━━━━━━━━';
         $L[] = 'ژمارەی پسووڵە: ' . $sale->invoice_no;
@@ -135,7 +135,7 @@ class WhatsAppReceipt
                 $L[] = '… و ' . ($sale->details->count() - $max) . ' کاڵای تر (لە لینکی خوارەوە ببینە)';
                 break;
             }
-            $L[] = '▪ ' . ($d->product->name ?? 'کاڵا')
+            $L[] = '- ' . ($d->product->name ?? 'کاڵا')
                 . "\n   " . self::qty($d->quantity) . ' ' . ($d->unit->name ?? '')
                 . ' × ' . self::money($d->unit_price ?? ($d->line_total / ($d->quantity ?: 1)), $cur)
                 . ' = ' . self::money($d->line_total, $cur);
@@ -147,10 +147,10 @@ class WhatsAppReceipt
             $L[] = 'کۆی کاڵاکان: ' . self::money($sale->total_amount + $disc, $cur);
             $L[] = 'داشکاندن: ' . self::money($disc, $cur);
         }
-        $L[] = '💰 *کۆی گشتی: ' . self::money($sale->total_amount, $cur) . '*';
+        $L[] = '*کۆی گشتی: ' . self::money($sale->total_amount, $cur) . '*';
         if ($sale->payment_type === 'debt') {
             $L[] = 'پارەی دراو: ' . self::money($sale->paid_amount, $cur);
-            $L[] = '⏳ *ماوە (قەرز): ' . self::money($sale->remaining_amount, $cur) . '*';
+            $L[] = '*ماوە (قەرز): ' . self::money($sale->remaining_amount, $cur) . '*';
         }
 
         // قەرزی گشتی کڕیار (تەنها یەکجار)
@@ -159,7 +159,7 @@ class WhatsAppReceipt
         // لینکی پارێزراوی وەسڵەکە
         $L[] = '';
         $L[] = '━━━━━━━━━━━━';
-        $L[] = '📎 بۆ بینینی وەسڵەکەت بە وێنە/PDF کلیک لێرە بکە:';
+        $L[] = 'بۆ بینینی وەسڵەکەت بە وێنە/PDF کلیک لێرە بکە:';
         $L[] = self::saleUrl($sale);
 
         $L[] = '';
@@ -177,12 +177,12 @@ class WhatsAppReceipt
             : $payment->created_at->format('Y-m-d');
 
         $L = [];
-        $L[] = '🧾 *' . self::shop() . '*';
+        $L[] = '*' . self::shop() . '*';
         $L[] = '*وەسڵی قەبز (وەرگرتنی پارە)*';
         $L[] = '━━━━━━━━━━━━';
         $L[] = 'کڕیار: ' . $customer->name;
         $L[] = 'بەروار: ' . $date;
-        $L[] = '✅ *بڕی وەرگیراو: ' . self::money($payment->amount, $cur) . '*';
+        $L[] = '*بڕی وەرگیراو: ' . self::money($payment->amount, $cur) . '*';
         if (!empty($payment->note)) $L[] = 'تێبینی: ' . $payment->note;
 
         $s = method_exists($customer, 'currencySummary') ? $customer->currencySummary() : null;
@@ -190,8 +190,8 @@ class WhatsAppReceipt
             $rest = (float) ($s[$cur]['debt'] ?? 0);
             $L[] = '━━━━━━━━━━━━';
             $L[] = $rest > 0
-                ? '⏳ *قەرزی ماوە: ' . self::money($rest, $cur) . '*'
-                : '✔ حیسابت پاکە، قەرزی ' . ($cur === 'USD' ? 'دۆلار' : 'دینار') . ' نەماوە';
+                ? '*قەرزی ماوە: ' . self::money($rest, $cur) . '*'
+                : 'حیسابت پاکە، قەرزی ' . ($cur === 'USD' ? 'دۆلار' : 'دینار') . ' نەماوە';
         }
 
         $L[] = '';
@@ -204,7 +204,7 @@ class WhatsAppReceipt
     public static function statement(Customer $customer): string
     {
         $L = [];
-        $L[] = '🧾 *' . self::shop() . '*';
+        $L[] = '*' . self::shop() . '*';
         $L[] = '*کەشفی حیساب*';
         $L[] = '━━━━━━━━━━━━';
         $L[] = 'کڕیار: ' . $customer->name;
@@ -216,13 +216,13 @@ class WhatsAppReceipt
             $L[] = '*' . $label . '*';
             $L[] = 'کۆی کڕینەکان: ' . self::money($s[$cur]['purchases'] ?? 0, $cur);
             $L[] = 'پارەی دراو: ' . self::money($s[$cur]['paid'] ?? 0, $cur);
-            $L[] = '⏳ ماوە: ' . self::money($s[$cur]['debt'] ?? 0, $cur);
+            $L[] = 'ماوە: ' . self::money($s[$cur]['debt'] ?? 0, $cur);
         }
 
         // لینکی پارێزراو (واژووکراو، بێ پێویستی بە لۆگین)
         $L[] = '';
         $L[] = '━━━━━━━━━━━━';
-        $L[] = '📎 بۆ بینینی کەشفی حیسابەکەت بە تەواوی (وێنە یان PDF) کلیک لێرە بکە:';
+        $L[] = 'بۆ بینینی کەشفی حیسابەکەت بە تەواوی (وێنە یان PDF) کلیک لێرە بکە:';
         $L[] = self::statementUrl($customer);
 
         $L[] = '';
