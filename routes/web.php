@@ -36,7 +36,7 @@ Route::post('/order', [CustomerOrderController::class, 'store'])->middleware('th
 //     لینکەکان لە WhatsAppReceipt::saleUrl() و statementUrl() دروست دەکرێن.
 //     middleware('signed') ڕێگری دەکات لە دەستکاریکردنی ID یان دروستکردنی لینکی ساختە.
 // ============================================
-Route::middleware('signed')->group(function () {
+Route::middleware('signed:relative')->group(function () {
     Route::get('/share/sale/{id}', [SaleController::class, 'print'])->name('sales.print.public');
     Route::get('/share/statement/{id}', [CustomerController::class, 'publicStatement'])->name('customers.statement.public');
 });

@@ -50,13 +50,13 @@ class WhatsAppReceipt
     /** لینکی پارێزراوی وەسڵی فرۆشتن (بێ پێویستی بە لۆگین، و کەس ناتوانێت دەستکاری بکات) */
     public static function saleUrl($sale): string
     {
-        return URL::signedRoute('sales.print.public', ['id' => $sale->id, 'type' => 'a4']);
+        return url(URL::signedRoute('sales.print.public', ['id' => $sale->id, 'type' => 'a4'], null, false));
     }
 
     /** لینکی پارێزراوی کەشفی حیساب */
     public static function statementUrl(Customer $customer): string
     {
-        return URL::signedRoute('customers.statement.public', ['id' => $customer->id]);
+        return url(URL::signedRoute('customers.statement.public', ['id' => $customer->id], null, false));
     }
 
     protected static function money($v, string $cur): string
