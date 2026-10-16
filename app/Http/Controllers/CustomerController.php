@@ -90,17 +90,23 @@ class CustomerController extends Controller
         return redirect()->back()->with('success', 'پارەدانەوەکە سڕایەوە');
     }
 
-   public function statement($id)
+    /** کەشفی حیساب بۆ ئەدمین (دوای لۆگین) */
+    public function statement($id)
     {
-        // ─── پاراستنی لینکەکە بۆ کەسانی دەرەوە (کڕیار) ───
-        if (!auth()->check()) {
-            $expectedToken = substr(md5(request()->route('id') . config('app.key')), 0, 10);
-            if (request()->token !== $expectedToken) {
-                abort(403, 'ببورە، ئەم لینکە ڕێگەپێدراو نییە یان هەڵەیە.');
-            }
-        }
-        // ──────────────────────────────────────
+        return $this->buildStatement($id);
+    }
 
+    /**
+     * کەشفی حیساب بۆ کڕیار (لینکی واژووکراو، بێ لۆگین).
+     * ڕووتەکە دەبێت middleware('signed') ی هەبێت، ئیتر کەس ناتوانێت ID بگۆڕێت.
+     */
+    public function publicStatement($id)
+    {
+        return $this->buildStatement($id);
+    }
+
+    protected function buildStatement($id)
+    {
         $customer = Customer::with([
             'sales.details.product',
             'sales.details.unit',
@@ -128,6 +134,7 @@ class CustomerController extends Controller
                 'user_name'   => $sale->user->name ?? 'سیستەم',
             ]);
         }
+
         // ٢. وەرگرتنەوەی قەرزەکان
         foreach ($customer->payments as $pay) {
             $rawDate = $pay->payment_date ? Carbon::parse($pay->payment_date) : $pay->created_at;

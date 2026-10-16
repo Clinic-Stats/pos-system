@@ -67,7 +67,11 @@ class SaleController extends Controller
      */
     public function listSales(Request $request)
     {
-        $query = Sale::with(['customer', 'user', 'details.unit']);
+        // eager loading: بۆ ئەوەی دوگمەی واتساپی هەر ڕیزێک کوێری زیادە نەکات
+        $query = Sale::with([
+            'customer.sales', 'customer.payments', 'customer.returns',
+            'user', 'details.unit', 'details.product',
+        ]);
 
         if ($request->filled('from_date')) {
             $query->whereDate('created_at', '>=', $request->from_date);
@@ -417,6 +421,7 @@ class SaleController extends Controller
 
     /**
      * چاپ: ?type=a4 -> A4 | ?type=small -> بچووک | بێ type -> بەپێی ڕێکخستنی وەسڵ
+     * (هەمان میتۆد بۆ لینکی واژووکراوی کڕیاریش بەکاردێت: sales.print.public)
      */
     public function print(Request $request, $id)
     {

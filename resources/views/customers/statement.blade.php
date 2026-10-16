@@ -33,42 +33,38 @@
         $setting = \App\Models\Setting::first();
         $hasDebt = ($summary['USD']['debt'] ?? 0) > 0 || ($summary['IQD']['debt'] ?? 0) > 0;
     @endphp
-    @include('partials.system-head')
-    @include('partials.mobile-tables')
+    {{-- ئەم دوو فایلە تەنها بۆ ئەدمین، بۆ ئەوەی لە لینکی کڕیاردا هیچ شتێکی ناوخۆیی نەیەتە ژوورەوە --}}
+    @auth
+        @include('partials.system-head')
+        @include('partials.mobile-tables')
+    @endauth
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen p-4 md:p-8">
 
     <div class="max-w-4xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-slate-200 print-card space-y-6">
 
-        {{-- دوگمەکانی سەرەوە (دەگۆڕێت بەپێی ئەوەی ئەدمینە یان کڕیار) --}}
+        {{-- دوگمەکانی سەرەوە: تەنها ئەدمین دەیانبینێت، کڕیار هیچیان نابینێت --}}
         <div class="flex flex-wrap justify-between items-center gap-2 pb-4 border-b border-slate-200 no-print" id="action-buttons">
+            @auth
             <div class="flex flex-wrap items-center gap-2">
-                @auth
-                {{-- ئەم دوگمانە تەنها ئەدمین دەیبینێت --}}
                 <a href="{{ route('customers.index') }}" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
                     <i class="fa-solid fa-arrow-right"></i> گەڕانەوە بۆ کڕیاران
                 </a>
                 <button type="button" onclick="closeStatement()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
                     <i class="fa-solid fa-xmark"></i> داخستن
                 </button>
-                @endauth
-                
-                {{-- ئەم دوگمانە کڕیاریش دەیبینێت بۆ ئەوەی خۆی وەسڵەکە چاپ بکات یان دایبەزێنێت --}}
                 <button type="button" onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-blue-500/30 transition">
                     <i class="fa-solid fa-print"></i> چاپکردن / PDF
                 </button>
                 <button type="button" onclick="downloadAsImage()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-purple-500/30 transition">
                     <i class="fa-solid fa-camera"></i> داگرتن وەکو وێنە
                 </button>
-                
-                @auth
-                {{-- دوگمەی ناردنی واتساپ تەنها ئەدمین دەیبینێت --}}
                 <a href="{{ \App\Support\WhatsAppReceipt::link($customer->phone, \App\Support\WhatsAppReceipt::statement($customer)) }}" target="_blank" rel="noopener"
                    class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
                     <i class="fa-brands fa-whatsapp"></i> ناردنی کەشف بە واتساپ
                 </a>
-                @endauth
             </div>
+            @endauth
             <span class="text-xs text-slate-500">
                 بەرواری دەرچوون:
                 <span dir="ltr" class="font-mono inline-block">{{ now()->setTimezone('Asia/Baghdad')->format('Y-m-d h:i A') }}</span>
@@ -206,7 +202,7 @@
 
         {{-- مێژووی وەرگرتنەوەی قەرزەکان و دەستکاریکردنیان --}}
         <div class="mt-8 pt-6 border-t border-slate-200 no-print space-y-3">
-            <h3 class="text-sm font-bold text-slate-800">مێژووی پارەدانەوەکان و دەستکاریکردن</h3>
+            <h3 class="text-sm font-bold text-slate-800">مێژووی پارەدانەوەکان @auth و دەستکاریکردن @endauth</h3>
             <div class="overflow-x-auto">
             <table class="w-full text-xs text-right border border-slate-200 rounded-xl overflow-hidden">
                 <thead class="bg-slate-100 text-slate-600">
@@ -227,9 +223,9 @@
                     @endphp
                     <tr>
                         @auth
-                            {{-- ئەم بەشە ئەدمین دەیبینێت بۆ دەستکاریکردن --}}
+                            {{-- ئەم بەشە تەنها ئەدمین دەیبینێت بۆ دەستکاریکردن --}}
                             <td class="p-2">
-                                <input form="{{ $fid }}" type="date" name="payment_date" value="{{ $payment->payment_date ?? $payment->created_at->format('Y-m-d') }}" class="p-1 border border-slate-300 rounded font-mono text-xs">
+                                <input form="{{ $fid }}" type="date" name="payment_date" value="{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('Y-m-d') : $payment->created_at->format('Y-m-d') }}" class="p-1 border border-slate-300 rounded font-mono text-xs">
                             </td>
                             <td class="p-2 font-bold text-blue-600">{{ $payment->user->name ?? 'سیستەم' }}</td>
                             <td class="p-2">
@@ -265,7 +261,7 @@
                             </td>
                         @else
                             {{-- ئەم بەشە کڕیار دەیبینێت (هیچ شتێک دەستکاری ناکرێت) --}}
-                            <td class="p-2 font-mono text-xs">{{ $payment->payment_date ?? $payment->created_at->format('Y-m-d') }}</td>
+                            <td class="p-2 font-mono text-xs">{{ $payment->payment_date ? \Carbon\Carbon::parse($payment->payment_date)->format('Y-m-d') : $payment->created_at->format('Y-m-d') }}</td>
                             <td class="p-2 font-bold text-blue-600">{{ $payment->user->name ?? 'سیستەم' }}</td>
                             <td class="p-2 font-mono font-bold text-emerald-600" dir="ltr">{{ $fmt($payment->amount, $pc) }}</td>
                             <td class="p-2 text-xs font-bold">{{ $pc === 'USD' ? '$ دۆلار' : 'د.ع دینار' }}</td>
@@ -297,6 +293,7 @@
 
     </div>
 
+    @auth
     <script>
         function closeStatement() {
             window.close();
@@ -308,10 +305,10 @@
         function downloadAsImage() {
             const element = document.querySelector(".print-card");
             const buttons = document.getElementById("action-buttons");
-            
+
             const originalDisplay = buttons.style.display;
             buttons.style.display = 'none';
-            
+
             html2canvas(element, {
                 scale: 2,
                 useCORS: true,
@@ -329,5 +326,6 @@
             });
         }
     </script>
+    @endauth
 </body>
 </html>

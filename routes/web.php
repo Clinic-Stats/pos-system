@@ -32,6 +32,17 @@ Route::post('/order', [CustomerOrderController::class, 'store'])->middleware('th
 
 
 // ============================================
+// ١.١ لینکە پارێزراوەکانی واتساپ (بێ لۆگین، بەڵام تەنها بە لینکی واژووکراو)
+//     لینکەکان لە WhatsAppReceipt::saleUrl() و statementUrl() دروست دەکرێن.
+//     middleware('signed') ڕێگری دەکات لە دەستکاریکردنی ID یان دروستکردنی لینکی ساختە.
+// ============================================
+Route::middleware('signed')->group(function () {
+    Route::get('/share/sale/{id}', [SaleController::class, 'print'])->name('sales.print.public');
+    Route::get('/share/statement/{id}', [CustomerController::class, 'publicStatement'])->name('customers.statement.public');
+});
+
+
+// ============================================
 // ٢. ڕووتی لۆگین و دەرچوون بۆ کارمەندان
 // ============================================
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

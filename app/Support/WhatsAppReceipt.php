@@ -4,6 +4,8 @@ namespace App\Support;
 
 use App\Models\Customer;
 use App\Models\Setting;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\URL;
 
 /**
  * ناردنی وەسڵ بە واتساپ (بێ API و بێ تێچوون: لینکی wa.me)
@@ -11,6 +13,20 @@ use App\Models\Setting;
  */
 class WhatsAppReceipt
 {
+    /** زۆرترین ژمارەی کاڵا لە نامەکەدا (لینکی واتساپ دەقی زۆر درێژ قبوڵ ناکات) */
+    protected const MAX_ITEMS = 10;
+
+    /** ڕێکخستنەکان تەنها یەکجار لە داتابەیس دەخوێنرێتەوە (بۆ خێرایی لیستی فرۆشتن) */
+    protected static $setting = false;
+
+    protected static function setting()
+    {
+        if (self::$setting === false) {
+            self::$setting = Setting::first();
+        }
+        return self::$setting;
+    }
+
     /** ژمارەی مۆبایل دەگۆڕێت بۆ فۆرماتی نێودەوڵەتی (عێراق: 07701234567 → 9647701234567) */
     public static function phone(?string $raw): ?string
     {
@@ -31,6 +47,18 @@ class WhatsAppReceipt
         return 'https://wa.me/' . (self::phone($phone) ?? '') . '?text=' . rawurlencode($text);
     }
 
+    /** لینکی پارێزراوی وەسڵی فرۆشتن (بێ پێویستی بە لۆگین، و کەس ناتوانێت دەستکاری بکات) */
+    public static function saleUrl($sale): string
+    {
+        return URL::signedRoute('sales.print.public', ['id' => $sale->id, 'type' => 'a4']);
+    }
+
+    /** لینکی پارێزراوی کەشفی حیساب */
+    public static function statementUrl(Customer $customer): string
+    {
+        return URL::signedRoute('customers.statement.public', ['id' => $customer->id]);
+    }
+
     protected static function money($v, string $cur): string
     {
         return $cur === 'USD'
@@ -45,13 +73,12 @@ class WhatsAppReceipt
 
     protected static function shop(): string
     {
-        $s = Setting::first();
-        return $s->shop_name ?? 'کۆمپانیای بازرگانی';
+        return self::setting()->shop_name ?? 'کۆمپانیای بازرگانی';
     }
 
     protected static function footer(): string
     {
-        $s = Setting::first();
+        $s = self::setting();
         $lines = [];
         if (!empty($s->shop_phone)) $lines[] = '☎ ' . $s->shop_phone;
         $lines[] = $s->invoice_footer ?? 'سوپاس بۆ مامەڵەکەتان';
@@ -87,11 +114,11 @@ class WhatsAppReceipt
         $L[] = 'جۆر: ' . ($sale->payment_type === 'debt' ? 'قەرز' : 'نەقد');
         $L[] = '━━━━━━━━━━━━';
 
-        $max = 15; // دەقی زۆر درێژ لە لینکی واتساپ نایەتە ژوورەوە
+        $max = self::MAX_ITEMS;
         $i = 0;
         foreach ($sale->details as $d) {
             if ($i++ >= $max) {
-                $L[] = '… و ' . ($sale->details->count() - $max) . ' کاڵای تر';
+                $L[] = '… و ' . ($sale->details->count() - $max) . ' کاڵای تر (لە لینکی خوارەوە ببینە)';
                 break;
             }
             $L[] = '▪ ' . ($d->product->name ?? 'کاڵا')
@@ -112,22 +139,16 @@ class WhatsAppReceipt
             $L[] = '⏳ *ماوە (قەرز): ' . self::money($sale->remaining_amount, $cur) . '*';
         }
 
+        // قەرزی گشتی کڕیار (تەنها یەکجار)
         $L = array_merge($L, self::debtLines($sale->customer));
-        $L[] = '';
 
-        $L = array_merge($L, self::debtLines($sale->customer));
-        
-        // ─── ئەم چەند دێڕە زیاد بکە بۆ دانانی لینکی وەسڵەکە ───
+        // لینکی پارێزراوی وەسڵەکە
+        $L[] = '';
         $L[] = '━━━━━━━━━━━━';
         $L[] = '📎 بۆ بینینی وەسڵەکەت بە وێنە/PDF کلیک لێرە بکە:';
-        $L[] = route('sales.print', $sale->id); // ئەمە لینکە درێژەکە دروست دەکات خۆکارانە
-        // ──────────────────────────────────────────────
-        
+        $L[] = self::saleUrl($sale);
+
         $L[] = '';
-        $L[] = self::footer();
-
-        return implode("\n", $L);
-
         $L[] = self::footer();
 
         return implode("\n", $L);
@@ -137,7 +158,9 @@ class WhatsAppReceipt
     public static function payment($payment, Customer $customer): string
     {
         $cur = Customer::normalizeCurrency($payment->currency);
-        $date = $payment->payment_date ?? $payment->created_at->format('Y-m-d');
+        $date = $payment->payment_date
+            ? Carbon::parse($payment->payment_date)->format('Y-m-d')
+            : $payment->created_at->format('Y-m-d');
 
         $L = [];
         $L[] = '🧾 *' . self::shop() . '*';
@@ -163,9 +186,8 @@ class WhatsAppReceipt
         return implode("\n", $L);
     }
 
-    /** کەشفی حیساب (پوختە) */
-    /** کەشفی حیساب (پوختە) */
-    public static function statement(\App\Models\Customer $customer): string
+    /** کەشفی حیساب (پوختە + لینک) */
+    public static function statement(Customer $customer): string
     {
         $L = [];
         $L[] = '🧾 *' . self::shop() . '*';
@@ -183,14 +205,11 @@ class WhatsAppReceipt
             $L[] = '⏳ ماوە: ' . self::money($s[$cur]['debt'] ?? 0, $cur);
         }
 
-        // ─── زیادکردنی لینکی پارێزراو (بە پاسۆردی شاراوە) ───
+        // لینکی پارێزراو (واژووکراو، بێ پێویستی بە لۆگین)
+        $L[] = '';
         $L[] = '━━━━━━━━━━━━';
         $L[] = '📎 بۆ بینینی کەشفی حیسابەکەت بە تەواوی (وێنە یان PDF) کلیک لێرە بکە:';
-        
-        // دروستکردنی تۆکن بۆ ئەوەی کەس نەتوانێت لینکەکە دەستکاری بکات
-        $token = substr(md5($customer->id . config('app.key')), 0, 10);
-        $L[] = route('customers.statement', ['id' => $customer->id, 'token' => $token]); 
-        // ───────────────────────────────
+        $L[] = self::statementUrl($customer);
 
         $L[] = '';
         $L[] = self::footer();

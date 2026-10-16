@@ -113,15 +113,19 @@
             thead { display: table-header-group; }
         }
     </style>
-    @include('partials.system-head')
-    @include('partials.mobile-tables')
+    {{-- ئەم دوو فایلە تەنها بۆ بەکارهێنەری لۆگینکراو (لینکی کڕیار پێویستی پێیان نییە) --}}
+    @auth
+        @include('partials.system-head')
+        @include('partials.mobile-tables')
+    @endauth
 </head>
 
 <body class="bg-slate-100 text-slate-900 min-h-screen p-6">
 
     <div class="sheet max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-xs">
 
-        <!-- دوگمەکانی چاپ و داخستن -->
+        {{-- دوگمەکانی چاپ و داخستن: تەنها ئەدمین/کارمەند دەیانبینێت، کڕیار نایانبینێت --}}
+        @auth
         <div class="no-print flex justify-end items-center mb-6 pb-4 border-b border-slate-200">
             <div class="flex gap-2">
                 <a href="{{ \App\Support\WhatsAppReceipt::link($custPhone, \App\Support\WhatsAppReceipt::sale($sale)) }}" target="_blank" rel="noopener" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition">ناردن بە واتساپ</a>
@@ -130,6 +134,7 @@
                 <button onclick="window.close()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold transition">داخستن</button>
             </div>
         </div>
+        @endauth
 
         <!-- ═══════ سەردێڕ ═══════ -->
         <div class="relative text-center pb-4 min-h-[88px] flex flex-col items-center justify-center">
@@ -274,11 +279,14 @@
 
     </div>
 
+    {{-- چاپی خۆکار تەنها بۆ کارمەند؛ کڕیار کە لینکەکە دەکاتەوە نابێت پەنجەرەی چاپ بێتە سەری --}}
+    @auth
     <script>
         window.addEventListener('load', function () {
             setTimeout(function () { window.print(); }, 600);
         });
     </script>
+    @endauth
 </body>
 
 </html>

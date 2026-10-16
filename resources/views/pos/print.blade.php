@@ -20,9 +20,6 @@
     $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';
     $fmtShort = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v);
 
-    $waPhone = $sale->customer->phone ?? $sale->guest_phone;
-    $waLink = \App\Support\WhatsAppReceipt::link($waPhone, \App\Support\WhatsAppReceipt::sale($sale));
-
     $totalWeightKg = 0;
     foreach ($sale->details as $item) {
     $unitName = strtolower(trim($item->unit->name ?? ''));
@@ -110,18 +107,28 @@
             .toolbar { display: none; }
         }
     </style>
-    @include('partials.system-head')
-    @include('partials.mobile-tables')
+    {{-- ئەم دوو فایلە تەنها بۆ بەکارهێنەری لۆگینکراو --}}
+    @auth
+        @include('partials.system-head')
+        @include('partials.mobile-tables')
+    @endauth
 </head>
 
 <body>
 
+    {{-- دوگمەکان: تەنها ئەدمین/کارمەند دەیانبینێت، کڕیار نایانبینێت --}}
+    @auth
+    @php
+        $waPhone = $sale->customer->phone ?? $sale->guest_phone;
+        $waLink = \App\Support\WhatsAppReceipt::link($waPhone, \App\Support\WhatsAppReceipt::sale($sale));
+    @endphp
     <div class="toolbar">
         <button onclick="window.print()" class="btn btn-print">چاپکردن</button>
         <a href="{{ route('sales.print', $sale->id) }}?type=a4" class="btn btn-a4">A4</a>
         <button onclick="window.close()" class="btn btn-close">داخستن</button>
         <a href="{{ $waLink }}" target="_blank" rel="noopener" class="btn btn-wa">ناردن بە واتساپ</a>
     </div>
+    @endauth
 
     <!-- سەردێڕ و لۆگۆ -->
     <div class="text-center">
@@ -238,6 +245,8 @@
         @endif
     </div>
 
+    {{-- چاپی خۆکار تەنها بۆ کارمەند --}}
+    @auth
     <script>
         window.addEventListener('load', function () {
             setTimeout(function () {
@@ -245,6 +254,7 @@
             }, 1000); // چاوەڕوان بە بۆ ئەوەی QR بار ببێت
         });
     </script>
+    @endauth
 </body>
 
 </html>
