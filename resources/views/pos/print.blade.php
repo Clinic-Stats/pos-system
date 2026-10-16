@@ -20,6 +20,9 @@
     $fmt = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v) . ' د.ع';
     $fmtShort = fn($v) => $isUsd ? '$' . number_format((float) $v, 2) : number_format((float) $v);
 
+    $waPhone = $sale->customer->phone ?? $sale->guest_phone;
+    $waLink = \App\Support\WhatsAppReceipt::link($waPhone, \App\Support\WhatsAppReceipt::sale($sale));
+
     $totalWeightKg = 0;
     foreach ($sale->details as $item) {
     $unitName = strtolower(trim($item->unit->name ?? ''));
@@ -79,6 +82,7 @@
 
         .toolbar {
             display: flex;
+            flex-wrap: wrap;
             gap: 6px;
             margin-bottom: 10px;
         }
@@ -99,6 +103,7 @@
 
         .btn-print { background: #2563eb; }
         .btn-a4 { background: #0891b2; }
+        .btn-wa { background: #16a34a; flex-basis: 100%; }
         .btn-close { background: #dc2626; }
 
         @media print {
@@ -115,6 +120,7 @@
         <button onclick="window.print()" class="btn btn-print">چاپکردن</button>
         <a href="{{ route('sales.print', $sale->id) }}?type=a4" class="btn btn-a4">A4</a>
         <button onclick="window.close()" class="btn btn-close">داخستن</button>
+        <a href="{{ $waLink }}" target="_blank" rel="noopener" class="btn btn-wa">ناردن بە واتساپ</a>
     </div>
 
     <!-- سەردێڕ و لۆگۆ -->

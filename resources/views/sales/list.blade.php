@@ -138,6 +138,10 @@
                             ->implode(' + ');
 
                         $typesCount = $sale->details->count();
+
+                        // ── واتساپ ──
+                        $waPhone = $sale->customer->phone ?? $sale->guest_phone;
+                        $waLink = \App\Support\WhatsAppReceipt::link($waPhone, \App\Support\WhatsAppReceipt::sale($sale));
                     @endphp
                     <tr class="hover:bg-slate-700/30 transition {{ $sale->remaining_amount > 0 ? 'bg-amber-950/20' : '' }}">
                         <td class="p-2.5 font-num text-slate-500">{{ $sales->firstItem() + $index }}</td>
@@ -208,6 +212,13 @@
                         <td class="p-2.5 text-[10px] text-slate-400 font-mono" dir="ltr">{{ $sale->created_at->format('n/j/y, g:i A') }}</td>
                         <td class="p-2.5">
                             <div class="flex items-center justify-center gap-1">
+                                <!-- ناردن بە واتساپ -->
+                                <a href="{{ $waLink }}" target="_blank" rel="noopener"
+                                    title="{{ $waPhone ? 'ناردن بە واتساپ بۆ ' . $waPhone : 'ناردن بە واتساپ (ژمارە نییە، خۆت کڕیار هەڵبژێرە)' }}"
+                                    class="bg-green-500/20 hover:bg-green-500 text-green-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </a>
+
                                 <!-- چاپی A4 -->
                                 <a href="{{ route('sales.print', $sale->id) }}?type=a4" target="_blank" title="چاپی A4"
                                     class="bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-white px-2 py-1 rounded text-[10px] font-bold transition">

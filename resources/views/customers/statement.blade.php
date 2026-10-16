@@ -51,6 +51,10 @@
                 <button type="button" onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-blue-500/30 transition">
                     <i class="fa-solid fa-print"></i> چاپکردن (A4) / PDF
                 </button>
+                <a href="{{ \App\Support\WhatsAppReceipt::link($customer->phone, \App\Support\WhatsAppReceipt::statement($customer)) }}" target="_blank" rel="noopener"
+                   class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition">
+                    <i class="fa-brands fa-whatsapp"></i> ناردنی کەشف بە واتساپ
+                </a>
             </div>
             <span class="text-xs text-slate-500">
                 بەرواری دەرچوون:
@@ -227,6 +231,12 @@
                         </td>
                         <td class="p-2">
                             <div class="flex items-center justify-center gap-2">
+                                {{-- ناردنی وەسڵی قەبز بە واتساپ --}}
+                                <a href="{{ \App\Support\WhatsAppReceipt::link($customer->phone, \App\Support\WhatsAppReceipt::payment($payment, $customer)) }}" target="_blank" rel="noopener"
+                                   title="ناردنی وەسڵی قەبز بە واتساپ"
+                                   class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-[11px] font-bold flex items-center gap-1">
+                                    <i class="fa-brands fa-whatsapp"></i> وەسڵی قەبز
+                                </a>
                                 <form id="{{ $fid }}" action="{{ route('customer_payments.update', $payment->id) }}" method="POST">
                                     @csrf
                                     @method('PUT')

@@ -124,6 +124,7 @@
         <!-- دوگمەکانی چاپ و داخستن -->
         <div class="no-print flex justify-end items-center mb-6 pb-4 border-b border-slate-200">
             <div class="flex gap-2">
+                <a href="{{ \App\Support\WhatsAppReceipt::link($custPhone, \App\Support\WhatsAppReceipt::sale($sale)) }}" target="_blank" rel="noopener" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold transition">ناردن بە واتساپ</a>
                 <a href="{{ route('sales.print', $sale->id) }}?type=small" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-bold transition">وەسڵی بچووک</a>
                 <button onclick="window.print()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition">چاپکردن</button>
                 <button onclick="window.close()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold transition">داخستن</button>
