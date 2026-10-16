@@ -164,7 +164,8 @@ class WhatsAppReceipt
     }
 
     /** کەشفی حیساب (پوختە) */
-    public static function statement(Customer $customer): string
+    /** کەشفی حیساب (پوختە) */
+    public static function statement(\App\Models\Customer $customer): string
     {
         $L = [];
         $L[] = '🧾 *' . self::shop() . '*';
@@ -181,6 +182,12 @@ class WhatsAppReceipt
             $L[] = 'پارەی دراو: ' . self::money($s[$cur]['paid'] ?? 0, $cur);
             $L[] = '⏳ ماوە: ' . self::money($s[$cur]['debt'] ?? 0, $cur);
         }
+
+        // ─── زیادکردنی لینکی کەشفی حیساب ───
+        $L[] = '━━━━━━━━━━━━';
+        $L[] = '📎 بۆ بینینی کەشفی حیسابەکەت بە تەواوی (وێنە یان PDF) کلیک لێرە بکە:';
+        $L[] = route('customers.statement', $customer->id); 
+        // ───────────────────────────────
 
         $L[] = '';
         $L[] = self::footer();
